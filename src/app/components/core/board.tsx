@@ -38,8 +38,6 @@ const Board: React.FC<BoardProps> = ({
     makeMove,
   } = useGame(gameMode, starts || "player", botMatch || 0, resetBoard);
 
-  console.log(agentId, agentId2, agentIdTurn, agentId2Turn);
-
   const progressPercentage = (playedGames / (botMatch || 1)) * 100;
 
   useEffect(() => {
@@ -49,7 +47,7 @@ const Board: React.FC<BoardProps> = ({
   }, [onReset]);
 
   return (
-    <div className="w-screen h-full flex">
+    <div className="w-screen h-full flex gap-4">
       <div
         className={`w-[600px] h-full aspect-square flex flex-wrap relative ${
           gameOver ? "pointer-events-none opacity-50" : ""

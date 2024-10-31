@@ -1,7 +1,5 @@
 import React from "react";
 
-type Props = {};
-
-export default function Sidebar({}: Props) {
+export default function Sidebar() {
   return <div>Sidebar</div>;
 }
