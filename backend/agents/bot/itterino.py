@@ -168,7 +168,7 @@ class ItterinoAgent:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
             # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
             
-            print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds")
+            print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
 
                 
         return best_eval, best_move

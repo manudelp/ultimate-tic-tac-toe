@@ -156,7 +156,7 @@ class IteroldAgent:
             best_eval = minimax_eval
             best_move = minimax_move
 
-            print(f"Iterold Running Depth {depth} took {time.time() - t_start_depth:.4f} seconds")
+            print(f"Iterold Running Depth {depth} took {time.time() - t_start_depth:.4f} seconds, board_to_play: {board_to_play}")
             
             if time.time() - start_time >= (self.time_limit - 1):
                 break
@@ -839,13 +839,4 @@ def localBoardEval(localBoard):
     score += diagBT_eval
 
     return score
-
-
-
-
-
-
-
-
-
 
