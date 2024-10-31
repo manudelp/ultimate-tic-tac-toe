@@ -313,4 +313,4 @@ return {
     handleCellClick,
     makeMove,
 };
-};
+}
