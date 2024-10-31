@@ -1,0 +1,48 @@
+NEXT UP ==>
+
+{...currently debugging iterative deepening...}
+
+
+# Next Hash
+Test winnable_hash in-game by adding it to Straighty Local Board win greedy checks, and print if it's actually executing to debug
+
+- Use this above to do Immediate Win Check
+but keep in mind... the winning move has to be in your available moves
+
+
+
+- check the global_board_results functioning in your foofinder minimax. using prints & stuff
+
+
+# Order Moves in minimax!
+* fijate que en timer_advanced.py lo estoy currently testing
+
+Dio que cuando el input es array (which happens when board_to_play!=None), son igual de rapidas. Pero, cuando el input es lista (board_to_play is None), es ligeramente mas rapido el list_sort_method usando sorted() que el array_sort_method por su overhead de convertir el input en un array. Habria que probar en la true practice ambas opciones a ver cual es mejor para cuando es una lista, porque maybe el nparray es mas rapido de slicear, maybe not.
+
+* lo que si, dividalas en order_moves_for_array & order_moves_for_list. Cuando board_to_play!=None, si vas a ordenar, usa order_moves_for_array, que va a usar array_sort_method. Y cuando es None, llamas a order_moves_for_list, y fijate si usa array_method o list_method
+^^^
+||| Fastest way to turn a 2d array into a list of arrays: 
+    return [arr[i] for i in range(len(arr))]
+And if you wanna turn an nd array into nested lists, then arr.tolist() is fastest! If you can actually just work with lists during your entire minimax without consequences, .tolist() is also much better than the list_of_arrays method I pointed out a couple lines above
+More about this in move_gen_test.py
+
+
+
+
+- minimax transposition table using tobytes()
+
+- make a hash for won_global_boards?
+
+
+# num_moves_to_keep = max(1, int(len(move_evals) * (1 - cutoff_percentage)))
+# moves_to_try = [move for move, _ in move_evals[:num_moves_to_keep]]
+
+
+
+
+
+
+- start building the bases of the global_board mega hash
+
+
+
