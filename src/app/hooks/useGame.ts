@@ -166,13 +166,14 @@ const handleBotMove = useCallback(async () => {
         setIsBotThinking(true);
         const numericBoard: number[][][][] = convertBoardToNumeric(board);
         const coords: Coords = await getBotMove(numericBoard, activeMiniBoard, turn);
+        console.log(agentId + "'s move:", coords);
         makeMove(coords);
         setIsBotThinking(false);
     } catch (error) {
         setIsBotThinking(true);
         console.error("Error fetching bot's move:", error);
     }
-}, [turn, board, activeMiniBoard, makeMove]);
+}, [board, activeMiniBoard, turn, agentId, makeMove]);
 
 const resetGame = useCallback(() => {
     setBoard(
@@ -313,4 +314,4 @@ return {
     handleCellClick,
     makeMove,
 };
-}
+};

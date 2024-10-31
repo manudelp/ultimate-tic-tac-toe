@@ -174,7 +174,7 @@ const Board: React.FC<BoardProps> = ({
 
         {gameMode === "player-vs-bot" && (
           <h2 className="text-black dark:text-white text-lg sm:text-2xl">
-            Turn: {turn === "O" ? `O --> ${agentId}` : "X --> You"}
+            Turn: {turn === "O --> " + agentId ? agentId : "X --> You"}
           </h2>
         )}
 
