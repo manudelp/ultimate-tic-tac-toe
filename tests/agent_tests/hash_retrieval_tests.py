@@ -2,9 +2,6 @@ import numpy as np
 from colorama import init, Fore, Style
 import ast
 
-# Initialize colorama (especially useful on Windows)
-init()
-
 def isWon(subboard):
     # TIMEIT APPROVED ✅
     ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''

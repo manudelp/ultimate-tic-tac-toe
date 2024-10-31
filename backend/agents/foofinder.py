@@ -60,6 +60,8 @@ class FooFinderAgent:
         self.hash_draw_boards = {}
         self.hash_move_boards = {}
         self.hash_over_boards = {}
+        self.hash_winnable_boards_by_one = {}
+        self.hash_winnable_boards_by_minus_one = {}
 
         # Load both winning boards and evaluated boards during initialization
         self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
@@ -67,6 +69,8 @@ class FooFinderAgent:
         self.load_drawn_boards('backend/agents/hashes/hash_draw_boards.txt')
         # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
         self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
+        self.load_winnable_boards_one('backend/agents/hashes/hash_winnable_boards_by_one.txt')
+        self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
 
     def __str__(self):
         return self.id
@@ -850,6 +854,39 @@ class FooFinderAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
 
+    def load_winnable_boards_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    def load_winnable_boards_minus_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+
     def get_isWon(self, board):
         # TIMEIT APPROVED ✅
         """
@@ -900,6 +937,16 @@ class FooFinderAgent:
         # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough to check tho)
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_isOver(board)
+
+    def get_winnableByOne(self, board):
+        ''' Returns the set of winning moves for player 1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_one.get(board_key, set())
+
+    def get_winnableByMinusOne(self, board):
+        ''' Returns the set of winning moves for player -1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
     # Other Auxiliaries 🎲
     def randomMove(self, board):
@@ -1154,17 +1201,21 @@ b1 = agent.get_isOver(board_1)
 c1 = agent.get_isPlayable(board_1)
 d1 = agent.get_eval(board_1)
 e1 = agent.get_isDraw(board_1)
-# f = agent.get_bestMove(board_1)
+f1 = agent.get_winnableByOne(board_1)
+g1 = agent.get_winnableByMinusOne(board_1)
+# h1 = agent.get_bestMove(board_1)
 
 board_2 = np.array([[1, -1, 1],
                     [0, -1, -1],
-                    [1, 1, 0]])  # Not Won
+                    [1, 1, 0]])  # Not Won (winnable by 1 in (1, 0), (2, 2) and by -1 in (1, 0))
 a2 = agent.get_isWon(board_2)
 b2 = agent.get_isOver(board_2)
 c2 = agent.get_isPlayable(board_2)
 d2 = agent.get_eval(board_2)
 e2 = agent.get_isDraw(board_2)
-# f = agent.get_bestMove(board_2)
+f2 = agent.get_winnableByOne(board_2)
+g2 = agent.get_winnableByMinusOne(board_2)
+# h2 = agent.get_bestMove(board_2)
 
 board_3 = np.array([[1, -1, -1],
                     [-1, -1, 1],
@@ -1174,7 +1225,9 @@ b3 = agent.get_isOver(board_3)
 c3 = agent.get_isPlayable(board_3)
 d3 = agent.get_eval(board_3)
 e3 = agent.get_isDraw(board_3)
-# f = agent.get_bestMove(board_3)
+f3 = agent.get_winnableByOne(board_3)
+g3 = agent.get_winnableByMinusOne(board_3)
+# h3 = agent.get_bestMove(board_3)
 
 def run_hash_tests():
     assert a1 == 1
@@ -1182,6 +1235,8 @@ def run_hash_tests():
     assert c1 == False
     assert d1 == 6.4
     assert e1 == False
+    assert f1 == set()
+    assert g1 == set()
 
     assert a2 == 0
     assert b2 == False
@@ -1189,13 +1244,17 @@ def run_hash_tests():
     assert d2 != 0
     assert abs(d2) < 6.4
     assert e2 == False
+    assert f2 == {(1, 0), (2, 2)}
+    assert g2 == {(1, 0)}
 
     assert a3 == 0
     assert b3 == True
     assert c3 == False
     assert d3 == 0
     assert e3 == True
-    
+    assert f3 == set()
+    assert g3 == set()
+       
     print("All hash tests passed successfully!")
 
 run_hash_tests()
