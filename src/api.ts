@@ -19,9 +19,17 @@ interface LoginResponse {
 }
 
 // Bots
-export const fetchBotNames = async (): Promise<string[]> => {
-    const response = await axios.get<string[]>(`${API_URL}/get-bot-names`);
-    return response.data;
+export const fetchBotNames = async (): Promise<{ agent1_name: string; agent2_name: string }> => {
+    try {
+        const response = await axios.get<string[]>(`${API_URL}/get-bot-names`);
+        return {
+            agent1_name: response.data[0],
+            agent2_name: response.data[1],
+        };
+    } catch (error) {
+        console.error('Error fetching bot names:', error);
+        throw error;
+    }
 };
 
 export const getBotMove = async (board: number[][][][], activeMiniBoard: number[] | null, turn: string): Promise<[number, number, number, number]> => {

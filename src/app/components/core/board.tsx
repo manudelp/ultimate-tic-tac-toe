@@ -24,7 +24,7 @@ const Board: React.FC<BoardProps> = ({
     gameOver,
     activeMiniBoard,
     winners,
-    disabled = [],
+    disabled,
     winningLine,
     agentId,
     agentId2,
@@ -37,6 +37,8 @@ const Board: React.FC<BoardProps> = ({
     handleCellClick,
     makeMove,
   } = useGame(gameMode, starts || "player", botMatch || 0, resetBoard);
+
+  console.log(agentId, agentId2, agentIdTurn, agentId2Turn);
 
   const progressPercentage = (playedGames / (botMatch || 1)) * 100;
 

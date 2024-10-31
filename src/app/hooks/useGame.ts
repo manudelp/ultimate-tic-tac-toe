@@ -279,14 +279,14 @@ useEffect(() => {
 // Bot IDs
 useEffect(() => {
     if (gameMode === "player-vs-bot") {
-        fetchBotNames().then((data: string[]) => {
-            setAgentId(data[0]);
+        fetchBotNames().then((data: { agent1_name: string; agent2_name: string }) => {
+            setAgentId(data.agent1_name);
             setAgentId2(null);
         });
     } else if (gameMode === "bot-vs-bot") {
-        fetchBotNames().then((data: string[]) => {
-            setAgentId(data[0]);
-            setAgentId2(data[1]);
+        fetchBotNames().then((data: { agent1_name: string; agent2_name: string }) => {
+            setAgentId(data.agent1_name);
+            setAgentId2(data.agent2_name);
         });
     } else {
         setAgentId(null);
