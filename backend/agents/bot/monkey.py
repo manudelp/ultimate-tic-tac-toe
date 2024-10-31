@@ -273,7 +273,7 @@ class MonkeyAgent:
             else:
                 raise ValueError(f"Alpha Beta Move returned None! At depth: {depth} where moves_to_try was: {moves_to_try}")
 
-            print(f"Monkey Running Iter Deep at depth {depth} took {time.time() - t_this_depth:.4f} seconds, best move was {current_best_move} with eval: {current_eval}")
+            print(f"Monkey Running Iter Deep at depth {depth} took {time.time() - t_this_depth:.4f} seconds, board_to_play: {board_to_play}")
 
             if best_eval > 90_000:
                 print(f"Already found a winning move inside Phase 2: {best_move} with evaluation: {best_eval}")
