@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import ast
 
 """
 If it can make a subboard win, it plays it. 
@@ -86,6 +87,8 @@ class StraightArrowAgent:
     def __init__(self):
         self.id = "Straighty 🏹"
         self.moveNumber = 0
+        self.hash_winnable_boards_by_one = {}
+        self.hash_winnable_boards_by_minus_one = {}
     
     def __str__(self):
         return self.id
@@ -164,4 +167,44 @@ class StraightArrowAgent:
         chosen_index = random.choice(empty_cells)
         return np.unravel_index(chosen_index, board.shape)
 
+    def load_winnable_boards_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
 
+    def load_winnable_boards_minus_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    def get_winnableByOne(self, board):
+        ''' Returns the set of winning moves for player 1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_one.get(board_key, set())
+
+    def get_winnableByMinusOne(self, board):
+        ''' Returns the set of winning moves for player -1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_minus_one.get(board_key, set())

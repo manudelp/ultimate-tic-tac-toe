@@ -547,6 +547,7 @@ class FooFinderAgent:
     def orderMoves(self, board, moves):
         ''' Given the array of possible moves to play, orders them in a way that the most promising moves are played first 
         Meaning, it orders them based on moveQuality in descending order (greatest quality first) '''
+        # TODO: Order Moves
         None
 
     # Board Checks Auxiliaries 🧮✔️
