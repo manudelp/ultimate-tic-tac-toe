@@ -12,10 +12,10 @@ AB-Pruning Minimax? = True
 
 class ItterinoAgent:
     def __init__(self):
-        self.id = "Mr. Itterino Deepsdale🔄🌲"
+        self.id = "Mr. Itterino Deepsdale🔄"
         self.moveNumber = 0
         self.max_depth = 7
-        self.time_limit = 20 # in seconds
+        self.time_limit = 7 # in seconds
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 
@@ -53,12 +53,12 @@ class ItterinoAgent:
         self.model_playable_boards_set = self.playable_boards_set.copy()
 
         # If No One has Played, We Play Center-Center
-        if np.count_nonzero(super_board == 0) == 81:
-            global_row, global_col = 1, 1
-            local_row, local_col = 1, 1
+        if np.count_nonzero(super_board) == 0:
+            if self.moveNumber != 0:
+                raise ValueError("No one has played, but moveNumber is not 0")
             self.moveNumber += 1
-            return global_row, global_col, local_row, local_col
-
+            return 1, 1, 1, 1
+        
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
             print(f"Itterino is thinking with alpha beta... btp is None")
@@ -87,10 +87,10 @@ class ItterinoAgent:
         
         if minimax_move is not None:
             print(f"Itterino chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
-            r, c, r_l, c_l = minimax_move
+            r_l, c_l = minimax_move
             self.moveNumber += 1
             print(f"Itterino Total Action time when board_to_play not None, was {time.time() - self.true_time_start}")
-            return r, c, r_l, c_l
+            return a, b, r_l, c_l
         else:
             raise ValueError(f"Itterino failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 
@@ -141,9 +141,12 @@ class ItterinoAgent:
         moves_to_try = self.generate_moves(board, board_to_play)
 
         for depth in range(2, max_depth + 1):
-            print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
-
-            minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), True, moves_to_try)
+            # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
+            this_depth_start = time.time()
+            try:
+                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
+            except TimeoutError:
+                break
             
             if minimax_move is None:
                 raise ValueError(f"Minimax Move was None at depth {depth}")
@@ -151,7 +154,7 @@ class ItterinoAgent:
             best_eval = minimax_eval
             best_move = minimax_move
             
-            if time.time() - start_time >= (self.time_limit - 1):
+            if time.time() - start_time >= (self.time_limit ):
                 break
 
             # Reposition the best_move at the top of the list
@@ -163,7 +166,10 @@ class ItterinoAgent:
                     moves_to_try.insert(0, best_move)
                 else:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
-            print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")
+            # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
+            
+            print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds")
+
                 
         return best_eval, best_move
     
@@ -172,7 +178,7 @@ class ItterinoAgent:
         Returns the board evaluation along with the best_move that leads to it '''
         
         # Time Check
-        if time.time() - self.start_time > (self.time_limit):
+        if time.time() - start_time > (self.time_limit):
             raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at start")
         
         # Check Terminal States
@@ -194,7 +200,7 @@ class ItterinoAgent:
                 for move in moves_to_try:
 
                     # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
+                    if time.time() - start_time > (self.time_limit):
                         raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
@@ -230,7 +236,7 @@ class ItterinoAgent:
                 for move in moves_to_try:
 
                     # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
+                    if time.time() - start_time > (self.time_limit):
                         raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
@@ -268,7 +274,7 @@ class ItterinoAgent:
                 for move in moves_to_try:
 
                     # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
+                    if time.time() - start_time > (self.time_limit):
                         raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
@@ -304,7 +310,7 @@ class ItterinoAgent:
                 for move in moves_to_try:
 
                     # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
+                    if time.time() - start_time > (self.time_limit):
                         raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
@@ -333,6 +339,18 @@ class ItterinoAgent:
                         break
 
                 return min_eval, best_move
+
+    def new_parameters(self, board, row, col, loc_row, loc_col):
+        ''' Simulates a move on the board, given the 4d move and the player
+        Returns the new_board_to_play and the new_moves_to_try '''
+        if self.get_isOver(board[loc_row, loc_col]):
+            board_to_play = None
+            moves_to_try = self.generate_global_moves(board)
+        else:
+            board_to_play = (loc_row, loc_col)
+            moves_to_try = np.argwhere(board[loc_row, loc_col] == 0)
+        
+        return board_to_play, moves_to_try
 
     def generate_moves(self, board, board_to_play):
         ''' Generates the moves to try given the board and the board_to_play '''
@@ -368,7 +386,7 @@ class ItterinoAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations '''
         rows, cols, *_ = board.shape
-        brute_balance = 0
+        balance = 0
 
         # Auxiliar For Now!
         for r in range(rows):

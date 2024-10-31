@@ -1,0 +1,354 @@
+./
+    .eslintrc.json
+    .gitignore
+    next-env.d.ts
+    next.config.ts
+    package-lock.json
+    package.json
+    postcss.config.mjs
+    README.md
+    structure.txt
+    tailwind.config.ts
+    tree.py
+    tsconfig.json
+    .next/
+        app-build-manifest.json
+        build-manifest.json
+        fallback-build-manifest.json
+        package.json
+        react-loadable-manifest.json
+        trace
+        transform.js
+        transform.js.map
+        build/
+            chunks/
+                node_modules_b5d1de._.js
+                node_modules_b5d1de._.js.map
+                postcss_config_mjs_transform_ts_f11886._.js
+                postcss_config_mjs_transform_ts_f11886._.js.map
+                [root of the server]__1ecbee._.js
+                [root of the server]__1ecbee._.js.map
+                [root of the server]__f3ed2b._.js
+                [root of the server]__f3ed2b._.js.map
+                [turbopack]_runtime.js
+                [turbopack]_runtime.js.map
+        cache/
+            .rscinfo
+        server/
+            app-paths-manifest.json
+            interception-route-rewrite-manifest.js
+            middleware-build-manifest.js
+            middleware-manifest.json
+            middleware-react-loadable-manifest.js
+            next-font-manifest.js
+            next-font-manifest.json
+            pages-manifest.json
+            server-reference-manifest.js
+            server-reference-manifest.json
+            app/
+                page.js
+                page.js.map
+                page_client-reference-manifest.js
+                favicon.ico/
+                    route.js
+                    route.js.map
+                    route/
+                        app-paths-manifest.json
+                        next-font-manifest.json
+                        react-loadable-manifest.json
+                page/
+                    app-build-manifest.json
+                    app-paths-manifest.json
+                    build-manifest.json
+                    next-font-manifest.json
+                    react-loadable-manifest.json
+                    server-reference-manifest.json
+            chunks/
+                node_modules_next_de7099._.js
+                node_modules_next_de7099._.js.map
+                [root of the server]__ed4bfa._.js
+                [root of the server]__ed4bfa._.js.map
+                [turbopack]_runtime.js
+                [turbopack]_runtime.js.map
+                ssr/
+                    node_modules_16929d._.js
+                    node_modules_16929d._.js.map
+                    node_modules_33580c._.js
+                    node_modules_33580c._.js.map
+                    node_modules_81538d._.js
+                    node_modules_81538d._.js.map
+                    node_modules_9b9ef4._.js
+                    node_modules_9b9ef4._.js.map
+                    node_modules_9d09ce._.js
+                    node_modules_9d09ce._.js.map
+                    node_modules_abd7c8._.js
+                    node_modules_abd7c8._.js.map
+                    node_modules_c0bf33._.js
+                    node_modules_c0bf33._.js.map
+                    node_modules_cf2afe._.js
+                    node_modules_cf2afe._.js.map
+                    node_modules_fa99f5._.js
+                    node_modules_fa99f5._.js.map
+                    node_modules_next_0129d6._.js
+                    node_modules_next_0129d6._.js.map
+                    node_modules_next_0d0d89._.js
+                    node_modules_next_0d0d89._.js.map
+                    node_modules_next_c6ada2._.js
+                    node_modules_next_c6ada2._.js.map
+                    node_modules_next_dist_cc5312._.js
+                    node_modules_next_dist_cc5312._.js.map
+                    node_modules_next_dist_fd79bc._.js
+                    node_modules_next_dist_fd79bc._.js.map
+                    src_app_896cde._.js
+                    src_app_896cde._.js.map
+                    src_app_c7d265._.css
+                    src_app_c7d265._.css.map
+                    src_app_geistmono_b9f59162_module_b52d8e.css
+                    src_app_geistmono_b9f59162_module_b52d8e.css.map
+                    src_app_geistsans_9fc57718_module_b52d8e.css
+                    src_app_geistsans_9fc57718_module_b52d8e.css.map
+                    src_app_globals_b52d8e.css
+                    src_app_globals_b52d8e.css.map
+                    src_app_globals_b80590.css
+                    src_app_globals_b80590.css.map
+                    [root of the server]__106631._.js
+                    [root of the server]__106631._.js.map
+                    [root of the server]__1eaee2._.js
+                    [root of the server]__1eaee2._.js.map
+                    [root of the server]__2645b6._.js
+                    [root of the server]__2645b6._.js.map
+                    [root of the server]__458507._.js
+                    [root of the server]__458507._.js.map
+                    [root of the server]__65b534._.js
+                    [root of the server]__65b534._.js.map
+                    [root of the server]__69aa1f._.js
+                    [root of the server]__69aa1f._.js.map
+                    [root of the server]__7d393b._.js
+                    [root of the server]__7d393b._.js.map
+                    [root of the server]__a02e29._.js
+                    [root of the server]__a02e29._.js.map
+                    [root of the server]__adba9d._.js
+                    [root of the server]__adba9d._.js.map
+                    [root of the server]__d3cb94._.js
+                    [root of the server]__d3cb94._.js.map
+                    [root of the server]__ea5163._.js
+                    [root of the server]__ea5163._.js.map
+                    [root of the server]__ee0b18._.js
+                    [root of the server]__ee0b18._.js.map
+                    [root of the server]__ee2719._.js
+                    [root of the server]__ee2719._.js.map
+                    [root of the server]__f41634._.js
+                    [root of the server]__f41634._.js.map
+                    [root of the server]__f4a474._.js
+                    [root of the server]__f4a474._.js.map
+                    [root of the server]__f89cc8._.js
+                    [root of the server]__f89cc8._.js.map
+                    [turbopack]_runtime.js
+                    [turbopack]_runtime.js.map
+                    _29df55._.js
+                    _29df55._.js.map
+                    _2df9b4._.js
+                    _2df9b4._.js.map
+                    _6384b7._.js
+                    _6384b7._.js.map
+                    _83bf17._.js
+                    _83bf17._.js.map
+                    _c190f0._.js
+                    _c190f0._.js.map
+                    _da8761._.js
+                    _da8761._.js.map
+                    _e1c568._.js
+                    _e1c568._.js.map
+                    _e874e3._.js
+                    _e874e3._.js.map
+            pages/
+                _app.js
+                _app.js.map
+                _document.js
+                _document.js.map
+                _error.js
+                _error.js.map
+                _app/
+                    build-manifest.json
+                    next-font-manifest.json
+                    pages-manifest.json
+                    react-loadable-manifest.json
+                _document/
+                    next-font-manifest.json
+                    pages-manifest.json
+                    react-loadable-manifest.json
+                _error/
+                    build-manifest.json
+                    next-font-manifest.json
+                    pages-manifest.json
+                    react-loadable-manifest.json
+        static/
+            chunks/
+                node_modules_49b90f._.js
+                node_modules_49b90f._.js.map
+                node_modules_@swc_helpers_cjs_00636a._.js
+                node_modules_@swc_helpers_cjs_00636a._.js.map
+                node_modules_a21350._.js
+                node_modules_a21350._.js.map
+                node_modules_b3ffc1._.js
+                node_modules_b3ffc1._.js.map
+                node_modules_beb007._.js
+                node_modules_beb007._.js.map
+                node_modules_next_dist_build_polyfills_polyfill-nomodule.js
+                node_modules_next_dist_client_34bfc0._.js
+                node_modules_next_dist_client_34bfc0._.js.map
+                node_modules_next_dist_compiled_107ce8._.js
+                node_modules_next_dist_compiled_107ce8._.js.map
+                node_modules_next_dist_compiled_react-dom_1f56dc._.js
+                node_modules_next_dist_compiled_react-dom_1f56dc._.js.map
+                node_modules_next_dist_d09de6._.js
+                node_modules_next_dist_d09de6._.js.map
+                node_modules_react-dom_82bb97._.js
+                node_modules_react-dom_82bb97._.js.map
+                pages__app_1dfe57._.js
+                pages__app_1dfe57._.js.map
+                pages__app_5771e1._.js
+                pages__error_00abe6._.js
+                pages__error_00abe6._.js.map
+                pages__error_5771e1._.js
+                src_878296._.js
+                src_878296._.js.map
+                src_87de35._.js
+                src_87de35._.js.map
+                src_9a7943._.js
+                src_9a7943._.js.map
+                src_app_217346._.js
+                src_app_217346._.js.map
+                src_app_c7d265._.css
+                src_app_c7d265._.css.map
+                src_app_ec1768._.js
+                src_app_ec1768._.js.map
+                src_app_favicon_ico_mjs_bf4ebb._.js
+                src_app_geistmono_b9f59162_module_b52d8e.css
+                src_app_geistmono_b9f59162_module_b52d8e.css.map
+                src_app_geistsans_9fc57718_module_b52d8e.css
+                src_app_geistsans_9fc57718_module_b52d8e.css.map
+                src_app_globals_b52d8e.css
+                src_app_globals_b52d8e.css.map
+                src_app_globals_b80590.css
+                src_app_globals_b80590.css.map
+                src_app_layout_tsx_202b73._.js
+                src_app_layout_tsx_20a9fc._.js
+                src_app_layout_tsx_20a9fc._.js.map
+                src_app_page_tsx_646430._.js
+                src_app_page_tsx_7fef3f._.js
+                src_app_page_tsx_c073d0._.js
+                [root of the server]__14669f._.js
+                [root of the server]__14669f._.js.map
+                [root of the server]__2e1cf5._.js
+                [root of the server]__2e1cf5._.js.map
+                [root of the server]__577f55._.js
+                [root of the server]__577f55._.js.map
+                [root of the server]__f265a1._.js
+                [root of the server]__f265a1._.js.map
+                [turbopack]_browser_dev_hmr-client_d6d8d4._.js
+                [turbopack]_browser_dev_hmr-client_d6d8d4._.js.map
+                [turbopack]_browser_dev_hmr-client_hmr-client_ts_2eec69._.js
+                [turbopack]_browser_dev_hmr-client_hmr-client_ts_2eec69._.js.map
+                [turbopack]_browser_dev_hmr-client_hmr-client_ts_afef8a._.js
+                _0447fb._.js
+                _0447fb._.js.map
+                _121fa1._.js
+                _121fa1._.js.map
+                _25636b._.js
+                _25636b._.js.map
+                _c4c472._.js
+                _e2853a._.js
+                _e2853a._.js.map
+                _f0b58d._.js
+                _f0b58d._.js.map
+                pages/
+                    _app.js
+                    _error.js
+            development/
+                _buildManifest.js
+                _clientMiddlewareManifest.json
+                _ssgManifest.js
+            media/
+                favicon.f9210264.ico
+        types/
+    backend/
+        .env
+        app.py
+        config.py
+        key.py
+        requirements.txt
+        users.json
+        utils.py
+        agents/
+            dragonwarriorgomoku.py
+            foofinder.py
+            foofinder_aux_savers.txt
+            generate_hashes.py
+            ol'savers.py
+            z_foofinding_notes.txt
+            z_todo_foofind_queue.txt
+            bot/
+                iterold.py
+                itterino.py
+                jardy.py
+                monkey.py
+                randy.py
+                straightArrow.py
+                taylor.py
+            hashes/
+                hash_draw_boards.txt
+                hash_evaluated_boards.txt
+                hash_evaluated_boards_v2.txt
+                hash_evaluated_boards_v3.txt
+                hash_over_boards.txt
+                hash_winnable_boards_by_minus_one.txt
+                hash_winnable_boards_by_one.txt
+                hash_winning_boards.txt
+        api/
+            auth.py
+            bots.py
+            utils.py
+            __init__.py
+    public/
+        file.svg
+        globe.svg
+        next.svg
+        vercel.svg
+        window.svg
+    src/
+        api.ts
+        app/
+            favicon.ico
+            globals.css
+            layout.tsx
+            page.tsx
+            utils.ts
+            components/
+                core/
+                    board.tsx
+                    miniboard.tsx
+                layout/
+                    dashboard.tsx
+                    footer.tsx
+                    header.tsx
+                    sidebar.tsx
+                ui/
+                    draw.tsx
+                    playero.tsx
+                    playerx.tsx
+            hooks/
+                useGame.ts
+    tests/
+        dumb_python_testing.py
+        game.py
+        agent_tests/
+            hash_retrieval_tests.py
+            heuristic_testing.py
+            move_gen_test.py
+            tester_minimax.py
+        timer_templates/
+            foofinder_timer.py
+            timer_advanced.py
+            timer_basic.py
+            timer_minimax.py

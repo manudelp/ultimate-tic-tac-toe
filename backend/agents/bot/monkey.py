@@ -248,9 +248,11 @@ class MonkeyAgent:
             # Check remaining time
             remaining_time = self.time_limit - (time.time() - start_time)
             if remaining_time <= quiescence_remaining_time:
+                # FIXME Improve this based on how long quiescence search can take, foofinder will consider btp scenarios differently
                 break  # Transition to quiescence search if time is low
 
             print(f"Monkey calling alpha_beta_move on phase 2 with depth-{depth} with the moves: {moves_to_try}")
+            
             # Step 1: Run alpha_beta_move with the current depth
             current_eval, current_best_move = self.alpha_beta_move(
                 board, board_to_play, depth, float('-inf'), float('inf'), True, start_time, moves_to_try
@@ -289,26 +291,27 @@ class MonkeyAgent:
         
         print(f"Entering Quiessence Search with remaining time: {remaining_time:.4f} seconds")
         t2 = time.time()
+
+
         # Phase 3: Quiescence Search for Final Move Refinement
-        remaining_time = self.time_limit - (time.time() - start_time)
+        # remaining_time = self.time_limit - (time.time() - start_time)
+        # if remaining_time <= quiescence_remaining_time:
 
-        if remaining_time <= quiescence_remaining_time:
+        # Limit moves_to_try to the top few candidates for quiescence search
+        moves_to_try = moves_to_try[:quiescence_moves]
+        print(f"Monkey gonna quiescense search the moves: {moves_to_try}")
+        
+        # Run alpha_beta_move at quiescence depth on the top candidates
+        quiescence_eval, quiescence_move = self.alpha_beta_move(
+            board, board_to_play, quiescence_depth, float('-inf'), float('inf'), True, start_time, moves_to_try
+        )
 
-            # Limit moves_to_try to the top few candidates for quiescence search
-            moves_to_try = moves_to_try[:quiescence_moves]
-            print(f"Monkey gonna quiescense search the moves: {moves_to_try}")
-            
-            # Run alpha_beta_move at quiescence depth on the top candidates
-            quiescence_eval, quiescence_move = self.alpha_beta_move(
-                board, board_to_play, quiescence_depth, float('-inf'), float('inf'), True, start_time, moves_to_try
-            )
-
-            if quiescence_move is not None:
-                print(f"Quiescence search reached depth {quiescence_depth} and found a move!")
-                best_move = quiescence_move
-                best_eval = quiescence_eval
-            else:
-                raise ValueError("Quiescence Search returned None")
+        if quiescence_move is not None:
+            print(f"Quiescence search reached depth {quiescence_depth} and found a move!")
+            best_move = quiescence_move
+            best_eval = quiescence_eval
+        else:
+            raise ValueError("Quiescence Search returned None")
 
         print(f"Quiescense Search took a total time of: {time.time() - t2:.4f} seconds")
 
@@ -319,11 +322,6 @@ class MonkeyAgent:
     def alpha_beta_eval(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns only the evaluation of the board '''
-
-        # Time Check
-        if time.time() - self.start_time > (self.time_limit):
-            # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-            raise TimeoutError(f"Time Limit Exceeded in AlphaBetaEval! Board to play was {board_to_play}, depth was {depth}")
 
         # Check Terminal States
         winner = checkBoardWinner(board)
@@ -341,11 +339,6 @@ class MonkeyAgent:
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in moves_to_try:
-
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaEval! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
                     loc_row, loc_col = move
@@ -375,11 +368,6 @@ class MonkeyAgent:
             else:
                 min_eval = float('inf')
                 for move in moves_to_try:
-
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaEval! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
                     loc_row, loc_col = move
@@ -411,11 +399,6 @@ class MonkeyAgent:
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in moves_to_try:
-                    
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaEval! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
                     row, col, loc_row, loc_col = move
@@ -446,11 +429,6 @@ class MonkeyAgent:
                 min_eval = float('inf')
                 for move in moves_to_try:
 
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaEval! Board to play was {board_to_play}, depth was {depth}, at recucall")
-
                     # Simulate Move
                     row, col, loc_row, loc_col = move
                     local_to_play = board[row, col]
@@ -479,12 +457,7 @@ class MonkeyAgent:
     def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns the board evaluation along with the best_move that leads to it '''
-        
-        # Time Check
-        if time.time() - self.start_time > (self.time_limit):
-            # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-            raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at start")
-        
+         
         # Check Terminal States
         winner = checkBoardWinner(board)
         if winner != 0:
@@ -502,11 +475,6 @@ class MonkeyAgent:
                 max_eval = float('-inf')
                 best_move = None
                 for move in moves_to_try:
-
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
                     loc_row, loc_col = move
@@ -539,11 +507,6 @@ class MonkeyAgent:
                 min_eval = float('inf')
                 best_move = None
                 for move in moves_to_try:
-
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
                     loc_row, loc_col = move
@@ -579,11 +542,6 @@ class MonkeyAgent:
                 best_move = None
                 for move in moves_to_try:
 
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
-
                     # Simulate Move
                     row, col, loc_row, loc_col = move
                     local_to_play = board[row, col]
@@ -615,11 +573,6 @@ class MonkeyAgent:
                 min_eval = float('inf')
                 best_move = None
                 for move in moves_to_try:
-
-                    # Time Check
-                    if time.time() - self.start_time > (self.time_limit):
-                        # FIXME Esto es para debuggear, despues cambio por un return None y lo manejo en el iterative_deepening
-                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
 
                     # Simulate Move
                     row, col, loc_row, loc_col = move
@@ -701,7 +654,7 @@ class MonkeyAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations '''
         rows, cols, *_ = board.shape
-        brute_balance = 0
+        balance = 0
 
         # Auxiliar For Now!
         for r in range(rows):

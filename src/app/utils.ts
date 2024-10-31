@@ -66,6 +66,9 @@ export const GameWinner = (
 type MiniBoard = string[][];
 
 export const MiniBoardWinner = (miniBoard: MiniBoard): Winner => {
+    if (!miniBoard || miniBoard.length !== 3 || miniBoard.some(row => row.length !== 3)) {
+        return null;
+    }
     for (let i = 0; i < 3; i++) {
         if (
             miniBoard[i][0] === miniBoard[i][1] &&

@@ -3,7 +3,6 @@
 class saver:
     # name is self-explanatory
     def alphaBetaModelWithoutIterativeDeepening(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
-        # TODO: This is a draft
         """ Applies Alpha Beta Pruning techniques to Minimax to explore the game tree and find the best move to play in advanced depth"
 
         Args:

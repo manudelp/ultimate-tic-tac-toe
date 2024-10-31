@@ -1,19 +1,19 @@
 import os
-import signal
-import sys
+import logging
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import DevelopmentConfig
 from api.bots import bot_routes
+from api.auth import auth_routes
 
 load_dotenv()  # Load environment variables from .env
 users = []  # List to store user data
 
 # Initialize Flask app with configuration
 app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)  # Load configura1tion
+app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 CORS(app)
 
@@ -22,13 +22,21 @@ jwt = JWTManager(app)
 
 # Register routes
 app.register_blueprint(bot_routes)
+app.register_blueprint(auth_routes)
 
-# Signal handler for graceful shutdown
-def signal_handler(_, __):
-    print("Cerrando servidor...")
-    sys.exit(0)
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
-signal.signal(signal.SIGINT, signal_handler)
+# Error handling
+@app.errorhandler(500)
+def internal_error(error):
+    app.logger.error(f"Server Error: {error}")
+    return jsonify(message="Internal Server Error"), 500
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    app.logger.error(f"Unhandled Exception: {e}")
+    return jsonify(message="Unhandled Exception"), 500
 
 # Run the Flask app
 if __name__ == '__main__':

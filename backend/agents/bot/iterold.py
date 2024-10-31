@@ -12,10 +12,10 @@ AB-Pruning Minimax? = True
 
 class IteroldAgent:
     def __init__(self):
-        self.id = "Mike Iterold Oxlong 👴🏻🪶"
+        self.id = "Mike Iterold Oxlong🪶"
         self.moveNumber = 0
         self.max_depth = 7
-        self.time_limit = 20 # in seconds
+        self.time_limit = 7 # in seconds
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 
@@ -77,20 +77,25 @@ class IteroldAgent:
             
         else:   
             a, b = board_to_play
-        subboard = super_board[a, b]
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        print(f"Iterold is thinking with alpha beta, not iterative btp is ({a}, {b})")
+        print(f"Iterold is thinking with alpha beta while btp is ({a}, {b})")
         t0 = time.time()
-        minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
+        minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play=board_to_play, max_depth=self.max_depth)
         
-        if minimax_move is not None:
-            print(f"Iterold chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
-            r, c, r_l, c_l = minimax_move
+        if len(minimax_move) != 2:
+            if len(minimax_move) == 4 and int(minimax_move[0]) == a and int(minimax_move[1]) == b:
+                final_minmx_move = minimax_move[2:]
+            else:
+                raise ValueError(f"At move number {self.moveNumber}, Minimax Move was not a tuple of 2 nor of 4 that matched btp, it was {minimax_move}, board_to_play was {board_to_play} translates to ({a}, {b})")
+        
+        if final_minmx_move is not None:
+            print(f"Iterold chose alpha beta move: {final_minmx_move}, with evaluation of {minimax_eval}")
+            r_l, c_l = final_minmx_move
             self.moveNumber += 1
             print(f"Iterold Total Action time when board_to_play not None, was {time.time() - self.true_time_start}")
-            return r, c, r_l, c_l
+            return a, b, r_l, c_l
         else:
             raise ValueError(f"Iterold failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 
@@ -137,6 +142,8 @@ class IteroldAgent:
     def iterative_deepening(self, board, board_to_play, max_depth):
         ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
         start_time = time.time()
+        
+        print(f"At move number {self.moveNumber}, Iterold gonna iter deep, btp is {board_to_play}")
 
         for depth in range(2, max_depth + 1):
             t_start_depth = time.time()
@@ -149,10 +156,13 @@ class IteroldAgent:
             best_eval = minimax_eval
             best_move = minimax_move
 
-            print(f"Itterold Running Depth {depth} took {time.time() - t_start_depth:.4f} seconds")
+            print(f"Iterold Running Depth {depth} took {time.time() - t_start_depth:.4f} seconds")
             
             if time.time() - start_time >= (self.time_limit - 1):
                 break
+
+        if best_move is None:
+            raise ValueError(f"Best Move was None after all depths were checked")
 
         return best_eval, best_move
     
@@ -270,11 +280,6 @@ class IteroldAgent:
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in global_moves:
-                    
-                    if depth == self.depth:
-                        if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                            raise ValueError(f"Iterold is at call number 0, considering invalid move: {move}")
-
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
@@ -296,11 +301,6 @@ class IteroldAgent:
                 # Minimizer
                 min_eval = float('inf')
                 for move in global_moves:
-
-                    if depth == self.depth:
-                        if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                            raise ValueError(f"Iterold is at call number 0, considering invalid move: {move}")
-
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
@@ -317,6 +317,18 @@ class IteroldAgent:
                 # if best_move is None:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
+
+    def new_parameters(self, board, row, col, loc_row, loc_col):
+        ''' Simulates a move on the board, given the 4d move and the player
+        Returns the new_board_to_play and the new_moves_to_try '''
+        if self.get_isOver(board[loc_row, loc_col]):
+            board_to_play = None
+            moves_to_try = self.generate_global_moves(board)
+        else:
+            board_to_play = (loc_row, loc_col)
+            moves_to_try = np.argwhere(board[loc_row, loc_col] == 0)
+        
+        return board_to_play, moves_to_try
 
     def generate_moves(self, board, board_to_play):
         ''' Generates the moves to try given the board and the board_to_play '''
@@ -352,7 +364,7 @@ class IteroldAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations '''
         rows, cols, *_ = board.shape
-        brute_balance = 0
+        balance = 0
 
         # Auxiliar For Now!
         for r in range(rows):

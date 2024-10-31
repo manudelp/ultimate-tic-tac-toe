@@ -42,16 +42,28 @@ const Dashboard: React.FC = () => {
                   {/* CHOOSE GAME MODE */}
                   {gameMode === null && (
                     <div>
-                      <button onClick={() => selectMode("player-vs-player")}>
+                      <button
+                        className="game-mode-button"
+                        onClick={() => selectMode("player-vs-player")}
+                      >
                         🧍🆚🧍
                       </button>
-                      <button onClick={() => selectMode("online")}>
+                      <button
+                        className="game-mode-button"
+                        onClick={() => selectMode("online")}
+                      >
                         💻🆚💻
                       </button>
-                      <button onClick={() => selectMode("player-vs-bot")}>
+                      <button
+                        className="game-mode-button"
+                        onClick={() => selectMode("player-vs-bot")}
+                      >
                         🧍🆚🤖
                       </button>
-                      <button onClick={() => selectMode("bot-vs-bot")}>
+                      <button
+                        className="game-mode-button"
+                        onClick={() => selectMode("bot-vs-bot")}
+                      >
                         🤖🆚🤖
                       </button>
                     </div>
@@ -60,10 +72,16 @@ const Dashboard: React.FC = () => {
                   {/* WHO STARTS */}
                   {gameMode === "player-vs-bot" && !starts && (
                     <div>
-                      <button onClick={() => setStarts("player")}>
+                      <button
+                        className="start-button"
+                        onClick={() => setStarts("player")}
+                      >
                         🧍 Starts
                       </button>
-                      <button onClick={() => setStarts("bot")}>
+                      <button
+                        className="start-button"
+                        onClick={() => setStarts("bot")}
+                      >
                         🤖 Starts
                       </button>
                     </div>
@@ -89,7 +107,9 @@ const Dashboard: React.FC = () => {
                         autoComplete="off"
                         placeholder="Enter number of games"
                       />
-                      <button type="submit">Submit</button>
+                      <button className="submit-button" type="submit">
+                        Submit
+                      </button>
                     </form>
                   )}
                 </div>

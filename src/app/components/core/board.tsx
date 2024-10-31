@@ -47,14 +47,14 @@ const Board: React.FC<BoardProps> = ({
   }, [onReset]);
 
   return (
-    <div className="w-full h-full bg-red-500">
+    <div className="w-screen h-full flex">
       <div
-        className={`w-full max-w-[600px] aspect-square flex flex-wrap relative ${
+        className={`w-[600px] h-full aspect-square flex flex-wrap relative ${
           gameOver ? "pointer-events-none opacity-50" : ""
         }`}
       >
-        {board.map((miniBoardRow, localRowIndex) =>
-          miniBoardRow.map((miniBoard, localColIndex) => (
+        {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
+          miniBoardRow.map((miniBoard: string[][], localColIndex) => (
             <MiniBoard
               key={`${localRowIndex}-${localColIndex}`}
               miniBoard={miniBoard}

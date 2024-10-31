@@ -522,5 +522,5 @@ def generate_winnable_boards(file_path, player):
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
-# generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
-# generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt', -1)
+generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
+generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt', -1)

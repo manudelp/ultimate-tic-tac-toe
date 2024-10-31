@@ -1,31 +1,38 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchBotNames, getBotMove, agentsReset } from "@/api";
-import {
-
-MiniBoardWinner,
-GameWinner,
-NextActiveMiniBoard,
-convertBoardToNumeric,
-checkBotWinner,
-} from "../utils";
+import {MiniBoardWinner, GameWinner, NextActiveMiniBoard, convertBoardToNumeric, checkBotWinner } from "../utils";
 
 export const useGame = (gameMode: string, starts: string, botMatch: number, resetBoard: boolean) => {
+
+// Types
+type Board = string[][][][];
+type MiniBoard = string[][];
+type Turn = "X" | "O";
+type Winner = "X" | "O" | "Draw";
+type Coords = [number, number, number, number];
+type WinningLine = { type: string; index: number };
+type ActiveMiniBoard = [number, number] | null;
+type AgentId = string | null;
+type AgentIdTurn = "X" | "O" | null;
+type PlayedGamesWinners = ("X" | "O" | "Draw")[];
+type WinPercentages = number[];
+
 // Board information
-const [board, setBoard] = useState<string[][][][]>(
+const [board, setBoard] = useState<Board>(
     Array.from({ length: 3 }, () =>
         Array.from({ length: 3 }, () =>
             Array.from({ length: 3 }, () => ["", "", ""])
         )
     )
 );
-const [turn, setTurn] = useState("X");
-const [lastMove, setLastMove] = useState<[number, number, number, number] | null>(null);
-const [gameWinner, setGameWinner] = useState<"X" | "O" | "Draw" | null>(null);
+const [turn, setTurn] = useState<Turn>("X");
+const [lastMove, setLastMove] = useState<Coords | null>(null);
+const [gameWinner, setGameWinner] = useState<Winner | null>(null);
 const [gameOver, setGameOver] = useState(false);
-const [winningLine, setWinningLine] = useState<{ type: string; index: number } | null>(null);
+const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
 
 // Mini-board information
-const [activeMiniBoard, setActiveMiniBoard] = useState<[number, number]| null>(null);
+const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
 const [winners, setWinners] = useState(
     Array.from({ length: 3 }, () => Array(3).fill(null))
 );
@@ -34,15 +41,15 @@ const [disabled, setDisabled] = useState(
 );
 
 // Bot information
-const [agentId, setAgentId] = useState<string | null>(null);
-const [agentId2, setAgentId2] = useState<string | null>(null);
-const [agentIdTurn, setAgentIdTurn] = useState<"X" | "O" | null>(null);
-const [agentId2Turn, setAgentId2Turn] = useState<"X" | "O" | null>(null);
+const [agentId, setAgentId] = useState<AgentId>(null);
+const [agentId2, setAgentId2] = useState<AgentId>(null);
+const [agentIdTurn, setAgentIdTurn] = useState<AgentIdTurn>(null);
+const [agentId2Turn, setAgentId2Turn] = useState<AgentIdTurn>(null);
 const [isBotThinking, setIsBotThinking] = useState(false);
 const [turnsInverted, setTurnsInverted] = useState(false);
 const [playedGames, setPlayedGames] = useState(0);
-const [playedGamesWinners, setPlayedGamesWinners] = useState<("X" | "O" | "Draw")[]>([]);
-const [winPercentages, setWinPercentages] = useState<number[]>([]);
+const [playedGamesWinners, setPlayedGamesWinners] = useState<PlayedGamesWinners>([]);
+const [winPercentages, setWinPercentages] = useState<WinPercentages>([]);
 const TIMEOUT = 0; // TODO: TIMEOUT (replace the "0" [in milliseconds])
 
 const updateMiniBoardState = useCallback((a: number, b: number, winner: "X" | "O" | "Draw") => {
@@ -95,11 +102,7 @@ const checkOverallGameWinner = useCallback(() => {
 }, []);
 
 const makeMove = useCallback(
-    (coords: ((prevState: null) => null) | [number, number, number, number] | null) => {
-        if (!Array.isArray(coords)) {
-            console.log("Invalid move");
-            return;
-        }
+    (coords: Coords) => {
         const [a, b, c, d] = coords;
         if (gameWinner || gameOver || disabled[a][b] || board[a][b][c][d]) {
             console.log("Invalid move");
@@ -111,9 +114,9 @@ const makeMove = useCallback(
         setBoard(updatedBoard);
 
         // Check if mini-board is won
-        const winner = MiniBoardWinner(updatedBoard[a][b]) as "X" | "O" | "Draw";
+        const winner = MiniBoardWinner(updatedBoard[a][b] as MiniBoard);
         if (winner) {
-            updateMiniBoardState(a, b, winner);
+            updateMiniBoardState(a as number, b as number, winner as Winner);
         }
 
         // Check if mini-board is full
@@ -149,7 +152,8 @@ const makeMove = useCallback(
 );
 
 const handleCellClick = (a: number, b: number, c: number, d: number) => {
-    const coords: [number, number, number, number] = [a, b, c, d];
+    const coords: Coords = [a, b, c, d];
+    console.log("Clicked:", coords);
     if (!isBotThinking) {
         makeMove(coords);
     } else {
@@ -161,7 +165,7 @@ const handleBotMove = useCallback(async () => {
     try {
         setIsBotThinking(true);
         const numericBoard: number[][][][] = convertBoardToNumeric(board);
-        const coords: [number, number, number, number] = await getBotMove(numericBoard, activeMiniBoard, turn);
+        const coords: Coords = await getBotMove(numericBoard, activeMiniBoard, turn);
         makeMove(coords);
         setIsBotThinking(false);
     } catch (error) {

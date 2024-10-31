@@ -99,11 +99,11 @@ class GardenerAgent:
             maximizingPlayer=True)
         if minimax_move is not None:
             print(f"Jardy chose alpha beta move: {minimax_move}")
-            r, c, r_l, c_l = minimax_move
+            a, b, r_l, c_l = minimax_move
             self.moveNumber += 1
             print(f"Jardy took {time.time() - t0:.4f} seconds to play alpha beta with depth {self.depth}, btp was ({a}, {b})")
             print(f"Jardy Total Action time when board_to_play not None, was {time.time() - self.true_time_start:.4f} seconds")
-            return r, c, r_l, c_l
+            return a, b, r_l, c_l
         else:
             raise ValueError(f"Jardy failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 
@@ -324,7 +324,7 @@ class GardenerAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations '''
         rows, cols, *_ = board.shape
-        brute_balance = 0
+        balance = 0
 
         # Auxiliar For Now!
         for r in range(rows):

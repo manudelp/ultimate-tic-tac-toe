@@ -186,7 +186,7 @@ class FooFinderAgent:
             # TODO: Replace this with actual minimax and insert it into every scenario 
             # with the respective function (early game, mid game, late game)
             minimax_move = None
-
+            # TODO FOOFINDER CHANGE ITERDEEP PARAMETERS WHEN BTP IS NONE, LOWER DEPTH!!
             if minimax_move is None:
                 raise ValueError("Minimax Failed to Find a Move! Board to play was None")
             
@@ -224,7 +224,7 @@ class FooFinderAgent:
         # TODO: Replace this with actual minimax and insert it into every scenario 
         # with the respective function (early game, mid game, late game)
         minimax_move = None
-
+        # TODO: FOOFINDER CHANGE ITERDEEP PARAMETERS WHEN BTP!=NONE, HIGHER DEPTH!!
         if minimax_move is None:
             raise ValueError(f"Minimax Failed to Find a Move! Board to play was {board_to_play}")
 

@@ -1,6 +1,6 @@
 import traceback
 from flask import Blueprint, jsonify, request
-import utils
+import api.utils as utils
 import numpy as np
 from agents.bot.randy import RandomAgent
 from agents.bot.monkey import MonkeyAgent
