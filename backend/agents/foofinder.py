@@ -76,6 +76,7 @@ class FooFinderAgent:
         return self.id
 
     def reset(self):
+        print("FooFinder Reset Lets Goo! 🚀")
         self.moveNumber = 0
         self.abortedTimes = 0
         self.foo_pieces = 0
@@ -92,10 +93,6 @@ class FooFinderAgent:
         self.global_board_results = np.zeros((3, 3), dtype=int)
         self.board_array = None
         self.board_tuple = None
-        self.hash_won_boards = {}
-        self.hash_eval_boards = {}
-        self.hash_draw_boards = {}
-        self.hash_move_boards = {}
 
     def action(self, board: np.array, board_to_play: Union[Tuple[int, int], None] = None):
         '''
@@ -547,6 +544,7 @@ class FooFinderAgent:
     def orderMoves(self, board, moves):
         ''' Given the array of possible moves to play, orders them in a way that the most promising moves are played first 
         Meaning, it orders them based on moveQuality in descending order (greatest quality first) '''
+        # TODO: Order Moves
         None
 
     # Board Checks Auxiliaries 🧮✔️

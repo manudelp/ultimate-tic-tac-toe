@@ -40,6 +40,7 @@ class MonkeyAgent:
         return self.id
 
     def reset(self):
+        print("Resetting MonkeyAgent!")
         self.moveNumber = 0
 
     def action(self, board, board_to_play=None):

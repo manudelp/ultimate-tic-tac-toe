@@ -24,7 +24,7 @@ bot_routes = Blueprint('bots', __name__)
 AGENT1 = ItterinoAgent()
 
 # INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
-# AGENT2 = RandomAgent()
+AGENT2 = RandomAgent()
 # AGENT2 = GardenerAgent()
 # AGENT2 = MonkeyAgent()
 # AGENT2 = TaylorAgent()
