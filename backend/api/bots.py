@@ -24,11 +24,11 @@ AGENT1 = StraightArrowAgent()
 # AGENT1 = ItterinoAgent()
 
 # INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
-# AGENT2 = RandomAgent()
+AGENT2 = RandomAgent()
 # AGENT2 = GardenerAgent()
 # AGENT2 = MonkeyAgent()
 # AGENT2 = TaylorAgent()
-AGENT2 = StraightArrowAgent()
+# AGENT2 = StraightArrowAgent()
 # AGENT2 = FooFinderAgent()
 # AGENT2 = IteroldAgent()
 # AGENT2 = ItterinoAgent()

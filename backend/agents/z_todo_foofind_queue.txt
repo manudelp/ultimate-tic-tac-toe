@@ -1,14 +1,6 @@
 NEXT UP ==>
 
-{...currently debugging iterative deepening...}
-
-
-# Next Hash
-Test winnable_hash in-game by adding it to Straighty Local Board win greedy checks, and print if it's actually executing to debug
-
-- Use this above to do Immediate Win Check
-but keep in mind... the winning move has to be in your available moves
-
+{...currently debugging & upgrading iterative deepening...}
 
 
 - check the global_board_results functioning in your foofinder minimax. using prints & stuff

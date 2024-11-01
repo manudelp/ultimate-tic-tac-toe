@@ -36,5 +36,7 @@ class TaylorAgent:
     def __str__(self):
         return self.id
 
+    def reset(self):
+        print("Taylor reset")
 
 

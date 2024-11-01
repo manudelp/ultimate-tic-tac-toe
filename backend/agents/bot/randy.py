@@ -29,11 +29,12 @@ def isWon(local_board):
 class RandomAgent:
     def __init__(self):
         self.id = "Randy🎲"
-        self.hash_over_boards = {}
-        self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
 
     def __str__(self):
         return self.id
+
+    def reset(self):
+        print(f"Randy been reset?? What they even resetting tho?")
 
     def action(self, board, board_to_play=None):
         board = np.array(board, dtype=int)
@@ -41,16 +42,14 @@ class RandomAgent:
         self.global_row, self.global_col = None, None
         
         # Make Playable Local Boards List
-        self.playable_boards_list = []
-        for i in range(3):
-            for j in range(3):
-                if self.get_isPlayable(board[i, j]):
-                    self.playable_boards_list.append((i, j))
-
         if board_to_play is None:
-            if len(self.playable_boards_list) == 0:
-                raise ValueError(f"There are no playable boards. The board is:\n{board}")
-            self.global_row, self.global_col = random.choice(self.playable_boards_list)
+            for i in range(3):
+                for j in range(3):
+                    if isPlayable(board[i, j]):
+                        print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
+                        local_row, local_col = self.randomMove(board[i, j])
+                        self.global_row, self.global_col = i, j
+                        return self.global_row, self.global_col, local_row, local_col
         else:   
             self.global_row, self.global_col = board_to_play
 
@@ -71,27 +70,42 @@ class RandomAgent:
         chosen_index = random.choice(empty_cells)
         return np.unravel_index(chosen_index, board.shape)
 
-    def load_over_boards(self, file_path):
-        # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
-        ''' Loads the over boards from a file and stores them in a dictionary 
-        Each board's state is stored as a key (using its byte representation)
-        '''
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    board_hex = line.strip()
-                    self.hash_over_boards[bytes.fromhex(board_hex)] = True
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
+def isFull(subboard):
+    ''' Returns True if the board is full, False otherwise '''
+    return np.all(subboard != 0)
 
-    def get_isOver(self, board):
-        # TIMEIT APPROVED ✅
-        ''' If the board is found in the over boards, return True, else False '''
-        board_key = board.tobytes()
-        return self.hash_over_boards.get(board_key, False)
+def isPlayable(subboard):
+    ''' Returns True if the board is not full and not won, False otherwise '''
+    return not isFull(subboard) and (isWon(subboard) == 0)
 
-    def get_isPlayable(self, board):
-        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_isOver directly 
-        # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough to check tho)
-        ''' Returns True if the board is playable, False otherwise '''
-        return not self.get_isOver(board)
+def isOver(subboard):
+    ''' Returns True if the board is full or won, False otherwise '''
+    return isFull(subboard) or (isWon(subboard) != 0)
+
+def isWon(subboard):
+    ''' Returns 0 if the board is not won, 1 if player 1 won, -1 if player -1 won '''
+    rows, cols = subboard.shape
+
+    # Check rows
+    for i in range(rows):
+        r1, r2, r3 = subboard[i, 0], subboard[i, 1], subboard[i, 2]
+        if r1 == r2 == r3 and r1 != 0:
+            return r1
+    
+    # Check columns
+    for i in range(cols):
+        c1, c2, c3 = subboard[0, i], subboard[1, i], subboard[2, i]
+        if c1 == c2 == c3 and c1 != 0:
+            return c1
+    
+    # Check Diagonals Descendent
+    dd1, dd2, dd3 = subboard[0, 0], subboard[1, 1], subboard[2, 2]
+    if dd1 == dd2 == dd3 and dd1 != 0:
+        return dd1
+    
+    # Check Diagonals Ascendent
+    da1, da2, da3 = subboard[0, 2], subboard[1, 1], subboard[2, 0]
+    if da1 == da2 == da3 and da1 != 0:
+        return da1
+    
+    return 0

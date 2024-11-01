@@ -38,6 +38,7 @@ class IteroldAgent:
         return self.id
 
     def reset(self):
+        print(f"Resetting Iterold...")
         self.moveNumber = 0
 
     def action(self, super_board, board_to_play=None):
