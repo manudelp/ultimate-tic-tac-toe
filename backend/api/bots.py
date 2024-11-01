@@ -14,18 +14,18 @@ bot_routes = Blueprint('bots', __name__)
 # Initialize agents
 # INITIALIZE THE FIRST AGENT. WILL PLAY 1VPLAYER, AND PLAY FIRST AGAINST BOTS
 # AGENT1 = RandomAgent()
-AGENT1 = GardenerAgent()
+# AGENT1 = GardenerAgent()
 # AGENT1 = MonkeyAgent()
 # AGENT1 = TaylorAgent()
-# AGENT1 = StraightArrowAgent()
+AGENT1 = StraightArrowAgent()
 # AGENT1 = FooFinderAgent()
 # AGENT1 = IteroldAgent()
 # AGENT1 = ItterinoAgent()
 
 # INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
-# AGENT2 = RandomAgent()
+AGENT2 = RandomAgent()
 # AGENT2 = GardenerAgent()
-AGENT2 = MonkeyAgent()
+# AGENT2 = MonkeyAgent()
 # AGENT2 = TaylorAgent()
 # AGENT2 = StraightArrowAgent()
 # AGENT2 = FooFinderAgent()
@@ -64,7 +64,10 @@ def get_bot_move():
         # Convert the board to a 3x3x3x3 4D NumPy array
         board_array = np.array(board, dtype=int).reshape((3, 3, 3, 3))
         board_results = utils.get_board_results(board_array)
-        board_to_play = board_array[active_mini_board[0]][active_mini_board[1]]
+        if active_mini_board is not None:
+            board_to_play = board_array[active_mini_board[0]][active_mini_board[1]]
+        else:
+            board_to_play = None
 
         # for debug
         if turn == "O":

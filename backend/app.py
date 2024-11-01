@@ -14,7 +14,7 @@ users = []  # List to store user data
 
 # Initialize Flask app with configuration
 app = Flask(__name__)
-app.config.from_object(ProductionConfig)  # Load configuration
+app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 CORS(app)
 

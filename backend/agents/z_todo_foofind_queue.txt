@@ -3,6 +3,10 @@ NEXT UP ==>
 {...currently debugging & upgrading iterative deepening...}
 
 
+- transposition table tobytes()
+o incluso si no es tobytes(), ffs estas haciendo iterative deepening APROVECHA Y GUARDA POSICIONES PARA NO TARDAR 20 AÑOS EN LA BEST DEPTH
+
+
 - check the global_board_results functioning in your foofinder minimax. using prints & stuff
 
 

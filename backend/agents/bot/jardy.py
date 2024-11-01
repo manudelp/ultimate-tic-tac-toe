@@ -15,7 +15,7 @@ class GardenerAgent:
         self.id = "El Jardinero✂️"
         self.moveNumber = 0
         self.depth = 7
-        self.time_limit = 20 # in seconds
+        self.time_limit = 10 # in seconds
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 

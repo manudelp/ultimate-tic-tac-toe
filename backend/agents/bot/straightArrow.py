@@ -35,7 +35,15 @@ class StraightArrowAgent:
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
         print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{super_board}" + Style.RESET_ALL)
-        
+
+        over_boards = []
+        for i in range(rows):
+            for j in range(cols):
+                if isOver(super_board[i, j]):
+                    over_boards.append((i, j))
+
+        print(Style.BRIGHT + f"STRAIGHTY LISTS THE OVERBOARDS BEFORE PLANNING HIS MOVE:, THEY ARE AS FOLLOWS: {over_boards}" + Style.RESET_ALL)
+
         # First Move Go Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
@@ -239,3 +247,9 @@ def safeSetExtractor(board, set):
         if not isOver(board[move]):
             return move
     return set.pop()  # If all moves lead to an over-subboard, return any
+
+
+# board_ex = np.zeros((3, 3, 3, 3), dtype=int)
+# agent = StraightArrowAgent()
+
+# move = agent.action(board_ex, board_to_play=None)
