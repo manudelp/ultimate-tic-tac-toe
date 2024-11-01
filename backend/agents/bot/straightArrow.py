@@ -34,7 +34,7 @@ class StraightArrowAgent:
     def action(self, super_board, board_to_play=None):
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
-        print(f"Move number {self.id} is {self.moveNumber}")
+        print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{super_board}" + Style.RESET_ALL)
         
         # First Move Go Center
         if np.count_nonzero(super_board) == 0:

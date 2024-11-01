@@ -30,15 +30,18 @@ def isWon(local_board):
 class RandomAgent:
     def __init__(self):
         self.id = "Randy🎲"
+        self.moveNumber = 0
 
     def __str__(self):
         return self.id
 
     def reset(self):
-        print(f"Randy been reset?? What they even resetting tho?")
+        print(f"randy been reset, his move number has GONE DOWN TO ZEROOOOO")
+        self.moveNumber = 0
 
     def action(self, board, board_to_play=None):
         board = np.array(board, dtype=int)
+        print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
 
         self.global_row, self.global_col = None, None
         
@@ -50,6 +53,7 @@ class RandomAgent:
                         print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
                         local_row, local_col = self.randomMove(board[i, j])
                         self.global_row, self.global_col = i, j
+                        self.moveNumber += 1
                         return self.global_row, self.global_col, local_row, local_col
             raise ValueError(Style.BRIGHT + Fore.RED + f"Randy couldn't find a playable board! Global Board is \n{board}" + Style.RESET_ALL)
         else:   
@@ -63,6 +67,7 @@ class RandomAgent:
         local_board = board[self.global_row, self.global_col]
         print(f"I randy will attempt randomMove on the local_board: {self.global_row, self.global_col}")
         c, d = self.randomMove(local_board)
+        self.moveNumber += 1
         return self.global_row, self.global_col, c, d
 
     def randomMove(self, board):
