@@ -24,7 +24,7 @@ export default function Home() {
       <div className="min-h-screen bg-black text-white">
         <p className="absolute right-0 opacity-30">{version}</p>
         {/* <Header /> */}
-        <div className="flex">
+        <div>
           {/* <Sidebar /> */}
           <Routes>
             <Route path="/" element={<Dashboard />} />

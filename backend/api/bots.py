@@ -1,7 +1,6 @@
-import traceback
-from flask import Blueprint, jsonify, request
-import api.utils as utils
 import numpy as np
+import api.utils as utils
+from flask import Blueprint, jsonify, request
 from agents.bot.randy import RandomAgent
 from agents.bot.monkey import MonkeyAgent
 from agents.bot.jardy import GardenerAgent
@@ -104,9 +103,7 @@ def get_bot_move():
         # Return the move and agent's id as a JSON response
         return jsonify({'move': move_response, 'agent_id': agent_id})
     except Exception as e:
-        # Print the error and traceback for debugging
         print(f"\nError: {e}\n")
-        traceback.print_exc()
 
         # Return an internal server error response
         return jsonify({'error': 'Internal Server Error'}), 500
@@ -121,9 +118,7 @@ def agents_reset():
         # Return a success response
         return jsonify({'message': 'Agents reset successfully'})
     except Exception as e:
-        # Print the error and traceback for debugging
         print(f"\nError: {e}\n")
-        traceback.print_exc()
 
         # Return an internal server error response
         return jsonify({'error': 'Internal Server Error'}), 500

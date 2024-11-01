@@ -175,7 +175,6 @@ export const useGame = (
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     const coords: Coords = [a, b, c, d];
-    console.log("Clicked:", coords);
     if (!isBotThinking) {
       makeMove(coords);
     } else {
@@ -192,17 +191,13 @@ export const useGame = (
         activeMiniBoard,
         turn
       );
-      console.log(
-        (turn === agentIdTurn ? agentId : agentId2) + "'s move:",
-        coords
-      );
       makeMove(coords);
       setIsBotThinking(false);
     } catch (error) {
       setIsBotThinking(true);
       console.error("Error fetching bot's move:", error);
     }
-  }, [board, activeMiniBoard, turn, agentIdTurn, agentId, agentId2, makeMove]);
+  }, [board, activeMiniBoard, turn, makeMove]);
 
   const resetGame = useCallback(() => {
     setBoard(
