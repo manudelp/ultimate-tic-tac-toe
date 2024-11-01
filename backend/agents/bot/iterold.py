@@ -43,6 +43,8 @@ class IteroldAgent:
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
+        print(f"{self.id} va a accionar, con la move number {self.moveNumber}")
+
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
         global_board_copy = super_board.copy()
@@ -56,7 +58,7 @@ class IteroldAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError("No one has played, but moveNumber is not 0")
+                raise ValueError(f"Iterold, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 

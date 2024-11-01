@@ -112,6 +112,7 @@ class FooFinderAgent:
 
         # Time Start
         self.start_time = time.time()
+        print(f"{self.id} action begins, move number is {self.moveNumber}")
 
         # Smart-Board Transformations
         self.board_array = self.board.copy()
@@ -152,7 +153,9 @@ class FooFinderAgent:
         # If No One has Played, We Play Center-Center (avoids self.moveNumber check)
         if np.count_nonzero(board) == 0:
             if self.moveNumber != 0:
-                raise ValueError("No one has played, but moveNumber is not 0")
+                raise ValueError(f"FooFinder, No one has played, but move number is not 0, move number is {self.moveNumber}")
+            if board[1, 1][1, 1] != 0:
+                raise ValueError("FooFinder, No one has played, but center-center is not empty")
             self.moveNumber += 1
             return 1, 1, 1, 1
 

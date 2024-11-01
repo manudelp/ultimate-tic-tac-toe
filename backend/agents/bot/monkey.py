@@ -45,6 +45,8 @@ class MonkeyAgent:
 
     def action(self, board, board_to_play=None):
         self.start_time = time.time()
+        print(f"{self.id} begins action, move number to play: {self.moveNumber}")
+
         board = np.array(board, dtype=int)
         rows, cols, *_ = board.shape
         global_board_copy = board.copy()
@@ -57,6 +59,7 @@ class MonkeyAgent:
 
         # Play Center if first move
         if isEmpty(board):
+            self.moveNumber += 1
             return 1, 1, 1, 1
 
         # Minimax
