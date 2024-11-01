@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
     (gameMode !== "bot-vs-bot" || totalGames);
 
   return (
-    <div className="sm:p-4">
+    <>
       <div>
         {!isBoardVisible && (
           <>
@@ -164,7 +164,7 @@ const Dashboard: React.FC = () => {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 
