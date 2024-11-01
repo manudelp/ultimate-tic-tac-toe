@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`antialiased ${spaceGrotesk.variable} ${spaceGroteskBold.variable}`}
       >
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );

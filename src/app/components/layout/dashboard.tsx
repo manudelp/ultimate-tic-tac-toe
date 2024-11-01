@@ -112,7 +112,6 @@ const Dashboard: React.FC = () => {
                     );
                     if (input) {
                       const games = parseInt(input.value, 10);
-                      console.log(games);
                       setTotalGames(games);
                     }
                   }}
