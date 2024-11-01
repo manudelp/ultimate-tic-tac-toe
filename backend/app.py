@@ -5,6 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import DevelopmentConfig
+from config import ProductionConfig
 from api.bots import bot_routes
 from api.auth import auth_routes
 
@@ -13,7 +14,7 @@ users = []  # List to store user data
 
 # Initialize Flask app with configuration
 app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)  # Load configuration
+app.config.from_object(ProductionConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 CORS(app)
 
