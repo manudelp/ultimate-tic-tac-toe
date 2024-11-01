@@ -67,13 +67,13 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                 )
               }
               key={cellIndex}
-              className={`w-1/3 h-full grid place-items-center text-white text-xl border border-red-700 cursor-pointer hover:bg-black dark:text-gray dark:border-gray ${
+              className={`w-1/3 h-full grid place-items-center text-white text-xl border border-red-700 cursor-pointer hover:bg-red-500 ${
                 lastMove &&
                 lastMove[0] === localRowIndex &&
                 lastMove[1] === localColIndex &&
                 lastMove[2] === rowIndex &&
                 lastMove[3] === cellIndex
-                  ? "bg-blue-400 dark:bg-blue-600"
+                  ? "bg-indigo-400"
                   : ""
               } ${
                 disabled?.[localRowIndex]?.[localColIndex]

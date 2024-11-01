@@ -1,5 +1,8 @@
-type Winner = "X" | "O" | "Draw" | null;
+// Types
+type MiniBoard = string[][];
 type MiniBoardWinners = Winner[][];
+type MiniBoardDisabled = boolean[][];
+type Winner = "X" | "O" | "Draw" | null;
 type WinningLine = { type: "row" | "col" | "diag"; index: number };
 
 export const GameWinner = (
@@ -63,8 +66,6 @@ export const GameWinner = (
   return null;
 };
 
-type MiniBoard = string[][];
-
 export const MiniBoardWinner = (miniBoard: MiniBoard): Winner => {
   if (
     !miniBoard ||
@@ -106,25 +107,19 @@ export const MiniBoardWinner = (miniBoard: MiniBoard): Winner => {
   return null;
 };
 
-type Board = string[][][];
-type MiniBoardDisabled = boolean[][];
-
 export const NextActiveMiniBoard = (
-  board: Board,
   miniBoardWinners: MiniBoardWinners,
   miniBoardDisabled: MiniBoardDisabled,
   row: number,
   col: number
 ): [number, number] | null => {
-  if (
-    miniBoardDisabled[row][col] ||
-    miniBoardWinners[row][col] ||
-    MiniBoardWinner([board[row][col]])
-  ) {
+  // Verifica si el mini-tablero en la posición clickeada está ganado o deshabilitado
+  if (miniBoardDisabled[row][col] || miniBoardWinners[row][col]) {
     return null;
-  } else {
-    return [row, col];
   }
+
+  // Si el mini-tablero no está ganado ni deshabilitado, devuelve las coordenadas de la posición clickeada
+  return [row, col];
 };
 
 export const convertBoardToNumeric = (

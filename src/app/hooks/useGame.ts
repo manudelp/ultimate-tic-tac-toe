@@ -70,13 +70,15 @@ export const useGame = (
         updated[a][b] = winner;
         return updated;
       });
+      console.log("MiniBoardWinners:", winners);
       setDisabled((prev) => {
         const updated = [...prev];
         updated[a][b] = true;
         return updated;
       });
+      console.log("Disabled:", disabled);
     },
-    []
+    [disabled, winners]
   );
 
   const disableFullMiniBoard = useCallback(
@@ -128,35 +130,26 @@ export const useGame = (
       updatedBoard[a][b][c][d] = turn;
       setBoard(updatedBoard);
 
-      // Check if mini-board is won
+      // Actualiza el ganador del mini-tablero antes de proceder
       const winner = MiniBoardWinner(updatedBoard[a][b] as MiniBoard);
       if (winner) {
         updateMiniBoardState(a as number, b as number, winner as Winner);
       }
 
-      // Check if mini-board is full
+      // Calcula el próximo mini-tablero
+      const nextMiniBoard = NextActiveMiniBoard(winners, disabled, c, d);
+      setActiveMiniBoard(nextMiniBoard as ActiveMiniBoard);
+
+      // Verifica si el mini-tablero está lleno
       if (updatedBoard[a][b].flat().every((cell) => cell !== "")) {
         disableFullMiniBoard(a, b);
       }
 
-      // Check if overall game is won
+      // Verifica si el juego general tiene un ganador
       checkOverallGameWinner();
 
-      // Set active mini-board
-      setActiveMiniBoard(
-        (NextActiveMiniBoard(
-          updatedBoard as unknown as string[][][],
-          winners,
-          disabled,
-          c,
-          d
-        ) as [number, number]) || null
-      );
-
-      // Set last move
+      // Configura la última jugada y el próximo turno
       setLastMove(coords);
-
-      // Set next turn
       setTurn((prev) => (prev === "X" ? "O" : "X"));
     },
     [
@@ -165,8 +158,8 @@ export const useGame = (
       disabled,
       board,
       turn,
-      checkOverallGameWinner,
       winners,
+      checkOverallGameWinner,
       updateMiniBoardState,
       disableFullMiniBoard,
     ]
@@ -184,13 +177,19 @@ export const useGame = (
   const handleBotMove = useCallback(async () => {
     try {
       setIsBotThinking(true);
+
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
+
+      console.log(activeMiniBoard);
+
       const coords: Coords = await getBotMove(
         numericBoard,
         activeMiniBoard,
         turn
       );
+
       makeMove(coords);
+
       setIsBotThinking(false);
     } catch (error) {
       setIsBotThinking(true);
@@ -219,7 +218,7 @@ export const useGame = (
     resetGame();
     setGameOver(false);
     setLastMove(null);
-    setTurnsInverted(false); // <-- me faltó esto xdlol
+    setTurnsInverted(false);
   }, [resetGame]);
 
   const invertTurns = useCallback(() => {
