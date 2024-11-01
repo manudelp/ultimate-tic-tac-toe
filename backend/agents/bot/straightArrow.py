@@ -106,7 +106,7 @@ class StraightArrowAgent:
             a, b = board_to_play
             subboard = super_board[a, b]
             if not isPlayable(subboard):
-                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is \n{subboard}" + Style.RESET_ALL)
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Straighty Board to play is not playable! Board is \n{subboard}" + Style.RESET_ALL)
 
         # Greedy Action
         local_winner = self.get_winnableByOne(subboard)

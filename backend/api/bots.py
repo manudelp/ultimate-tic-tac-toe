@@ -64,9 +64,20 @@ def get_bot_move():
         # Convert the board to a 3x3x3x3 4D NumPy array
         board_array = np.array(board, dtype=int).reshape((3, 3, 3, 3))
         board_results = utils.get_board_results(board_array)
+        board_to_play = board_array[active_mini_board[0]][active_mini_board[1]]
 
-        # print("\nReceived board:")  # Print the received board for debugging
-        # utils.fancyBoardPrinter(board_array)  # Print the board for debugging
+        # for debug
+        if turn == "O":
+            agent_turn = str(AGENT1)
+        elif turn == "X":
+            agent_turn = str(AGENT2)
+        else:
+            raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
+
+        print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
+        print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
+        print("Their received board is:")  # Print the turn for debugging
+        utils.fancyBoardPrinter(board_array)  # Print the board for debugging
 
         # print(f"\nReceived board results is \n{board_results}\n")  # Print the board results for debugging
 
