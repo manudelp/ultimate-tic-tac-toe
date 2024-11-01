@@ -51,10 +51,11 @@ class RandomAgent:
                         local_row, local_col = self.randomMove(board[i, j])
                         self.global_row, self.global_col = i, j
                         return self.global_row, self.global_col, local_row, local_col
+            raise ValueError(Style.BRIGHT + Fore.RED + f"Randy couldn't find a playable board! Global Board is \n{board}" + Style.RESET_ALL)
         else:   
             self.global_row, self.global_col = board_to_play
             if not isPlayable(board[self.global_row, self.global_col]):
-                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is {board[self.global_row, self.global_col]}" + Style.RESET_ALL)
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is \n{board[self.global_row, self.global_col]}" + Style.RESET_ALL)
 
         if self.global_row is None or self.global_col is None:
             raise ValueError(f"global_row or global_col is None! Board to play was {board_to_play}")

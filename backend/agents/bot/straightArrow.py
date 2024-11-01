@@ -100,11 +100,13 @@ class StraightArrowAgent:
                         self.moveNumber += 1
                         return i, j, local_row, local_col
             
+            raise ValueError(Style.BRIGHT + Fore.RED + f"Straighty couldn't find a playable board! Global Board is \n{super_board}" + Style.RESET_ALL)
+            
         else:
             a, b = board_to_play
             subboard = super_board[a, b]
             if not isPlayable(subboard):
-                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is {subboard}" + Style.RESET_ALL)
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is \n{subboard}" + Style.RESET_ALL)
 
         # Greedy Action
         local_winner = self.get_winnableByOne(subboard)
