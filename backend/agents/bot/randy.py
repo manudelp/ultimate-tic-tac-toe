@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from colorama import init, Fore, Style
 
 
 def isFull(board):
@@ -52,6 +53,8 @@ class RandomAgent:
                         return self.global_row, self.global_col, local_row, local_col
         else:   
             self.global_row, self.global_col = board_to_play
+            if not isPlayable(board[self.global_row, self.global_col]):
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is {board[self.global_row, self.global_col]}" + Style.RESET_ALL)
 
         if self.global_row is None or self.global_col is None:
             raise ValueError(f"global_row or global_col is None! Board to play was {board_to_play}")

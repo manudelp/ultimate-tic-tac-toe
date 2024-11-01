@@ -2,6 +2,7 @@ import numpy as np
 import random
 import ast
 import os
+from colorama import init, Style, Fore
 
 """
 If it can make a subboard win, it plays it. 
@@ -102,7 +103,8 @@ class StraightArrowAgent:
         else:
             a, b = board_to_play
             subboard = super_board[a, b]
-            print(f"Board to play was not None, it is {board_to_play}, looks like this:\n {subboard}")
+            if not isPlayable(subboard):
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is {subboard}" + Style.RESET_ALL)
 
         # Greedy Action
         local_winner = self.get_winnableByOne(subboard)

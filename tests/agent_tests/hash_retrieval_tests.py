@@ -589,6 +589,7 @@ b10_eval, b10_eval_v2, b10_eval_v3 = localBoardEval(board_10), localBoardEval_v2
 b11_eval, b11_eval_v2, b11_eval_v3 = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11)
 b12_eval, b12_eval_v2, b12_eval_v3 = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12)
 
+# region Eval Prints
 # V1 Evals
 # print(f"Eval Version 1 for Board 1 is {b1_eval}")
 # print(f"Eval Version 1 for Board 2 is {b2_eval}")
@@ -630,6 +631,7 @@ b12_eval, b12_eval_v2, b12_eval_v3 = localBoardEval(board_12), localBoardEval_v2
 # print(f"Eval Version 3 for Board 10 is {b10_eval_v3}")
 # print(f"Eval Version 3 for Board 11 is {b11_eval_v3}")
 # print(f"Eval Version 3 for Board 12 is {b12_eval_v3}")
+# endregion
 
 # Define Tests
 def run_won_tests(agent):
