@@ -141,6 +141,12 @@ const Dashboard: React.FC = () => {
       {/* GAME BOARD */}
       {isBoardVisible && (
         <>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded"
+            onClick={() => handleExitGame()}
+          >
+            Exit game
+          </button>
           <div>
             {starts === "bot" && (
               <p className="text-red-500">
@@ -156,12 +162,6 @@ const Dashboard: React.FC = () => {
               onReset={handleBoardReset}
             />
           </div>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded"
-            onClick={() => handleExitGame()}
-          >
-            Exit game
-          </button>
         </>
       )}
     </>
