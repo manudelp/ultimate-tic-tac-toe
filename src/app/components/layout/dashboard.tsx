@@ -138,32 +138,35 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
-      {/* GAME BOARD */}
-      {isBoardVisible && (
-        <>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded"
-            onClick={() => handleExitGame()}
-          >
-            Exit game
-          </button>
-          <div>
-            {starts === "bot" && (
-              <p className="text-red-500">
-                *Bot starts isn&apos;t working. Sorry for the inconvenience. :/
-              </p>
-            )}
+      <div className="h-screen flex flex-col items-center justify-center">
+        {/* GAME BOARD */}
+        {isBoardVisible && (
+          <>
+            <div>
+              {starts === "bot" && (
+                <p className="text-red-500">
+                  *Bot starts isn&apos;t working. Sorry for the inconvenience.
+                  :/
+                </p>
+              )}
 
-            <Board
-              gameMode={gameMode}
-              starts={starts}
-              totalGames={totalGames}
-              resetBoard={resetBoard}
-              onReset={handleBoardReset}
-            />
-          </div>
-        </>
-      )}
+              <Board
+                gameMode={gameMode}
+                starts={starts}
+                totalGames={totalGames}
+                resetBoard={resetBoard}
+                onReset={handleBoardReset}
+              />
+            </div>
+            <button
+              className="px-4 py-2 bg-red-500 text-white rounded"
+              onClick={() => handleExitGame()}
+            >
+              Exit game
+            </button>
+          </>
+        )}
+      </div>
     </>
   );
 };

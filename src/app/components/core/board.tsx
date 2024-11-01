@@ -47,7 +47,7 @@ const Board: React.FC<BoardProps> = ({
   }, [onReset]);
 
   return (
-    <div className="w-screen h-full flex flex-wrap gap-4 p-2">
+    <div className="h-full flex flex-wrap gap-4 p-2">
       {/* BOARD */}
       <div
         className={`w-full sm:w-[600px] h-full aspect-square flex flex-wrap relative ${
