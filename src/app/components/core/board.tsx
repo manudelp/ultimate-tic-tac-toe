@@ -47,7 +47,7 @@ const Board: React.FC<BoardProps> = ({
   }, [onReset]);
 
   return (
-    <div className="h-full flex flex-wrap gap-4 p-2">
+    <div className="h-full flex flex-wrap gap-4 p-2 bg-black text-white">
       {/* BOARD */}
       <div
         className={`w-full sm:w-[600px] h-full aspect-square flex flex-wrap relative ${
@@ -123,17 +123,17 @@ const Board: React.FC<BoardProps> = ({
       <div className="w-full sm:w-auto flex flex-col gap-4 items-center sm:items-start">
         {/* GAME MODE */}
         {gameMode === "player-vs-player" && (
-          <h2 className="text-black dark:text-white bg-blue-500 px-2 rounded-full text-sm uppercase">
+          <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
             Player vs Player
           </h2>
         )}
         {gameMode === "player-vs-bot" && (
-          <h2 className="text-black dark:text-white bg-green-500 px-2 rounded-full text-sm uppercase">
+          <h2 className="bg-green-500 px-2 rounded-full text-sm uppercase">
             Player vs Bot
           </h2>
         )}
         {gameMode === "bot-vs-bot" && (
-          <h2 className="text-black dark:text-white bg-red-500 px-2 rounded-full text-sm uppercase">
+          <h2 className="bg-red-500 px-2 rounded-full text-sm uppercase">
             Bot vs Bot
           </h2>
         )}
@@ -141,20 +141,16 @@ const Board: React.FC<BoardProps> = ({
         {/* PLAYING AGAINST - PLAYER VS BOT */}
         {gameMode === "player-vs-bot" && (
           <div className="">
-            <h2 className="text-black dark:text-white text-lg sm:text-2xl">
-              Playing against {agentId}
-            </h2>
+            <h2 className="text-lg sm:text-2xl">Playing against {agentId}</h2>
             {isBotThinking && (
-              <div className="text-black dark:text-white text-sm sm:text-xl">
-                {agentId} is thinking...
-              </div>
+              <div className="text-sm sm:text-xl">{agentId} is thinking...</div>
             )}
           </div>
         )}
 
         {/* WHO STARTS */}
         {gameMode === "player-vs-bot" && starts && !lastMove && (
-          <h2 className="text-black dark:text-white text-lg sm:text-2xl">
+          <h2 className="text-lg sm:text-2xl">
             {starts === "player" ? "You start" : agentId + " starts"}
           </h2>
         )}
@@ -162,7 +158,7 @@ const Board: React.FC<BoardProps> = ({
         {/* MATCH INFO - BOT VS BOT */}
         {gameMode === "bot-vs-bot" && (
           <div className="w-full">
-            <div className="text-black dark:text-white text-lg sm:text-2xl text-center sm:text-start">
+            <div className="text-lg sm:text-2xl text-center sm:text-start">
               {agentId} ({agentIdTurn}) vs {agentId2} ({agentId2Turn})
             </div>
             {totalGames && (
@@ -174,12 +170,12 @@ const Board: React.FC<BoardProps> = ({
                       className="w-full h-full bg-indigo-500 rounded-full relative"
                       style={{ width: `${progressPercentage}%` }}
                     >
-                      <p className="text-black dark:text-white font-medium absolute inset-y-0 right-2 m-0 p-0">
+                      <p className="font-medium absolute inset-y-0 right-2 m-0 p-0">
                         {playedGames > 0 && playedGames}
                       </p>
                     </div>
                   </div>
-                  <p className="text-black dark:text-white">{totalGames}</p>
+                  <p>{totalGames}</p>
                 </div>
               </div>
             )}
@@ -188,28 +184,28 @@ const Board: React.FC<BoardProps> = ({
 
         {/* IS BOT THINKING */}
         {gameMode === "bot-vs-bot" && isBotThinking && (
-          <div className="text-black dark:text-white text-lg sm:text-xl">
+          <div className="text-lg sm:text-xl">
             {turn === "O" ? agentId : agentId2} is thinking...
           </div>
         )}
 
         {/* TURN PLAYER VS BOT*/}
         {gameMode === "player-vs-bot" && (
-          <h2 className="text-black dark:text-white text-lg sm:text-2xl">
+          <h2 className="text-lg sm:text-2xl">
             Turn: {turn === "X" ? `You (${turn})` : `${agentId} (${turn})`}
           </h2>
         )}
 
         {/* TURN PLAYER VS PLAYER */}
         {gameMode === "player-vs-player" && (
-          <h2 className="text-black dark:text-white text-4xl">Turn: {turn}</h2>
+          <h2 className="text-4xl">Turn: {turn}</h2>
         )}
 
         {/* GAME WINNER */}
         {gameWinner && (
           <>
             {gameMode === "player-vs-bot" && (
-              <h2 className="text-black dark:text-white text-lg sm:text-2xl md:text-4xl">
+              <h2 className="text-lg sm:text-2xl md:text-4xl">
                 {gameWinner === "X"
                   ? "You win!"
                   : gameWinner === "O"
@@ -220,7 +216,7 @@ const Board: React.FC<BoardProps> = ({
 
             {/* Show game winner in player vs player */}
             {gameMode === "player-vs-player" && (
-              <h2 className="text-black dark:text-white sm:text-2xl md:text-4xl">
+              <h2 className="sm:text-2xl md:text-4xl">
                 {gameWinner === "X"
                   ? "Player X wins!"
                   : gameWinner === "O"
@@ -231,7 +227,7 @@ const Board: React.FC<BoardProps> = ({
 
             {/* Show game winner in bot vs bot */}
             {gameMode === "bot-vs-bot" && (
-              <h2 className="text-black dark:text-white text-lg sm:text-2xl md:text-4xl">
+              <h2 className="text-lg sm:text-2xl md:text-4xl">
                 {gameWinner === "X"
                   ? agentId2 + " wins! (X)"
                   : gameWinner === "O"
@@ -245,7 +241,7 @@ const Board: React.FC<BoardProps> = ({
         {/* WINNER PERCENTAGES */}
         {playedGames === totalGames && (
           <>
-            <div className="text-black dark:text-white text-sm">
+            <div className="text-sm">
               <p>
                 {agentId} ({agentIdTurn}) Won {winPercentages[1]}% of the games
               </p>
@@ -255,7 +251,7 @@ const Board: React.FC<BoardProps> = ({
               </p>
               <p>Draw Percentage: {winPercentages[2]}%</p>
             </div>
-            <h2 className="text-black dark:text-white text-lg sm:text-2xl md:text-4xl">
+            <h2 className="text-lg sm:text-2xl md:text-4xl">
               Winner:{" "}
               {winPercentages[1] > winPercentages[0]
                 ? `${agentId} (${agentIdTurn})`
