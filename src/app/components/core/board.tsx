@@ -5,7 +5,7 @@ import { useGame } from "../../hooks/useGame";
 interface BoardProps {
   gameMode: string;
   starts?: string | null;
-  botMatch?: number | null;
+  totalGames?: number | null;
   resetBoard: boolean;
   onReset: () => void;
 }
@@ -13,7 +13,7 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({
   gameMode,
   starts,
-  botMatch,
+  totalGames,
   resetBoard,
   onReset,
 }) => {
@@ -36,9 +36,9 @@ const Board: React.FC<BoardProps> = ({
     isBotThinking,
     handleCellClick,
     makeMove,
-  } = useGame(gameMode, starts || "player", botMatch || 0, resetBoard);
+  } = useGame(gameMode, starts || "player", totalGames || 0, resetBoard);
 
-  const progressPercentage = (playedGames / (botMatch || 1)) * 100;
+  const progressPercentage = (playedGames / (totalGames || 1)) * 100;
 
   useEffect(() => {
     return () => {
@@ -47,9 +47,10 @@ const Board: React.FC<BoardProps> = ({
   }, [onReset]);
 
   return (
-    <div className="w-screen h-full flex gap-4">
+    <div className="w-screen h-full flex flex-wrap gap-4 p-2">
+      {/* BOARD */}
       <div
-        className={`w-[600px] h-full aspect-square flex flex-wrap relative ${
+        className={`w-full sm:w-[600px] h-full aspect-square flex flex-wrap relative ${
           gameOver ? "pointer-events-none opacity-50" : ""
         }`}
       >
@@ -117,11 +118,27 @@ const Board: React.FC<BoardProps> = ({
           </div>
         )}
       </div>
-      <div className="w-full sm:w-auto flex flex-col gap-4 items-center sm:items-start">
-        <h2 className="text-black dark:text-white text-lg sm:text-2xl uppercase">
-          {gameMode.replace(/-/g, " ")}
-        </h2>
 
+      {/* GAME INFO */}
+      <div className="w-full sm:w-auto flex flex-col gap-4 items-center sm:items-start">
+        {/* GAME MODE */}
+        {gameMode === "player-vs-player" && (
+          <h2 className="text-black dark:text-white bg-blue-500 px-2 rounded-full text-sm uppercase">
+            Player vs Player
+          </h2>
+        )}
+        {gameMode === "player-vs-bot" && (
+          <h2 className="text-black dark:text-white bg-green-500 px-2 rounded-full text-sm uppercase">
+            Player vs Bot
+          </h2>
+        )}
+        {gameMode === "bot-vs-bot" && (
+          <h2 className="text-black dark:text-white bg-red-500 px-2 rounded-full text-sm uppercase">
+            Bot vs Bot
+          </h2>
+        )}
+
+        {/* PLAYING AGAINST - PLAYER VS BOT */}
         {gameMode === "player-vs-bot" && (
           <div className="">
             <h2 className="text-black dark:text-white text-lg sm:text-2xl">
@@ -135,53 +152,60 @@ const Board: React.FC<BoardProps> = ({
           </div>
         )}
 
-        {gameMode === "player-vs-bot" && starts && (
+        {/* WHO STARTS */}
+        {gameMode === "player-vs-bot" && starts && !lastMove && (
           <h2 className="text-black dark:text-white text-lg sm:text-2xl">
             {starts === "player" ? "You start" : agentId + " starts"}
           </h2>
         )}
 
+        {/* MATCH INFO - BOT VS BOT */}
         {gameMode === "bot-vs-bot" && (
           <div className="w-full">
-            <div className="text-black dark:text-white text-lg sm:text-2xl">
+            <div className="text-black dark:text-white text-lg sm:text-2xl text-center sm:text-start">
               {agentId} ({agentIdTurn}) vs {agentId2} ({agentId2Turn})
             </div>
-            {botMatch && (
-              <>
-                <div className="my-4 w-full flex gap-2">
-                  <div className="w-full h-6 bg-black rounded-xl">
+            {totalGames && (
+              <div className="my-4">
+                <p className="text-indigo-500 p-0 m-0">Games played:</p>
+                <div className="w-full flex gap-2">
+                  <div className="w-full h-6 bg-gray-500 rounded-full">
                     <div
-                      className="w-full h-full bg-primary rounded-xl relative"
+                      className="w-full h-full bg-indigo-500 rounded-full relative"
                       style={{ width: `${progressPercentage}%` }}
                     >
                       <p className="text-black dark:text-white font-medium absolute inset-y-0 right-2 m-0 p-0">
-                        {playedGames}
+                        {playedGames > 0 && playedGames}
                       </p>
                     </div>
                   </div>
-                  <p className="text-black dark:text-white">{botMatch}</p>
+                  <p className="text-black dark:text-white">{totalGames}</p>
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
 
+        {/* IS BOT THINKING */}
         {gameMode === "bot-vs-bot" && isBotThinking && (
           <div className="text-black dark:text-white text-lg sm:text-xl">
             {turn === "O" ? agentId : agentId2} is thinking...
           </div>
         )}
 
+        {/* TURN PLAYER VS BOT*/}
         {gameMode === "player-vs-bot" && (
           <h2 className="text-black dark:text-white text-lg sm:text-2xl">
-            Turn: {turn === "O --> " + agentId ? agentId : "X --> You"}
+            Turn: {turn === "X" ? `You (${turn})` : `${agentId} (${turn})`}
           </h2>
         )}
 
+        {/* TURN PLAYER VS PLAYER */}
         {gameMode === "player-vs-player" && (
           <h2 className="text-black dark:text-white text-4xl">Turn: {turn}</h2>
         )}
 
+        {/* GAME WINNER */}
         {gameWinner && (
           <>
             {gameMode === "player-vs-bot" && (
@@ -194,6 +218,7 @@ const Board: React.FC<BoardProps> = ({
               </h2>
             )}
 
+            {/* Show game winner in player vs player */}
             {gameMode === "player-vs-player" && (
               <h2 className="text-black dark:text-white sm:text-2xl md:text-4xl">
                 {gameWinner === "X"
@@ -204,6 +229,7 @@ const Board: React.FC<BoardProps> = ({
               </h2>
             )}
 
+            {/* Show game winner in bot vs bot */}
             {gameMode === "bot-vs-bot" && (
               <h2 className="text-black dark:text-white text-lg sm:text-2xl md:text-4xl">
                 {gameWinner === "X"
@@ -216,7 +242,8 @@ const Board: React.FC<BoardProps> = ({
           </>
         )}
 
-        {playedGames === botMatch && (
+        {/* WINNER PERCENTAGES */}
+        {playedGames === totalGames && (
           <>
             <div className="text-black dark:text-white text-sm">
               <p>
@@ -231,9 +258,9 @@ const Board: React.FC<BoardProps> = ({
             <h2 className="text-black dark:text-white text-lg sm:text-2xl md:text-4xl">
               Winner:{" "}
               {winPercentages[1] > winPercentages[0]
-                ? agentId
+                ? `${agentId} (${agentIdTurn})`
                 : winPercentages[0] > winPercentages[1]
-                ? agentId2
+                ? `${agentId2} (${agentId2Turn})`
                 : "None! (Draw)"}
             </h2>
           </>

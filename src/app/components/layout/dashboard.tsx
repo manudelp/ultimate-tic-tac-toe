@@ -5,14 +5,14 @@ import Board from "@/app/components/core/board";
 const Dashboard: React.FC = () => {
   const [gameMode, setGameMode] = useState<string | null>(null);
   const [starts, setStarts] = useState<string | null>(null);
-  const [botMatch, setBotMatch] = useState<number | null>(null);
+  const [totalGames, setTotalGames] = useState<number | null>(null);
   const [resetBoard, setResetBoard] = useState<boolean>(false);
 
   const selectMode = (mode: string) => {
     setGameMode(mode);
     setResetBoard(true);
     setStarts(null);
-    setBotMatch(null);
+    setTotalGames(null);
   };
 
   const handleBoardReset = () => {
@@ -23,22 +23,22 @@ const Dashboard: React.FC = () => {
     setGameMode(null);
     setResetBoard(true);
     setStarts(null);
-    setBotMatch(null);
+    setTotalGames(null);
   };
 
   const isBoardVisible =
     gameMode &&
     (gameMode !== "player-vs-bot" || starts) &&
-    (gameMode !== "bot-vs-bot" || botMatch);
+    (gameMode !== "bot-vs-bot" || totalGames);
 
   return (
-    <div className="p-4">
+    <div className="sm:p-4">
       <div>
         {!isBoardVisible && (
           <>
             {/* CHOOSE GAME MODE */}
             {gameMode === null && (
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   className="px-4 py-2 bg-blue-500 text-white rounded"
                   onClick={() => selectMode("player-vs-player")}
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
             {/* WHO STARTS */}
             {gameMode === "player-vs-bot" && !starts && (
               <>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     className="px-4 py-2 bg-red-500 text-white rounded"
                     onClick={() => handleExitGame()}
@@ -95,8 +95,8 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* NUMBER OF GAMES */}
-            {gameMode === "bot-vs-bot" && !botMatch && (
-              <div className="flex gap-4">
+            {gameMode === "bot-vs-bot" && !totalGames && (
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   className="px-4 py-2 bg-red-500 text-white rounded"
                   onClick={() => handleExitGame()}
@@ -104,14 +104,16 @@ const Dashboard: React.FC = () => {
                   Go back
                 </button>
                 <form
-                  className="flex gap-4"
+                  className="flex flex-col sm:flex-row gap-4"
                   onSubmit={(e) => {
                     e.preventDefault(); // Prevent page refresh
                     const input = (e.target as HTMLFormElement).querySelector(
                       "input"
                     );
                     if (input) {
-                      setBotMatch(parseInt(input.value, 10));
+                      const games = parseInt(input.value, 10);
+                      console.log(games);
+                      setTotalGames(games);
                     }
                   }}
                 >
@@ -155,7 +157,7 @@ const Dashboard: React.FC = () => {
             <Board
               gameMode={gameMode}
               starts={starts}
-              botMatch={botMatch}
+              totalGames={totalGames}
               resetBoard={resetBoard}
               onReset={handleBoardReset}
             />

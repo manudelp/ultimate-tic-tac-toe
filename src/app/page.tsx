@@ -17,9 +17,12 @@ export default function Home() {
     return null; // Render nothing on the server
   }
 
+  const version = "0.1.0-alpha-next";
+
   return (
     <Router>
       <div className="min-h-screen bg-black text-white">
+        <p className="absolute right-0 opacity-30">{version}</p>
         {/* <Header /> */}
         <div className="flex">
           {/* <Sidebar /> */}

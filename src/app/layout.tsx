@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-// import localFont from "next/font/local";
+import localFont from "next/font/local";
 import "./globals.css";
 
-// const geistSans = localFont({
-//   src: "./fonts/GeistVF.woff",
-//   variable: "--font-geist-sans",
-//   weight: "100 900",
-// });
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",
-//   variable: "--font-geist-mono",
-//   weight: "100 900",
-// });
+const spaceGrotesk = localFont({
+  src: "./fonts/Space_Grotesk/static/SpaceGrotesk-Regular.ttf",
+  variable: "--font-regular",
+  weight: "400",
+});
+const spaceGroteskBold = localFont({
+  src: "./fonts/Space_Grotesk/static/SpaceGrotesk-Bold.ttf",
+  variable: "--font-bold",
+  weight: "700",
+});
 
 export const metadata: Metadata = {
   title: "Ultimate Tic Tac Toe",
@@ -25,7 +25,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>{children}</body>
+      <body
+        className={`antialiased ${spaceGrotesk.variable} ${spaceGroteskBold.variable}`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
