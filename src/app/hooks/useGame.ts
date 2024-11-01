@@ -121,7 +121,6 @@ export const useGame = (
     (coords: Coords) => {
       const [a, b, c, d] = coords;
       if (gameWinner || gameOver || disabled[a][b] || board[a][b][c][d]) {
-        console.log("Invalid move");
         return;
       }
 
