@@ -197,7 +197,7 @@ class MonkeyAgent:
                                               By doing moves_to_try[:quiescense_moves]. Defaults to 4 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
 
         Returns:
-            best_move (np.array or tuple): The best_move with its 4 coordinates (global_row, global_col, local_row, local_col)
+            best_move (np.array or tuple): The best_move. Tuple of length 4 with global coords if btp=None, otherwise length 2 with the local coords only.
         """
 
         # Timer
@@ -605,9 +605,8 @@ class MonkeyAgent:
 
                 return min_eval, best_move
 
-    def new_parameters(self, board, row, col, loc_row, loc_col):
-        ''' Simulates a move on the board, given the 4d move and the player
-        Returns the new_board_to_play and the new_moves_to_try '''
+    def new_parameters(self, board, loc_row, loc_col):
+        ''' Given the local coords of a move to play, returns the new board_to_play and moves_to_try '''
         if self.get_isOver(board[loc_row, loc_col]):
             board_to_play = None
             moves_to_try = self.generate_global_moves(board)
@@ -619,10 +618,21 @@ class MonkeyAgent:
 
     def order_moves(self, board, moves_to_try):
         ''' Orders the moves on depth-0 '''
-        # TODO: Complete this function to order moves
+        # TODO: Complete this function to order moves, use moself.moveQuality
+        # check that ordy.py uses it
         # then call it in Action to see if it's quicker or not
         # MAKE MONKEY PRINT HOW MUCH TIME IT TAKES TO RUN IT IN THE ACTION TO SEE IF ITS WORTH IT
         None
+
+    def moveQuality(self, board, move, player=1):
+        # FIXME This is not efficient, I think (idk)
+        ''' Given a 4-coord move, returns the quality of the move by simulating it and retrieving balance '''
+        board_copy = board.copy()
+        original_balance = self.boardBalance(board_copy)
+        r, c, r_l, c_l = move
+        board_copy[r, c][r_l, c_l] = player
+        new_balance = self.boardBalance(board_copy)
+        return new_balance - original_balance
 
     def generate_moves(self, board, board_to_play):
         ''' Generates the moves to try given the board and the board_to_play '''

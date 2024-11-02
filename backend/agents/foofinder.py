@@ -234,7 +234,7 @@ class FooFinderAgent:
 
 
     # Minimax Auxiliaries 🌲🧠
-    # TODO: REPLACE ME CON LAS DE MONKEY
+    # TODO REPLACE ME CON LAS DE MONKEY
     def new_parameters(self, board, row, col, loc_row, loc_col):
         # TIMEIT APPROVED ✅
         ''' Simulates a move on the board, given the 4d move and the player
@@ -272,6 +272,13 @@ class FooFinderAgent:
             for submove in np.argwhere(board[row, col] == 0):
                 global_moves.append(np.array([row, col, submove[0], submove[1]]))
         return global_moves
+
+    def TODO_MINIMAX(self):
+        ''' Lists some other TODOs for the Minimax '''
+        
+        # TODO Ver cual tecnica de llamado de llamar *AlphaBeta* es mas eficiente: La de jardy.py, la de twinny.py, o la de ordy.py
+        
+        None
 
     def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
         # TODO: This is a draft
@@ -510,6 +517,11 @@ class FooFinderAgent:
 
         Implementation might be actually more different than it seems... might be worth checking out, or relating to-
         some 3x3 Tic Tac Toe Alpha Beta Pruning Code, since there it's always end game strategy of just checking for winner basically.
+        
+        ESTE CONCEPTO PODRIA IR PARA TODOS LOS ALPHABETAS, PERO BUENO ACA ES AUN MAS IMPORTANTE SI ES QUE ES UN BUEN CONCEPTO
+        - Break / Exception / or smth
+        for the alpha-beta pruning when a move is a winner?
+        tipo, dont waste time doing more comparisons, just break everything and return it
         '''
         None
 

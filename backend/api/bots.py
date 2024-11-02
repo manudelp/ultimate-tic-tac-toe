@@ -8,6 +8,7 @@ from agents.bot.taylor import TaylorAgent
 from agents.bot.straightArrow import StraightArrowAgent
 from agents.bot.iterold import IteroldAgent
 from agents.bot.itterino import ItterinoAgent
+from agents.bot.ordy import TidyPodatorAgent
 
 bot_routes = Blueprint('bots', __name__)
 
@@ -17,20 +18,22 @@ bot_routes = Blueprint('bots', __name__)
 # AGENT1 = GardenerAgent()
 # AGENT1 = MonkeyAgent()
 # AGENT1 = TaylorAgent()
-AGENT1 = StraightArrowAgent()
+# AGENT1 = StraightArrowAgent()
 # AGENT1 = FooFinderAgent()
 # AGENT1 = IteroldAgent()
 # AGENT1 = ItterinoAgent()
+AGENT1 = TidyPodatorAgent()
 
 # INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
-AGENT2 = RandomAgent()
-# AGENT2 = GardenerAgent()
+# AGENT2 = RandomAgent()
+AGENT2 = GardenerAgent()
 # AGENT2 = MonkeyAgent()
 # AGENT2 = TaylorAgent()
 # AGENT2 = StraightArrowAgent()
 # AGENT2 = FooFinderAgent()
 # AGENT2 = IteroldAgent()
 # AGENT2 = ItterinoAgent()
+# AGENT2 = TidyPodatorAgent()
 
 @bot_routes.route('/get-bot-names', methods=['GET'])
 def get_bot_names():
@@ -77,10 +80,10 @@ def get_bot_move():
         else:
             raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
 
-        print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
-        print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
-        print("Their received board is:")  # Print the turn for debugging
-        utils.fancyBoardPrinter(board_array)  # Print the board for debugging
+        # print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
+        # print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
+        # print("Their received board is:")  # Print the turn for debugging
+        # utils.fancyBoardPrinter(board_array)  # Print the board for debugging
 
         # print(f"\nReceived board results is \n{board_results}\n")  # Print the board results for debugging
 

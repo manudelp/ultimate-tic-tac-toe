@@ -8,13 +8,13 @@ from colorama import init, Fore, Style
 depth = 6, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
-Order Moves? = False!
+Order Moves? = TRUE
 
 """
 
-class GardenerAgent:
+class TwinPrunerAgent:
     def __init__(self):
-        self.id = "El Jardinero✂️"
+        self.id = "Twin Pruner🫐"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
@@ -41,7 +41,7 @@ class GardenerAgent:
         return self.id
 
     def reset(self):
-        print("Jardy been RESET")
+        print("Twinny been RESET")
         self.moveNumber = 0
 
     def action(self, super_board, board_to_play=None):
@@ -61,31 +61,34 @@ class GardenerAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"Jardy, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"Twinny, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"Jardy is thinking with alpha beta... btp is None")
+            # print(f"Twinny is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
+            moves_to_ord = self.generate_global_moves(super_board)
+            order_moves = self.order_moves(super_board, board_to_play=None, moves_to_try=moves_to_ord)
             minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
             board_to_play=None, 
             depth=self.depth_global, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True)
+            maximizingPlayer=True,
+            moves_to_try=order_moves)
 
             if minimax_move is not None:
-                # print(f"Jardy chose alpha beta move: {minimax_move}")
+                # print(f"Twinny chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
-                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {time.time() - self.true_time_start:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                print(Style.BRIGHT + Fore.CYAN + f"Twinny took {time.time() - self.true_time_start:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 return r, c, r_l, c_l
             else:
-                raise ValueError("Jardy failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("Twinny failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -93,19 +96,22 @@ class GardenerAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"Jardy is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"Twinny is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
+        moves_to_ord = self.generate_local_moves(subboard)
+        order_moves = self.order_moves(super_board, board_to_play=(a, b), moves_to_try=moves_to_ord)
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
             board_to_play=(a, b), 
             depth=self.depth_local, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True)
+            maximizingPlayer=True,
+            moves_to_try=order_moves)
         if minimax_move is not None:
-            a, b, r_l, c_l = minimax_move
+            r_l, c_l = minimax_move
         else:
-            raise ValueError(f"Jardy failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
         self.moveNumber += 1
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {time.time() - self.true_time_start:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
@@ -152,8 +158,12 @@ class GardenerAgent:
 
         return None
 
+    def initialAlphaBeta(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, moves_to_try):
+        ''' Uses Alpha Beta Pruning with a given ordered list for the first move simulation
+        Calls the alphaBetaModel recursive function for the rest of its calls, without the moves list '''
+        None
+
     def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
-        # TODO: This is a draft
         """ Applies Alpha Beta Pruning techniques to Minimax to explore the game tree and find the best move to play in advanced depth"
 
         Args:
@@ -173,9 +183,6 @@ class GardenerAgent:
         Returns:
             float: The best value for the maximizing player
         """
-
-        # if depth == self.depth:
-        #     print(f"Monke! My depth equality check does work")
 
         # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
         winner = checkBoardWinner(board)
@@ -314,14 +321,74 @@ class GardenerAgent:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
 
+    def new_parameters(self, board, loc_row, loc_col):
+        ''' Given the local coords of a move to play, returns the new board_to_play and moves_to_try '''
+        if self.get_isOver(board[loc_row, loc_col]):
+            board_to_play = None
+            moves_to_try = self.generate_global_moves(board)
+        else:
+            board_to_play = (loc_row, loc_col)
+            moves_to_try = np.argwhere(board[loc_row, loc_col] == 0)
+        
+        return board_to_play, moves_to_try
+
+    def order_moves(self, board, board_to_play, moves_to_try):
+        ''' Orders the moves on depth-0. Returns a list of the ordered moves, with the same coords length as received '''
+        ordered_moves = []
+
+        if board_to_play is None:
+            # Each move has 4 coords
+            for move in moves_to_try:
+                ordered_moves.append((move, self.moveQuality(board, move, player=1)))
+            ordered_moves.sort(key=lambda x: x[1], reverse=True)
+            return [move[0] for move in ordered_moves]
+        
+        else:
+            row, col = board_to_play
+            for short_move in moves_to_try:
+                loc_row, loc_col = short_move
+                move = (row, col, loc_row, loc_col)
+                ordered_moves.append((short_move, self.moveQuality(board, move, player=1)))
+            ordered_moves.sort(key=lambda x: x[1], reverse=True)
+            return [move[0] for move in ordered_moves]
+
+    def moveQuality(self, board, move, player=1):
+        ''' Given a 4-coord move, returns the quality of the move by simulating it and retrieving balance '''
+        board_copy = board.copy()
+        original_balance = self.boardBalance(board_copy)
+        r, c, r_l, c_l = move
+        board_copy[r, c][r_l, c_l] = player
+        new_balance = self.boardBalance(board_copy)
+        return new_balance - original_balance
+
+    def generate_moves(self, board, board_to_play):
+        ''' Generates the moves to try given the board and the board_to_play '''
+        if board_to_play is None:
+            moves_to_try = self.generate_global_moves(board)
+        else:
+            row, col = board_to_play
+            moves_to_try = self.generate_local_moves(board[row, col])
+        
+        return moves_to_try
+
+    def generate_local_moves(self, board):
+        # TIMEIT ACCEPTED ☑️ (Solo se usa por fuera del Minimax, asi que aceptable enough)
+        ''' Given a local board, generates a list of all playable moves '''
+        local_moves = np.argwhere(board == 0)
+        
+        # Turn 2D Array into List of Arrays
+        list_moves = [local_moves[i] for i in range(len(local_moves))]
+
+        return list_moves
+
     def generate_global_moves(self, board):
+        # TIMEIT APPROVED ✅
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
         global_moves = []
         for (row, col) in self.genPlayableBoards(board):
-            local_board = board[row, col]
-            for submove in np.argwhere(local_board == 0):
-                global_moves.append([int(submove[0]), int(submove[1])])
+            for submove in np.argwhere(board[row, col] == 0):
+                global_moves.append(np.array([row, col, submove[0], submove[1]]))
         return global_moves
 
     def boardBalance(self, board):
@@ -391,7 +458,7 @@ class GardenerAgent:
         board_key = board.tobytes()
         local_eval = self.hash_eval_boards.get(board_key, None)
         if local_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated boards.")
+            raise ValueError(f"Board {board} not found in evaluated boards.\nWhile Board is:\n{board}")
         return local_eval
 
     def updateOverBoards(self, board):
@@ -803,6 +870,24 @@ def localBoardEval(localBoard):
     score += diagBT_eval
 
     return score
+
+# # Hash Test
+# agent = TidyPodatorAgent()
+# board = np.random.randint(-1, 2, (3, 3, 3, 3))
+# move = agent.action(super_board=board, board_to_play=(0, 1))
+# print(f"Move is {move}")
+
+
+# board_test = np.array([[1, -1, 1],
+#                     [0, -1, -1],
+#                     [1, 1, 0]])  # Not Won (winnable by 1 in (1, 0), (2, 2) and by -1 in (1, 0))
+
+# example_eval = agent.get_local_eval(board_test)
+# print(f"Hash eval is {example_eval}")
+
+# og_eval = localBoardEval(board_test)
+# print(f"Original eval is {og_eval}")
+
 
 
 

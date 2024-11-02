@@ -41,7 +41,7 @@ class RandomAgent:
 
     def action(self, board, board_to_play=None):
         board = np.array(board, dtype=int)
-        print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
+        # print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
 
         self.global_row, self.global_col = None, None
         
@@ -50,7 +50,7 @@ class RandomAgent:
             for i in range(3):
                 for j in range(3):
                     if isPlayable(board[i, j]):
-                        print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
+                        # print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
                         local_row, local_col = self.randomMove(board[i, j])
                         self.global_row, self.global_col = i, j
                         self.moveNumber += 1
@@ -65,7 +65,7 @@ class RandomAgent:
             raise ValueError(f"global_row or global_col is None! Board to play was {board_to_play}")
 
         local_board = board[self.global_row, self.global_col]
-        print(f"I randy will attempt randomMove on the local_board: {self.global_row, self.global_col}")
+        # print(f"I randy will attempt randomMove on the local_board: {self.global_row, self.global_col}")
         c, d = self.randomMove(local_board)
         self.moveNumber += 1
         return self.global_row, self.global_col, c, d
