@@ -17,6 +17,7 @@ interface MiniBoardProps {
     rowIndex: number,
     cellIndex: number
   ) => void;
+  makeMove: (ooords: [number, number, number, number]) => void;
 }
 
 const MiniBoard: React.FC<MiniBoardProps> = ({
