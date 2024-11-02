@@ -38,7 +38,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
         (activeMiniBoard !== null &&
           (activeMiniBoard?.[0] !== localRowIndex ||
             activeMiniBoard?.[1] !== localColIndex))
-          ? "pointer-events-none"
+          ? "opacity-50 pointer-events-none"
           : ""
       } }`}
       style={{
