@@ -38,7 +38,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
         (activeMiniBoard !== null &&
           (activeMiniBoard?.[0] !== localRowIndex ||
             activeMiniBoard?.[1] !== localColIndex))
-          ? "opacity-50 pointer-events-none"
+          ? "pointer-events-none"
           : ""
       } }`}
       style={{
@@ -90,7 +90,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
 
       {winner && (
         <div className="absolute inset-0 flex items-center justify-center bg-black opacity-100 hover:opacity-0 pointer-events-none transition-opacity">
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto grid place-items-center">
             {winner === "X" ? (
               <X theme={"dark"} />
             ) : winner === "O" ? (
