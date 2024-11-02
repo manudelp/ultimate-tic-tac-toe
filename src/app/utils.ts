@@ -114,12 +114,14 @@ export const NextActiveMiniBoard = (
   col: number
 ): [number, number] | null => {
   // Verifica si el mini-tablero en la posición clickeada está ganado o deshabilitado
-  if (miniBoardDisabled[row][col] || miniBoardWinners[row][col]) {
+  if (
+    miniBoardDisabled[row][col] !== true ||
+    miniBoardWinners[row][col] === null
+  ) {
+    return [row, col];
+  } else {
     return null;
   }
-
-  // Si el mini-tablero no está ganado ni deshabilitado, devuelve las coordenadas de la posición clickeada
-  return [row, col];
 };
 
 export const convertBoardToNumeric = (

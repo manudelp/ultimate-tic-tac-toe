@@ -70,15 +70,13 @@ export const useGame = (
         updated[a][b] = winner;
         return updated;
       });
-      console.log("MiniBoardWinners:", winners);
       setDisabled((prev) => {
         const updated = [...prev];
         updated[a][b] = true;
         return updated;
       });
-      console.log("Disabled:", disabled);
     },
-    [disabled, winners]
+    []
   );
 
   const disableFullMiniBoard = useCallback(
@@ -137,7 +135,9 @@ export const useGame = (
       }
 
       // Calcula el próximo mini-tablero
-      const nextMiniBoard = NextActiveMiniBoard(winners, disabled, c, d);
+      const nextMiniBoard = winners[a][b]
+        ? null
+        : NextActiveMiniBoard(winners, disabled, c, d);
       setActiveMiniBoard(nextMiniBoard as ActiveMiniBoard);
 
       // Verifica si el mini-tablero está lleno
