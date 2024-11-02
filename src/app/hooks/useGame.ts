@@ -3,7 +3,6 @@ import { fetchBotNames, getBotMove, agentsReset } from "@/api";
 import {
   MiniBoardWinner,
   GameWinner,
-  NextActiveMiniBoard,
   convertBoardToNumeric,
   checkBotWinner,
 } from "../utils";
@@ -131,14 +130,16 @@ export const useGame = (
       // Actualiza el ganador del mini-tablero antes de proceder
       const winner = MiniBoardWinner(updatedBoard[a][b] as MiniBoard);
       if (winner) {
-        updateMiniBoardState(a as number, b as number, winner as Winner);
+        updateMiniBoardState(a, b, winner);
       }
 
       // Calcula el próximo mini-tablero
-      const nextMiniBoard = winners[a][b]
-        ? null
-        : NextActiveMiniBoard(winners, disabled, c, d);
-      setActiveMiniBoard(nextMiniBoard as ActiveMiniBoard);
+      const nextMiniBoard = MiniBoardWinner(updatedBoard[c][d] as MiniBoard);
+      if (!disabled[c][d] && !nextMiniBoard) {
+        setActiveMiniBoard([c, d]);
+      } else {
+        setActiveMiniBoard(null);
+      }
 
       // Verifica si el mini-tablero está lleno
       if (updatedBoard[a][b].flat().every((cell) => cell !== "")) {
@@ -158,7 +159,6 @@ export const useGame = (
       disabled,
       board,
       turn,
-      winners,
       checkOverallGameWinner,
       updateMiniBoardState,
       disableFullMiniBoard,
@@ -170,7 +170,7 @@ export const useGame = (
     if (!isBotThinking) {
       makeMove(coords);
     } else {
-      alert("Let " + agentId + " cook.");
+      alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
     }
   };
 
@@ -179,8 +179,6 @@ export const useGame = (
       setIsBotThinking(true);
 
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
-
-      console.log(activeMiniBoard);
 
       const coords: Coords = await getBotMove(
         numericBoard,

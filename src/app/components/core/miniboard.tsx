@@ -1,6 +1,7 @@
 import React from "react";
 import X from "../ui/playerx";
 import O from "../ui/playero";
+import Draw from "../ui/draw";
 
 interface MiniBoardProps {
   miniBoard: string[][];
@@ -31,22 +32,14 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
   const winner = winners?.[localRowIndex]?.[localColIndex];
   return (
     <div
-      className={`w-1/3 h-1/3 p-4 transition ${
+      className={`w-1/3 h-1/3 p-4 transition relative ${
         disabled?.[localRowIndex]?.[localColIndex] ||
         (activeMiniBoard !== null &&
           (activeMiniBoard?.[0] !== localRowIndex ||
             activeMiniBoard?.[1] !== localColIndex))
           ? "opacity-50 pointer-events-none"
           : ""
-      } ${
-        winner === "X"
-          ? "bg-green-500"
-          : winner === "O"
-          ? "bg-blue-500"
-          : winner === "Draw"
-          ? "bg-red-500"
-          : "bg-transparent"
-      }`}
+      } }`}
       style={{
         borderTop: localRowIndex < 1 ? "none" : `1px solid white`,
         borderBottom: localRowIndex >= 2 ? "none" : `1px solid white`,
@@ -93,20 +86,22 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
           ))}
         </div>
       ))}
+
+      {winner && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black opacity-100 hover:opacity-0 pointer-events-none transition-opacity">
+          <div className="pointer-events-auto">
+            {winner === "X" ? (
+              <X theme={"dark"} />
+            ) : winner === "O" ? (
+              <O theme={"dark"} />
+            ) : (
+              <Draw theme={"dark"} />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
-interface MiniBoardProps {
-  miniBoard: string[][];
-  localRowIndex: number;
-  localColIndex: number;
-  winners: (string | null)[][];
-  disabled: boolean[][];
-  activeMiniBoard: [number, number] | null;
-  lastMove: [number, number, number, number] | null;
-  handleCellClick: (a: number, b: number, c: number, d: number) => void;
-  makeMove: (coords: [number, number, number, number]) => void;
-}
 
 export default MiniBoard;

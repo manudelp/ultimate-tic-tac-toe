@@ -165,17 +165,15 @@ const Board: React.FC<BoardProps> = ({
               <div className="my-4">
                 <p className="text-indigo-500 p-0 m-0">Games played:</p>
                 <div className="w-full flex gap-2">
-                  <div className="w-full h-6 bg-gray-500 rounded-full">
+                  <div className="w-full h-6 bg-gray-500 rounded-full overflow-hidden relative">
                     <div
-                      className="w-full h-full bg-indigo-500 rounded-full relative"
+                      className="h-full bg-indigo-500"
                       style={{ width: `${progressPercentage}%` }}
-                    >
-                      <p className="font-medium absolute inset-y-0 right-2 m-0 p-0">
-                        {playedGames > 0 && playedGames}
-                      </p>
-                    </div>
+                    />
+                    <p className="font-medium text-white absolute inset-y-0 right-2 m-0 p-0">
+                      {playedGames > 0 && playedGames + "/" + totalGames}
+                    </p>
                   </div>
-                  <p>{totalGames}</p>
                 </div>
               </div>
             )}
