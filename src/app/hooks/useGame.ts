@@ -135,7 +135,7 @@ export const useGame = (
 
       // Calcula el próximo mini-tablero
       const nextMiniBoard = MiniBoardWinner(updatedBoard[c][d] as MiniBoard);
-      if (!disabled[c][d] && !nextMiniBoard) {
+      if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
         setActiveMiniBoard([c, d]);
       } else {
         setActiveMiniBoard(null);
@@ -159,6 +159,7 @@ export const useGame = (
       disabled,
       board,
       turn,
+      winners,
       checkOverallGameWinner,
       updateMiniBoardState,
       disableFullMiniBoard,

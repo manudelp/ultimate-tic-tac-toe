@@ -171,10 +171,40 @@ const Board: React.FC<BoardProps> = ({
                       style={{ width: `${progressPercentage}%` }}
                     />
                     <p className="font-medium text-white absolute inset-y-0 right-2 m-0 p-0">
-                      {playedGames > 0 && playedGames + "/" + totalGames}
+                      {playedGames + "/" + totalGames}
                     </p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {playedGames > 0 && playedGames < (totalGames || 0) && (
+              <div className="text-sm text-center sm:text-start">
+                <p>
+                  {agentId} ({agentIdTurn}) won{" "}
+                  <span
+                    style={{
+                      color:
+                        winPercentages[1] > winPercentages[0] ? "green" : "red",
+                    }}
+                  >
+                    {winPercentages[1]}%
+                  </span>{" "}
+                  of the games
+                </p>
+                <p>
+                  {agentId2} ({agentId2Turn}) won{" "}
+                  <span
+                    style={{
+                      color:
+                        winPercentages[0] > winPercentages[1] ? "green" : "red",
+                    }}
+                  >
+                    {winPercentages[0]}%
+                  </span>{" "}
+                  of the games
+                </p>
+                <p>Draw Percentage: {winPercentages[2]}%</p>
               </div>
             )}
           </div>
