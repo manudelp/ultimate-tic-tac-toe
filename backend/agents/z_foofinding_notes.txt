@@ -6,8 +6,6 @@ CHECK **EVERYWHERE** WHERE LOCAL BOARD FUNCTIONS LIKE ISWON OR ISPLAYABLE ARE CA
 
 # MINIMAX
 
-Add a transposition table using .tobytes() xd
-
 
 # Iterative Deepening & Function-Calling Stuff
 

@@ -7,6 +7,10 @@ NEXT UP ==>
 o incluso si no es tobytes(), ffs estas haciendo iterative deepening APROVECHA Y GUARDA POSICIONES PARA NO TARDAR 20 AÑOS EN LA BEST DEPTH
 
 
+- start running Profiler
+
+
+
 - check the global_board_results functioning in your foofinder minimax. using prints & stuff
 
 
@@ -24,8 +28,6 @@ More about this in move_gen_test.py
 
 
 
-
-- minimax transposition table using tobytes()
 
 - make a hash for won_global_boards?
 
