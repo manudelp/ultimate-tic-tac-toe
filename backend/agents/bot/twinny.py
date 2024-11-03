@@ -72,7 +72,7 @@ class TwinPrunerAgent:
             t0 = time.time()
             moves_to_ord = self.generate_global_moves(super_board)
             order_moves = self.order_moves(super_board, board_to_play=None, moves_to_try=moves_to_ord)
-            minimax_eval, minimax_move = self.alphaBetaModel(
+            minimax_eval, minimax_move = self.initialAlphaBeta(
             board=global_board_copy, 
             board_to_play=None, 
             depth=self.depth_global, 
@@ -100,7 +100,8 @@ class TwinPrunerAgent:
         t0 = time.time()
         moves_to_ord = self.generate_local_moves(subboard)
         order_moves = self.order_moves(super_board, board_to_play=(a, b), moves_to_try=moves_to_ord)
-        minimax_eval, minimax_move = self.alphaBetaModel(
+        print(f"Board to play is ({a, b})")
+        minimax_eval, minimax_move = self.initialAlphaBeta(
             board=global_board_copy, 
             board_to_play=(a, b), 
             depth=self.depth_local, 
@@ -161,7 +162,103 @@ class TwinPrunerAgent:
     def initialAlphaBeta(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, moves_to_try):
         ''' Uses Alpha Beta Pruning with a given ordered list for the first move simulation
         Calls the alphaBetaModel recursive function for the rest of its calls, without the moves list '''
-        None
+        winner = checkBoardWinner(board)
+        if winner != 0:
+            return winner * 100000, None
+        else:
+            if depth == 0:
+                return self.boardBalance(board), None
+            # if boars isOver, but winner == 0, then it must be full, thus balance=0
+            elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
+                # print(f"Jardy found over board (drawn) in recursion!")
+                return 0, None
+            
+        best_move = None
+        
+        # Generate moves based on the current state
+        if board_to_play is not None:
+            row, col = board_to_play
+            local_to_play = board[row, col]
+
+            if maximizingPlayer:
+                max_eval = float('-inf')
+                for move in moves_to_try:
+                    loc_row, loc_col = move
+
+                    board[row, col][loc_row, loc_col] = 1 # Simulate my move
+                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    board[row, col][loc_row, loc_col] = 0 # Undo my move
+
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_move = move
+                    alpha = max(alpha, eval)
+                    if beta <= alpha:
+                        break  # Beta cutoff
+
+                if best_move is None:
+                    raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, max_eval was {max_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {moves_to_try}\n Current global board was:\n {board} ")
+                return max_eval, best_move
+            
+            else:
+                # Minimizer
+                min_eval = float('inf')
+                for move in moves_to_try:
+                    loc_row, loc_col = move
+
+                    board[row, col][loc_row, loc_col] = -1 # Simulate rival move
+                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    board[row, col][loc_row, loc_col] = 0 # Undo rival move
+                    
+                    if eval < min_eval:
+                        min_eval = eval
+                        best_move = move
+                    beta = min(beta, eval)
+                    if beta <= alpha:
+                        break  # Alpha cutoff
+
+                if best_move is None:
+                    raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, min_eval was {min_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {moves_to_try}\n Current global board was:\n {board} ")
+                return min_eval, best_move
+
+        else:
+            if maximizingPlayer:
+                max_eval = float('-inf')
+                for move in moves_to_try:
+                    row, col, loc_row, loc_col = move
+
+                    board[row, col][loc_row, loc_col] = 1 # Simulate my move
+                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    board[row, col][loc_row, loc_col] = 0 # Undo my move
+
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_move = move
+                    alpha = max(alpha, eval)
+                    if beta <= alpha:
+                        break
+                return max_eval, best_move
+            
+            else:
+                min_eval = float('inf')
+                for move in moves_to_try:
+                    row, col, loc_row, loc_col = move
+
+                    board[row, col][loc_row, loc_col] = -1 # Simulate rival move
+                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    board[row, col][loc_row, loc_col] = 0 # Undo rival move
+
+                    if eval < min_eval:
+                        min_eval = eval
+                        best_move = move
+                    beta = min(beta, eval)
+                    if beta <= alpha:
+                        break
+                return min_eval, best_move
 
     def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
         """ Applies Alpha Beta Pruning techniques to Minimax to explore the game tree and find the best move to play in advanced depth"
@@ -226,8 +323,7 @@ class TwinPrunerAgent:
 
                 if best_move is None:
                     raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, max_eval was {max_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {local_moves}\n Current global board was:\n {board} ")
-                final_best_move = [row, col, best_move[0], best_move[1]]
-                return max_eval, final_best_move
+                return max_eval, best_move
             
             else:
                 # Minimizer
@@ -249,8 +345,7 @@ class TwinPrunerAgent:
 
                 if best_move is None:
                     raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, min_eval was {min_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {local_moves}\n Current global board was:\n {board} ")
-                final_best_move = [row, col, best_move[0], best_move[1]]
-                return min_eval, final_best_move
+                return min_eval, best_move
 
         else:
             global_moves = []
@@ -871,8 +966,8 @@ def localBoardEval(localBoard):
 
     return score
 
-# # Hash Test
-# agent = TidyPodatorAgent()
+# Hash Test
+# agent = TwinPrunerAgent()
 # board = np.random.randint(-1, 2, (3, 3, 3, 3))
 # move = agent.action(super_board=board, board_to_play=(0, 1))
 # print(f"Move is {move}")
