@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
           <>
             {/* CHOOSE GAME MODE */}
             {gameMode === null && (
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col items-center sm:flex-row gap-4">
                 <button
                   className="px-4 py-2 bg-blue-500 text-white rounded"
                   onClick={() => selectMode("player-vs-player")}
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
             {/* WHO STARTS */}
             {gameMode === "player-vs-bot" && !starts && (
               <>
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col items-center sm:flex-row gap-4">
                   <button
                     className="px-4 py-2 bg-red-500 text-white rounded"
                     onClick={() => handleExitGame()}
@@ -96,15 +96,35 @@ const Dashboard: React.FC = () => {
 
             {/* NUMBER OF GAMES */}
             {gameMode === "bot-vs-bot" && !totalGames && (
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col items-center sm:flex-row gap-4">
                 <button
                   className="px-4 py-2 bg-red-500 text-white rounded"
                   onClick={() => handleExitGame()}
                 >
                   Go back
                 </button>
+                <div className="flex flex-col items-center sm:flex-row gap-4">
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => setTotalGames(1)}
+                  >
+                    1️⃣
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => setTotalGames(10)}
+                  >
+                    🔟
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => setTotalGames(100)}
+                  >
+                    💯
+                  </button>
+                </div>
                 <form
-                  className="flex flex-col sm:flex-row gap-4"
+                  className="flex flex-col items-center sm:flex-row gap-4"
                   onSubmit={(e) => {
                     e.preventDefault(); // Prevent page refresh
                     const input = (e.target as HTMLFormElement).querySelector(
