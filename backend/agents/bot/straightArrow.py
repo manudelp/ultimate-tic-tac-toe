@@ -122,14 +122,18 @@ class StraightArrowAgent:
         
         # print(f"When btp is {board_to_play}, Local winner is {local_winner}, local blocker is {local_blocker}")
  
+        # Win
         if local_winner:
             print("Straighty can win the given local board!")
             local_row, local_col = safeSetExtractor(super_board, local_winner)
+        # Block
         elif local_blocker:
             # print("Straighty can block the given local board!")
             local_row, local_col = safeSetExtractor(super_board, local_blocker)
+        # Straight Arrow
         elif canPlay(subboard, a, b):
             local_row, local_col = a, b
+        # Random
         else:
             local_row, local_col = self.randomMove(subboard)
             
