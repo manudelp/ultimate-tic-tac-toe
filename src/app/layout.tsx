@@ -61,9 +61,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html>
+    <html lang="en">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        {children}
+        <main>{children}</main>
         <SpeedInsights />
       </body>
     </html>
