@@ -90,7 +90,7 @@ class TaylorAgent:
                                 local_row, local_col = safeSetExtractor(super_board, local_winnable)
                                 self.moveNumber += 1
                                 return i, j, local_row, local_col
-                        
+
             # Otherwise Check Wins
             for i in range(rows):
                 for j in range(cols):
@@ -121,14 +121,13 @@ class TaylorAgent:
                 self.moveNumber += 1
                 return row, col, local_row, local_col
 
-            # Otherwise, Random Move
-            for i in range(rows):
-                for j in range(cols):
-                    if isPlayable(super_board[i, j]):
-                        # print(f"Taylor found a random playable board, the board is {i, j} and looks like this:\n {super_board[i, j]}, will attempt randomMove on it")
-                        local_row, local_col = self.randomMove(super_board[i, j])
-                        self.moveNumber += 1
-                        return i, j, local_row, local_col
+            # Otherwise, Taylor Strat
+            best_move, best_score = self.find_best_global_move(super_board)
+            if best_move is not None:
+                a, b, local_row, local_col = best_move
+                self.moveNumber += 1
+                print(f"Taylor found the best move global {best_move} with a score of {best_score}")
+                return a, b, local_row, local_col
             
             raise ValueError(Style.BRIGHT + Fore.RED + f"Taylor couldn't find a playable board! Global Board is \n{super_board}" + Style.RESET_ALL)
             
@@ -141,6 +140,7 @@ class TaylorAgent:
         # Greedy Action
         local_winner = self.get_winnableByOne(subboard)
         local_blocker = self.get_winnableByMinusOne(subboard)
+        best_move, best_score = self.find_best_local_move(super_board, (a, b))
         
         # print(f"When btp is {board_to_play}, Local winner is {local_winner}, local blocker is {local_blocker}")
  
@@ -151,6 +151,10 @@ class TaylorAgent:
         elif local_blocker:
             # print("Straighty can block the given local board!")
             local_row, local_col = safeSetExtractor(super_board, local_blocker)
+        # Winning Strat
+        elif best_move is not None:
+            local_row, local_col = best_move
+            print(f"Taylor found the best local move {best_move} with a score of {best_score}")
         # Never Goon
         elif goonMove(super_board, subboard) is not None:
             local_row, local_col = goonMove(super_board, subboard)
@@ -221,6 +225,51 @@ class TaylorAgent:
         ''' Returns the set of winning moves for player -1, if the board is winnable '''
         board_key = board.tobytes()
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
+
+    def find_best_global_move(self, board):
+        ''' 
+        Finds the best move to play in the global board, based on the heuristic evaluation of the local boards.
+        Returns the move as a tuple (row, col, local_row, local_col)
+        '''
+        rows, cols, *_ = board.shape
+        best_move = None
+        best_score = -math.inf
+
+        for r in range(rows):
+            for c in range(cols):
+                if isPlayable(board[r, c]):
+                    best_local_move, best_local_score = self.find_best_local_move(board, (r, c))
+                    if best_local_score > best_score:
+                        best_score = best_local_score
+                        best_move = (r, c, best_local_move[0], best_local_move[1])
+                
+        return best_move, best_score
+
+    def find_best_local_move(self, global_board, local_coords):
+        ''' 
+        Finds the best move to play in the local board, based on the heuristic evaluation of the global board.
+        Returns the move as a tuple (row, col)
+        '''
+        
+        best_move = None
+        best_score = -math.inf
+        global_board_copy = global_board.copy()
+        original_balance = boardBalance(global_board_copy)
+        local_board = global_board_copy[local_coords]
+
+        for r in range(3):
+            for c in range(3):
+                if canPlay(local_board, r, c):
+                    local_board[r, c] = 1
+                    new_balance = boardBalance(global_board_copy)
+                    score = new_balance - original_balance
+                    local_board[r, c] = 0
+
+                    if score > best_score:
+                        best_score = score
+                        best_move = (r, c)
+                        
+        return best_move, best_score
 
 def canPlay(subboard, row, col):
     ''' Returns True if the cell is empty, False otherwise '''
@@ -387,7 +436,7 @@ def localBoardEval(localBoard):
 
     return score
 
-def boardBalance(self, board):
+def boardBalance(board):
     ''' Returns the heuristic value of the board 
     For now it's a sum of the local board evaluations '''
     rows, cols, *_ = board.shape
@@ -407,8 +456,5 @@ def boardBalance(self, board):
                 balance += 1.25 * local_balance
 
     return round(balance, 4)
-
-
-
 
 
