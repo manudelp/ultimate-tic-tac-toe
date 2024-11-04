@@ -74,6 +74,8 @@ export const MiniBoardWinner = (miniBoard: MiniBoard): Winner => {
   ) {
     return null;
   }
+
+  // Verifica filas y columnas
   for (let i = 0; i < 3; i++) {
     if (
       miniBoard[i][0] === miniBoard[i][1] &&
@@ -90,6 +92,8 @@ export const MiniBoardWinner = (miniBoard: MiniBoard): Winner => {
       return miniBoard[0][i] as Winner;
     }
   }
+
+  // Verifica diagonales
   if (
     miniBoard[0][0] === miniBoard[1][1] &&
     miniBoard[1][1] === miniBoard[2][2] &&
@@ -104,6 +108,13 @@ export const MiniBoardWinner = (miniBoard: MiniBoard): Winner => {
   ) {
     return miniBoard[0][2] as Winner;
   }
+
+  // Verifica si es empate (mini-tablero lleno sin ganador)
+  const isDraw = miniBoard.flat().every((cell) => cell !== "");
+  if (isDraw) {
+    return "Draw";
+  }
+
   return null;
 };
 
