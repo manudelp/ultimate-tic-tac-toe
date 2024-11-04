@@ -35,20 +35,22 @@ const spaceGrotesk = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ultimate Tic Tac Toe",
-  description: "Play Ultimate Tic Tac Toe!",
+  title: "Ultimate Tic Tac Toe - The Ultimate Strategy Game",
+  description:
+    "Engage in the ultimate strategy challenge with Ultimate Tic Tac Toe. Test your skills and outsmart your opponents in this advanced version of the classic game.",
   openGraph: {
     images: [
       {
-        url: "public/icon.png",
+        url: "/icon.png",
         width: 800,
         height: 600,
-        alt: "Ultimate Tic Tac Toe",
+        alt: "Ultimate Tic Tac Toe Logo",
       },
     ],
     siteName: "Ultimate Tic Tac Toe",
-    title: "Ultimate Tic Tac Toe",
-    description: "Play Ultimate Tic Tac Toe!",
+    title: "Ultimate Tic Tac Toe - The Ultimate Strategy Game",
+    description:
+      "Engage in the ultimate strategy challenge with Ultimate Tic Tac Toe. Test your skills and outsmart your opponents in this advanced version of the classic game.",
     url: "https://utictactoe.vercel.app",
   },
 };
@@ -61,7 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        {children}
+        <main>{children}</main>
         <SpeedInsights />
       </body>
     </html>
