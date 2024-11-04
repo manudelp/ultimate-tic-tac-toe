@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed bottom-0 inset-x-0 p-2 text-sm bg-black text-white text-center">
+    <div className="w-full p-2 text-sm text-white text-center">
       <p>
         &copy; <span id="year"></span> All rights reserved |{" "}
         <a

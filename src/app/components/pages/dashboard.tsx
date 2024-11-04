@@ -1,6 +1,7 @@
 // src/app/components/layout/dashboard.tsx
 import React, { useState } from "react";
 import Board from "@/app/components/core/board";
+import Footer from "../layout/footer";
 
 const Dashboard: React.FC = () => {
   const [gameMode, setGameMode] = useState<string | null>(null);
@@ -32,7 +33,7 @@ const Dashboard: React.FC = () => {
     (gameMode !== "bot-vs-bot" || totalGames);
 
   return (
-    <>
+    <div className="container mx-auto py-4">
       <div>
         {!isBoardVisible && (
           <>
@@ -183,7 +184,8 @@ const Dashboard: React.FC = () => {
           </div>
         </>
       )}
-    </>
+      <Footer />
+    </div>
   );
 };
 

@@ -2,10 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { getLatestCommitHash } from "@/github";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Header from "./components/layout/header";
-// import Sidebar from "./components/layout/sidebar";
-import Dashboard from "./components/layout/dashboard";
-import Footer from "./components/layout/footer";
+import Sidebar from "./components/layout/sidebar";
+import Dashboard from "./components/pages/dashboard";
+import HowToPlay from "./components/pages/how-to-play";
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -32,18 +31,16 @@ export default function Home() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-black text-white">
-        <p className="absolute right-0 opacity-30">1.1-alpha-{version}</p>
-        {/* <Header /> */}
-        <div>
-          {/* <Sidebar /> */}
+      <div className="min-h-screen bg-zinc-800 text-white">
+        <p className="absolute right-0">1.1-alpha-{version}</p>
+        <div className="flex">
+          <Sidebar />
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            {/* <Route path="/how-to-play" element={<HowToPlay />} /> */}
+            <Route path="/how-to-play" element={<HowToPlay />} />
             <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
         </div>
-        <Footer />
       </div>
     </Router>
   );
