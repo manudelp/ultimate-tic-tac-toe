@@ -237,13 +237,16 @@ const Board: React.FC<BoardProps> = ({
 
           {/* TURN PLAYER VS BOT*/}
           {gameMode === "player-vs-bot" && (
-            <h2 className="text-lg sm:text-2xl">
-              Turn: {turn === "X" ? `You (${turn})` : `${agentId} (${turn})`}
-            </h2>
-          )}
-
-          {isBotThinking && (
-            <div className="text-sm sm:text-xl">{agentId} is thinking...</div>
+            <>
+              <h2 className="text-lg sm:text-2xl">
+                Turn: {turn === "X" ? `You (${turn})` : `${agentId} (${turn})`}
+              </h2>
+              {isBotThinking && (
+                <div className="text-sm sm:text-xl">
+                  {agentId} is thinking...
+                </div>
+              )}
+            </>
           )}
 
           {/* TURN PLAYER VS PLAYER */}
