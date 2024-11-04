@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function Sidebar() {
   return (
-    <div className="w-44 h-screen sticky top-0 bg-zinc-900 p-4 hidden sm:block">
+    <div className="w-44 h-screen sticky top-0 bg-gray-950 p-4 hidden sm:block">
       <Link to="/">
         <Image src={Logo} alt="Logo" className="w-full" />
       </Link>

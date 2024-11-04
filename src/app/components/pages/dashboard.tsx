@@ -1,7 +1,5 @@
-// src/app/components/layout/dashboard.tsx
 import React, { useState } from "react";
 import Board from "@/app/components/core/board";
-import Footer from "../layout/footer";
 
 const Dashboard: React.FC = () => {
   const [gameMode, setGameMode] = useState<string | null>(null);
@@ -33,147 +31,141 @@ const Dashboard: React.FC = () => {
     (gameMode !== "bot-vs-bot" || totalGames);
 
   return (
-    <div className="container mx-auto p-4">
-      <div>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 text-white">
+      <div className="text-center">
         {!isBoardVisible && (
           <>
-            {/* CHOOSE GAME MODE */}
+            {/* Title */}
+            <h1 className="text-4xl font-bold mb-8">Choose Your Game Mode</h1>
+
+            {/* Choose Game Mode */}
             {gameMode === null && (
-              <div className="flex flex-col items-center sm:flex-row gap-4">
+              <div className="flex flex-wrap justify-center gap-6">
                 <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors font-medium text-lg"
                   onClick={() => selectMode("player-vs-player")}
                 >
-                  🧍🆚🧍
+                  Player vs Player
+                </button>
+                <button
+                  className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors font-medium text-lg"
+                  onClick={() => selectMode("player-vs-bot")}
+                >
+                  Player vs Bot
+                </button>
+                <button
+                  className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors font-medium text-lg"
+                  onClick={() => selectMode("bot-vs-bot")}
+                >
+                  Bot vs Bot
                 </button>
                 <button
                   disabled
-                  className="px-4 py-2 bg-blue-500 text-white rounded opacity-50"
-                  onClick={() => selectMode("online")}
+                  className="w-64 py-4 bg-gray-500 font-medium text-lg opacity-70 cursor-not-allowed"
                 >
-                  💻🆚💻
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={() => selectMode("player-vs-bot")}
-                >
-                  🧍🆚🤖
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={() => selectMode("bot-vs-bot")}
-                >
-                  🤖🆚🤖
+                  Online Mode (Coming Soon)
                 </button>
               </div>
             )}
 
-            {/* WHO STARTS */}
+            {/* Who Starts */}
             {gameMode === "player-vs-bot" && !starts && (
-              <>
-                <div className="flex flex-col items-center sm:flex-row gap-4">
+              <div className="mt-12 text-center">
+                <h2 className="text-2xl font-semibold mb-4">Who Starts?</h2>
+                <div className="flex gap-6 justify-center">
                   <button
-                    className="px-4 py-2 bg-red-500 text-white rounded"
+                    className="px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
                     onClick={() => handleExitGame()}
                   >
-                    Go back
+                    Go Back
                   </button>
-
                   <button
-                    className="px-4 py-2 bg-green-500 text-white rounded"
+                    className="px-6 py-3 bg-green-600 hover:bg-green-500 transition-colors"
                     onClick={() => setStarts("player")}
                   >
-                    🧍 Starts
+                    Player Starts
                   </button>
                   <button
-                    className="px-4 py-2 bg-green-500 text-white rounded"
+                    className="px-6 py-3 bg-green-600 hover:bg-green-500 transition-colors"
                     onClick={() => setStarts("bot")}
                   >
-                    🤖 Starts
+                    Bot Starts
                   </button>
                 </div>
-              </>
+              </div>
             )}
 
-            {/* NUMBER OF GAMES */}
+            {/* Number of Games */}
             {gameMode === "bot-vs-bot" && !totalGames && (
-              <div className="flex flex-col items-center sm:flex-row gap-4">
-                <button
-                  className="px-4 py-2 bg-red-500 text-white rounded"
-                  onClick={() => handleExitGame()}
-                >
-                  Go back
-                </button>
-                <div className="flex flex-col items-center sm:flex-row gap-4">
+              <div className="mt-12 text-center">
+                <h2 className="text-2xl font-semibold mb-4">Number of Games</h2>
+                <div className="flex gap-6 justify-center">
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    className="px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
+                    onClick={() => handleExitGame()}
+                  >
+                    Go Back
+                  </button>
+                  <button
+                    className="px-6 py-3 bg-gray-800 hover:bg-gray-700 transition-colors"
                     onClick={() => setTotalGames(1)}
                   >
-                    1️⃣
+                    1 Game
                   </button>
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    className="px-6 py-3 bg-gray-800 hover:bg-gray-700 transition-colors"
                     onClick={() => setTotalGames(10)}
                   >
-                    🔟
+                    10 Games
                   </button>
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    className="px-6 py-3 bg-gray-800 hover:bg-gray-700 transition-colors"
                     onClick={() => setTotalGames(100)}
                   >
-                    💯
+                    100 Games
                   </button>
-                </div>
-                <form
-                  className="flex flex-col items-center sm:flex-row gap-4"
-                  onSubmit={(e) => {
-                    e.preventDefault(); // Prevent page refresh
-                    const input = (e.target as HTMLFormElement).querySelector(
-                      "input"
-                    );
-                    if (input) {
-                      const games = parseInt(input.value, 10);
-                      setTotalGames(games);
-                    }
-                  }}
-                >
-                  <input
-                    className="px-4 py-2 border rounded text-black"
-                    type="number"
-                    name="games"
-                    id="games"
-                    autoComplete="off"
-                    placeholder="Enter number of games"
-                  />
-                  <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                    type="submit"
+                  <form
+                    className="flex gap-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const input = (e.target as HTMLFormElement).querySelector(
+                        "input"
+                      );
+                      if (input) {
+                        const games = parseInt(input.value, 10);
+                        setTotalGames(games);
+                      }
+                    }}
                   >
-                    Submit
-                  </button>
-                </form>
+                    <input
+                      className="w-24 px-3 py-2 border-b border-gray-500 bg-gray-900 focus:outline-none focus:border-gray-700 transition-colors"
+                      type="number"
+                      name="games"
+                      placeholder="Custom"
+                    />
+                    <button
+                      className="px-4 py-2 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      type="submit"
+                    >
+                      Set
+                    </button>
+                  </form>
+                </div>
               </div>
             )}
           </>
         )}
       </div>
 
-      {/* GAME BOARD */}
+      {/* Game Board */}
       {isBoardVisible && (
-        <>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded"
-            onClick={() => handleExitGame()}
-          >
-            Exit game
-          </button>
-          <div>
+        <div className="w-full">
+          <div className="w-full">
             {starts === "bot" && (
-              <p className="text-red-500">
+              <p className="text-red-500 italic mb-4">
                 *Bot starts isn&apos;t working. Sorry for the inconvenience. :/
               </p>
             )}
-
             <Board
               gameMode={gameMode}
               starts={starts}
@@ -182,9 +174,14 @@ const Dashboard: React.FC = () => {
               onReset={handleBoardReset}
             />
           </div>
-        </>
+          <button
+            className="px-6 py-3 bg-red-500 text-white font-medium hover:bg-red-400 transition-colors mb-4"
+            onClick={() => handleExitGame()}
+          >
+            Exit Game
+          </button>
+        </div>
       )}
-      <Footer />
     </div>
   );
 };

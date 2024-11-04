@@ -89,7 +89,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
       ))}
 
       {winner && (
-        <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 opacity-100 hover:opacity-0 pointer-events-none transition-opacity">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 opacity-100 hover:opacity-0 pointer-events-none transition-opacity">
           <div className="pointer-events-auto grid place-items-center">
             {winner === "X" ? (
               <X theme={"dark"} />

@@ -71,7 +71,7 @@ const Board: React.FC<BoardProps> = ({
         </div>
       )}
 
-      <div className="h-full flex flex-wrap gap-4 p-2 text-white">
+      <div className="h-full flex flex-wrap gap-4 text-white">
         {/* BOARD */}
         <div
           className={`w-full sm:w-[600px] h-full aspect-square flex flex-wrap relative ${
@@ -179,7 +179,7 @@ const Board: React.FC<BoardProps> = ({
                 <div className="my-4">
                   <p className="text-indigo-500 p-0 m-0">Games played:</p>
                   <div className="w-full flex gap-2">
-                    <div className="w-full h-6 bg-gray-500 rounded-full overflow-hidden relative">
+                    <div className="w-full h-6 bg-gray-500 overflow-hidden relative">
                       <div
                         className="h-full bg-indigo-500"
                         style={{ width: `${progressPercentage}%` }}
@@ -193,37 +193,52 @@ const Board: React.FC<BoardProps> = ({
               )}
 
               {playedGames > 0 && playedGames < (totalGames || 0) && (
-                <div className="text-sm text-center sm:text-start">
-                  <p>
-                    {agentId} ({agentIdTurn}) won{" "}
-                    <span
-                      style={{
-                        color:
-                          winPercentages[1] > winPercentages[0]
-                            ? "green"
-                            : "red",
-                      }}
-                    >
-                      {winPercentages[1]}%
-                    </span>{" "}
-                    of the games
-                  </p>
-                  <p>
-                    {agentId2} ({agentId2Turn}) won{" "}
-                    <span
-                      style={{
-                        color:
-                          winPercentages[0] > winPercentages[1]
-                            ? "green"
-                            : "red",
-                      }}
-                    >
-                      {winPercentages[0]}%
-                    </span>{" "}
-                    of the games
-                  </p>
-                  <p>Draw Percentage: {winPercentages[2]}%</p>
-                </div>
+                <table className="w-full text-sm text-center sm:text-start ">
+                  <thead>
+                    <tr>
+                      <th className="text-start">Agent</th>
+                      <th className="text-start">Win Percentage</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="text-start">
+                        {agentId} ({agentIdTurn})
+                      </td>
+                      <td
+                        className="text-start"
+                        style={{
+                          color:
+                            winPercentages[1] > winPercentages[0]
+                              ? "green"
+                              : "red",
+                        }}
+                      >
+                        {winPercentages[1]}%
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="text-start">
+                        {agentId2} ({agentId2Turn})
+                      </td>
+                      <td
+                        className="text-start"
+                        style={{
+                          color:
+                            winPercentages[0] > winPercentages[1]
+                              ? "green"
+                              : "red",
+                        }}
+                      >
+                        {winPercentages[0]}%
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Draw</td>
+                      <td>{winPercentages[2]}%</td>
+                    </tr>
+                  </tbody>
+                </table>
               )}
             </div>
           )}
@@ -294,14 +309,30 @@ const Board: React.FC<BoardProps> = ({
           {/* WINNER PERCENTAGES */}
           {playedGames === totalGames && (
             <>
-              <div className="text-sm">
+              <div className="text-sm text-center sm:text-start">
                 <p>
-                  {agentId} ({agentIdTurn}) Won {winPercentages[1]}% of the
-                  games
+                  {agentId} ({agentIdTurn}) won{" "}
+                  <span
+                    style={{
+                      color:
+                        winPercentages[1] > winPercentages[0] ? "green" : "red",
+                    }}
+                  >
+                    {winPercentages[1]}%
+                  </span>{" "}
+                  of the games
                 </p>
                 <p>
-                  {agentId2} ({agentId2Turn}) Won {winPercentages[0]}% of the
-                  games
+                  {agentId2} ({agentId2Turn}) won{" "}
+                  <span
+                    style={{
+                      color:
+                        winPercentages[0] > winPercentages[1] ? "green" : "red",
+                    }}
+                  >
+                    {winPercentages[0]}%
+                  </span>{" "}
+                  of the games
                 </p>
                 <p>Draw Percentage: {winPercentages[2]}%</p>
               </div>
