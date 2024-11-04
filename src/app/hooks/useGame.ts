@@ -133,7 +133,7 @@ export const useGame = (
         updateMiniBoardState(a, b, winner);
       }
 
-      // Calcula el próximo mini-tablero
+      // Calcula el próximo mini-tablero y verifica si debe deshabilitarse
       const nextMiniBoard = MiniBoardWinner(updatedBoard[c][d] as MiniBoard);
       if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
         setActiveMiniBoard([c, d]);
@@ -237,14 +237,23 @@ export const useGame = (
 
   // Automatically handle bot move whenever it's the bot's turn
   useEffect(() => {
-    if (starts === "bot" && turn === "X") {
+    if (!turnsInverted && starts === "bot" && turn === "X") {
       invertTurns();
+      agentsReset();
     }
 
     if (gameMode === "player-vs-bot" && turn === "O" && !gameOver) {
       handleBotMove();
     }
-  }, [gameMode, gameOver, turn, handleBotMove, starts, invertTurns]);
+  }, [
+    gameMode,
+    starts,
+    gameOver,
+    turn,
+    turnsInverted,
+    handleBotMove,
+    invertTurns,
+  ]);
 
   // Bot-vs-Bot
   useEffect(() => {

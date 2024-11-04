@@ -52,21 +52,7 @@ const Board: React.FC<BoardProps> = ({
       {gameMode === "player-vs-bot" && (
         <div className="py-4">
           <h2 className="flex items-center gap-2 text-lg sm:text-2xl">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-8"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-              />
-            </svg>
-            {agentId}
+            Playing against {agentId}
           </h2>
         </div>
       )}
@@ -198,6 +184,7 @@ const Board: React.FC<BoardProps> = ({
                     <tr>
                       <th className="text-start">Agent</th>
                       <th className="text-start">Win Percentage</th>
+                      <th className="text-start">Games Won</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -216,6 +203,9 @@ const Board: React.FC<BoardProps> = ({
                       >
                         {winPercentages[1]}%
                       </td>
+                      <td className="text-start">
+                        {Math.round((winPercentages[1] / 100) * playedGames)}
+                      </td>
                     </tr>
                     <tr>
                       <td className="text-start">
@@ -232,10 +222,16 @@ const Board: React.FC<BoardProps> = ({
                       >
                         {winPercentages[0]}%
                       </td>
+                      <td className="text-start">
+                        {Math.round((winPercentages[0] / 100) * playedGames)}
+                      </td>
                     </tr>
                     <tr>
                       <td>Draw</td>
                       <td>{winPercentages[2]}%</td>
+                      <td>
+                        {Math.round((winPercentages[2] / 100) * playedGames)}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -309,33 +305,62 @@ const Board: React.FC<BoardProps> = ({
           {/* WINNER PERCENTAGES */}
           {playedGames === totalGames && (
             <>
-              <div className="text-sm text-center sm:text-start">
-                <p>
-                  {agentId} ({agentIdTurn}) won{" "}
-                  <span
-                    style={{
-                      color:
-                        winPercentages[1] > winPercentages[0] ? "green" : "red",
-                    }}
-                  >
-                    {winPercentages[1]}%
-                  </span>{" "}
-                  of the games
-                </p>
-                <p>
-                  {agentId2} ({agentId2Turn}) won{" "}
-                  <span
-                    style={{
-                      color:
-                        winPercentages[0] > winPercentages[1] ? "green" : "red",
-                    }}
-                  >
-                    {winPercentages[0]}%
-                  </span>{" "}
-                  of the games
-                </p>
-                <p>Draw Percentage: {winPercentages[2]}%</p>
-              </div>
+              <table className="w-full text-sm text-center sm:text-start ">
+                <thead>
+                  <tr>
+                    <th className="text-start">Agent</th>
+                    <th className="text-start">Win Percentage</th>
+                    <th className="text-start">Games Won</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="text-start">
+                      {agentId} ({agentIdTurn})
+                    </td>
+                    <td
+                      className="text-start"
+                      style={{
+                        color:
+                          winPercentages[1] > winPercentages[0]
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {winPercentages[1]}%
+                    </td>
+                    <td className="text-start">
+                      {Math.round((winPercentages[1] / 100) * playedGames)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="text-start">
+                      {agentId2} ({agentId2Turn})
+                    </td>
+                    <td
+                      className="text-start"
+                      style={{
+                        color:
+                          winPercentages[0] > winPercentages[1]
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {winPercentages[0]}%
+                    </td>
+                    <td className="text-start">
+                      {Math.round((winPercentages[0] / 100) * playedGames)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Draw</td>
+                    <td>{winPercentages[2]}%</td>
+                    <td>
+                      {Math.round((winPercentages[2] / 100) * playedGames)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
               <h2 className="text-lg sm:text-2xl md:text-4xl">
                 Winner:{" "}
                 {winPercentages[1] > winPercentages[0]

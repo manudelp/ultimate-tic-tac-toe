@@ -121,8 +121,15 @@ const PrivacyPolicy: React.FC = () => {
         the age of 13. If we learn that we have collected information from a
         child under age 13 without verification of parental consent, we will
         delete that information as quickly as possible. If you become aware of
-        any data we have collected from children under age 13, please contact us
-        at [your contact information].
+        any data we have collected from children under age 13, please contact at{" "}
+        <a className="font-medium" href="mailto:support@ultimatetictactoe.com.">
+          support@ultimatetictactoe.com
+        </a>{" "}
+        or using{" "}
+        <Link to="/contact" className="text-blue-400 hover:underline">
+          the contact form
+        </Link>
+        .
       </p>
 
       <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mt-8 mb-3">
