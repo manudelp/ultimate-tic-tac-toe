@@ -5,11 +5,7 @@ Para ver que anden bien los agentes nomas, https://youtu.be/8RtOgIgDrvk?si=xlR1Y
 
 import numpy as np
 
-from ..backend.agents.foofinder import FooFighterAgent
-from ..backend.agents.bot.randy import RandomAgent
-from ..backend.agents.bot.monkey import MonkeyAgent
-from ..backend.agents.bot.greedy import GreedyAgent
-from ..backend.agents.bot.straightArrow import StraightArrowAgent
+
 
 # Create an empty superboard: a 3x3 grid of 3x3 boards, initialized to 0
 board = np.zeros((3, 3, 3, 3), dtype=int)  # Shape is (3, 3, 3, 3)
@@ -43,11 +39,7 @@ def fancyBoardPrinter(board):
 board = np.zeros((3, 3, 3, 3), dtype=int)
 
 # Create Agent Instances
-foofighter = FooFighterAgent()
-randy = RandomAgent()
-monkey = MonkeyAgent()
-greedy = GreedyAgent()
-straightArrow = StraightArrowAgent()
+
 
 # Refactor code
 def thisOrRnd(board, c_p, d_p, a: int, b: int):
@@ -73,86 +65,188 @@ def myMove(board, moveX, moveY, board_to_play, move_num):
     board[a_m, b_m][c_m, d_m] = -1
     return c_m, d_m
 
-def randyMove(board, board_to_play, move_num):
-    if board_to_play is None:
-        print(f"I, Randy, should play in any board")
-    else:
-        print(f"I, Randy, should play in the {board_to_play} board")
+def isWon(subboard):
+    # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
+    ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
+    # Row 0
+    sb_00, sb_01, sb_02 = subboard[0, 0], subboard[0, 1], subboard[0, 2]
+    if sb_00 == sb_01 == sb_02 != 0:
+        return sb_00
+    
+    # Row 1
+    sb_10, sb_11, sb_12 = subboard[1, 0], subboard[1, 1], subboard[1, 2]
+    if sb_10 == sb_11 == sb_12 != 0:
+        return sb_10
+    
+    sb_20 = subboard[2, 0]
+    # Save unncessary calcs, by using what we alreasy can
 
-    a_r, b_r, c_r, d_r = randy.action(board, board_to_play)
-    print(f"Randy's move number {move_num} is {a_r, b_r, c_r, d_r} \n")
-    board[a_r, b_r][c_r, d_r] = 1
-    return c_r, d_r
+    # Column 1
+    if sb_00 == sb_10 == sb_20 != 0:
+        return sb_00
+    
+    # Diagonal BT
+    if sb_20 == sb_11 == sb_02 != 0:
+        return sb_20
+    
+    sb_21 = subboard[2, 1]
+    # again, save time
+
+    # Check Column 2
+    if sb_01 == sb_11 == sb_21 != 0:
+        return sb_01
+    
+    sb_22 = subboard[2, 2]
+    # Row 2
+    if sb_20 == sb_21 == sb_22 != 0:
+        return sb_20
+    
+    # Column 2
+    if sb_02 == sb_12 == sb_22 != 0:
+        return sb_02
+    
+    # Diagonal TB
+    if sb_00 == sb_11 == sb_22 != 0:
+        return sb_00
+    
+    return None
+
+def isFull(board):
+    return np.count_nonzero(board == 0) == 0
+
+def isPlayable(board):
+    ''' Returns True if the local 3x3 board is still playable '''
+    return not isFull(board) and not isWon(board)
+
+def isWonByPlayer(board, player):
+    """ Returns True if the specified player has won the board, otherwise False. """
+    return (
+        (board[0, 0] == board[0, 1] == board[0, 2] == player) or  # Row 1
+        (board[1, 0] == board[1, 1] == board[1, 2] == player) or  # Row 2
+        (board[2, 0] == board[2, 1] == board[2, 2] == player) or  # Row 3
+        (board[0, 0] == board[1, 0] == board[2, 0] == player) or  # Column 1
+        (board[0, 1] == board[1, 1] == board[2, 1] == player) or  # Column 2
+        (board[0, 2] == board[1, 2] == board[2, 2] == player) or  # Column 3
+        (board[0, 0] == board[1, 1] == board[2, 2] == player) or  # Diagonal Top-Left to Bottom-Right
+        (board[0, 2] == board[1, 1] == board[2, 0] == player)     # Diagonal Top-Right to Bottom-Left
+    )
+
+def isWonByOne(board):
+    """ Returns True if player 1 has won the board, False otherwise """
+    return isWonByPlayer(board, player=1)
+
+def isWonByMinusOne(board):
+    """ Returns True if player -1 has won the board, False otherwise """
+    return isWonByPlayer(board, player=-1)
+
+def isLegal(board):
+    return not (isWonByOne(board) and isWonByMinusOne(board))
+
+
+# from agent_tests.hash_retrieval_tests import RetrievalAgent
+# agent = RetrievalAgent()
+# print("\n")
 
 # Play!
 
+# # region Random
 
-# region Random
+# # Random Move 1
+# c_r, d_r = randyMove(board, board_to_play=None, move_num=1)
 
-# Random Move 1
-c_r, d_r = randyMove(board, board_to_play=None, move_num=1)
+# # My Move 1
+# a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=1)
 
-# My Move 1
-a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=1)
+# # Random Move 2
+# c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=2)
 
-# Random Move 2
-c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=2)
+# # My Move 2
+# a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=2)
 
-# My Move 2
-a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=2)
+# # Random Move 3
+# c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=3)
 
-# Random Move 3
-c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=3)
+# # My Move 3
+# a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=3)
 
-# My Move 3
-a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=3)
+# # Random Move 4
+# c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=4)
 
-# Random Move 4
-c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=4)
+# # My Move 4
+# a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=4)
 
-# My Move 4
-a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=4)
+# # Random Move 5
+# c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=5)
 
-# Random Move 5
-c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=5)
+# # My Move 5
+# a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=5)
 
-# My Move 5
-a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=5)
+# # Random Move 6
+# c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=6)
 
-# Random Move 6
-c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=6)
+# # My Move 6
+# a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=6)
 
-# My Move 6
-a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=6)
+# # Simulate 30 more moves for each
+# # for i in range(7, 37):
+# #     # Random Move
+# #     c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=i)
 
-# Simulate 30 more moves for each
-# for i in range(7, 37):
-#     # Random Move
-#     c_r, d_r = randyMove(board, board_to_play=(c_m, d_m), move_num=i)
+# #     # My Move
+# #     a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
+# #     c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=i)
 
-#     # My Move
-#     a, b = thisOrRnd(board, c_r, d_r, a=1, b=1)
-#     c_m, d_m = myMove(board, moveX=a, moveY=b, board_to_play=(c_r, d_r), move_num=i)
+# # endregion
 
-# endregion
+# # Print Final Board
+# print(board)
+# # boardPrinter(board)
+# # fancyBoardPrinter(board)
 
+# print(f"\nThe board has a total amount of {np.sum(board == 1)} ones and {np.sum(board == -1)} minus ones")
 
-# region Greedy
+# for s in range(300_000_000):
+#     if s % 10_000_000 == 0:
+#         print(f"Currently at Seed {s}...")
+    
+#     np.random.seed(s)
+#     board = np.random.randint(-1, 2, (3, 3, 3, 3))
+    
+#     still_playable_list = []
+#     playable_tiles = 0
+#     found_illegal = False  # Flag to track if an illegal board is found
+    
+#     for r in range(3):
+#         for c in range(3):
+#             # if isIllegal(board[r, c]):
+#             #     found_illegal = True
+#             #     break  # Exit the inner loop
+#             if agent.get_playable_hash(board[r, c]):
+#                 still_playable_list.append((r, c))
+#                 playable_tiles += np.count_nonzero(board[r, c] == 0)
+        
+#         if found_illegal:
+#             break  # Exit the outer loop if an illegal board was found
+    
+#     if found_illegal:
+#         # print(f"Seed {s} has an illegal configuration. Skipping...\n")
+#         continue  # Skip to the next seed if any part of the board was illegal
+    
+#     if playable_tiles > 49:
+#         print(f"While Seed is {s}, playables list is {still_playable_list}, playable tiles are {playable_tiles}")
+#         # fancyBoardPrinter(board)
+#     # print("\n")
 
-# Greedy Move 1
+# Seed 23843005, playables list is [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)], playable tiles are 53
 
-# endregion
+np.random.seed(23843005)
 
+board = np.random.randint(-1, 2, (3, 3, 3, 3))
 
-# Print Final Board
-print(board)
-# boardPrinter(board)
-# fancyBoardPrinter(board)
-
-print(f"\nThe board has a total amount of {np.sum(board == 1)} ones and {np.sum(board == -1)} minus ones")
+fancyBoardPrinter(board)

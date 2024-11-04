@@ -318,7 +318,7 @@ def isPlayable(board):
 def isOver(board):
     return isFull(board) or isWon(board)
 
-class Agent:
+class RetrievalAgent:
     def __init__(self):
         # Initialize the dictionaries before loading data
         self.hash_won_boards = {}
@@ -509,7 +509,7 @@ class Agent:
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
 # Example usage:
-agent = Agent()
+agent = RetrievalAgent()
 
 # Test boards setup
 board_1 = np.array([[1, 1, 1],
