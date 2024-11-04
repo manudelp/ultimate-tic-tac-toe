@@ -6,8 +6,14 @@ NEXT UP ==>
 - transposition table tobytes()
 o incluso si no es tobytes(), ffs estas haciendo iterative deepening APROVECHA Y GUARDA POSICIONES PARA NO TARDAR 20 AÑOS EN LA BEST DEPTH
 
-
 - start running Profiler
+
+- test if better heuristic is also considering connectivity of won boards
+quick way to do it... if you're already turning the global board results into a 3x3 representation
+just check that representation's heuristic connectivity value in the evaluated_boards hash in O(1)
+and then maybe make it a multiplier of the total score so that it weighs in a lot
+
+
 
 
 
@@ -30,15 +36,6 @@ More about this in move_gen_test.py
 
 
 - make a hash for won_global_boards?
-
-
-# num_moves_to_keep = max(1, int(len(move_evals) * (1 - cutoff_percentage)))
-# moves_to_try = [move for move, _ in move_evals[:num_moves_to_keep]]
-
-
-
-
-
 
 - start building the bases of the global_board mega hash
 

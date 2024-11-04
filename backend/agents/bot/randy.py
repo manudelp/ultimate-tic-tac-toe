@@ -47,15 +47,18 @@ class RandomAgent:
         
         # Make Playable Local Boards List
         if board_to_play is None:
-            for i in range(3):
-                for j in range(3):
-                    if isPlayable(board[i, j]):
-                        # print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
-                        local_row, local_col = self.randomMove(board[i, j])
-                        self.global_row, self.global_col = i, j
-                        self.moveNumber += 1
-                        return self.global_row, self.global_col, local_row, local_col
-            raise ValueError(Style.BRIGHT + Fore.RED + f"Randy couldn't find a playable board! Global Board is \n{board}" + Style.RESET_ALL)
+            playable_boards = self.get_playable_boards_list(board)
+            
+            if (len(playable_boards) == 0) or (not playable_boards):
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy couldn't find a playable board! Global Board is \n{board}" + Style.RESET_ALL)
+
+            i, j = random.choice(playable_boards)
+            print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
+
+            local_row, local_col = self.randomMove(board[i, j])
+            self.global_row, self.global_col = i, j
+            self.moveNumber += 1
+            return self.global_row, self.global_col, local_row, local_col
         else:   
             self.global_row, self.global_col = board_to_play
             if not isPlayable(board[self.global_row, self.global_col]):
@@ -78,6 +81,14 @@ class RandomAgent:
             raise ValueError(f"The board is full... it shouldn't even be, even with a jsx fail, I already checked\n Board is {board}")
         chosen_index = random.choice(empty_cells)
         return np.unravel_index(chosen_index, board.shape)
+    
+    def get_playable_boards_list(self, board):
+        playables = []
+        for i in range(3):
+            for j in range(3):
+                if isPlayable(board[i, j]):
+                    playables.append((i, j))
+        return playables
 
 def isFull(subboard):
     ''' Returns True if the board is full, False otherwise '''

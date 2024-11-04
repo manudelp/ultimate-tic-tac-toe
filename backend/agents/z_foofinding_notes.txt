@@ -6,6 +6,10 @@ CHECK **EVERYWHERE** WHERE LOCAL BOARD FUNCTIONS LIKE ISWON OR ISPLAYABLE ARE CA
 
 # MINIMAX
 
+- Break / Exception / or smth
+for the alpha-beta pruning when a move is a winner?
+tipo, dont waste time doing more comparisons, just break everything and return it
+
 
 # Iterative Deepening & Function-Calling Stuff
 
@@ -66,8 +70,13 @@ elif isEdge(r, )
 else: (aca ya sabes que es corner)
 en Monkey self.boardBalance ya esta implementado esto!
 
+
 Another Idea to also consider as a bonus, connectivity of local board wins!
 Pensalo, tener un local_board_won en [0, 0] y [0, 1] vale mas que tener en [0, 0] y [2, 1], o no?
+quick way to do it... if you're already turning the global board results into a 3x3 representation
+just check that representation's heuristic connectivity value in the evaluated_boards hash in O(1)
+and then maybe make it a multiplier of the total score so that it weighs in a lot, or make it a separate sum but very heavy, since it's what really maters at the end... the local board heuristics are just a way to reach better global results
+
 
 when board_to_play is optional, try:
 - minimax on the global board and fuck it, iterate all <= 81 moves and see which is best
@@ -118,12 +127,8 @@ Basically, when I say "a lot" is cause I mean at least millions actually
 
 
 
-
 # Zobrist Hashing
-- ni idea
-- guardate transposition table con tobytes() para hacerlo en O(1) sino
-- ahre para que quiero hacer zobrist hashing si tengo al GOAT 'tobytes()'
-- (fijate igual)
+- pinchovich, aguante tobytes() transposition table??
 
 
 

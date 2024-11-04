@@ -15,10 +15,10 @@ bot_routes = Blueprint('bots', __name__)
 
 # Initialize agents
 # INITIALIZE THE FIRST AGENT. WILL PLAY 1VPLAYER, AND PLAY FIRST AGAINST BOTS
-AGENT1 = RandomAgent()
+# AGENT1 = RandomAgent()
 # AGENT1 = GardenerAgent()
 # AGENT1 = MonkeyAgent()
-# AGENT1 = TaylorAgent()
+AGENT1 = TaylorAgent()
 # AGENT1 = StraightArrowAgent()
 # AGENT1 = FooFinderAgent()
 # AGENT1 = IteroldAgent()

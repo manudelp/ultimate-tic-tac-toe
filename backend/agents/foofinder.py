@@ -562,7 +562,7 @@ class FooFinderAgent:
         # TODO: Order Moves
         None
 
-    # Board Checks Auxiliaries 🧮✔️
+    # Board Checks & Heuristic Auxiliaries 🧮✔️
     def boardBalance(self, board):
         # TODO: Yeah... actually make a good heuristic lmao
         # NEEDS TIME IMPROVEMENT 🚨
@@ -804,7 +804,7 @@ class FooFinderAgent:
         self.model_global_board_results[1, 0], self.model_global_board_results[1, 1], self.model_global_board_results[1, 2] = self.get_isWon(board[1, 0]), self.get_isWon(board[1, 1]), self.get_isWon(board[1, 2])
         self.model_global_board_results[2, 0], self.model_global_board_results[2, 1], self.model_global_board_results[2, 2] = self.get_isWon(board[2, 0]), self.get_isWon(board[2, 1]), self.get_isWon(board[2, 2])
 
-    # Hashing Auxiliaries 🔑📖
+    # Hashing Loading Auxiliaries 🔑📖
     def load_winning_boards(self, file_path):
         # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
         
@@ -899,7 +899,7 @@ class FooFinderAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
 
-
+    # Hashing Retrieval Auxiliaries 📚🔍
     def get_isWon(self, board):
         # TIMEIT APPROVED ✅
         """
@@ -1017,16 +1017,16 @@ def emptyCellsGlobal(board):
     ''' Returns the amount of emtpy cells available in the global board '''
     return (81 - np.count_nonzero(board))
 
-def isCorner(coord: tuple) -> bool:
-    # TIMEIT APPROVED ✅
-    ''' 
-    TIME RESULTS SHOWED THAT, AFTER 2billion+ ITERATIONS
-    isCorner took 230 seconds
-    isEdge took 185 seconds
-    coord==(1, 1) took 150 seconds (is center)
-    '''
+# def isCorner(coord: tuple) -> bool:
+#     # TIMEIT APPROVED ✅
+#     ''' 
+#     TIME RESULTS SHOWED THAT, AFTER 2billion+ ITERATIONS
+#     isCorner took 230 seconds
+#     isEdge took 185 seconds
+#     coord==(1, 1) took 150 seconds (is center)
+#     '''
      
-    return coord in [(0, 0), (0, 2), (2, 0), (2, 2)]
+#     return coord in [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 def isEdge(x: int, y: int) -> bool:
     # TIMEIT APPROVED ✅
