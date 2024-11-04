@@ -4,14 +4,34 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 const spaceGrotesk = localFont({
-  src: "./fonts/Space_Grotesk/static/SpaceGrotesk-Regular.ttf",
-  variable: "--font-regular",
-  weight: "400",
-});
-const spaceGroteskBold = localFont({
-  src: "./fonts/Space_Grotesk/static/SpaceGrotesk-Bold.ttf",
-  variable: "--font-bold",
-  weight: "700",
+  src: [
+    {
+      path: "./fonts/Space_Grotesk/static/SpaceGrotesk-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Space_Grotesk/static/SpaceGrotesk-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Space_Grotesk/static/SpaceGrotesk-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Space_Grotesk/static/SpaceGrotesk-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Space_Grotesk/static/SpaceGrotesk-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
@@ -40,9 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`antialiased ${spaceGrotesk.variable} ${spaceGroteskBold.variable}`}
-      >
+      <body className={`antialiased ${spaceGrotesk.variable}`}>
         {children}
         <SpeedInsights />
       </body>

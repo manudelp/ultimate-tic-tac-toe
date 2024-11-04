@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Footer: React.FC = () => {
   useEffect(() => {
@@ -13,27 +14,60 @@ const Footer: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed bottom-0 inset-x-0 p-2 text-sm bg-black text-white text-center">
-      <p>
-        &copy; <span id="year"></span> All rights reserved |{" "}
-        <a
-          href="https://www.linkedin.com/in/manuel-delpino/"
-          target="_blank"
-          className="text-blue-500 hover:underline"
-          rel="noopener noreferrer"
-        >
-          Manuel Delpino
-        </a>{" "}
-        &{" "}
-        <a
-          href="https://www.linkedin.com/in/manuel-meiriño-7b9214331/"
-          target="_blank"
-          className="text-blue-500 hover:underline"
-          rel="noopener noreferrer"
-        >
-          Manuel Meiriño
-        </a>
-      </p>
+    <div className="w-full p-8 text-sm text-white text-center bg-gray-950">
+      <div className="mb-4">
+        <p>
+          &copy; <span id="year"></span> Ultimate Tic Tac Toe. All rights
+          reserved.
+        </p>
+        <p>
+          Developed by{" "}
+          <a
+            href="https://www.linkedin.com/in/manuel-delpino/"
+            target="_blank"
+            className="text-blue-400 hover:underline"
+            rel="noopener noreferrer"
+          >
+            Manuel Delpino
+          </a>{" "}
+          &{" "}
+          <a
+            href="https://www.linkedin.com/in/manuel-meiriño-7b9214331/"
+            target="_blank"
+            className="text-blue-400 hover:underline"
+            rel="noopener noreferrer"
+          >
+            Manuel Meiriño
+          </a>
+        </p>
+      </div>
+      <div className="mb-4">
+        <Link to="/privacy-policy" className="text-blue-400 hover:underline">
+          Privacy Policy
+        </Link>{" "}
+        |{" "}
+        <Link to="/terms-of-service" className="text-blue-400 hover:underline">
+          Terms of Service
+        </Link>{" "}
+        |{" "}
+        <Link to="/contact" className="text-blue-400 hover:underline">
+          Contact Us
+        </Link>
+      </div>
+      <div>
+        <p>
+          Stay connected with us on{" "}
+          <a
+            href="https://www.instagram.com"
+            target="_blank"
+            className="text-blue-400 hover:underline"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          .
+        </p>
+      </div>
     </div>
   );
 };

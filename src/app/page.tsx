@@ -2,10 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { getLatestCommitHash } from "@/github";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Header from "./components/layout/header";
-// import Sidebar from "./components/layout/sidebar";
-import Dashboard from "./components/layout/dashboard";
+import Sidebar from "./components/layout/sidebar";
+import Dashboard from "./components/pages/dashboard";
+import HowToPlay from "./components/pages/how-to-play";
+import PrivacyPolicy from "./components/pages/privacy-policy";
+import TermsOfService from "./components/pages/terms-of-service";
 import Footer from "./components/layout/footer";
+import ContactUs from "./components/pages/contact-us";
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -32,18 +35,22 @@ export default function Home() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-black text-white">
-        <p className="absolute right-0 opacity-30">1.1-alpha-{version}</p>
-        {/* <Header /> */}
-        <div>
-          {/* <Sidebar /> */}
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            {/* <Route path="/how-to-play" element={<HowToPlay />} /> */}
-            <Route path="*" element={<h1>Not Found</h1>} />
-          </Routes>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <p className="absolute right-0">2.0-alpha-{version}</p>
+        <div className="flex">
+          <Sidebar />
+          <div className="w-full flex flex-col">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/how-to-play" element={<HowToPlay />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="*" element={<h1>Not Found</h1>} />
+            </Routes>
+            <Footer />
+          </div>
         </div>
-        <Footer />
       </div>
     </Router>
   );
