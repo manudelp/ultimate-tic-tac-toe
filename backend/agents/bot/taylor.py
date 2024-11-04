@@ -91,27 +91,27 @@ class TaylorAgent:
                                 self.moveNumber += 1
                                 return i, j, local_row, local_col
 
-            # Otherwise Check Wins
-            for i in range(rows):
-                for j in range(cols):
-                    if isPlayable(super_board[i, j]):
-                        local_winner = self.get_winnableByOne(super_board[i, j])
-                        if local_winner:
-                            # print(f"Taylor found a local board to win, in the board {i, j}, looks like this:\n {super_board[i, j]}")
-                            local_row, local_col = safeSetExtractor(super_board, local_winner)
-                            self.moveNumber += 1
-                            return i, j, local_row, local_col
+            # # Otherwise Check Wins
+            # for i in range(rows):
+            #     for j in range(cols):
+            #         if isPlayable(super_board[i, j]):
+            #             local_winner = self.get_winnableByOne(super_board[i, j])
+            #             if local_winner:
+            #                 # print(f"Taylor found a local board to win, in the board {i, j}, looks like this:\n {super_board[i, j]}")
+            #                 local_row, local_col = safeSetExtractor(super_board, local_winner)
+            #                 self.moveNumber += 1
+            #                 return i, j, local_row, local_col
             
-            # Otherwise, Check Blocks
-            for i in range(rows):
-                for j in range(cols):
-                    if isPlayable(super_board[i, j]):
-                        local_blocker = self.get_winnableByMinusOne(super_board[i, j])
-                        if local_blocker:
-                            # print(f"Taylor found a local board to block, in the board {i, j}, looks like this:\n {super_board[i, j]}")
-                            local_row, local_col = safeSetExtractor(super_board, local_blocker)
-                            self.moveNumber += 1
-                            return i, j, local_row, local_col
+            # # Otherwise, Check Blocks
+            # for i in range(rows):
+            #     for j in range(cols):
+            #         if isPlayable(super_board[i, j]):
+            #             local_blocker = self.get_winnableByMinusOne(super_board[i, j])
+            #             if local_blocker:
+            #                 # print(f"Taylor found a local board to block, in the board {i, j}, looks like this:\n {super_board[i, j]}")
+            #                 local_row, local_col = safeSetExtractor(super_board, local_blocker)
+            #                 self.moveNumber += 1
+            #                 return i, j, local_row, local_col
 
             # Otherwise, Center Move
             if isPlayable(super_board[1, 1]):
@@ -146,14 +146,14 @@ class TaylorAgent:
         # print(f"When btp is {board_to_play}, Local winner is {local_winner}, local blocker is {local_blocker}")
  
         # Win
-        if local_winner:
-            local_row, local_col = safeSetExtractor(super_board, local_winner)
-        # Block
-        elif local_blocker:
-            # print("Straighty can block the given local board!")
-            local_row, local_col = safeSetExtractor(super_board, local_blocker)
+        # if local_winner:
+        #     local_row, local_col = safeSetExtractor(super_board, local_winner)
+        # # Block
+        # elif local_blocker:
+        #     # print("Straighty can block the given local board!")
+        #     local_row, local_col = safeSetExtractor(super_board, local_blocker)
         # Winning Strat
-        elif best_move is not None:
+        if best_move is not None:
             local_row, local_col = best_move
             print(f"Taylor found the best local move {best_move} with a score of {best_score:.2f}")
         # Never Goon

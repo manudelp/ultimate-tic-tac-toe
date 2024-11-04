@@ -52,7 +52,7 @@ def get_bot_names():
 
 @bot_routes.route('/get-bot-move', methods=['POST'])
 def get_bot_move():
-    print(Fore.BLUE + Style.BRIGHT + "TRYING GET_BOT_MOVE FROM THE BACKEND" + Style.RESET_ALL)
+    # print(Fore.BLUE + Style.BRIGHT + "TRYING GET_BOT_MOVE FROM THE BACKEND" + Style.RESET_ALL)
     try:
         # Get the JSON data from the request
         data = request.json
@@ -87,10 +87,10 @@ def get_bot_move():
             raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
 
         # # # DEBUG BEFORE MOVE (UNCOMMENT ME)
-        print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
-        print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
-        print("Their received board is:")  # Print the turn for debugging
-        utils.fancyBoardPrinter(board_array)  # Print the board for debugging
+        # print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
+        # print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
+        # print("Their received board is:")  # Print the turn for debugging
+        # utils.fancyBoardPrinter(board_array)  # Print the board for debugging
         # print(f"\nReceived board results is \n{board_results}\n")  # Print the board results for debugging
 
         # Check if the game is already over
