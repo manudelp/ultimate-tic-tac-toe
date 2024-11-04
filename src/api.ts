@@ -45,30 +45,15 @@ export const getBotMove = async (
   activeMiniBoard: number[] | null,
   turn: string
 ): Promise<[number, number, number, number]> => {
-  try {
-    console.log("%cSERVER CURRENTLY CALLING FOR BOT MOVE", "color: aqua; font-weight: bold");
-    const response = await axios.post<BotMoveResponse>(
-      `${API_URL}/get-bot-move`,
-      {
-        board,
-        activeMiniBoard,
-        turn,
-      }
-    );
-    console.log("%cSERVER FINISHED CALLING, AND RETRIEVED BOT MOVE", "color: forestgreen; font-weight: bold");
-    return response.data.move;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response) {
-      console.error("Error fetching bot move:", error.response.data);
-      throw new Error(error.response.data.message || "Error fetching bot move");
-    } else if (axios.isAxiosError(error) && !error.response) {
-      console.error("Error: Successfully called for bot move but failed to retrieve bot move.");
-      throw new Error("Successfully called for bot move but failed to retrieve bot move.");
-    } else {
-      console.error("Error fetching bot move:", error);
-      throw new Error("Error fetching bot move");
+  const response = await axios.post<BotMoveResponse>(
+    `${API_URL}/get-bot-move`,
+    {
+      board,
+      activeMiniBoard,
+      turn,
     }
-  }
+  );
+  return response.data.move;
 };
 
 export const agentsReset = async (): Promise<void> => {
