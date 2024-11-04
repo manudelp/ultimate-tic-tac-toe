@@ -6,7 +6,7 @@ from typing import List, Tuple, Dict, Any, Union
 
 # Other Playing Info
 """
-Strategy: .
+Strategy: por ahora straighty sin lo straighty, luego vemos
 """
 
 # Heuristic Info
