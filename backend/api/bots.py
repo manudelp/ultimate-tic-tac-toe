@@ -11,6 +11,7 @@ from agents.bot.iterold import IteroldAgent
 from agents.bot.itterino import ItterinoAgent
 from agents.bot.ordy import TidyPodatorAgent
 from agents.bot.twinny import TwinPrunerAgent
+from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
 

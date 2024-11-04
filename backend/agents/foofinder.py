@@ -3,6 +3,7 @@ import math
 import time
 import random
 import ast
+import os
 from typing import List, Tuple, Dict, Any, Union, Optional
 from colorama import init, Fore, Style
 
@@ -62,16 +63,26 @@ class FooFinderAgent:
         self.hash_over_boards = {}
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
+        
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         # Load both winning boards and evaluated boards during initialization
-        self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
-        self.load_evaluated_boards('backend/agents/hashes/hash_evaluated_boards.txt') # replace by the true evaluated boards
-        self.load_drawn_boards('backend/agents/hashes/hash_draw_boards.txt')
-        # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
-        self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
-        self.load_winnable_boards_one('backend/agents/hashes/hash_winnable_boards_by_one.txt')
-        self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
-
+        winning_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_winning_boards.txt')
+        evaluated_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        drawn_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_draw_boards.txt')
+        # move_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_move_boards.txt')
+        over_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_over_boards.txt')
+        winnable_boards_one_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_winnable_boards_by_one.txt')
+        winnable_boards_minus_one_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_winnable_boards_by_minus_one.txt')
+        
+        self.load_winning_boards(winning_boards_path)
+        self.load_evaluated_boards(evaluated_boards_path)
+        self.load_drawn_boards(drawn_boards_path)
+        # self.load_move_boards(move_boards_path)
+        self.load_over_boards(over_boards_path)
+        self.load_winnable_boards_one(winnable_boards_one_path)
+        self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
+        
     def __str__(self):
         return self.id
 
@@ -1268,9 +1279,10 @@ def run_hash_tests():
     assert f3 == set()
     assert g3 == set()
        
-    print("All hash tests passed successfully!")
+    print(Style.BRIGHT + Fore.GREEN + "All FooFinder Hash Tests passed successfully! 😄" + Style.RESET_ALL)
 
-run_hash_tests()
+# uncomment me to run hash tests
+# run_hash_tests()
 
 
 
