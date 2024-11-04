@@ -1,5 +1,6 @@
 import numpy as np
 import api.utils as utils
+from colorama import Style, Fore
 from flask import Blueprint, jsonify, request
 from agents.bot.randy import RandomAgent
 from agents.bot.monkey import MonkeyAgent
@@ -50,6 +51,7 @@ def get_bot_names():
 
 @bot_routes.route('/get-bot-move', methods=['POST'])
 def get_bot_move():
+    print(Fore.BLUE + Style.BRIGHT + "TRYING GET_BOT_MOVE FROM THE BACKEND" + Style.RESET_ALL)
     try:
         # Get the JSON data from the request
         data = request.json
@@ -83,11 +85,11 @@ def get_bot_move():
         else:
             raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
 
-        # print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
-        # print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
-        # print("Their received board is:")  # Print the turn for debugging
-        # utils.fancyBoardPrinter(board_array)  # Print the board for debugging
-
+        # # # DEBUG BEFORE MOVE (UNCOMMENT ME)
+        print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
+        print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
+        print("Their received board is:")  # Print the turn for debugging
+        utils.fancyBoardPrinter(board_array)  # Print the board for debugging
         # print(f"\nReceived board results is \n{board_results}\n")  # Print the board results for debugging
 
         # Check if the game is already over
@@ -107,13 +109,13 @@ def get_bot_move():
         else:
             raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
 
+        # # # DEBUG AFTER MOVE (UNCOMMENT ME)
         # board_copy = board_array.copy()
         # board_copy[move[0]][move[1]][move[2]][move[3]] = 1 if turn == "O" else -1
         # board_copy_results = utils.get_board_results(board_copy)
-
         # print("\nBoard after move:")  # Print the board after the move for debugging
         # utils.fancyBoardPrinter(board_copy)  # Print the board for debugging
-
+        # print(f"Current active Mini Board or Board to Play is {active_mini_board}")  # Print the active mini board for debugging
         # print(f"\nNow board results is \n{board_copy_results}!!\n")  # Print the board results for debugging
 
         # Convert the move to a tuple of integers

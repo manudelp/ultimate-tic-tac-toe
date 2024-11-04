@@ -126,7 +126,7 @@ class TaylorAgent:
             if best_move is not None:
                 a, b, local_row, local_col = best_move
                 self.moveNumber += 1
-                print(f"Taylor found the best move global {best_move} with a score of {best_score}")
+                print(f"Taylor found the best move global {best_move} with a score of {best_score:.2f}")
                 return a, b, local_row, local_col
             
             raise ValueError(Style.BRIGHT + Fore.RED + f"Taylor couldn't find a playable board! Global Board is \n{super_board}" + Style.RESET_ALL)
@@ -137,7 +137,8 @@ class TaylorAgent:
             if not isPlayable(subboard):
                 raise ValueError(Style.BRIGHT + Fore.RED + f"Taylor Board to play is not playable! Board is \n{subboard}" + Style.RESET_ALL)
 
-        # Greedy Action
+        # Greedy & taylor Set Ups
+        over_lists = self.get_over_boards_list(super_board)
         local_winner = self.get_winnableByOne(subboard)
         local_blocker = self.get_winnableByMinusOne(subboard)
         best_move, best_score = self.find_best_local_move(super_board, (a, b))
@@ -154,7 +155,7 @@ class TaylorAgent:
         # Winning Strat
         elif best_move is not None:
             local_row, local_col = best_move
-            print(f"Taylor found the best local move {best_move} with a score of {best_score}")
+            print(f"Taylor found the best local move {best_move} with a score of {best_score:.2f}")
         # Never Goon
         elif goonMove(super_board, subboard) is not None:
             local_row, local_col = goonMove(super_board, subboard)
@@ -234,6 +235,7 @@ class TaylorAgent:
         rows, cols, *_ = board.shape
         best_move = None
         best_score = -math.inf
+        over_boards_list = self.get_over_boards_list(board)
 
         for r in range(rows):
             for c in range(cols):
@@ -256,20 +258,42 @@ class TaylorAgent:
         global_board_copy = global_board.copy()
         original_balance = boardBalance(global_board_copy)
         local_board = global_board_copy[local_coords]
+        
 
         for r in range(3):
             for c in range(3):
                 if canPlay(local_board, r, c):
                     local_board[r, c] = 1
                     new_balance = boardBalance(global_board_copy)
-                    score = new_balance - original_balance
+                    pre_score = new_balance - original_balance
                     local_board[r, c] = 0
+                    
+                    board_sent = global_board_copy[r, c]
+                    # Depende a donde lo manda...
+                    if isOver(board_sent):
+                        score = pre_score * 0.5 - 0.2
+                    elif self.get_winnableByMinusOne(board_sent):
+                        score = pre_score * 0.7 - 0.15
+                    elif (r, c) == (1, 1):
+                        score = pre_score * 0.8 - 0.12
+                    elif isCorner((r, c)):
+                        score = pre_score * 0.95 - 0.02
+                    else:
+                        score = pre_score
 
                     if score > best_score:
                         best_score = score
                         best_move = (r, c)
                         
         return best_move, best_score
+
+    def get_over_boards_list(self, board):
+        overs = []
+        for i in range(3):
+            for j in range(3):
+                if isOver(board[i, j]):
+                    overs.append((i, j))
+        return overs
 
 def canPlay(subboard, row, col):
     ''' Returns True if the cell is empty, False otherwise '''
@@ -285,7 +309,7 @@ def isPlayable(subboard):
 
 def isOver(subboard):
     ''' Returns True if the board is full or won, False otherwise '''
-    return isFull(subboard) or (isWon(subboard) != 0)
+    return not isPlayable(subboard)
 
 def isWon(subboard):
     ''' Returns 0 if the board is not won, 1 if player 1 won, -1 if player -1 won '''
@@ -325,6 +349,9 @@ def safeSetExtractor(board, set):
 def isEdge(x: int, y: int) -> bool:
     # TIMEIT APPROVED ✅
     return (x+y) % 2 == 1
+
+def isCorner(coords):
+    return coords in [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 def count_enemies(global_board, local_board_coords):
     # TIMEIT APPROVED ✅
