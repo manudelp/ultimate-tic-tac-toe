@@ -63,7 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        <main>{children || "Loading..."}</main>
+        <main>{children}</main>
         <SpeedInsights />
       </body>
     </html>
