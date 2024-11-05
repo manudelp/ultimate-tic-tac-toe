@@ -8,7 +8,9 @@ import {
   checkBotWinner,
 } from "../utils";
 
-const socket = io("http://localhost:5000/online");
+const socket = io(
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/online"
+);
 
 export const useGame = (
   gameMode: string,
