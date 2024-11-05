@@ -53,8 +53,8 @@ def unhandled_exception(e):
     return jsonify(message="Unhandled Exception"), 500
 
 
-ssl_context = ('/home/ubuntu/ssl/server.crt', '/home/ubuntu/ssl/server.key')
 
 # Run the Flask app
 if __name__ == '__main__':
+    ssl_context = ('/home/ubuntu/ssl/server.crt', '/home/ubuntu/ssl/server.key')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, ssl_context=ssl_context)
