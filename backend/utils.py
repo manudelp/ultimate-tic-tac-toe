@@ -24,7 +24,7 @@ def get_board_results(board):
 
     for rows in range(3):
         for cols in range(3):
-            board_results[rows, cols] = get_GlobalWinner(board[rows, cols])
+            board_results[rows, cols] = get_winner(board[rows, cols])
 
     return board_results
 
@@ -47,7 +47,7 @@ def load_winning_boards(file_path):
         print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
 # Get the global game winner
-def get_GlobalWinner(board):
+def get_winner(board):
     # TIMEIT APPROVED ✅
     """
     Retrieve the winner of a board from the preloaded dictionary of winning boards.

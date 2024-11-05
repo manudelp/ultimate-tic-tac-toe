@@ -2,7 +2,7 @@ import numpy as np
 import time
 import timeit
 from colorama import init, Fore, Style
-from ...backend.api.utils import fancyBoardPrinter, get_board_results, load_winning_boards, get_GlobalWinner
+from ...backend.api.utils import fancyBoardPrinter, get_board_results, load_winning_boards, get_winner
 from ...backend.agents.bot.iterold import IteroldAgent
 from ...backend.agents.bot.itterino import ItterinoAgent
 from ...backend.agents.bot.jardy import GardenerAgent

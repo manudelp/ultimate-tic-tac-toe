@@ -22,15 +22,15 @@ def get_board_results(board):
     
     board_results = np.zeros((3, 3), dtype=int)
 
-    for rows in range(3):
-        for cols in range(3):
-            board_results[rows, cols] = get_GlobalWinner(board[rows, cols])
+    board_results[0, 0], board_results[0, 1], board_results[0, 2] = get_winner(board[0, 0]), get_winner(board[0, 1]), get_winner(board[0, 2])
+    board_results[1, 0], board_results[1, 1], board_results[1, 2] = get_winner(board[1, 0]), get_winner(board[1, 1]), get_winner(board[1, 2])
+    board_results[2, 0], board_results[2, 1], board_results[2, 2] = get_winner(board[2, 0]), get_winner(board[2, 1]), get_winner(board[2, 2])
 
     return board_results
 
-
 # Load the winning boards from the hashed file
 hash_won_boards = {}
+hash_over_boards = {}
 def load_winning_boards(file_path):
     # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
     
@@ -46,8 +46,21 @@ def load_winning_boards(file_path):
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
+def load_over_boards(file_path):
+    # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
+    ''' Loads the over boards from a file and stores them in a dictionary 
+    Each board's state is stored as a key (using its byte representation)
+    '''
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                board_hex = line.strip()
+                hash_over_boards[bytes.fromhex(board_hex)] = True
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")    
+
 # Get the global game winner
-def get_GlobalWinner(board):
+def get_winner(board):
     # TIMEIT APPROVED ✅
     """
     Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -59,8 +72,64 @@ def get_GlobalWinner(board):
     board_key = board.tobytes()
     return hash_won_boards.get(board_key, 0)
 
+def get_isOver(board):
+    # TIMEIT APPROVED ✅
+    ''' Returns True if the board is over, False otherwise '''
+    board_key = board.tobytes()
+    return hash_over_boards.get(board_key, False)
+
+def get_isDraw(board):
+    # TIMEIT APPROVED ✅
+    ''' Returns True if the board is over, False otherwise 
+    Since it is always called after checking for a win, it is taken as being a draw '''
+    return (np.count_nonzero(board) == 9)
+
+def is_game_over(board):
+    # TIMEIT APPROVED ✅
+    ''' Returns True if the global board is over, False otherwise '''
+    not_over_locals = []
+    for i in range(3):
+        for j in range(3):
+            if not get_isOver(board[i, j]):
+                not_over_locals.append((i, j))
+    if len(not_over_locals) == 0:
+        return True
+    return False
+
+def get_globalWinner(board):
+    # TIMEIT APPROVED ✅
+    ''' Returns the winner of the global board '''
+    board_results = get_board_results(board)
+    return get_winner(board_results)
+
 # Determine the absolute path to the hash_winning_boards.txt file
-hash_file_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
+won_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
+over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_over_boards.txt')
 
 # Load the winning boards using the determined path
-load_winning_boards(hash_file_path)
+load_winning_boards(won_boards_hash_path)
+load_over_boards(over_boards_hash_path)
+
+# Over Board Example
+over_local_board = np.array([[-1, 0, 1], 
+                              [1, 0, 1], 
+                              [-1, 0, 1]],)
+
+not_over_local_board = np.array([[-1, 0, 1], 
+                              [1, 0, 0], 
+                              [-1, 0, 1]],)
+
+board_test = np.zeros((3, 3, 3, 3), dtype=int)
+board_test[0, 0] = over_local_board
+board_test[0, 1] = over_local_board
+board_test[0, 2] = over_local_board
+board_test[1, 0] = over_local_board
+board_test[1, 1] = over_local_board
+board_test[1, 2] = over_local_board
+board_test[2, 0] = over_local_board
+board_test[2, 1] = over_local_board
+board_test[2, 2] = over_local_board
+
+# Tests
+print(f"Board results are\n {get_board_results(board_test)}")
+print(f"Is the board over? {is_game_over(board_test)}")

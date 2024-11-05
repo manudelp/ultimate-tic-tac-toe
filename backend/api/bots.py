@@ -94,7 +94,7 @@ def get_bot_move():
         # print(f"\nReceived board results is \n{board_results}\n")  # Print the board results for debugging
 
         # Check if the game is already over
-        winner = utils.get_GlobalWinner(board_results)
+        winner = utils.get_winner(board_results)
         if winner != 0:
             print("che alguien gano pa'")
             return jsonify({'error': 'Game Over'}), 400
