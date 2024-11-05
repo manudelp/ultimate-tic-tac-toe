@@ -1,3 +1,5 @@
+# backend/api/bots.py
+
 import numpy as np
 import api.utils as utils
 from colorama import Style, Fore

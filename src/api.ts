@@ -23,6 +23,10 @@ interface LoginResponse {
   name: string;
 }
 
+interface SendMoveResponse {
+  status: string;
+  message: string;
+}
 // Conection
 export const checkConnection = async (): Promise<boolean> => {
   try {
@@ -69,6 +73,59 @@ export const getBotMove = async (
 
 export const agentsReset = async (): Promise<void> => {
   await axios.post(`${API_URL}/agents-reset`);
+};
+
+// Online
+export const createLobby = async (
+  playerId: string,
+  userLetter: string,
+  onlineStarts: string
+) => {
+  try {
+    const response = await axios.post(`${API_URL}/create-lobby`, {
+      player_id: playerId,
+      user_letter: userLetter,
+      online_starts: onlineStarts,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating lobby:", error);
+    return null;
+  }
+};
+
+export const joinLobby = async (lobbyId: string, playerId: string) => {
+  try {
+    const response = await axios.post(`${API_URL}/join-lobby`, {
+      lobby_id: lobbyId,
+      player_id: playerId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error joining lobby:", error);
+    return null;
+  }
+};
+
+export const sendMove = async (
+  lobbyId: string,
+  playerId: string,
+  move: [number, number, number, number]
+): Promise<SendMoveResponse> => {
+  try {
+    const response = await axios.post<SendMoveResponse>(
+      `${API_URL}/send-move`,
+      {
+        lobby_id: lobbyId,
+        player_id: playerId,
+        move,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error sending move:", error);
+    throw error;
+  }
 };
 
 // User Registration

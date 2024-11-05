@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchBotNames, getBotMove, agentsReset } from "@/api";
+import io from "socket.io-client";
+import { fetchBotNames, getBotMove, agentsReset, sendMove } from "@/api";
 import {
   MiniBoardWinner,
   GameWinner,
@@ -7,9 +8,15 @@ import {
   checkBotWinner,
 } from "../utils";
 
+const socket = io("http://localhost:5000")
+
 export const useGame = (
   gameMode: string,
   starts: string,
+  lobbyId: string,
+  playerId: string,
+  userLetter: string,
+  onlineStarts: string,
   totalGames: number,
   resetBoard: boolean
 ) => {
@@ -168,10 +175,16 @@ export const useGame = (
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     const coords: Coords = [a, b, c, d];
-    if (!isBotThinking) {
+
+    if (!isBotThinking && userLetter === turn && !gameOver) {
       makeMove(coords);
-    } else {
+      if (gameMode === "online") {
+        sendMove(lobbyId, playerId, coords);
+      }
+    } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
       alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
+    } else {
+      alert("Wait for your turn.");
     }
   };
 
@@ -323,6 +336,25 @@ export const useGame = (
     }
   }, [gameMode]);
 
+  // Online
+  useEffect(() => {
+    if (gameMode === "online" && onlineStarts) {
+      setTurn(onlineStarts as Turn);
+    }
+  }, [gameMode, onlineStarts]);
+
+  useEffect(() => {
+    const handleMove = (data: { player_id: string; move: [number, number, number, number] }) => {
+      const { move } = data;
+      makeMove(move);
+    };
+  
+    socket.on('move', handleMove);
+  
+    return () => {
+      socket.off('move', handleMove);
+    };
+  }, [makeMove]);
   return {
     board,
     turn,
