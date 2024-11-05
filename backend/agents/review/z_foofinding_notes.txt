@@ -29,6 +29,12 @@ Este concepto se puede expandir a hacerlo luego de n segundos o de d depth, cuan
 
 Tambien podrias decirle que si la eval es 100_000, entonces stop looking! Ya tenes un nodo ganador, aunque esto discutilo con el Chac porque a lo mejor tiene sus riesgos 
 
+Make sure it doesn´t waste too much time, since the first depths (like, the first *9* depths) have already been explored
+Maybe since you already know their eval, call them along with their eval
+
+Or find a way to track their pertinent critical branches entirely, to then simulate the whole branch on the board and call it from there with depth-6 or something, if you want to simulate 6 extra moves on each of the most critical scenarios.
+
+
 
 
 # (Inside) Order Moves 
