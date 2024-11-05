@@ -34,23 +34,30 @@ If Local Board is Edge, Do Not Multiply
 class FooFinderAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
-        # Class Elements
         self.id = "Foo Finder 👑"
+        
+        # Counts
         self.moveNumber = 0
         self.abortedTimes = 0
         self.foo_pieces = 0
         self.rival_pieces = 0
         self.empty_pieces = 0
+        
+        # Sets
         self.over_boards_set = set()
         self.model_over_boards_set = set()
         self.playable_boards_set = set()
         self.model_playable_boards_set = set()
+        
+        # Board Info
         self.wonBoards = {}
         self.modelWonBoards = {}
         self.global_board_results = np.zeros((3, 3), dtype=int)
         self.model_global_board_results = np.zeros((3, 3), dtype=int)
         self.board_array = None
         self.board_tuple = None
+        
+        # Minimax Info
         self.time_limit = 8 # Seconds
         self.MIDGAME_MOVES = 15
         self.ENDGAME_EMPTIES = 3 #TODO: Adjust Endgame Empties Value!
@@ -89,23 +96,38 @@ class FooFinderAgent:
         return self.id
 
     def reset(self):
+        if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
+            print(f"First Game, pointless Reset for {self.id}")
+            return
+        if self.minimax_plays == 0:
+            raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
+        
         print("FooFinder Reset Lets Goo! 🚀")
+        # Counts
         self.moveNumber = 0
         self.abortedTimes = 0
         self.foo_pieces = 0
         self.rival_pieces = 0
         self.empty_pieces = 0
-        self.boardToPlay = None
-        self.lastOpponentMove = None
-        self.wonBoards = {}
-        self.modelWonBoards = {}
+        
+        # Sets
         self.over_boards_set = set()
         self.model_over_boards_set = set()
         self.playable_boards_set = set()
-        self.model_playable_boards_set = set() 
+        self.model_playable_boards_set = set()
+        
+        # Board Info
+        self.wonBoards = {}
+        self.modelWonBoards = {}
         self.global_board_results = np.zeros((3, 3), dtype=int)
         self.board_array = None
         self.board_tuple = None
+
+        # Minimax Info
+        average_minimax_time = self.total_minimax_time / self.minimax_plays
+        print(Style.BRIGHT + Fore.BLUE + f"{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        self.total_minimax_time = 0
+        self.minimax_plays = 0
 
     def action(self, board: np.array, board_to_play: Union[Tuple[int, int], None] = None):
         '''
