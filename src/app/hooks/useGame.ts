@@ -8,7 +8,7 @@ import {
   checkBotWinner,
 } from "../utils";
 
-const socket = io("http://localhost:5000")
+const socket = io("http://localhost:5000/online");
 
 export const useGame = (
   gameMode: string,
@@ -177,9 +177,14 @@ export const useGame = (
     const coords: Coords = [a, b, c, d];
 
     if (!isBotThinking && userLetter === turn && !gameOver) {
-      makeMove(coords);
+      makeMove(coords); // Update the local game state
+
       if (gameMode === "online") {
-        sendMove(lobbyId, playerId, coords);
+        socket.emit("move", {
+          lobby_id: lobbyId,
+          player_id: playerId,
+          move: coords,
+        }); // Emit the move to the server
       }
     } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
       alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
@@ -344,15 +349,18 @@ export const useGame = (
   }, [gameMode, onlineStarts]);
 
   useEffect(() => {
-    const handleMove = (data: { player_id: string; move: [number, number, number, number] }) => {
+    const handleMove = (data: {
+      player_id: string;
+      move: [number, number, number, number]; // Ensure this matches the structure sent from the server
+    }) => {
       const { move } = data;
-      makeMove(move);
+      makeMove(move); // Call the makeMove function to update the game state
     };
-  
-    socket.on('move', handleMove);
-  
+
+    socket.on("move", handleMove); // Listen for the move event
+
     return () => {
-      socket.off('move', handleMove);
+      socket.off("move", handleMove); // Clean up the event listener on unmount
     };
   }, [makeMove]);
   return {

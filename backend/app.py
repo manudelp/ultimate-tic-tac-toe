@@ -20,8 +20,7 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
-# CORS(app, resources={r"/*": {"origins": "https://utictactoe.vercel.app"}})
-CORS(app) # TODO: ONLY FOR DEVELOPMENT
+CORS(app)  # TODO: ONLY FOR DEVELOPMENT
 
 # Initialize JWT
 jwt = JWTManager(app)
@@ -56,4 +55,3 @@ def unhandled_exception(e):
 # Run the Flask app
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
-

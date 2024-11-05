@@ -1,13 +1,28 @@
 # backend/api/online.py
-from flask import Blueprint, jsonify, request
-from flask_socketio import join_room, emit
+
 import uuid
+from flask import Blueprint, jsonify, request
+from flask_socketio import Namespace, emit, join_room
 from socketio_instance import socketio
 
+# Create a blueprint for your online routes
 online_routes = Blueprint('online', __name__)
+
+class OnlineNamespace(Namespace):
+    def on_connect(self):
+        print("Client connected to online namespace")
+
+    def on_disconnect(self):
+        print("Client disconnected from online namespace")
+
+    def on_move(self, data):
+        # Handle the incoming move data
+        emit('move', data, broadcast=True)  # Broadcast the move to all connected clients
+
+# Register the namespace
+socketio.on_namespace(OnlineNamespace('/online'))
+
 lobbies = {}
-
-
 @online_routes.route('/create-lobby', methods=['POST'])
 def create_lobby():
     try:
@@ -68,9 +83,17 @@ def on_join(data):
 
 @online_routes.route('/send-move', methods=['POST'])
 def send_move():
-    lobby_id = request.json['lobby_id']
-    player_id = request.json['player_id']
-    move = request.json['move']
-    emit('move', {'player_id': player_id, 'move': move}, room=lobby_id)
+    try:
+        lobby_id = request.json['lobby_id']
+        player_id = request.json['player_id']
+        move = request.json['move']
 
-    return jsonify({'status': 'move sent'})
+        # Emit the move using the socketio instance to all clients in the room
+        socketio.emit('move', {'player_id': player_id, 'move': move}, room=lobby_id)
+        print(f"\033[1;34mMove made in lobby {lobby_id}\033[0m")
+        return jsonify({'status': 'success'})
+    except KeyError as e:
+        return jsonify({'status': 'error', 'message': f'Missing key: {str(e)}'}), 400
+    except Exception as e:
+        print(f"Unhandled Exception: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500

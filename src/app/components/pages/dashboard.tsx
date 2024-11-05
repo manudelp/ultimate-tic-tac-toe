@@ -7,6 +7,14 @@ import io from "socket.io-client";
 
 const socket = io("http://localhost:5000");
 
+socket.on("connect", () => {
+  console.log("Connected to the server");
+});
+
+socket.on("disconnect", () => {
+  console.log("Disconnected from the server");
+});
+
 const Dashboard: React.FC = () => {
   // Core
   const [gameMode, setGameMode] = useState<string | null>(null);
@@ -129,7 +137,7 @@ const Dashboard: React.FC = () => {
 
             {/* Choose Game Mode */}
             {gameMode === null && (
-              <div className="flex flex-col sm:flex-row justify-center gap-6">
+              <div className="flex flex-wrap flex-col sm:flex-row justify-center gap-6">
                 <button
                   className="sm:w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors font-medium text-lg"
                   onClick={() => selectMode("player-vs-player")}
