@@ -36,7 +36,7 @@ class RandomAgent:
         return self.id
 
     def reset(self):
-        print(f"randy been reset, his move number has GONE DOWN TO ZEROOOOO")
+        # print(f"randy been reset, his move number has GONE DOWN TO ZEROOOOO")
         self.moveNumber = 0
 
     def action(self, board, board_to_play=None):
@@ -53,7 +53,7 @@ class RandomAgent:
                 raise ValueError(Style.BRIGHT + Fore.RED + f"Randy couldn't find a playable board! Global Board is \n{board}" + Style.RESET_ALL)
 
             i, j = random.choice(playable_boards)
-            print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
+            # print(f"Randy found a playable board, the board is {i, j} and looks like this: {board[i, j]}, will attempt randomMove on it")
 
             local_row, local_col = self.randomMove(board[i, j])
             self.global_row, self.global_col = i, j

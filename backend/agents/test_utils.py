@@ -137,29 +137,37 @@ def play_single_game(agent1, agent2, first_player_is_agent1):
     while True:
         # Determine if current agent is playing as 1 or -1
         agent_marker = 1 if current_agent == agent1 else -1
-        agent_name = "Agent1" if agent_marker == 1 else "Agent2"
+        agent_name = str(agent1) if agent_marker == 1 else str(agent2)
         
         # Pass the negated board if agent is playing as -1
         current_board = board if agent_marker == 1 else -1 * board
+
+        # Print the board before the agent makes a move
+        # print(f"\nCurrent board before {agent_name}'s move:")
+        # fancyBoardPrinter(board)
 
         # Current agent makes a move
         move = current_agent.action(current_board, board_to_play)
         global_row, global_col, local_row, local_col = move
 
         # Log the move details
-        print(f"Turn {turn}: {agent_name} (playing as {'1' if agent_marker == 1 else '-1'}")
-        print(f"Full Move Played: {move}")
+        # print(f"Turn {turn}: {agent_name} (playing as {'1' if agent_marker == 1 else '-1'}) chose move: {(int(global_row), int(global_col), int(local_row), int(local_col))}")
 
         # Update the board with the move
         board[global_row, global_col, local_row, local_col] = agent_marker
 
         # Print the updated board for debugging purposes
-        print(f"Updated board after {agent_name}'s move:\n{board}\n")
+        # print(f"Updated board after {agent_name}'s move:")
+        # fancyBoardPrinter(board)
 
         # Check if game is over
+        winner = get_globalWinner(board)
+        if winner != 0:
+            # print(f"Game over! {agent_name} wins!")
+            return winner
+        
         if is_game_over(board):
-            winner = get_globalWinner(board)  # 1 for agent1 win, -1 for agent2 win, 0 for draw
-            return winner if first_player_is_agent1 else -winner
+            return winner
 
         # Determine next board_to_play based on this move
         board_to_play = (local_row, local_col) if is_board_open(board, local_row, local_col) else None
@@ -175,23 +183,35 @@ def play_multiple_games(agent1, agent2, rounds):
     results = {agent1_name: 0, agent2_name: 0, "Draws": 0}
 
     for round in range(rounds):
-        print(f"\nStarting game {round + 1} ({agent1_name} plays {'first' if round % 2 == 0 else 'second'}):")
+        agent1.reset()
+        agent2.reset()
+
+        # print(f"\nStarting game {round + 1} ({agent1_name} plays {'first' if round % 2 == 0 else 'second'}):")
         first_player_is_agent1 = (round % 2 == 0)
         result = play_single_game(agent1, agent2, first_player_is_agent1)
 
         if result == 1:
             results[agent1_name] += 1
-            print(f"{agent1_name} wins this game!\n")
+            # print(f"{agent1_name} wins this game!\n")
         elif result == -1:
             results[agent2_name] += 1
-            print(f"{agent2_name} wins this game!\n")
+            # print(f"{agent2_name} wins this game!\n")
         else:
             results["Draws"] += 1
-            print("This game is a draw!\n")
+            # print("This game is a draw!\n")
 
     # Print the summary of results
     print(f"Results after {rounds} games:")
-    print(f"{agent1_name} Wins: {results[agent1_name]}")
-    print(f"{agent2_name} Wins: {results[agent2_name]}")
-    print(f"Draws: {results['Draws']}")
+    
+    agent1_wins = results[agent1_name]
+    agent2_wins = results[agent2_name]
+    draws = results["Draws"]
+    
+    ag1_percentage = agent1_wins / rounds * 100
+    ag2_percentage = agent2_wins / rounds * 100
+    draw_percentage = draws / rounds * 100
+    
+    print(f"{agent1_name} Wins: {agent1_wins}")
+    print(f"{agent2_name} Wins: {agent2_wins}")
+    print(f"Draws: {draws}")
 
