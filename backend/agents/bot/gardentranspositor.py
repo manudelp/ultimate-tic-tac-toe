@@ -112,7 +112,7 @@ class GardenerTranspositorAgent:
         if minimax_move is not None:
             a, b, r_l, c_l = minimax_move
         else:
-            raise ValueError(f"GardenTranspositor failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start

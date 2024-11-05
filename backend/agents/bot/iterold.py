@@ -76,10 +76,11 @@ class IteroldAgent:
             minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
 
             if minimax_move is not None:
-                print(f"Iterold chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
-                print(f"Iterold Total Action time when board_to_play is None, was {time.time() - self.true_time_start}")
+                minimax_time = time.time() - self.true_time_start
+                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                self.minimax_plays += 1
                 return r, c, r_l, c_l
             else:
                 raise ValueError("Iterold failed to play with alpha beta, playing randomly... (inital btp was None)")
@@ -92,6 +93,9 @@ class IteroldAgent:
         print(f"Iterold is thinking with alpha beta while btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play=board_to_play, max_depth=self.max_depth)
+
+        if minimax_move is None:
+            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
         
         if len(minimax_move) != 2:
             if len(minimax_move) == 4 and int(minimax_move[0]) == a and int(minimax_move[1]) == b:
@@ -100,11 +104,11 @@ class IteroldAgent:
                 raise ValueError(f"At move number {self.moveNumber}, Minimax Move was not a tuple of 2 nor of 4 that matched btp, it was {minimax_move}, board_to_play was {board_to_play} translates to ({a}, {b})")
         
         if final_minmx_move is not None:
-            print(f"Iterold chose alpha beta move: {final_minmx_move}, with evaluation of {minimax_eval}")
-            r_l, c_l = final_minmx_move
             self.moveNumber += 1
-            print(f"Iterold Total Action time when board_to_play not None, was {time.time() - self.true_time_start}")
-            return a, b, r_l, c_l
+            minimax_time = time.time() - self.true_time_start
+            print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+            self.minimax_plays += 1
+            return a, b, final_minmx_move[0], final_minmx_move[1]
         else:
             raise ValueError(f"Iterold failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 

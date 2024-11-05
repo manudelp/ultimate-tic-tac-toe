@@ -77,10 +77,11 @@ class IterVanBytesAgent:
             minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
 
             if minimax_move is not None:
-                print(f"IterVanBytes chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
-                print(f"IterVanBytes Total Action time when board_to_play is None, was {time.time() - self.true_time_start}")
+                minimax_time = time.time() - self.true_time_start
+                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                self.minimax_plays += 1
                 return r, c, r_l, c_l
             else:
                 raise ValueError("IterVanBytes failed to play with alpha beta, playing randomly... (inital btp was None)")
@@ -96,13 +97,16 @@ class IterVanBytesAgent:
         minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
         
         if minimax_move is not None:
-            print(f"IterVanBytes chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
-            r_l, c_l = minimax_move
-            self.moveNumber += 1
-            print(f"IterVanBytes Total Action time when board_to_play not None, was {time.time() - self.true_time_start}")
-            return a, b, r_l, c_l
+            a, b, r_l, c_l = minimax_move
         else:
-            raise ValueError(f"IterVanBytes failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+
+        self.moveNumber += 1
+        minimax_time = time.time() - self.true_time_start
+        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        self.minimax_plays += 1
+        return a, b, r_l, c_l
+
 
 
     def randomMove(self, board):

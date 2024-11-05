@@ -85,7 +85,9 @@ class MaximilianoAgent:
                 # print(f"Maxi chose minimax move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
-                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {time.time() - self.true_time_start:.4f} seconds to play minimax with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                minimax_time = time.time() - self.true_time_start
+                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                self.minimax_plays += 1
                 return r, c, r_l, c_l
             else:
                 raise ValueError("Maxi failed to play with minimax, playing randomly... (inital btp was None)")
@@ -106,11 +108,14 @@ class MaximilianoAgent:
         if minimax_move is not None:
             a, b, r_l, c_l = minimax_move
         else:
-            raise ValueError(f"Maxi failed to play with minimax, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
         self.moveNumber += 1
-        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {time.time() - self.true_time_start:.4f} seconds to play minimax with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        minimax_time = time.time() - self.true_time_start
+        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        self.minimax_plays += 1
         return a, b, r_l, c_l
+
 
 
     def randomMove(self, board):

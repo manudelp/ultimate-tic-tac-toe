@@ -107,7 +107,10 @@ class MonkeyAgent:
         if global_row is None or global_col is None or local_row is None or local_col is None:
             raise ValueError("Best Move was None! This is being printed at the end of action, after running the minimax...")
 
-        print(f"Monkey's got hands, and he chooses: {global_row, global_col, local_row, local_col}")
+        self.moveNumber += 1
+        minimax_time = time.time() - self.time_start
+        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was {board_to_play}" + Style.RESET_ALL)
+        self.minimax_plays += 1
         return global_row, global_col, local_row, local_col
 
     def randomMove(self, board):
