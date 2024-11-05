@@ -2,6 +2,7 @@ import numpy as np
 import random
 import os
 import time
+from colorama import Style, Fore
 
 """
 depth = iterative_deepening basic no re-order, max_depth = 12
@@ -16,6 +17,8 @@ class IteroldAgent:
         self.moveNumber = 0
         self.max_depth = 7
         self.time_limit = 7 # in seconds
+        self.total_minimax_time = 0
+        self.minimax_plays = 0
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 
@@ -38,8 +41,11 @@ class IteroldAgent:
         return self.id
 
     def reset(self):
-        print(f"Resetting Iterold...")
+        average_minimax_time = self.total_minimax_time / self.minimax_plays
+        print(Style.BRIGHT + Fore.BLUE + f"{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
+        self.minimax_plays = 0
+        self.total_minimax_time = 0
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()

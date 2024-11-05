@@ -54,6 +54,8 @@ class FooFinderAgent:
         self.time_limit = 8 # Seconds
         self.MIDGAME_MOVES = 15
         self.ENDGAME_EMPTIES = 3 #TODO: Adjust Endgame Empties Value!
+        self.total_minimax_time = 0
+        self.minimax_plays = 0
 
         # Initiate Hashes
         self.hash_won_boards = {}

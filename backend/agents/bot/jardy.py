@@ -18,7 +18,9 @@ class GardenerAgent:
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
-        self.time_limit = 20 # in seconds
+        self.time_limit = 12 # in seconds
+        self.total_minimax_time = 0
+        self.minimax_plays = 0
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 
@@ -41,8 +43,11 @@ class GardenerAgent:
         return self.id
 
     def reset(self):
-        # print("Jardy been RESET")
+        average_minimax_time = self.total_minimax_time / self.minimax_plays
+        print(Style.BRIGHT + Fore.BLUE + f"{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
+        self.minimax_plays = 0
+        self.total_minimax_time = 0
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()

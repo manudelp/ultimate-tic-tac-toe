@@ -7,13 +7,14 @@ from colorama import Style, Fore
 """
 depth = iterative_deepening with move re-order, max_depth = 8
 Board Balance = Sum of Local Board Balances
-AB-Pruning Minimax? = True
+AB-Pruning Minimax? = True 
+*Uses Transposition Table!
 
 """
 
-class ItterinoAgent:
+class IterVanBytesAgent:
     def __init__(self):
-        self.id = "Mr. Itterino Deepsdale🔄"
+        self.id = "Iter 'Transpo-King' Van Bytes📼"
         self.moveNumber = 0
         self.max_depth = 8
         self.time_limit = 10 # in seconds
@@ -64,25 +65,25 @@ class ItterinoAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"Itterino, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"IterVanBytes, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
         
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            print(f"Itterino is thinking with alpha beta... btp is None")
+            print(f"IterVanBytes is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
 
             if minimax_move is not None:
-                print(f"Itterino chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
+                print(f"IterVanBytes chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
-                print(f"Itterino Total Action time when board_to_play is None, was {time.time() - self.true_time_start}")
+                print(f"IterVanBytes Total Action time when board_to_play is None, was {time.time() - self.true_time_start}")
                 return r, c, r_l, c_l
             else:
-                raise ValueError("Itterino failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("IterVanBytes failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -90,18 +91,18 @@ class ItterinoAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        print(f"Itterino is thinking with alpha beta, not iterative btp is ({a}, {b})")
+        print(f"IterVanBytes is thinking with alpha beta, not iterative btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
         
         if minimax_move is not None:
-            print(f"Itterino chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
+            print(f"IterVanBytes chose alpha beta move: {minimax_move}, with evaluation of {minimax_eval}")
             r_l, c_l = minimax_move
             self.moveNumber += 1
-            print(f"Itterino Total Action time when board_to_play not None, was {time.time() - self.true_time_start}")
+            print(f"IterVanBytes Total Action time when board_to_play not None, was {time.time() - self.true_time_start}")
             return a, b, r_l, c_l
         else:
-            raise ValueError(f"Itterino failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"IterVanBytes failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 
 
     def randomMove(self, board):
@@ -150,7 +151,7 @@ class ItterinoAgent:
         moves_to_try = self.generate_moves(board, board_to_play)
 
         for depth in range(2, max_depth + 1):
-            # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
+            # print(f"IterVanBytes about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
             this_depth_start = time.time()
             try:
                 minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
@@ -175,9 +176,9 @@ class ItterinoAgent:
                     moves_to_try.insert(0, best_move)
                 else:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
-            # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
+            # print(f"Repositioning best move to first place took IterVanBytes {time.time() - t_before_reposition:.4f} seconds")   
             
-            print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
+            print(f"IterVanBytes Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
 
                 
         return best_eval, best_move
