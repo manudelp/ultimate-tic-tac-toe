@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import io from "socket.io-client";
-import { fetchBotNames, getBotMove, agentsReset, sendMove } from "@/api";
+import { fetchBotNames, getBotMove, agentsReset } from "@/api";
 import {
   MiniBoardWinner,
   GameWinner,
