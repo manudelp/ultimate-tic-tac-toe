@@ -328,6 +328,8 @@ class GardenerTranspositorAgent:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
 
+    # TODO: ADD TRANSPOSITION TABLE
+
     def generate_global_moves(self, board):
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''

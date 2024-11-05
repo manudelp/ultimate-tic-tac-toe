@@ -154,6 +154,8 @@ class IterVanBytesAgent:
 
         return None
 
+    # TODO: ADD TRANSPOSITION TABLE
+
     def iterative_deepening(self, board, board_to_play, max_depth):
         ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
         start_time = time.time()
