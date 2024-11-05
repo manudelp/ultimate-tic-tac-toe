@@ -23,6 +23,17 @@ interface LoginResponse {
   name: string;
 }
 
+// Conection
+export const checkConnection = async (): Promise<boolean> => {
+  try {
+    const response = await axios.get(`${API_URL}/health`);
+    return response.status === 200;
+  } catch (error) {
+    console.error("Failed to connect to backend:", error);
+    return false;
+  }
+};
+
 // Bots
 export const fetchBotNames = async (): Promise<BotNamesResponse> => {
   try {

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { checkConnection } from "@/api";
 import Board from "@/app/components/core/board";
 
 const Dashboard: React.FC = () => {
@@ -6,6 +7,7 @@ const Dashboard: React.FC = () => {
   const [starts, setStarts] = useState<string | null>(null);
   const [totalGames, setTotalGames] = useState<number | null>(null);
   const [resetBoard, setResetBoard] = useState<boolean>(false);
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
 
   const selectMode = (mode: string) => {
     setGameMode(mode);
@@ -30,6 +32,15 @@ const Dashboard: React.FC = () => {
     (gameMode !== "player-vs-bot" || starts) &&
     (gameMode !== "bot-vs-bot" || totalGames);
 
+  useEffect(() => {
+    const checkBackendConnection = async () => {
+      const isConnected = await checkConnection();
+      setIsBackendConnected(isConnected);
+    };
+
+    checkBackendConnection();
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 text-white">
       <div className="text-center">
@@ -48,14 +59,26 @@ const Dashboard: React.FC = () => {
                   Player vs Player
                 </button>
                 <button
-                  className="sm:w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors font-medium text-lg"
-                  onClick={() => selectMode("player-vs-bot")}
+                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
+                    isBackendConnected
+                      ? "bg-gray-800 hover:bg-gray-700"
+                      : "bg-gray-500 opacity-70 cursor-not-allowed"
+                  }`}
+                  onClick={() =>
+                    isBackendConnected && selectMode("player-vs-bot")
+                  }
+                  disabled={!isBackendConnected}
                 >
                   Player vs Bot
                 </button>
                 <button
-                  className="sm:w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors font-medium text-lg"
-                  onClick={() => selectMode("bot-vs-bot")}
+                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
+                    isBackendConnected
+                      ? "bg-gray-800 hover:bg-gray-700"
+                      : "bg-gray-500 opacity-70 cursor-not-allowed"
+                  }`}
+                  onClick={() => isBackendConnected && selectMode("bot-vs-bot")}
+                  disabled={!isBackendConnected}
                 >
                   Bot vs Bot
                 </button>
