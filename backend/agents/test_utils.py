@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from colorama import Style, Fore
 
 # Board Printer
 def fancyBoardPrinter(board):
@@ -211,7 +212,11 @@ def play_multiple_games(agent1, agent2, rounds):
     ag2_percentage = agent2_wins / rounds * 100
     draw_percentage = draws / rounds * 100
     
+    # TODO: Make it print an actual nice-looking table!
+    # get design inspiration from the actual website
+    # print the winner's results in green and loser's in red like in the actual website
     print(f"{agent1_name} Wins: {agent1_wins}")
     print(f"{agent2_name} Wins: {agent2_wins}")
     print(f"Draws: {draws}")
+    # print who was the overall winner, big and bright font please
 
