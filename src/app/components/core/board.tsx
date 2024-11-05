@@ -4,8 +4,12 @@ import { useGame } from "../../hooks/useGame";
 
 interface BoardProps {
   gameMode: string;
-  starts?: string | null;
-  totalGames?: number | null;
+  starts: string | null;
+  totalGames: number | null;
+  lobbyId: string | null;
+  playerId: string | null;
+  userLetter: string | null;
+  onlineStarts: string | null;
   resetBoard: boolean;
   onReset: () => void;
 }
@@ -13,6 +17,10 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({
   gameMode,
   starts,
+  lobbyId,
+  playerId,
+  userLetter,
+  onlineStarts,
   totalGames,
   resetBoard,
   onReset,
@@ -36,7 +44,16 @@ const Board: React.FC<BoardProps> = ({
     isBotThinking,
     handleCellClick,
     makeMove,
-  } = useGame(gameMode, starts || "player", totalGames || 0, resetBoard);
+  } = useGame(
+    gameMode,
+    starts || "player",
+    lobbyId,
+    playerId,
+    userLetter,
+    onlineStarts,
+    totalGames || 0,
+    resetBoard
+  );
 
   const progressPercentage = (playedGames / (totalGames || 1)) * 100;
 
@@ -145,6 +162,11 @@ const Board: React.FC<BoardProps> = ({
           {gameMode === "bot-vs-bot" && (
             <h2 className="bg-red-500 px-2 rounded-full text-sm uppercase">
               Bot vs Bot
+            </h2>
+          )}
+          {gameMode === "online" && (
+            <h2 className="bg-yellow-500 px-2 rounded-full text-sm uppercase">
+              Online
             </h2>
           )}
 
@@ -368,6 +390,18 @@ const Board: React.FC<BoardProps> = ({
                   : winPercentages[0] > winPercentages[1]
                   ? `${agentId2} (${agentId2Turn})`
                   : "None! (Draw)"}
+              </h2>
+            </>
+          )}
+
+          {/* ONLINE INFO */}
+          {gameMode === "online" && (
+            <>
+              <h2>Lobby ID: {lobbyId}</h2>
+              <h2>Starts: {onlineStarts}</h2>
+              <h2>You play as: {userLetter}</h2>
+              <h2>
+                Turn: {turn} &larr; {turn === userLetter ? "You" : "Opponent"}
               </h2>
             </>
           )}

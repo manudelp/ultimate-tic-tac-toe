@@ -1,4 +1,5 @@
-# api/auth.py
+# backend/api/auth.py
+
 import os
 import json
 from flask import Blueprint, request

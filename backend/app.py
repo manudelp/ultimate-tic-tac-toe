@@ -1,3 +1,5 @@
+# backend/app.py
+
 import os
 import logging
 from dotenv import load_dotenv
@@ -5,9 +7,10 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import DevelopmentConfig
-from config import ProductionConfig
 from api.bots import bot_routes
 from api.auth import auth_routes
+from api.online import online_routes
+from socketio_instance import socketio
 
 load_dotenv()  # Load environment variables from .env
 users = []  # List to store user data
@@ -16,15 +19,21 @@ users = []  # List to store user data
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-CORS(app)
+
+CORS(app)  # TODO: ONLY FOR DEVELOPMENT
 
 # Initialize JWT
 jwt = JWTManager(app)
 
+# Initialize SocketIO
+socketio.init_app(app, cors_allowed_origins="*")
+
 # Register routes
 app.register_blueprint(bot_routes)
 app.register_blueprint(auth_routes)
+app.register_blueprint(online_routes)
 
+# Health check route
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify(status="healthy"), 200
@@ -45,4 +54,4 @@ def unhandled_exception(e):
 
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
