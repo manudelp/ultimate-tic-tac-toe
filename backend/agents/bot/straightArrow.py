@@ -28,7 +28,7 @@ class StraightArrowAgent:
         return self.id
 
     def reset(self):
-        print("Resetting StraightArrowAgent")
+        # print("Resetting StraightArrowAgent")
         self.moveNumber = 0
 
     def action(self, super_board, board_to_play=None):
@@ -124,7 +124,7 @@ class StraightArrowAgent:
  
         # Win
         if local_winner:
-            print("Straighty can win the given local board!")
+            # print("Straighty can win the given local board!")
             local_row, local_col = safeSetExtractor(super_board, local_winner)
         # Block
         elif local_blocker:

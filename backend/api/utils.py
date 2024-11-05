@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+hash_won_boards = {}
+
 def fancyBoardPrinter(board):
     # Output the super board in a 3x3 layout
     cell_width = 2  # Adjust the width of each cell to accommodate larger numbers
@@ -14,23 +16,6 @@ def fancyBoardPrinter(board):
         if i != 2:
             print()  # Print a separator between sets of subboard rows
 
-# Get the results of the board
-def get_board_results(board):
-    ''' Creates a 3x3 representation of the 3x3x3x3 board, with the results of the local boars '''
-    if board.shape != (3, 3, 3, 3):
-        raise ValueError("The board must be a 4d array with shape (3, 3, 3, 3).")
-    
-    board_results = np.zeros((3, 3), dtype=int)
-
-    for rows in range(3):
-        for cols in range(3):
-            board_results[rows, cols] = get_GlobalWinner(board[rows, cols])
-
-    return board_results
-
-
-# Load the winning boards from the hashed file
-hash_won_boards = {}
 def load_winning_boards(file_path):
     # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
     
@@ -46,8 +31,7 @@ def load_winning_boards(file_path):
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
-# Get the global game winner
-def get_GlobalWinner(board):
+def get_winner(board):
     # TIMEIT APPROVED ✅
     """
     Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -59,8 +43,19 @@ def get_GlobalWinner(board):
     board_key = board.tobytes()
     return hash_won_boards.get(board_key, 0)
 
-# Determine the absolute path to the hash_winning_boards.txt file
-hash_file_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
+def get_board_results(board):
+    ''' Creates a 3x3 representation of the 3x3x3x3 board, with the results of the local boars '''
+    if board.shape != (3, 3, 3, 3):
+        raise ValueError("The board must be a 4d array with shape (3, 3, 3, 3).")
+    
+    board_results = np.zeros((3, 3), dtype=int)
 
-# Load the winning boards using the determined path
-load_winning_boards(hash_file_path)
+    board_results[0, 0], board_results[0, 1], board_results[0, 2] = get_winner(board[0, 0]), get_winner(board[0, 1]), get_winner(board[0, 2])
+    board_results[1, 0], board_results[1, 1], board_results[1, 2] = get_winner(board[1, 0]), get_winner(board[1, 1]), get_winner(board[1, 2])
+    board_results[2, 0], board_results[2, 1], board_results[2, 2] = get_winner(board[2, 0]), get_winner(board[2, 1]), get_winner(board[2, 2])
+
+    return board_results
+
+won_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
+load_winning_boards(won_boards_hash_path)
+
