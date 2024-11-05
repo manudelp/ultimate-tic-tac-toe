@@ -4,7 +4,7 @@ import os
 import time
 
 """
-depth = iterative_deepening with move re-order, max_depth = 12
+depth = iterative_deepening with move re-order, max_depth = 8
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 
@@ -14,8 +14,8 @@ class ItterinoAgent:
     def __init__(self):
         self.id = "Mr. Itterino Deepsdale🔄"
         self.moveNumber = 0
-        self.max_depth = 7
-        self.time_limit = 7 # in seconds
+        self.max_depth = 8
+        self.time_limit = 10 # in seconds
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 

@@ -34,7 +34,7 @@ class TaylorAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
         # Class Elements
-        self.id = "Taylor 🦋🎀"
+        self.id = "Taylor 🦋"
         self.moveNumber = 0
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
