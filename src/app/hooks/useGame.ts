@@ -13,10 +13,10 @@ const socket = io("http://localhost:5000/online");
 export const useGame = (
   gameMode: string,
   starts: string,
-  lobbyId: string,
-  playerId: string,
-  userLetter: string,
-  onlineStarts: string,
+  lobbyId: string | null,
+  playerId: string | null,
+  userLetter: string | null,
+  onlineStarts: string | null,
   totalGames: number,
   resetBoard: boolean
 ) => {
