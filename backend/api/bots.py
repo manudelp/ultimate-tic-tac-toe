@@ -8,6 +8,7 @@ from agents.bot.randy import RandomAgent
 from agents.bot.monkey import MonkeyAgent
 from agents.bot.jardy import GardenerAgent
 from agents.bot.taylor import TaylorAgent
+from agents.bot.jardito import JardineritoAgent
 from agents.bot.straightArrow import StraightArrowAgent
 from agents.bot.iterold import IteroldAgent
 from agents.bot.itterino import ItterinoAgent
@@ -21,7 +22,8 @@ bot_routes = Blueprint('bots', __name__)
 # Initialize agents
 # INITIALIZE THE FIRST AGENT. WILL PLAY 1VPLAYER, AND PLAY FIRST AGAINST BOTS
 # AGENT1 = RandomAgent()
-AGENT1 = GardenerAgent()
+# AGENT1 = GardenerAgent()
+AGENT1 = JardineritoAgent()
 # AGENT1 = MonkeyAgent()
 # AGENT1 = TaylorAgent()
 # AGENT1 = StraightArrowAgent()
@@ -35,15 +37,16 @@ AGENT1 = GardenerAgent()
 # INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
 # AGENT2 = RandomAgent()
 # AGENT2 = GardenerAgent()
+# AGENT2 = JardineritoAgent()
 # AGENT2 = MonkeyAgent()
-# AGENT2 = TaylorAgent()
+AGENT2 = TaylorAgent()
 # AGENT2 = StraightArrowAgent()
 # AGENT2 = FooFinderAgent()
 # AGENT2 = IteroldAgent()
 # AGENT2 = ItterinoAgent()
 # AGENT2 = TidyPodatorAgent()
 # AGENT2 = TwinPrunerAgent()
-AGENT2 = MaximilianoAgent()
+# AGENT2 = MaximilianoAgent()
 
 @bot_routes.route('/get-bot-names', methods=['GET'])
 def get_bot_names():
