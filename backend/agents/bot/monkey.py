@@ -116,6 +116,7 @@ class MonkeyAgent:
         minimax_time = time.time() - self.time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was {board_to_play}" + Style.RESET_ALL)
         self.minimax_plays += 1
+        self.total_minimax_time += minimax_time
         return global_row, global_col, local_row, local_col
 
     def randomMove(self, board):

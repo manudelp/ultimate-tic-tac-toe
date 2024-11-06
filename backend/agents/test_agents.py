@@ -16,7 +16,7 @@ from foofinder import FooFinderAgent
 # Initialize agents
 AGENT1 = MaximilianoAgent()  # Replace with your chosen agent
 AGENT2 = StraightArrowAgent()         # Replace with your chosen agent
-ROUNDS = 15  # Number of rounds to play
+ROUNDS = 2  # Number of rounds to play
 
 # Initialize game board
 board = np.zeros((3, 3, 3, 3), dtype=int)  # 4D board, initialized to zeros

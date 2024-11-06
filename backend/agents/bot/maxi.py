@@ -5,7 +5,7 @@ import time
 from colorama import init, Fore, Style
 
 """
-depth = 5/4, plain minimax
+depth = 5, plain minimax
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
@@ -93,6 +93,7 @@ class MaximilianoAgent:
                 minimax_time = time.time() - self.true_time_start
                 print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
+                self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
                 raise ValueError("Maxi failed to play with minimax, playing randomly... (inital btp was None)")
@@ -118,6 +119,7 @@ class MaximilianoAgent:
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        self.total_minimax_time += minimax_time
         self.minimax_plays += 1
         return a, b, r_l, c_l
 

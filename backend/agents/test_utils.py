@@ -184,8 +184,6 @@ def play_multiple_games(agent1, agent2, rounds):
     results = {agent1_name: 0, agent2_name: 0, "Draws": 0}
 
     for round in range(rounds):
-        agent1.reset()
-        agent2.reset()
 
         # print(f"\nStarting game {round + 1} ({agent1_name} plays {'first' if round % 2 == 0 else 'second'}):")
         first_player_is_agent1 = (round % 2 == 0)
@@ -200,6 +198,9 @@ def play_multiple_games(agent1, agent2, rounds):
         else:
             results["Draws"] += 1
             # print("This game is a draw!\n")
+
+        agent1.reset()
+        agent2.reset()
 
     # Print the summary of results
     print(f"Results after {rounds} games:")

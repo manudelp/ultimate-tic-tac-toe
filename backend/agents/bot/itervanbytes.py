@@ -87,6 +87,7 @@ class IterVanBytesAgent:
                 minimax_time = time.time() - self.true_time_start
                 print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
+                self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
                 raise ValueError("IterVanBytes failed to play with alpha beta, playing randomly... (inital btp was None)")
@@ -110,6 +111,7 @@ class IterVanBytesAgent:
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
+        self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
 
 
