@@ -14,7 +14,8 @@ Order Moves? = False!
 
 class JardineritoAgent:
     def __init__(self):
-        self.id = "Jaimito Jardinerito🌱"
+        self.id = "Jaimito Jardinerito"
+        self.icon = "🌱"
         self.moveNumber = 0
         self.depth_local = 5 # when btp is not None
         self.depth_global = 4 # when btp is None

@@ -35,16 +35,20 @@ AGENTS = [
     JardineritoAgent(),
     MaximilianoAgent(),
     TaylorAgent(),
-    # GardenerAgent(),
-    # MonkeyAgent(),
-    # IteroldAgent(),
-    # ItterinoAgent(),
-    # TidyPodatorAgent(),
-    # TwinPrunerAgent()
+    GardenerAgent(),
+    MonkeyAgent(),
+    IteroldAgent(),
+    ItterinoAgent(),
+    TidyPodatorAgent(),
+    TwinPrunerAgent(),
+    # TransJardiAgent(),
+    # IterVanBytesAgent(),
     # FooFinderAgent()
-    # TransJardiAgent()
-    # IterVanBytesAgent()
 ]
+
+def suppress_agent_prints():
+    """Suppress prints from agents only, while allowing others."""
+    return open(os.devnull, 'w', encoding='utf-8')
 
 class SwissTournament:
     def __init__(self, agents):
@@ -54,10 +58,6 @@ class SwissTournament:
         self.trueskill_env = trueskill.TrueSkill()  # Initialize TrueSkill environment
         self.ratings = {agent: self.trueskill_env.create_rating() for agent in agents}  # Initialize TrueSkill ratings
         self.history = defaultdict(list)  # To accumulate history of results
-
-    def suppress_prints(self):
-        """ Suppress all prints inside the tournament loop (e.g., agent prints). """
-        return open(os.devnull, 'w')
 
     def pair_and_play(self, rounds_per_match):
         # Sort agents by score in descending order
@@ -74,8 +74,10 @@ class SwissTournament:
                 self.matches[agent1].append(agent2)
                 self.matches[agent2].append(agent1)
 
-                # Play multiple games between the agents, alternating starter turns
-                agent1_wins, agent2_wins, draws = utils.play_multiple_games(agent1, agent2, rounds_per_match)
+                # Suppress agent prints while playing the game
+                with redirect_stdout(suppress_agent_prints()):
+                    # Play multiple games between the agents, alternating starter turns
+                    agent1_wins, agent2_wins, draws = utils.play_multiple_games(agent1, agent2, rounds_per_match)
 
                 # Update scores based on results
                 self.scores[agent1] += agent1_wins + (0.5 * draws)
@@ -97,35 +99,37 @@ class SwissTournament:
 
     def run_swiss(self, rounds, rounds_per_match):
         """Runs a full Swiss-style tournament."""
-        # Suppress prints for the entire tournament execution
-        with redirect_stdout(self.suppress_prints()):
-            for round_num in range(1, rounds + 1):
-                print(f"\n--- Round {round_num} ---")
-                results = self.pair_and_play(rounds_per_match)
+        # Start printing the tournament rounds with Unicode support
+        for round_num in range(1, rounds + 1):
+            print(f"\n--- Round {round_num} ---")
+            results = self.pair_and_play(rounds_per_match)
 
-                # Update and display results for the round
-                self.update_results_table()
-                self.display_results_table()
+            # Update and display results for the round
+            self.update_results_table()
+            self.display_results_table()
 
     def update_results_table(self):
         """Updates the results table and accumulates ratings/scores."""
-        current_scores = {agent: self.ratings[agent][0].mu for agent in self.agents}
+        # Correct access to TrueSkill ratings
+        current_scores = {agent: self.ratings[agent].mu for agent in self.agents}  # Using .mu instead of indexing
         self.history[len(self.history) + 1] = sorted(current_scores.items(), key=lambda x: x[1], reverse=True)
 
     def display_results_table(self):
-        """Display the accumulated results table after each repeat."""
-        for repeat_num, result in self.history.items():
-            print(f"\nRepeat {repeat_num}:")
-            for rank, (agent, score) in enumerate(result, start=1):
-                print(f"{rank}. {agent} - Rating: {score:.2f}")
-
-    def display_final_results(self):
         """Display the final results after all repeats."""
-        final_scores = {agent: self.ratings[agent][0].mu for agent in self.agents}
+        # Correct access to TrueSkill ratings
+        final_scores = {agent: self.ratings[agent].mu for agent in self.agents}  # Using .mu instead of indexing
         final_results = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
         print("\n--- FINAL RESULTS ---")
         for rank, (agent, score) in enumerate(final_results, start=1):
-            print(f"{rank}. {agent} - Rating: {score:.2f}")
+            print(f"{rank}. {str(agent)} - Rating: {score:.2f}")
+
+    def display_final_results(self):
+        """Display the final results after all repeats."""
+        final_scores = {agent: self.ratings[agent].mu for agent in self.agents}
+        final_results = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
+        print("\n--- FINAL RESULTS ---")
+        for rank, (agent, score) in enumerate(final_results, start=1):
+            print(f"{rank}. {str(agent)} - Rating: {score:.2f}")
 
     def repeat_swiss(self, repeats, rounds, rounds_per_match):
         """Runs the Swiss tournament multiple times and averages the final scores."""
