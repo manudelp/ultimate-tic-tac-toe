@@ -23,8 +23,8 @@ from bot.gardentranspositor import TransJardiAgent
 from bot.itervanbytes import IterVanBytesAgent
 
 # Hyperparameters
-ROUNDS = 8  # Number of rounds to play
-ROUNDS_PER_MATCH = 2  # Number of games to play between each pair of agents
+ROUNDS = 3  # Number of rounds to play
+ROUNDS_PER_MATCH = 1  # Number of games to play between each pair of agents
 REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 
 
@@ -35,12 +35,12 @@ AGENTS = [
     JardineritoAgent(),
     MaximilianoAgent(),
     TaylorAgent(),
-    GardenerAgent(),
-    MonkeyAgent(),
-    IteroldAgent(),
-    ItterinoAgent(),
-    TidyPodatorAgent(),
-    TwinPrunerAgent(),
+    # GardenerAgent(),
+    # MonkeyAgent(),
+    # IteroldAgent(),
+    # ItterinoAgent(),
+    # TidyPodatorAgent(),
+    # TwinPrunerAgent(),
     # TransJardiAgent(),
     # IterVanBytesAgent(),
     # FooFinderAgent()

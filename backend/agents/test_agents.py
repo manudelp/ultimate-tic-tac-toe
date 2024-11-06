@@ -1,6 +1,7 @@
 import numpy as np
 import test_utils as utils
 import time
+from colorama import Fore, Style
 from bot.randy import RandomAgent
 from bot.monkey import MonkeyAgent
 from bot.jardy import GardenerAgent
@@ -18,8 +19,8 @@ t0 = time.time()
 
 # Initialize agents
 AGENT1 = JardineritoAgent()    # Replace with your chosen agent
-AGENT2 = TaylorAgent()  # Replace with your chosen agent
-ROUNDS = 1  # Number of rounds to play, each round represents 2 games (with alternating pieces)
+AGENT2 = MonkeyAgent()  # Replace with your chosen agent
+ROUNDS = 5  # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 
 agent1_name = str(AGENT1)
@@ -27,17 +28,30 @@ agent2_name = str(AGENT2)
 
 # Run the simulation
 agent1_wins, agent2_wins, draws = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
+if agent1_wins > agent2_wins:
+    final_winner = agent1_name
+elif agent1_wins < agent2_wins:
+    final_winner = agent2_name
+else:
+    final_winner = "Draw"
 
 ag1_percentage = agent1_wins / GAMES * 100
 ag2_percentage = agent2_wins / GAMES * 100
 draw_percentage = draws / GAMES * 100
 
-# TODO: Make it print an actual nice-looking table!
-# get design inspiration from the actual website
-# print the winner's results in green and loser's in red like in the actual website
-print(f"{agent1_name} Wins: {agent1_wins}")
-print(f"{agent2_name} Wins: {agent2_wins}")
-print(f"Draws: {draws}")
-# print who was the overall winner, big and bright font please
+print(f"FINAL RESULTS:")
+
+if final_winner == agent1_name:
+    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+elif final_winner == agent2_name:
+    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+else:
+    print(Fore.YELLOW + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.YELLOW + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+print(f"Drawn games: {draws}")
+
+print(f"WINNER IS {final_winner}")
 
 print(f"Time taken to play {GAMES} games: {(time.time() - t0):.2f} seconds")
