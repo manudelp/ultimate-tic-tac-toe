@@ -127,7 +127,19 @@ load_over_boards(over_boards_hash_path)
 
 
 # Play one game with detailed logging
-def play_single_game(agent1, agent2, first_player_is_agent1):
+def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> int:
+    """Simulates a single game between two agents, represented by 1 and -1
+    And returns the winner of the game, or 0 of it's a draw
+
+    Args:
+        agent1 (class): One of the two agents to play
+        agent2 (class): One of the two agents to play
+        first_player_is_agent1 (bool): If True, agent1 plays first, else agent2 plays first. Useful for simulating multiple games with alternating starting agents
+
+    Returns:
+        int: 1 if the agent playing with 1 wins, -1 if the agent playing with -1 wins, 0 if it's a draw
+    """
+
     # Initialize game board
     board = np.zeros((3, 3, 3, 3), dtype=int)
     current_agent = agent1 if first_player_is_agent1 else agent2
@@ -178,46 +190,22 @@ def play_single_game(agent1, agent2, first_player_is_agent1):
         turn += 1
 
 # Run multiple games and alternate starting agent
-def play_multiple_games(agent1, agent2, rounds):
-    agent1_name = str(agent1)
-    agent2_name = str(agent2)
-    results = {agent1_name: 0, agent2_name: 0, "Draws": 0}
+def play_multiple_games(agent1, agent2, rounds):    
+    agent1_wins, agent2_wins, draws = 0, 0, 0
+    for round_num in range(rounds):
+        # Alternate starting turns
+        result1 = play_single_game(agent1, agent2, first_player_is_agent1=True)
+        reset_agents(agent1, agent2)
+        result2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
+        reset_agents(agent1, agent2)
+        
+        # Collect results for both games in each round
+        agent1_wins += (result1 == 1) + (result2 == 1)
+        agent2_wins += (result1 == -1) + (result2 == -1)
+        draws += (result1 == 0) + (result2 == 0)
+        
+    return agent1_wins, agent2_wins, draws
 
-    for round in range(rounds):
-
-        # print(f"\nStarting game {round + 1} ({agent1_name} plays {'first' if round % 2 == 0 else 'second'}):")
-        first_player_is_agent1 = (round % 2 == 0)
-        result = play_single_game(agent1, agent2, first_player_is_agent1)
-
-        if result == 1:
-            results[agent1_name] += 1
-            # print(f"{agent1_name} wins this game!\n")
-        elif result == -1:
-            results[agent2_name] += 1
-            # print(f"{agent2_name} wins this game!\n")
-        else:
-            results["Draws"] += 1
-            # print("This game is a draw!\n")
-
-        agent1.reset()
-        agent2.reset()
-
-    # Print the summary of results
-    print(f"Results after {rounds} games:")
-    
-    agent1_wins = results[agent1_name]
-    agent2_wins = results[agent2_name]
-    draws = results["Draws"]
-    
-    ag1_percentage = agent1_wins / rounds * 100
-    ag2_percentage = agent2_wins / rounds * 100
-    draw_percentage = draws / rounds * 100
-    
-    # TODO: Make it print an actual nice-looking table!
-    # get design inspiration from the actual website
-    # print the winner's results in green and loser's in red like in the actual website
-    print(f"{agent1_name} Wins: {agent1_wins}")
-    print(f"{agent2_name} Wins: {agent2_wins}")
-    print(f"Draws: {draws}")
-    # print who was the overall winner, big and bright font please
-
+def reset_agents(agent1, agent2):
+    agent1.reset()
+    agent2.reset()

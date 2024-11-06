@@ -12,7 +12,7 @@ Order Moves? = False!
 
 """
 
-class GardenerAgent:
+class JardineritoAgent:
     def __init__(self):
         self.id = "Jaimito Jardinerito🌱"
         self.moveNumber = 0
