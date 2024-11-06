@@ -59,7 +59,7 @@ class TwinPrunerAgent:
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        print(f"{self.id} begins action, at move number {self.moveNumber}")
+        # print(f"{self.id} begins action, at move number {self.moveNumber}")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -116,7 +116,7 @@ class TwinPrunerAgent:
         t0 = time.time()
         moves_to_ord = self.generate_local_moves(subboard)
         order_moves = self.order_moves(super_board, board_to_play=(a, b), moves_to_try=moves_to_ord)
-        print(f"Board to play is ({a, b})")
+        # print(f"Board to play is ({a, b})")
         minimax_eval, minimax_move = self.initialAlphaBeta(
             board=global_board_copy, 
             board_to_play=(a, b), 
@@ -126,7 +126,7 @@ class TwinPrunerAgent:
             maximizingPlayer=True,
             moves_to_try=order_moves)
         if minimax_move is not None:
-            a, b, r_l, c_l = minimax_move
+            r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
@@ -136,7 +136,6 @@ class TwinPrunerAgent:
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
-
 
 
     def randomMove(self, board):
@@ -456,7 +455,8 @@ class TwinPrunerAgent:
             for move in moves_to_try:
                 ordered_moves.append((move, self.moveQuality(board, move, player=1)))
             ordered_moves.sort(key=lambda x: x[1], reverse=True)
-            return [move[0] for move in ordered_moves]
+            ordered_moves_array = np.array([move[0] for move in ordered_moves])
+            return ordered_moves_array
         
         else:
             row, col = board_to_play
@@ -465,7 +465,8 @@ class TwinPrunerAgent:
                 move = (row, col, loc_row, loc_col)
                 ordered_moves.append((short_move, self.moveQuality(board, move, player=1)))
             ordered_moves.sort(key=lambda x: x[1], reverse=True)
-            return [move[0] for move in ordered_moves]
+            ordered_moves_array = np.array([move[0] for move in ordered_moves])
+            return ordered_moves_array
 
     def moveQuality(self, board, move, player=1):
         ''' Given a 4-coord move, returns the quality of the move by simulating it and retrieving balance '''

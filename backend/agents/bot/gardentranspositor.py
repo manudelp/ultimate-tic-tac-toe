@@ -15,7 +15,7 @@ Order Moves? = False!
 class TransJardiAgent:
     def __init__(self):
         self.id = "Dr Garden Transpositor"
-        self.icon = "💼"
+        self.icon = "🧺"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None

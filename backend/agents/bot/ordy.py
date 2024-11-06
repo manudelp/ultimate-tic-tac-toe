@@ -58,7 +58,7 @@ class TidyPodatorAgent:
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        print(f"{self.id} begins action, at move number {self.moveNumber}")
+        # print(f"{self.id} begins action, at move number {self.moveNumber}")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -124,7 +124,7 @@ class TidyPodatorAgent:
             maximizingPlayer=True,
             moves_to_try=order_moves)
         if minimax_move is not None:
-            a, b, r_l, c_l = minimax_move
+            r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
