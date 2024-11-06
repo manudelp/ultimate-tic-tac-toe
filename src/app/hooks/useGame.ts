@@ -178,7 +178,7 @@ export const useGame = (
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     const coords: Coords = [a, b, c, d];
 
-    if (!isBotThinking && userLetter === turn && !gameOver) {
+    if (!isBotThinking && !gameOver) {
       makeMove(coords); // Update the local game state
 
       if (gameMode === "online") {
@@ -190,7 +190,7 @@ export const useGame = (
       }
     } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
       alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
-    } else {
+    } else if (gameMode === "online" && userLetter !== turn) {
       alert("Wait for your turn.");
     }
   };
