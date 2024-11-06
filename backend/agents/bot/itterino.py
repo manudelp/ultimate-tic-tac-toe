@@ -13,7 +13,8 @@ AB-Pruning Minimax? = True
 
 class ItterinoAgent:
     def __init__(self):
-        self.id = "Mr. Itterino Deepsdale🔄"
+        self.id = "Mr. Itterino Deepsdale"
+        self.icon = "⛏️"
         self.moveNumber = 0
         self.max_depth = 8
         self.time_limit = 10 # in seconds
@@ -38,7 +39,8 @@ class ItterinoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} ({self.icon})"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:

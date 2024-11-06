@@ -14,7 +14,8 @@ AB-Pruning Minimax? = True
 
 class MonkeyAgent:
     def __init__(self):
-        self.id = "Mono🙈"
+        self.id = "Mono"
+        self.icon = "🙈"
         self.moveNumber = 0
         # self.depth = 6
         self.time_limit = 20 # in seconds
@@ -39,7 +40,8 @@ class MonkeyAgent:
         self.model_playable_boards_set = set() 
 
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} ({self.icon})"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:

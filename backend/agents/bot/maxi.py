@@ -14,7 +14,8 @@ Order Moves? = False!
 
 class MaximilianoAgent:
     def __init__(self):
-        self.id = "Don Maximiliano💯"
+        self.id = "Don Maximiliano"
+        self.icon = "💯"
         self.moveNumber = 0
         self.depth_local = 5 # when btp is not None
         self.depth_global = 4 # when btp is None
@@ -40,7 +41,8 @@ class MaximilianoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} {self.icon}"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:

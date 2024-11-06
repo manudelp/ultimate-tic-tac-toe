@@ -29,11 +29,13 @@ def isWon(local_board):
 
 class RandomAgent:
     def __init__(self):
-        self.id = "Randy🎲"
+        self.id = "Randy"
+        self.icon = "🎲"
         self.moveNumber = 0
 
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} ({self.icon})"
+        return self.str
 
     def reset(self):
         # print(f"randy been reset, his move number has GONE DOWN TO ZEROOOOO")

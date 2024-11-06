@@ -15,7 +15,8 @@ Special Power: Calls two different Alpha Beta Functions, one that takes moves_to
 
 class TwinPrunerAgent:
     def __init__(self):
-        self.id = "Twin Pruner🫐"
+        self.id = "Twin Pruner"
+        self.icon = "🫐"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
@@ -41,7 +42,8 @@ class TwinPrunerAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} ({self.icon})"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:

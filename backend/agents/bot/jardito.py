@@ -40,7 +40,8 @@ class JardineritoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} ({self.icon})"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:

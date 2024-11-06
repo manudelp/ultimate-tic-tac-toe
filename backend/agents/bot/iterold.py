@@ -13,7 +13,8 @@ AB-Pruning Minimax? = True
 
 class IteroldAgent:
     def __init__(self):
-        self.id = "Mike Iterold Oxlong🪶"
+        self.id = "Mike Iterold Oxlong"
+        self.icon = "🪶"
         self.moveNumber = 0
         self.max_depth = 7
         self.time_limit = 7 # in seconds
@@ -38,7 +39,8 @@ class IteroldAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id} ({self.icon})"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
