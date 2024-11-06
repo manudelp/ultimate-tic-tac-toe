@@ -20,7 +20,8 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
-CORS(app)  # TODO: ONLY FOR DEVELOPMENT
+# CORS(app, resources={r"/*": {"origins": "https://utictactoe.vercel.app"}})
+CORS(app) # TODO: ONLY FOR DEVELOPMENT
 
 # Initialize JWT
 jwt = JWTManager(app)
@@ -52,9 +53,7 @@ def unhandled_exception(e):
     app.logger.error(f"Unhandled Exception: {e}")
     return jsonify(message="Unhandled Exception"), 500
 
-
-
 # Run the Flask app
 if __name__ == '__main__':
-    ssl_context = ('/home/ubuntu/ssl/server.crt', '/home/ubuntu/ssl/server.key')
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, ssl_context=ssl_context)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+
