@@ -48,7 +48,7 @@ class TaylorAgent:
         self.load_winnable_boards_minus_one(winnable_by_minus_one_file)
 
     def __str__(self):
-        self.str = f"{self.id} ({self.icon})"
+        self.str = f"{self.id}{self.icon}"
         return self.str
 
     def reset(self):

@@ -34,7 +34,7 @@ class RandomAgent:
         self.moveNumber = 0
 
     def __str__(self):
-        self.str = f"{self.id} ({self.icon})"
+        self.str = f"{self.id}{self.icon}"
         return self.str
 
     def reset(self):

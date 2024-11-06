@@ -94,7 +94,7 @@ class FooFinderAgent:
         self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
         
     def __str__(self):
-        self.str = f"{self.id} ({self.icon})"
+        self.str = f"{self.id}{self.icon}"
         return self.str
 
     def reset(self):

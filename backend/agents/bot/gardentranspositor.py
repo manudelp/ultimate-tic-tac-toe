@@ -41,7 +41,7 @@ class TransJardiAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        self.str = f"{self.id} ({self.icon})"
+        self.str = f"{self.id}{self.icon}"
         return self.str
 
     def reset(self):
@@ -332,7 +332,7 @@ class TransJardiAgent:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
 
-    # TODO: ADD TRANSPOSITION TABLE,
+    # TODO: ADD TRANSPOSITION TABLE
 
     def generate_global_moves(self, board):
         ''' Given a global board, generates a list of all playable moves 

@@ -40,7 +40,7 @@ class IterVanBytesAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        self.str = f"{self.id} ({self.icon})"
+        self.str = f"{self.id}{self.icon}"
         return self.str
 
     def reset(self):
@@ -158,7 +158,7 @@ class IterVanBytesAgent:
 
         return None
 
-    # TODO: ADD TRANSPOSITION TABLE,
+    # TODO: ADD TRANSPOSITION TABLE
 
     def iterative_deepening(self, board, board_to_play, max_depth):
         ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
