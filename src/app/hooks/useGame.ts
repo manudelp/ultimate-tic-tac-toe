@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import io from "socket.io-client";
 import { fetchBotNames, getBotMove, agentsReset } from "@/api";
 import {
   MiniBoardWinner,
@@ -7,9 +8,17 @@ import {
   checkBotWinner,
 } from "../utils";
 
+const socket = io(
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/online"
+);
+
 export const useGame = (
   gameMode: string,
   starts: string,
+  lobbyId: string | null,
+  playerId: string | null,
+  userLetter: string | null,
+  onlineStarts: string | null,
   totalGames: number,
   resetBoard: boolean
 ) => {
@@ -168,10 +177,21 @@ export const useGame = (
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     const coords: Coords = [a, b, c, d];
-    if (!isBotThinking) {
-      makeMove(coords);
-    } else {
+
+    if (!isBotThinking && !gameOver) {
+      makeMove(coords); // Update the local game state
+
+      if (gameMode === "online") {
+        socket.emit("move", {
+          lobby_id: lobbyId,
+          player_id: playerId,
+          move: coords,
+        }); // Emit the move to the server
+      }
+    } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
       alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
+    } else if (gameMode === "online" && userLetter !== turn) {
+      alert("Wait for your turn.");
     }
   };
 
@@ -323,6 +343,28 @@ export const useGame = (
     }
   }, [gameMode]);
 
+  // Online
+  useEffect(() => {
+    if (gameMode === "online" && onlineStarts) {
+      setTurn(onlineStarts as Turn);
+    }
+  }, [gameMode, onlineStarts]);
+
+  useEffect(() => {
+    const handleMove = (data: {
+      player_id: string;
+      move: [number, number, number, number]; // Ensure this matches the structure sent from the server
+    }) => {
+      const { move } = data;
+      makeMove(move); // Call the makeMove function to update the game state
+    };
+
+    socket.on("move", handleMove); // Listen for the move event
+
+    return () => {
+      socket.off("move", handleMove); // Clean up the event listener on unmount
+    };
+  }, [makeMove]);
   return {
     board,
     turn,
