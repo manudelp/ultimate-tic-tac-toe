@@ -55,11 +55,4 @@ def unhandled_exception(e):
 
 # Run the Flask app
 if __name__ == '__main__':
-    socketio.run(app, 
-                    host='0.0.0.0',   # Escuchar en todas las interfaces
-                    port=5000,        # El puerto que desees
-                    debug=True,       # Habilitar modo de depuración
-                    ssl_context=(
-                        'C:/Users/manud/certificates/certificate.pem',  # Ruta al archivo del certificado
-                        'C:/Users/manud/certificates/private-key.pem'   # Ruta a la clave privada
-                    ))
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
