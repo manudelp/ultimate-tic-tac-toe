@@ -24,7 +24,7 @@ from bot.gardentranspositor import TransJardiAgent
 from bot.itervanbytes import IterVanBytesAgent
 
 # Hyperparameters
-ROUNDS = 2  # Number of rounds to play
+ROUNDS = 3  # Number of rounds to play
 ROUNDS_PER_MATCH = 1  # Number of games to play between each pair of agents
 REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 
@@ -32,11 +32,11 @@ REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 # Initialize agents
 AGENTS = [
     RandomAgent(),
-    # StraightArrowAgent(),
-    # TaylorAgent(),
+    StraightArrowAgent(),
+    TaylorAgent(),
     JardineritoAgent(),
     MaximilianoAgent(),
-    # GardenerAgent(),
+    GardenerAgent(),
     # MonkeyAgent(),
     # IteroldAgent(),
     # ItterinoAgent(),
@@ -69,7 +69,7 @@ class SwissTournament:
         self.ratings = {agent: self.trueskill_env.create_rating() for agent in agents}  # Initialize TrueSkill ratings
         self.history = defaultdict(list)  # To accumulate history of results
 
-    def display_round_progress_bar(self, current_match, total_matches, avg_game_time_ms):
+    def display_round_progress_bar(self, current_match, total_matches, avg_game_time_secs):
         bar_length = 30  # Length of the progress bar
         progress = current_match / total_matches
         filled_length = int(bar_length * progress)
@@ -79,7 +79,7 @@ class SwissTournament:
         
         # Display progress bar with games left and average game time
         sys.stdout.write(
-            f'\r|{bar}| {current_match}/{total_matches} games | Average Game Time: {avg_game_time_ms:.2f} ms'
+            f'\r|{bar}| {current_match}/{total_matches} games | Average Game Time: {avg_game_time_secs:.2f} ms'
         )
         sys.stdout.flush()
 
@@ -89,10 +89,10 @@ class SwissTournament:
         results = []
         total_matches = len(sorted_agents) // 2
         current_match = 0
-        total_time_ms = 0
+        total_time_secs = 0
 
         # Initial display of progress bar at 0/R
-        self.display_round_progress_bar(current_match, total_matches, avg_game_time_ms=0)
+        self.display_round_progress_bar(current_match, total_matches, avg_game_time_secs=0)
 
         # Pair agents for this round, ensuring no rematches
         i = 0
@@ -113,9 +113,9 @@ class SwissTournament:
                     agent1_wins, agent2_wins, draws = utils.play_multiple_games(agent1, agent2, rounds_per_match)
                 
                 # Calculate elapsed time in milliseconds and update total time
-                elapsed_time_ms = (time.time() - start_time) * 1000
-                total_time_ms += elapsed_time_ms
-                avg_game_time_ms = total_time_ms / (current_match + 1)
+                elapsed_time_secs = (time.time() - start_time)
+                total_time_secs += elapsed_time_secs
+                avg_game_time_secs = total_time_secs / (current_match + 1)
 
                 # Update scores based on results
                 self.scores[agent1] += agent1_wins + (0.5 * draws)
@@ -132,7 +132,7 @@ class SwissTournament:
                 
                 # Update and display the progress bar with average game time for the current round
                 current_match += 1
-                self.display_round_progress_bar(current_match, total_matches, avg_game_time_ms)
+                self.display_round_progress_bar(current_match, total_matches, avg_game_time_secs)
 
                 i += 2
             else:
