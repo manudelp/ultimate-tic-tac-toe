@@ -19,9 +19,9 @@ from foofinder import FooFinderAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = GardenTranspositorAgent()    # Replace with your chosen agent
-AGENT2 = GardenTranspositorAgent()  # Replace with your chosen agent
-ROUNDS = 5  # Number of rounds to play, each round represents 2 games (with alternating pieces)
+AGENT1 = ItterinoAgent()    # Replace with your chosen agent
+AGENT2 = ItterinoAgent()  # Replace with your chosen agent
+ROUNDS = 1 # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 
 agent1_name = str(AGENT1)

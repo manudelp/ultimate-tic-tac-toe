@@ -5,7 +5,7 @@ import time
 from colorama import Style, Fore
 
 """
-depth = iterative_deepening with move re-order, max_depth = 8
+depth = iterative_deepening with move re-order, global depth=7, local depth=8, max time to start a new depth is 30 seconds
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True 
 *Uses Transposition Table!
@@ -17,8 +17,9 @@ class IterVanBytesAgent:
         self.id = "Iter 'Transpo-King' Van Bytes"
         self.icon = "📼"
         self.moveNumber = 0
-        self.max_depth = 8
-        self.time_limit = 10 # in seconds
+        self.depth_global = 7
+        self.depth_local = 8
+        self.time_limit = 30 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -57,7 +58,7 @@ class IterVanBytesAgent:
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.id} move number is {self.moveNumber})")
+        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.id} move number is {self.moveNumber})")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -78,10 +79,10 @@ class IterVanBytesAgent:
         
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            print(f"IterVanBytes is thinking with alpha beta... btp is None")
+            # print(f"IterVanBytes is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
-            minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
+            minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_global)
 
             if minimax_move is not None:
                 r, c, r_l, c_l = minimax_move
@@ -100,12 +101,12 @@ class IterVanBytesAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        print(f"IterVanBytes is thinking with alpha beta, not iterative btp is ({a}, {b})")
+        # print(f"IterVanBytes is thinking with alpha beta, not iterative btp is ({a}, {b})")
         t0 = time.time()
-        minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.max_depth)
+        minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_local)
         
         if minimax_move is not None:
-            a, b, r_l, c_l = minimax_move
+            r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 
@@ -171,6 +172,7 @@ class IterVanBytesAgent:
             try:
                 minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
             except TimeoutError:
+                print(f"Time Limit Exceeded in Iterative Deepening! Had to break the alpha beta at depth {depth}")
                 break
             
             if minimax_move is None:
@@ -179,7 +181,8 @@ class IterVanBytesAgent:
             best_eval = minimax_eval
             best_move = minimax_move
             
-            if time.time() - start_time >= (self.time_limit ):
+            if time.time() - start_time >= (self.time_limit - 2):
+                print(f"Had to stop iterative deepening, could not start depth {depth} due to time limit")
                 break
 
             # Reposition the best_move at the top of the list

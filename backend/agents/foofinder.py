@@ -39,7 +39,6 @@ class FooFinderAgent:
         
         # Counts
         self.moveNumber = 0
-        self.abortedTimes = 0
         self.foo_pieces = 0
         self.rival_pieces = 0
         self.empty_pieces = 0
@@ -98,16 +97,12 @@ class FooFinderAgent:
         return self.str
 
     def reset(self):
-        if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            print(f"First Game, pointless Reset for {self.id}")
-            return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         
         print("FooFinder Reset Lets Goo! 🚀")
         # Counts
         self.moveNumber = 0
-        self.abortedTimes = 0
         self.foo_pieces = 0
         self.rival_pieces = 0
         self.empty_pieces = 0
