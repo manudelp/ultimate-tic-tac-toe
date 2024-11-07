@@ -5,8 +5,7 @@ import PlayerX from "../ui/playerx";
 import PlayerO from "../ui/playero";
 import io from "socket.io-client";
 
-// const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
-const socket = io("http://127.0.0.1:5000");
+const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
 
 socket.on("connect", () => {
   console.log("Connected to the server");
