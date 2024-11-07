@@ -122,7 +122,7 @@ class FooFinderAgent:
 
         # Minimax Info
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.BLUE + f"{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds\n" + Style.RESET_ALL)
         self.total_minimax_time = 0
         self.minimax_plays = 0
 
