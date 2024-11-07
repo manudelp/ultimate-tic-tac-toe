@@ -164,20 +164,22 @@ class ItterinoAgent:
         ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
         start_time = time.time()
         moves_to_try = self.generate_moves(board, board_to_play)
-        time_before_tramites = time.time()
+        # Turn Back to array
+        moves_to_try = np.array(moves_to_try)
+        # time_before_tramites = time.time()
 
         for depth in range(2, max_depth + 1):
             # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
             this_depth_start = time.time()
-            time_tramites = time.time() - time_before_tramites
-            print(f"El time que le tomo a {self.id} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
+            # time_tramites = time.time() - time_before_tramites
+            # print(f"El time que le tomo a {self.id} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
             try:
                 minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
             except TimeoutError:
                 print(f"Time Limit Exceeded in Iterative Deepening! Had to break the alpha beta at depth {depth}")
                 break
 
-            time_before_tramites = time.time()
+            # time_before_tramites = time.time()
             
             if minimax_move is None:
                 raise ValueError(f"Minimax Move was None at depth {depth}")
@@ -192,10 +194,13 @@ class ItterinoAgent:
             # Reposition the best_move at the top of the list
             t_before_reposition = time.time()
             if depth != max_depth:
+                # Turn Into a List
+                moves_to_try = [move for move in moves_to_try]
                 index_to_remove = next((i for i, arr in enumerate(moves_to_try) if np.array_equal(arr, best_move)), None)
                 if index_to_remove is not None:
                     del moves_to_try[index_to_remove]
                     moves_to_try.insert(0, best_move)
+                    # Turn back into array
                     moves_to_try = np.array(moves_to_try)
                 else:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
@@ -204,7 +209,7 @@ class ItterinoAgent:
             print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
  
         return best_eval, best_move
-    
+
     def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns the board evaluation along with the best_move that leads to it '''
