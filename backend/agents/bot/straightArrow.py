@@ -12,7 +12,8 @@ Otherwise plays randy
 
 class StraightArrowAgent:
     def __init__(self):
-        self.id = "Straighty 🏹"
+        self.id = "Straighty"
+        self.icon = "🏹"
         self.moveNumber = 0
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
@@ -25,7 +26,8 @@ class StraightArrowAgent:
         self.load_winnable_boards_minus_one(winnable_by_minus_one_file)
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id}{self.icon}"
+        return self.str
 
     def reset(self):
         # print("Resetting StraightArrowAgent")

@@ -1,0 +1,45 @@
+NEXT UP ==>
+
+{...currently debugging & upgrading iterative deepening...}
+
+
+- transposition table tobytes()
+o incluso si no es tobytes(), ffs estas haciendo iterative deepening APROVECHA Y GUARDA POSICIONES PARA NO TARDAR 20 AÑOS EN LA BEST DEPTH
+
+- add transposition table that stores moves
+
+- start running Profiler
+
+- test if better heuristic is also considering connectivity of won boards
+quick way to do it... if you're already turning the global board results into a 3x3 representation
+just check that representation's heuristic connectivity value in the evaluated_boards hash in O(1)
+and then maybe make it a multiplier of the total score so that it weighs in a lot, or make it a separate sum but very heavy, since it's what really maters at the end... the local board heuristics are just a way to reach better global results
+
+
+
+
+
+- check the global_board_results functioning in your foofinder minimax. using prints & stuff
+
+
+# Order Moves in minimax!
+* fijate que en timer_advanced.py lo estoy currently testing
+
+Dio que cuando el input es array (which happens when board_to_play!=None), son igual de rapidas. Pero, cuando el input es lista (board_to_play is None), es ligeramente mas rapido el list_sort_method usando sorted() que el array_sort_method por su overhead de convertir el input en un array. Habria que probar en la true practice ambas opciones a ver cual es mejor para cuando es una lista, porque maybe el nparray es mas rapido de slicear, maybe not.
+
+* lo que si, dividalas en order_moves_for_array & order_moves_for_list. Cuando board_to_play!=None, si vas a ordenar, usa order_moves_for_array, que va a usar array_sort_method. Y cuando es None, llamas a order_moves_for_list, y fijate si usa array_method o list_method
+^^^
+||| Fastest way to turn a 2d array into a list of arrays: 
+    return [arr[i] for i in range(len(arr))]
+And if you wanna turn an nd array into nested lists, then arr.tolist() is fastest! If you can actually just work with lists during your entire minimax without consequences, .tolist() is also much better than the list_of_arrays method I pointed out a couple lines above
+More about this in move_gen_test.py
+
+
+
+
+- make a hash for won_global_boards?
+
+- start building the bases of the global_board mega hash
+
+
+

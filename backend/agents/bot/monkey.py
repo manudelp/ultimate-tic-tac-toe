@@ -14,7 +14,8 @@ AB-Pruning Minimax? = True
 
 class MonkeyAgent:
     def __init__(self):
-        self.id = "Mono🙈"
+        self.id = "Mono"
+        self.icon = "🙈"
         self.moveNumber = 0
         # self.depth = 6
         self.time_limit = 20 # in seconds
@@ -39,7 +40,8 @@ class MonkeyAgent:
         self.model_playable_boards_set = set() 
 
     def __str__(self):
-        return self.id
+        self.str = f"{self.id}{self.icon}"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
@@ -113,9 +115,10 @@ class MonkeyAgent:
             raise ValueError("Best Move was None! This is being printed at the end of action, after running the minimax...")
 
         self.moveNumber += 1
-        minimax_time = time.time() - self.time_start
+        minimax_time = time.time() - self.start_time
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was {board_to_play}" + Style.RESET_ALL)
         self.minimax_plays += 1
+        self.total_minimax_time += minimax_time
         return global_row, global_col, local_row, local_col
 
     def randomMove(self, board):
@@ -159,7 +162,7 @@ class MonkeyAgent:
         return None
 
     def iterative_deepening(self, board: np.ndarray, board_to_play: Union[Tuple[int, int], None], moves_to_try: list, 
-        initial_depth_start=3, initial_depth_end=5, iterative_depth_start=7, quiescence_depth=10, 
+        initial_depth_start=3, initial_depth_end=5, iterative_depth_start=7, quiescence_depth=9, 
         list_cutoff_regular=0.2, list_cutoff_long=0.24, list_cutoff_longest=0.28, 
         quiescence_remaining_time=2, quiescence_moves=4):
         # TIME DEVELOPING ⚙️
@@ -260,7 +263,7 @@ class MonkeyAgent:
         depth = iterative_depth_start
         t0 = time.time()
 
-        while depth < 10:
+        while depth < quiescence_depth:
             t_this_depth = time.time()
             # Check remaining time
             remaining_time = self.time_limit - (time.time() - start_time)
@@ -363,7 +366,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = 1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval = self.alpha_beta_eval(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
@@ -392,7 +395,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = -1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval = self.alpha_beta_eval(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
@@ -423,7 +426,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = 1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval = self.alpha_beta_eval(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
@@ -452,7 +455,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = -1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval = self.alpha_beta_eval(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
@@ -499,7 +502,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = 1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
@@ -531,7 +534,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = -1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
@@ -565,7 +568,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = 1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
@@ -597,7 +600,7 @@ class MonkeyAgent:
                     local_to_play[loc_row, loc_col] = -1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try

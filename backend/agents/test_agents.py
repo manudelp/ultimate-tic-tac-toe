@@ -1,9 +1,11 @@
 import numpy as np
 import test_utils as utils
 import time
+from colorama import Fore, Style
 from bot.randy import RandomAgent
 from bot.monkey import MonkeyAgent
 from bot.jardy import GardenerAgent
+from bot.jardito import JardineritoAgent
 from bot.taylor import TaylorAgent
 from bot.straightArrow import StraightArrowAgent
 from bot.iterold import IteroldAgent
@@ -13,18 +15,43 @@ from bot.twinny import TwinPrunerAgent
 from bot.maxi import MaximilianoAgent
 from foofinder import FooFinderAgent
 
-# Initialize agents
-AGENT1 = MaximilianoAgent()  # Replace with your chosen agent
-AGENT2 = StraightArrowAgent()         # Replace with your chosen agent
-ROUNDS = 15  # Number of rounds to play
+t0 = time.time()
 
-# Initialize game board
-board = np.zeros((3, 3, 3, 3), dtype=int)  # 4D board, initialized to zeros
+# Initialize agents
+AGENT1 = TwinPrunerAgent()    # Replace with your chosen agent
+AGENT2 = GardenerAgent()  # Replace with your chosen agent
+ROUNDS = 5  # Number of rounds to play, each round represents 2 games (with alternating pieces)
+GAMES = ROUNDS * 2
+
+agent1_name = str(AGENT1)
+agent2_name = str(AGENT2)
 
 # Run the simulation
-t0 = time.time()
-utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
-t1 = time.time()
-time_taken = t1 - t0
+agent1_wins, agent2_wins, draws = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
+if agent1_wins > agent2_wins:
+    final_winner = agent1_name
+elif agent1_wins < agent2_wins:
+    final_winner = agent2_name
+else:
+    final_winner = "Draw"
 
-print(f"Time taken to play LITERALLY {ROUNDS} FUCKING rounds: {time_taken:.2f} seconds")
+ag1_percentage = agent1_wins / GAMES * 100
+ag2_percentage = agent2_wins / GAMES * 100
+draw_percentage = draws / GAMES * 100
+
+print(f"FINAL RESULTS:")
+
+if final_winner == agent1_name:
+    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+elif final_winner == agent2_name:
+    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+else:
+    print(Fore.YELLOW + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.YELLOW + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+print(f"Drawn games: {draws}")
+
+print(f"WINNER IS {final_winner}")
+
+print(f"Time taken to play {GAMES} games: {(time.time() - t0):.2f} seconds")

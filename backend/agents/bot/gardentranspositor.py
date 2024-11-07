@@ -12,9 +12,10 @@ Order Moves? = False!
 
 """
 
-class GardenerTranspositorAgent:
+class TransJardiAgent:
     def __init__(self):
-        self.id = "Dr Garden Transpositor💼"
+        self.id = "Dr Garden Transpositor"
+        self.icon = "🧺"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
@@ -40,7 +41,8 @@ class GardenerTranspositorAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id}{self.icon}"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
@@ -95,6 +97,7 @@ class GardenerTranspositorAgent:
                 minimax_time = time.time() - self.true_time_start
                 print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
+                self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
                 raise ValueError("GardenTranspositor failed to play with alpha beta, playing randomly... (inital btp was None)")
@@ -123,6 +126,7 @@ class GardenerTranspositorAgent:
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
+        self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
 
 

@@ -34,7 +34,8 @@ If Local Board is Edge, Do Not Multiply
 class FooFinderAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
-        self.id = "Foo Finder 👑"
+        self.id = "Foo Finder"
+        self.icon = "👑"
         
         # Counts
         self.moveNumber = 0
@@ -93,7 +94,8 @@ class FooFinderAgent:
         self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
         
     def __str__(self):
-        return self.id
+        self.str = f"{self.id}{self.icon}"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:

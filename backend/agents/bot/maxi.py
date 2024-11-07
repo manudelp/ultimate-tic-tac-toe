@@ -5,7 +5,7 @@ import time
 from colorama import init, Fore, Style
 
 """
-depth = 5/4, plain minimax
+depth = 5, plain minimax
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
@@ -14,7 +14,8 @@ Order Moves? = False!
 
 class MaximilianoAgent:
     def __init__(self):
-        self.id = "Don Maximiliano💯"
+        self.id = "Don Maximiliano"
+        self.icon = "💯"
         self.moveNumber = 0
         self.depth_local = 5 # when btp is not None
         self.depth_global = 4 # when btp is None
@@ -40,7 +41,8 @@ class MaximilianoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        return self.id
+        self.str = f"{self.id}{self.icon}"
+        return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
@@ -93,6 +95,7 @@ class MaximilianoAgent:
                 minimax_time = time.time() - self.true_time_start
                 print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
+                self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
                 raise ValueError("Maxi failed to play with minimax, playing randomly... (inital btp was None)")
@@ -118,6 +121,7 @@ class MaximilianoAgent:
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        self.total_minimax_time += minimax_time
         self.minimax_plays += 1
         return a, b, r_l, c_l
 
