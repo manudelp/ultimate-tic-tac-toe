@@ -13,13 +13,14 @@ from bot.itterino import ItterinoAgent
 from bot.ordy import TidyPodatorAgent
 from bot.twinny import TwinPrunerAgent
 from bot.maxi import MaximilianoAgent
+from bot.gardentranspositor import GardenTranspositorAgent
 from foofinder import FooFinderAgent
 
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = TwinPrunerAgent()    # Replace with your chosen agent
-AGENT2 = GardenerAgent()  # Replace with your chosen agent
+AGENT1 = GardenTranspositorAgent()    # Replace with your chosen agent
+AGENT2 = GardenTranspositorAgent()  # Replace with your chosen agent
 ROUNDS = 5  # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 
