@@ -177,6 +177,7 @@ class IterVanBytesAgent:
             this_depth_start = time.time()
             # time_tramites = time.time() - time_before_tramites
             # print(f"El time que le tomo a {self.id} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
+            print(Style.BRIGHT + Fore.LIGHTRED_EX + f"At depth {depth}, move number {self.moveNumber}, length of transposition table is {len(self.transposition_table)}" + Style.RESET_ALL)
             try:
                 minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try, recu_call=False)
             except TimeoutError:
@@ -230,7 +231,7 @@ class IterVanBytesAgent:
         if recu_call:
             if board_hash in self.transposition_table:
                 self.transpo_hits += 1
-                # return self.transposition_table[board_hash], None
+                return self.transposition_table[board_hash], None
 
         # Base case: Check for terminal or maximum depth state
         winner = checkBoardWinner(board)
@@ -284,7 +285,7 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = max_eval  # Store the result in the transposition table
+                # self.transposition_table[board_hash] = max_eval  # Store the result in the transposition table
                 return max_eval, best_move
             
             else:
@@ -321,7 +322,7 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = min_eval  # Store the result in the transposition table
+                # self.transposition_table[board_hash] = min_eval  # Store the result in the transposition table
                 return min_eval, best_move
             
         # If board_to_play is None (whole global board)
@@ -360,7 +361,7 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = max_eval  # Store the result in the transposition table
+                # self.transposition_table[board_hash] = max_eval  # Store the result in the transposition table
                 return max_eval, best_move
 
             else:
@@ -397,7 +398,7 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = min_eval  # Store the result in the transposition table
+                # self.transposition_table[board_hash] = min_eval  # Store the result in the transposition table
                 return min_eval, best_move
 
     def new_parameters(self, board, row, col, loc_row, loc_col):

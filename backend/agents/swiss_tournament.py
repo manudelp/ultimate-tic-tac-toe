@@ -24,25 +24,25 @@ from bot.gardentranspositor import GardenTranspositorAgent
 from bot.itervanbytes import IterVanBytesAgent
 
 # Hyperparameters
-ROUNDS = 3  # Number of rounds to play
+ROUNDS = 2  # Number of rounds to play
 ROUNDS_PER_MATCH = 1  # Number of games to play between each pair of agents
 REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 
 
 # Initialize agents
 AGENTS = [
-    RandomAgent(),
-    StraightArrowAgent(),
-    TaylorAgent(),
+    # RandomAgent(),
+    # StraightArrowAgent(),
+    # TaylorAgent(),
     JardineritoAgent(),
     # MaximilianoAgent(),
-    # GardenerAgent(),
+    GardenerAgent(),
     # MonkeyAgent(),
     # IteroldAgent(),
     # ItterinoAgent(),
     # TidyPodatorAgent(),
     # TwinPrunerAgent(),
-    # TransJardiAgent(),
+    GardenTranspositorAgent(),
     IterVanBytesAgent(),
     # FooFinderAgent()
 ]
@@ -63,7 +63,7 @@ class SwissTournament:
         self.play_counts = {agent: 0 for agent in agents}  # Track the number of games played per agent
         self.history = defaultdict(list)  # To accumulate history of results for each round
 
-    def display_round_progress_bar(self, current_match, total_matches, avg_game_time_ms):
+    def display_round_progress_bar(self, current_match, total_matches, avg_game_time_secs):
         bar_length = 30  # Length of the progress bar
         progress = current_match / total_matches
         filled_length = int(bar_length * progress)
@@ -73,7 +73,7 @@ class SwissTournament:
         
         # Display progress bar with games left and average game time
         sys.stdout.write(
-            f'\r|{bar}| {current_match}/{total_matches} games | Average Game Time: {avg_game_time_ms:.2f} ms'
+            f'\r|{bar}| {current_match}/{total_matches} games | Average Game Time: {avg_game_time_secs:.2f} secs'
         )
         sys.stdout.flush()
 
@@ -82,9 +82,9 @@ class SwissTournament:
         results = []
         total_matches = len(sorted_agents) // 2
         current_match = 0
-        total_time_ms = 0
+        total_time_secs = 0
 
-        self.display_round_progress_bar(current_match, total_matches, avg_game_time_ms=0)
+        self.display_round_progress_bar(current_match, total_matches, avg_game_time_secs=0)
 
         i = 0
         while i < len(sorted_agents) - 1:
@@ -100,13 +100,13 @@ class SwissTournament:
                 with redirect_stdout(suppress_agent_prints()):
                     agent1_wins, agent2_wins, draws = utils.play_multiple_games(agent1, agent2, rounds_per_match)
                 
-                elapsed_time_ms = (time.time() - start_time) * 1000
-                total_time_ms += elapsed_time_ms
-                avg_game_time_ms = total_time_ms / (current_match + 1)
+                elapsed_time_secs = (time.time() - start_time)
+                total_time_secs += elapsed_time_secs
+                avg_game_time_secs = total_time_secs / (current_match + 1)
 
                 # Track cumulative time and play count for each agent
-                self.cumulative_times[agent1] += elapsed_time_ms / rounds_per_match
-                self.cumulative_times[agent2] += elapsed_time_ms / rounds_per_match
+                self.cumulative_times[agent1] += elapsed_time_secs / rounds_per_match
+                self.cumulative_times[agent2] += elapsed_time_secs / rounds_per_match
                 self.play_counts[agent1] += rounds_per_match
                 self.play_counts[agent2] += rounds_per_match
 
@@ -122,7 +122,7 @@ class SwissTournament:
                 results.append((agent1, agent2, agent1_wins, agent2_wins, draws))
                 
                 current_match += 1
-                self.display_round_progress_bar(current_match, total_matches, avg_game_time_ms)
+                self.display_round_progress_bar(current_match, total_matches, avg_game_time_secs)
                 
                 i += 2
             else:
@@ -150,13 +150,13 @@ class SwissTournament:
             print("\n--- Final Averaged Standings ---")
 
         # Table header with the new columns for sigma and Avg Time
-        print("+------+------------------------+----------------+---------------+")
-        print("| Rank |     Agent              |   Score (±σ)   | Avg Time (ms) |")
-        print("+------+------------------------+----------------+---------------+")
+        print("+------+------------------------------+----------------+-------------------+")
+        print("| Rank |             Agent            |   Score (±σ)   | Avg Game Time (s) |")
+        print("+------+------------------------------+----------------+-------------------+")
 
-        for rank, (agent, mu, sigma, avg_time_ms) in enumerate(final_standings, start=1):
+        for rank, (agent, mu, sigma, avg_time_secs) in enumerate(final_standings, start=1):
             score_display = f"{mu:.2f} ± {sigma:.2f}"
-            print(f"| {rank:<4} | {str(agent):<22} | {score_display:<13} | {avg_time_ms:<13.2f} |")
+            print(f"| {rank:<4} | {str(agent):<27} | {score_display:<13} | {avg_time_secs:<13.2f} |")
 
         print("+------+----------------+------------------+------------+")
 
