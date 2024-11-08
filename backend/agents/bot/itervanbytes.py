@@ -215,6 +215,7 @@ class IterVanBytesAgent:
  
         return best_eval, best_move
 
+    # FIXME! Esta mal usada la transposition table aca
     def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try, recu_call=True):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns the board evaluation along with the best_move that leads to it '''

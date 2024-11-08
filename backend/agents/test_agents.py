@@ -21,7 +21,7 @@ t0 = time.time()
 
 # Initialize agents
 AGENT1 = GardenerAgent()    # Replace with your chosen agent
-AGENT2 = IterVanBytesAgent()  # Replace with your chosen agent
+AGENT2 = GardenTranspositorAgent()  # Replace with your chosen agent
 ROUNDS = 2 # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 

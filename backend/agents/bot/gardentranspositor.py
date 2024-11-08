@@ -124,7 +124,7 @@ class GardenTranspositorAgent:
             a, b, r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-         
+
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
@@ -172,135 +172,145 @@ class GardenTranspositorAgent:
 
         return None
 
-    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, recu_call=True):
-        # Hash the board state using tobytes for efficient lookup
-        board_hash = board.tobytes()
-        
-        # Check the transposition table for an existing evaluation of this board state
-        # TODO This will not be necessary in implementations with initialAlphaBeta and a separate recursiveAlphaBeta such as TwinPruner
-        # In those implementations, never check transposition table in initialAlphaBeta, always check in recursiveAlphaBeta
-        if recu_call:
-            if board_hash in self.transposition_table:
-                return self.transposition_table[board_hash], None
+    def store_in_transposition_table(self, state_key, value, depth, alpha, beta):
+        # Determine the type of bound to store based on alpha-beta values
+        if value <= alpha:
+            flag = "UPPERBOUND"
+        elif value >= beta:
+            flag = "LOWERBOUND"
+        else:
+            flag = "EXACT"
 
-        # Base case: Check for terminal or maximum depth state
+        # Store information in the transposition table
+        self.transposition_table[state_key] = {
+            "value": value,
+            "depth": depth,
+            "flag": flag
+        }
+
+    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, recu_call=True):
+        """ Applies Alpha Beta Pruning techniques with Transposition Table to Minimax"""
+
+        # Generate a unique hash for the current board state
+        state_key = hash(board.tobytes())  # Using .tobytes() to hash the board state
+
+        if recu_call:
+            # Check if the current board state is in the transposition table
+            if state_key in self.transposition_table:
+                entry = self.transposition_table[state_key]
+
+                # Use the stored value if entry depth is equal or greater
+                if entry["depth"] >= depth:
+                    if entry["flag"] == "EXACT":
+                        return entry["value"], None
+                    elif entry["flag"] == "LOWERBOUND" and entry["value"] > alpha:
+                        alpha = entry["value"]
+                    elif entry["flag"] == "UPPERBOUND" and entry["value"] < beta:
+                        beta = entry["value"]
+
+                    if alpha >= beta:
+                        return entry["value"], None
+
+        # Base case: If we've reached the maximum depth or the game state is terminal
         winner = checkBoardWinner(board)
         if winner != 0:
-            eval_value = winner * 100000
-            self.transposition_table[board_hash] = eval_value  # Store the result in the transposition table
-            return eval_value, None
+            return winner * 100000, None
         elif depth == 0:
-            eval_value = self.boardBalance(board)
-            self.transposition_table[board_hash] = eval_value  # Store the result in the transposition table
-            return eval_value, None
+            return self.boardBalance(board), None
         elif (self.countPlayableBoards(board) == 0) or isFull(board):
-            self.transposition_table[board_hash] = 0  # Draw state
             return 0, None
 
         best_move = None
 
-        # Alpha-Beta Pruning with recursive exploration
+        # Generate moves based on the current state
         if board_to_play is not None:
             row, col = board_to_play
-            local_to_play = board[row, col]
-            local_moves = np.argwhere(local_to_play == 0)
-
-            if local_moves.size == 0:
-                raise ValueError(f"No moves available on the specified board. Conditions: maximizingPlayer={maximizingPlayer}, depth={depth}.")
+            local_moves = np.argwhere(board[row, col] == 0)
 
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in local_moves:
                     loc_row, loc_col = move
-
                     board[row, col][loc_row, loc_col] = 1  # Simulate move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0  # Undo move
 
-                    max_eval = max(max_eval, eval)
-                    best_move = move if max_eval == eval else best_move
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_move = move
                     alpha = max(alpha, eval)
                     if beta <= alpha:
-                        break
+                        break  # Beta cutoff
 
-                # FIXME! Maybe sacar a estas additions de la transposition table y dejar solo lo de winner y boardBalance al principio
-                # considerarlo en base a que tan bien juegue! 
-                # self.transposition_table[board_hash] = max_eval  # Store max evaluation
+                self.store_in_transposition_table(state_key, max_eval, depth, alpha, beta)
                 return max_eval, [row, col, best_move[0], best_move[1]]
-
+            
             else:
                 min_eval = float('inf')
                 for move in local_moves:
                     loc_row, loc_col = move
-
                     board[row, col][loc_row, loc_col] = -1  # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0  # Undo move
+                    board[row, col][loc_row, loc_col] = 0  # Undo rival move
 
-                    min_eval = min(min_eval, eval)
-                    best_move = move if min_eval == eval else best_move
+                    if eval < min_eval:
+                        min_eval = eval
+                        best_move = move
                     beta = min(beta, eval)
                     if beta <= alpha:
-                        break
+                        break  # Alpha cutoff
 
-                # self.transposition_table[board_hash] = min_eval  # Store min evaluation
+                self.store_in_transposition_table(state_key, min_eval, depth, alpha, beta)
                 return min_eval, [row, col, best_move[0], best_move[1]]
-
+        
         else:
             global_moves = []
             playable_boards = self.genPlayableBoards(board)
-
             for (row, col) in playable_boards:
-                local_board = board[row, col]
-                empty_indices = np.argwhere(local_board == 0)
-                
+                empty_indices = np.argwhere(board[row, col] == 0)
                 for submove in empty_indices:
-                    local_row, local_col = submove
-                    global_moves.append([row, col, int(local_row), int(local_col)])
-
-            if not global_moves:
-                raise ValueError(f"No global moves available. Conditions: maximizingPlayer={maximizingPlayer}, depth={depth}.")
+                    global_moves.append([row, col, submove[0], submove[1]])
 
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in global_moves:
                     row, col, loc_row, loc_col = move
-
                     board[row, col][loc_row, loc_col] = 1  # Simulate move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0  # Undo move
 
-                    max_eval = max(max_eval, eval)
-                    best_move = move if max_eval == eval else best_move
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_move = move
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break
 
-                # self.transposition_table[board_hash] = max_eval  # Store max evaluation
+                self.store_in_transposition_table(state_key, max_eval, depth, alpha, beta)
                 return max_eval, best_move
-
+            
             else:
                 min_eval = float('inf')
                 for move in global_moves:
                     row, col, loc_row, loc_col = move
-
                     board[row, col][loc_row, loc_col] = -1  # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0  # Undo move
+                    board[row, col][loc_row, loc_col] = 0  # Undo rival move
 
-                    min_eval = min(min_eval, eval)
-                    best_move = move if min_eval == eval else best_move
+                    if eval < min_eval:
+                        min_eval = eval
+                        best_move = move
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break
 
-                # self.transposition_table[board_hash] = min_eval  # Store min evaluation
-                return min_eval, best_move            
-
+                self.store_in_transposition_table(state_key, min_eval, depth, alpha, beta)
+                return min_eval, best_move
+    
     def generate_global_moves(self, board):
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
