@@ -20,7 +20,7 @@ from bot.itterino import ItterinoAgent
 from bot.ordy import TidyPodatorAgent
 from bot.twinny import TwinPrunerAgent
 from foofinder import FooFinderAgent
-from bot.gardentranspositor import TransJardiAgent
+from bot.gardentranspositor import GardenTranspositorAgent
 from bot.itervanbytes import IterVanBytesAgent
 
 # Hyperparameters
@@ -43,7 +43,7 @@ AGENTS = [
     # TidyPodatorAgent(),
     # TwinPrunerAgent(),
     # TransJardiAgent(),
-    # IterVanBytesAgent(),
+    IterVanBytesAgent(),
     # FooFinderAgent()
 ]
 

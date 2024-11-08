@@ -14,9 +14,10 @@ AB-Pruning Minimax? = True
 
 class IterVanBytesAgent:
     def __init__(self):
-        self.id = "Iter 'Transpo-King' Van Bytes"
+        self.id = "Iter Van Bytes"
         self.icon = "📼"
         self.transposition_table = {}
+        self.transpo_hits = 0
         self.moveNumber = 0
         self.depth_global = 7
         self.depth_local = 8
@@ -47,6 +48,8 @@ class IterVanBytesAgent:
 
     def reset(self):
         self.transposition_table = {}
+        print(f"There were {self.transpo_hits} Transposition Table Uses!")
+        self.transpo_hits = 0
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.id}")
             return
@@ -175,7 +178,7 @@ class IterVanBytesAgent:
             # time_tramites = time.time() - time_before_tramites
             # print(f"El time que le tomo a {self.id} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
             try:
-                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
+                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try, recu_call=False)
             except TimeoutError:
                 print(f"Time Limit Exceeded in Iterative Deepening! Had to break the alpha beta at depth {depth}")
                 break
@@ -211,7 +214,7 @@ class IterVanBytesAgent:
  
         return best_eval, best_move
 
-    def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
+    def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try, recu_call=True):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns the board evaluation along with the best_move that leads to it '''
         
@@ -220,13 +223,14 @@ class IterVanBytesAgent:
             raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at start")
         
         board_hash = board.tobytes()
-        
+
         # Check the transposition table for an existing evaluation of this board state
         # TODO This will not be necessary in implementations with initialAlphaBeta and a separate recursiveAlphaBeta such as TwinPruner
         # In those implementations, never check transposition table in initialAlphaBeta, always check in recursiveAlphaBeta
-        if (board_to_play is None and (depth < self.depth_global) or (board_to_play is not None and depth < self.depth_local)):
+        if recu_call:
             if board_hash in self.transposition_table:
-                return self.transposition_table[board_hash], None
+                self.transpo_hits += 1
+                # return self.transposition_table[board_hash], None
 
         # Base case: Check for terminal or maximum depth state
         winner = checkBoardWinner(board)
