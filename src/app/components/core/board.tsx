@@ -156,7 +156,7 @@ const Board: React.FC<BoardProps> = ({
         </div>
         <div
           title="Game Mode"
-          className="absolute w-40 inset-x-0 m-auto text-center cursor-default"
+          className="w-fit absolute inset-x-0 m-auto text-center cursor-default"
         >
           {gameMode === "player-vs-player" && (
             <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
