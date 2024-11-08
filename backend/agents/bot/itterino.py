@@ -119,7 +119,6 @@ class ItterinoAgent:
         return a, b, r_l, c_l
 
 
-
     def randomMove(self, board):
         empty_cells = np.flatnonzero(board == 0)
         print(f"Empty cells: {empty_cells}")
@@ -206,7 +205,8 @@ class ItterinoAgent:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
             # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
             
-            print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
+            # UNCOMMENT TO SEE TIME PER DEPTH
+            # print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
  
         return best_eval, best_move
 

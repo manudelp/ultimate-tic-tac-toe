@@ -20,8 +20,8 @@ from foofinder import FooFinderAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = GardenerAgent()    # Replace with your chosen agent
-AGENT2 = GardenTranspositorAgent()  # Replace with your chosen agent
+AGENT1 = IteroldAgent()    # Replace with your chosen agent
+AGENT2 = ItterinoAgent()  # Replace with your chosen agent
 ROUNDS = 2 # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 
@@ -44,14 +44,14 @@ draw_percentage = draws / GAMES * 100
 print(Style.BRIGHT + f"\n ----+---- FINAL RESULTS ----+----")
 
 if final_winner == agent1_name:
-    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
-    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
 elif final_winner == agent2_name:
-    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
-    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
 else:
-    print(Fore.YELLOW + Style.BRIGHT + f"{agent1_name} Won {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
-    print(Fore.YELLOW + Style.BRIGHT + f"{agent2_name} Won {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.YELLOW + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.YELLOW + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
 print(Style.BRIGHT + f"Drawn games: {draws}")
 
 print(Style.BRIGHT + f"\n FINAL WINNER IS {final_winner}")
