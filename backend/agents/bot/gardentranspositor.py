@@ -89,7 +89,8 @@ class GardenTranspositorAgent:
             depth=self.depth_global, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True)
+            maximizingPlayer=True,
+            recu_call=False)
 
             if minimax_move is not None:
                 # print(f"Jardy chose alpha beta move: {minimax_move}")
@@ -117,7 +118,8 @@ class GardenTranspositorAgent:
             depth=self.depth_local, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True)
+            maximizingPlayer=True,
+            recu_call=False)
         if minimax_move is not None:
             a, b, r_l, c_l = minimax_move
         else:
@@ -170,14 +172,14 @@ class GardenTranspositorAgent:
 
         return None
 
-    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
+    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, recu_call=True):
         # Hash the board state using tobytes for efficient lookup
         board_hash = board.tobytes()
         
         # Check the transposition table for an existing evaluation of this board state
         # TODO This will not be necessary in implementations with initialAlphaBeta and a separate recursiveAlphaBeta such as TwinPruner
         # In those implementations, never check transposition table in initialAlphaBeta, always check in recursiveAlphaBeta
-        if (board_to_play is None and (depth < self.depth_global) or (board_to_play is not None and depth < self.depth_local)):
+        if recu_call:
             if board_hash in self.transposition_table:
                 return self.transposition_table[board_hash], None
 
@@ -224,7 +226,7 @@ class GardenTranspositorAgent:
 
                 # FIXME! Maybe sacar a estas additions de la transposition table y dejar solo lo de winner y boardBalance al principio
                 # considerarlo en base a que tan bien juegue! 
-                self.transposition_table[board_hash] = max_eval  # Store max evaluation
+                # self.transposition_table[board_hash] = max_eval  # Store max evaluation
                 return max_eval, [row, col, best_move[0], best_move[1]]
 
             else:
@@ -243,7 +245,7 @@ class GardenTranspositorAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = min_eval  # Store min evaluation
+                # self.transposition_table[board_hash] = min_eval  # Store min evaluation
                 return min_eval, [row, col, best_move[0], best_move[1]]
 
         else:
@@ -277,7 +279,7 @@ class GardenTranspositorAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = max_eval  # Store max evaluation
+                # self.transposition_table[board_hash] = max_eval  # Store max evaluation
                 return max_eval, best_move
 
             else:
@@ -296,7 +298,7 @@ class GardenTranspositorAgent:
                     if beta <= alpha:
                         break
 
-                self.transposition_table[board_hash] = min_eval  # Store min evaluation
+                # self.transposition_table[board_hash] = min_eval  # Store min evaluation
                 return min_eval, best_move            
 
     def generate_global_moves(self, board):
