@@ -667,10 +667,10 @@ super_board_1[1, 2, 1, 1] = -1
 super_board_1[0, 1, 1, 2] = 1
 super_board_1[1, 1, 1, 1] = -1
 
-super_board_1_key = agent.board_to_HyphenNumeric_sets(super_board_1)
-print(f"Super Board 1 Key: {super_board_1_key}")
+# super_board_1_key = agent.board_to_HyphenNumeric_sets(super_board_1)
+# print(f"Super Board 1 Key: {super_board_1_key}")
 
-print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
+# print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
 
 
@@ -938,7 +938,6 @@ def run_winnable_tests_minus_one(agent):
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    print("Value for super board 1 is", agent.get_HyphenNumeric_hash(super_board_1, (0, 1)))
     assert agent.get_HyphenNumeric_hash(super_board_1, (0, 1)) == (0, 1, 0, 2), "Test Failed: Super Board 1 should have a best move of (0, 1, 0, 2)"
 
 # Run the Tests!
