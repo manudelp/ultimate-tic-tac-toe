@@ -6,6 +6,7 @@ from colorama import init, Fore, Style
 
 """
 depth = 8/7, plain alpha beta
+Uses Transposition Table!
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!

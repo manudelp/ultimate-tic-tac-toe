@@ -8,7 +8,7 @@ from colorama import Style, Fore
 depth = iterative_deepening with move re-order, global depth=7, local depth=8, max time to start a new depth is 30 seconds
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True 
-*Uses Transposition Table!
+Uses Transposition Table!* (see if FIXME comment)
 
 """
 
