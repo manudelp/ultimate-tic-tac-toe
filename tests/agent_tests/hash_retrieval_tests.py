@@ -1,5 +1,6 @@
 import numpy as np
 from colorama import init, Fore, Style
+from typing import Any, Union, Tuple
 import ast
 
 def isWon(subboard):
@@ -329,6 +330,7 @@ class RetrievalAgent:
         self.hash_over_boards = {}
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
+        self.hash_HyphenNumeric_boards = {}
 
         # Load both winning boards and evaluated boards during initialization
         self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
@@ -340,6 +342,7 @@ class RetrievalAgent:
         self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
         self.load_winnable_boards_one('backend/agents/hashes/hash_winnable_boards_by_one.txt')
         self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
+        self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
 
 
     def load_winning_boards(self, file_path):
@@ -508,6 +511,101 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
+    def load_HyphenNumeric_boards(self, file):
+        ''' 
+        Loads the boards from a file and stores them in a dictionary.
+        Each board state is stored as a key (a tuple with the board's HyphenNumeric representation and the board_to_play).
+        The value is the best move in (global_row, global_col, local_row, local_col) format.
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                # Skip empty lines and comments
+                if not line.strip() or line.strip().startswith('#'):
+                    continue
+
+                try:
+                    # Split the line into the key and value
+                    key_str, value_str = line.split(":")
+                    
+                    # Clean up spaces
+                    key_str = key_str.strip()
+                    value_str = value_str.strip()
+
+                    # Parse the board state and board_to_play manually
+                    key_parts = key_str.split(", ")
+                    board_state_str = key_parts[0].strip("()")  # Remove the parentheses
+                    board_to_play_str = key_parts[1].strip("()")  # Remove the parentheses
+
+                    # Convert the board state (HyphenNumeric format) into a tuple of positions for each player
+                    board_state = self.parse_HyphenNumeric_board(board_state_str)
+
+                    # Convert board_to_play to a tuple
+                    board_to_play = tuple(map(int, board_to_play_str.split(',')))
+
+                    # Parse the value (best move)
+                    best_move = tuple(map(int, value_str.strip("()").split(',')))
+
+                    # Store the key-value pair in the dictionary
+                    self.hash_HyphenNumeric_boards[(board_state, board_to_play)] = best_move
+
+                except Exception as e:
+                    print(f"Error parsing line: {line} - Error: {e}")
+
+    def parse_HyphenNumeric_board(self, board_str):
+        ''' Convert the HyphenNumeric board string into a list of player positions '''
+        # Split the board state by '__' to separate each move
+        moves = board_str.split('__')
+        
+        # Initialize player piece sets
+        player_1_positions = set()
+        player_neg_1_positions = set()
+        
+        # Process each move and assign to correct player based on position
+        for idx, move in enumerate(moves):
+            positions = tuple(map(int, move.split('_')))  # Convert the underscore-separated numbers into a tuple
+            if idx % 2 == 0:
+                player_1_positions.add(positions)  # Even positions are Player 1
+            else:
+                player_neg_1_positions.add(positions)  # Odd positions are Player -1
+
+        # Return the two sets as a tuple
+        return (frozenset(player_1_positions), frozenset(player_neg_1_positions))
+
+    def get_HyphenNumeric_hash(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key = self.get_HyphenNumeric_key(board, board_to_play)
+        return self.hash_HyphenNumeric_boards.get(key, None)
+
+    def get_HyphenNumeric_key(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
+        ''' Returns the key for the HyphenNumeric boards dictionary '''
+        return (self.board_to_HyphenNumeric(board), board_to_play)
+
+    def board_to_HyphenNumeric(self, board: np.array):
+        ''' Convert the 4D board (3x3x3x3) to its HyphenNumeric representation '''
+        player1_pieces = []
+        player_minus1_pieces = []
+
+        for global_row in range(board.shape[0]):
+            for global_col in range(board.shape[1]):
+                for local_row in range(board.shape[2]):
+                    for local_col in range(board.shape[3]):
+                        piece = board[global_row, global_col, local_row, local_col]
+                        if piece != 0:  # Only record positions with a placed piece
+                            # Format the position as a hyphen-separated string
+                            position = f"{global_row}-{global_col}-{local_row}-{local_col}"
+                            
+                            # Add position to the respective player’s list
+                            if piece == 1:
+                                player1_pieces.append(position)
+                            elif piece == -1:
+                                player_minus1_pieces.append(position)
+
+        # Sort lists to ensure order-agnostic representation and join with __ separator
+        player1_pieces.sort()
+        player_minus1_pieces.sort()
+
+        return "__".join(player1_pieces) + "__" + "__".join(player_minus1_pieces)
+
 # Example usage:
 agent = RetrievalAgent()
 
@@ -573,6 +671,16 @@ board_15 = np.array([[-1, -1, 0],
                     [-1, 0, 1],
                     [0, 1, 1]]) # winnable by 1 in (0, 2), (2, 0) || winnable by -1 in (0, 2), (2, 0)
 
+super_board_1 = np.zeros((3, 3, 3, 3), dtype=int)
+super_board_1[0, 0, 0, 0] = 1
+super_board_1[1, 2, 1, 1] = -1
+super_board_1[0, 1, 1, 2] = 1
+super_board_1[1, 1, 1, 1] = -1
+
+super_board_1_key = agent.board_to_HyphenNumeric(super_board_1)
+print(f"Super Board 1 Key: {super_board_1_key}")
+
+print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
 
 
@@ -839,6 +947,10 @@ def run_winnable_tests_minus_one(agent):
 
     print("All Winnable-By-Minus-One tests passed successfully!")
 
+def run_HyphenNumeric_tests(agent):
+    print("Value for super board 1 is", agent.get_HyphenNumeric_hash(super_board_1, (0, 1)))
+    assert agent.get_HyphenNumeric_hash(super_board_1, (0, 1)) == (0, 1, 0, 2), "Test Failed: Super Board 1 should have a best move of (0, 1, 0, 2)"
+
 # Run the Tests!
 run_won_tests(agent)
 run_eval_tests_v1(agent)
@@ -852,6 +964,7 @@ run_eval_v2_commonsense_tests(agent)
 run_eval_v3_commonsense_tests(agent)
 run_winnable_tests_one(agent)
 run_winnable_tests_minus_one(agent)
+run_HyphenNumeric_tests(agent)
 
 print("")
 print(Style.BRIGHT + Fore.GREEN + "All tests passed successfully! 😄" + Style.RESET_ALL)
