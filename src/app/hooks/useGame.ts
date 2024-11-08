@@ -68,6 +68,7 @@ export const useGame = (
   const [agentIdTurn, setAgentIdTurn] = useState<AgentIdTurn>(null);
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [turnsInverted, setTurnsInverted] = useState(false);
+  const [timeToMove, setTimeToMove] = useState<number>(0.0);
   const [playedGames, setPlayedGames] = useState(0);
   const [playedGamesWinners, setPlayedGamesWinners] =
     useState<PlayedGamesWinners>([]);
@@ -302,7 +303,16 @@ export const useGame = (
           return turn === "X" ? "O" : "X";
         });
       } else {
-        setTimeout(handleBotMove, TIMEOUT);
+        const startTime = Date.now();
+        const intervalId = setInterval(() => {
+          setTimeToMove((Date.now() - startTime) / 1000);
+        }, 100); // Update every 100ms
+
+        setTimeout(async () => {
+          await handleBotMove();
+          clearInterval(intervalId);
+          setTimeToMove((Date.now() - startTime) / 1000);
+        }, TIMEOUT);
       }
     }
   }, [
@@ -391,6 +401,7 @@ export const useGame = (
     isBotThinking,
     moveNumber,
     isPaused,
+    timeToMove,
     handleCellClick,
     makeMove,
     togglePlayPause,

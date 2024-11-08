@@ -44,11 +44,10 @@ const Board: React.FC<BoardProps> = ({
     isBotThinking,
     moveNumber,
     isPaused,
+    timeToMove,
     handleCellClick,
     makeMove,
     togglePlayPause,
-    undoMove,
-    redoMove,
   } = useGame(
     gameMode,
     starts || "player",
@@ -190,6 +189,9 @@ const Board: React.FC<BoardProps> = ({
           )}
         </div>
         <div className="flex gap-2">
+          {gameMode === "bot-vs-bot" && (
+            <div title="Bot's move time">{timeToMove.toFixed(2)}s</div>
+          )}
           <div title="Player">
             {gameMode === "player-vs-player" && "Player"}
             {gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)}
@@ -289,7 +291,7 @@ const Board: React.FC<BoardProps> = ({
         {/* MATCH INFO - BOT VS BOT */}
         {gameMode === "bot-vs-bot" && (
           <>
-            {playedGames + "/" + totalGames}
+            <div>{playedGames + "/" + totalGames}</div>
 
             <div className="flex gap-2">
               <div
