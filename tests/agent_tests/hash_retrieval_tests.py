@@ -510,46 +510,36 @@ class RetrievalAgent:
         ''' Returns the set of winning moves for player -1, if the board is winnable '''
         board_key = board.tobytes()
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
+    
+    def get_HyphenNumeric_hash(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key = self.get_HyphenNumeric_key(board, board_to_play)
+        return self.hash_HyphenNumeric_boards.get(key, None)
 
-    def load_HyphenNumeric_boards(self, file):
-        ''' 
-        Loads the boards from a file and stores them in a dictionary.
-        Each board state is stored as a key (a tuple with the board's HyphenNumeric representation and the board_to_play).
-        The value is the best move in (global_row, global_col, local_row, local_col) format.
-        '''
-        with open(file, 'r') as f:
-            for line in f:
-                # Skip empty lines and comments
-                if not line.strip() or line.strip().startswith('#'):
-                    continue
+    def get_HyphenNumeric_key(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
+        ''' Returns the key for the HyphenNumeric boards dictionary '''
+        # Split board representation into two frozensets for Player 1 and Player -1 moves
+        player1_set, player_minus1_set = self.board_to_HyphenNumeric_sets(board)
+        return ((frozenset(player1_set), frozenset(player_minus1_set)), board_to_play)
 
-                try:
-                    # Split the line into the key and value
-                    key_str, value_str = line.split(":")
-                    
-                    # Clean up spaces
-                    key_str = key_str.strip()
-                    value_str = value_str.strip()
+    def board_to_HyphenNumeric_sets(self, board: np.array):
+        ''' Convert the board to two sets of tuples representing player positions '''
+        player1_pieces = set()
+        player_minus1_pieces = set()
 
-                    # Parse the board state and board_to_play manually
-                    key_parts = key_str.split(", ")
-                    board_state_str = key_parts[0].strip("()")  # Remove the parentheses
-                    board_to_play_str = key_parts[1].strip("()")  # Remove the parentheses
+        for global_row in range(board.shape[0]):
+            for global_col in range(board.shape[1]):
+                for local_row in range(board.shape[2]):
+                    for local_col in range(board.shape[3]):
+                        piece = board[global_row, global_col, local_row, local_col]
+                        if piece != 0:  # Only record positions with a placed piece
+                            position = (global_row, global_col, local_row, local_col)
+                            if piece == 1:
+                                player1_pieces.add(position)
+                            elif piece == -1:
+                                player_minus1_pieces.add(position)
 
-                    # Convert the board state (HyphenNumeric format) into a tuple of positions for each player
-                    board_state = self.parse_HyphenNumeric_board(board_state_str)
-
-                    # Convert board_to_play to a tuple
-                    board_to_play = tuple(map(int, board_to_play_str.split(',')))
-
-                    # Parse the value (best move)
-                    best_move = tuple(map(int, value_str.strip("()").split(',')))
-
-                    # Store the key-value pair in the dictionary
-                    self.hash_HyphenNumeric_boards[(board_state, board_to_play)] = best_move
-
-                except Exception as e:
-                    print(f"Error parsing line: {line} - Error: {e}")
+        return player1_pieces, player_minus1_pieces
 
     def parse_HyphenNumeric_board(self, board_str):
         ''' Convert the HyphenNumeric board string into a list of player positions '''
@@ -571,40 +561,40 @@ class RetrievalAgent:
         # Return the two sets as a tuple
         return (frozenset(player_1_positions), frozenset(player_neg_1_positions))
 
-    def get_HyphenNumeric_hash(self, board, board_to_play):
-        ''' Returns the best move for the given HyphenNumeric board '''
-        key = self.get_HyphenNumeric_key(board, board_to_play)
-        return self.hash_HyphenNumeric_boards.get(key, None)
+    def load_HyphenNumeric_boards(self, file):
+        ''' 
+        Loads the boards from a file and stores them in a dictionary.
+        Each board state is stored as a key (a tuple with the board's HyphenNumeric representation and the board_to_play).
+        The value is the best move in (global_row, global_col, local_row, local_col) format.
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                # Skip empty lines and comments
+                if not line.strip() or line.strip().startswith('#'):
+                    continue
 
-    def get_HyphenNumeric_key(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
-        ''' Returns the key for the HyphenNumeric boards dictionary '''
-        return (self.board_to_HyphenNumeric(board), board_to_play)
+                try:
+                    # Step 1: Split the line by ":"
+                    key_part, move_str = line.split(" : ")
 
-    def board_to_HyphenNumeric(self, board: np.array):
-        ''' Convert the 4D board (3x3x3x3) to its HyphenNumeric representation '''
-        player1_pieces = []
-        player_minus1_pieces = []
+                    # Step 2: Split the key_part by ", " to separate board_state and board_to_play
+                    board_part, play_part = key_part.split(", ")
+                    
+                    # Parse the board state
+                    board_state = self.parse_HyphenNumeric_board(board_part.strip())
+                    
+                    # Parse board_to_play as a tuple of integers
+                    board_to_play = tuple(map(int, play_part.split('_')))  # Convert "0_1" into (0, 1)
+                    
+                    # Parse best_move as a tuple of integers
+                    best_move = tuple(map(int, move_str.strip().split('_')))  # Convert "0_1_0_2" into (0, 1, 0, 2)
 
-        for global_row in range(board.shape[0]):
-            for global_col in range(board.shape[1]):
-                for local_row in range(board.shape[2]):
-                    for local_col in range(board.shape[3]):
-                        piece = board[global_row, global_col, local_row, local_col]
-                        if piece != 0:  # Only record positions with a placed piece
-                            # Format the position as a hyphen-separated string
-                            position = f"{global_row}-{global_col}-{local_row}-{local_col}"
-                            
-                            # Add position to the respective player’s list
-                            if piece == 1:
-                                player1_pieces.append(position)
-                            elif piece == -1:
-                                player_minus1_pieces.append(position)
+                    # Store the key-value pair in the dictionary
+                    self.hash_HyphenNumeric_boards[(board_state, board_to_play)] = best_move
 
-        # Sort lists to ensure order-agnostic representation and join with __ separator
-        player1_pieces.sort()
-        player_minus1_pieces.sort()
+                except Exception as e:
+                    print(f"Error parsing line: {line} - Error: {e}")
 
-        return "__".join(player1_pieces) + "__" + "__".join(player_minus1_pieces)
 
 # Example usage:
 agent = RetrievalAgent()
@@ -677,7 +667,7 @@ super_board_1[1, 2, 1, 1] = -1
 super_board_1[0, 1, 1, 2] = 1
 super_board_1[1, 1, 1, 1] = -1
 
-super_board_1_key = agent.board_to_HyphenNumeric(super_board_1)
+super_board_1_key = agent.board_to_HyphenNumeric_sets(super_board_1)
 print(f"Super Board 1 Key: {super_board_1_key}")
 
 print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
