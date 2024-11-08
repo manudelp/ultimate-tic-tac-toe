@@ -20,8 +20,7 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
-# CORS(app, resources={r"/*": {"origins": "https://utictactoe.vercel.app"}})
-CORS(app) # TODO: ONLY FOR DEVELOPMENT
+CORS(app, supports_credentials=True, automatic_options=True)
 
 # Initialize JWT
 jwt = JWTManager(app)

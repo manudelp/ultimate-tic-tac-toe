@@ -68,7 +68,7 @@ const Board: React.FC<BoardProps> = ({
     <div className="relative w-full sm:w-[600px]">
       <div className="flex items-center justify-between">
         <div className="flex gap-2 cursor-pointer">
-          <div onClick={onExit}>
+          <div title="Exit Game" onClick={onExit}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -86,7 +86,7 @@ const Board: React.FC<BoardProps> = ({
               <path d="M14 7h7m-3 -3l3 3l-3 3"></path>
             </svg>
           </div>
-          <div>
+          <div title="Undo">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -103,7 +103,7 @@ const Board: React.FC<BoardProps> = ({
             </svg>
           </div>
           {gameMode === "bot-vs-bot" && (
-            <div onClick={() => setPlay(!play)}>
+            <div title={play ? "Play" : "Pause"} onClick={() => setPlay(!play)}>
               {play ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +136,7 @@ const Board: React.FC<BoardProps> = ({
               )}
             </div>
           )}
-          <div>
+          <div title="Redo">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -152,9 +152,12 @@ const Board: React.FC<BoardProps> = ({
               <path d="M19 10h-11a4 4 0 1 0 0 8h1"></path>
             </svg>
           </div>
-          <div>{moveNumber}</div>
+          <div title="Move number">{moveNumber}</div>
         </div>
-        <div className="absolute w-40 inset-x-0 m-auto text-center">
+        <div
+          title="Game Mode"
+          className="w-fit absolute inset-x-0 m-auto text-center cursor-default"
+        >
           {gameMode === "player-vs-player" && (
             <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
               Player vs Player
@@ -177,7 +180,7 @@ const Board: React.FC<BoardProps> = ({
           )}
         </div>
         <div className="flex gap-2">
-          <div>
+          <div title="Player">
             {gameMode === "player-vs-player" && "Player"}
             {gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)}
             {gameMode === "bot-vs-bot" &&
@@ -185,7 +188,7 @@ const Board: React.FC<BoardProps> = ({
             {/* {gameMode === "online" &&
               (turn === userLetter ? "You" : "Opponent")} */}
           </div>
-          <div>{turn}</div>
+          <div title="Turn">{turn}</div>
         </div>
       </div>
       <div className="flex flex-wrap gap-4 text-white">
@@ -275,13 +278,41 @@ const Board: React.FC<BoardProps> = ({
             {playedGames + "/" + totalGames}
 
             <div className="flex gap-2">
-              <div>
-                {(agentId?.slice(-2) ?? "") + (winPercentages[1] ?? 0) + "%"}
+              <div
+                title={`${agentId} won ${Math.round(
+                  (winPercentages[1] / 100) * playedGames
+                )} games`}
+              >
+                {agentId === agentId2
+                  ? (agentId?.slice(-2) ?? "") +
+                    (agentIdTurn ?? "") +
+                    " " +
+                    (winPercentages[1] ?? 0) +
+                    "%"
+                  : (agentId?.slice(-2) ?? "") + (winPercentages[1] ?? 0) + "%"}
               </div>
-              <div>
-                {(agentId2?.slice(-2) ?? "") + (winPercentages[0] ?? 0) + "%"}
+              <div
+                title={`${agentId2} won ${Math.round(
+                  (winPercentages[0] / 100) * playedGames
+                )} games`}
+              >
+                {agentId === agentId2
+                  ? (agentId2?.slice(-2) ?? "") +
+                    (agentIdTurn === "X" ? "O" : "X") +
+                    " " +
+                    (winPercentages[0] ?? 0) +
+                    "%"
+                  : (agentId2?.slice(-2) ?? "") +
+                    (winPercentages[0] ?? 0) +
+                    "%"}
               </div>
-              <div>{"🟰" + (winPercentages[2] ?? 0) + "%"}</div>
+              <div
+                title={`There were ${Math.round(
+                  (winPercentages[2] / 100) * playedGames
+                )} draws`}
+              >
+                {"🟰" + (winPercentages[2] ?? 0) + "%"}
+              </div>
             </div>
           </>
         )}
@@ -324,68 +355,26 @@ const Board: React.FC<BoardProps> = ({
         )}
 
         {/* WINNER PERCENTAGES */}
-        {/* {playedGames === totalGames && (
-          <>
-            <table className="w-full text-sm text-center sm:text-start ">
-              <thead>
-                <tr>
-                  <th className="text-start">Agent</th>
-                  <th className="text-start">Win Percentage</th>
-                  <th className="text-start">Games Won</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="text-start">
-                    {agentId} ({agentIdTurn})
-                  </td>
-                  <td
-                    className="text-start"
-                    style={{
-                      color:
-                        winPercentages[1] > winPercentages[0] ? "green" : "red",
-                    }}
-                  >
-                    {winPercentages[1]}%
-                  </td>
-                  <td className="text-start">
-                    {Math.round((winPercentages[1] / 100) * playedGames)}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-start">
-                    {agentId2} ({agentId2Turn})
-                  </td>
-                  <td
-                    className="text-start"
-                    style={{
-                      color:
-                        winPercentages[0] > winPercentages[1] ? "green" : "red",
-                    }}
-                  >
-                    {winPercentages[0]}%
-                  </td>
-                  <td className="text-start">
-                    {Math.round((winPercentages[0] / 100) * playedGames)}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Draw</td>
-                  <td>{winPercentages[2]}%</td>
-                  <td>{Math.round((winPercentages[2] / 100) * playedGames)}</td>
-                </tr>
-              </tbody>
-            </table>
-            <h2 className="text-lg sm:text-2xl md:text-4xl">
-              Winner:{" "}
-              {winPercentages[1] > winPercentages[0]
-                ? `${agentId} (${agentIdTurn})`
+        {playedGames === totalGames && (
+          <div
+            title={`Global winner: ${
+              winPercentages[1] > winPercentages[0]
+                ? agentId + (agentIdTurn ?? "")
                 : winPercentages[0] > winPercentages[1]
-                ? `${agentId2} (${agentId2Turn})`
-                : "None! (Draw)"}
-            </h2>
-          </>
-        )} */}
+                ? agentId2 + (agentIdTurn === "X" ? "O" : "X")
+                : "Draw"
+            }`}
+          >
+            👑
+            {winPercentages[1] > winPercentages[0]
+              ? `${agentId?.slice(-2) ?? ""} ${agentIdTurn}`
+              : winPercentages[0] > winPercentages[1]
+              ? `${agentId2?.slice(-2) ?? ""} ${
+                  agentIdTurn === "X" ? "O" : "X"
+                }`
+              : "None! (Draw)"}
+          </div>
+        )}
 
         {/* ONLINE INFO */}
         {/* {gameMode === "online" && (
