@@ -6,20 +6,21 @@ from colorama import init, Fore, Style
 
 """
 depth = 8/7, plain alpha beta
+Uses Transposition Table!
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
-
 """
 
-class TransJardiAgent:
+class GardenTranspositorAgent:
     def __init__(self):
         self.id = "Dr Garden Transpositor"
         self.icon = "🧺"
+        self.transposition_table = {}
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
-        self.time_limit = 20 # in seconds
+        self.time_limit = 12 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -45,13 +46,14 @@ class TransJardiAgent:
         return self.str
 
     def reset(self):
+        self.transposition_table = {}
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.id}")
             return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.BLUE + f"{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
@@ -73,13 +75,13 @@ class TransJardiAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"GardenTranspositor, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"Jardy, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"GardenTranspositor is thinking with alpha beta... btp is None")
+            # print(f"Jardy is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -88,10 +90,11 @@ class TransJardiAgent:
             depth=self.depth_global, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True)
+            maximizingPlayer=True,
+            recu_call=False)
 
             if minimax_move is not None:
-                # print(f"GardenTranspositor chose alpha beta move: {minimax_move}")
+                # print(f"Jardy chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -100,7 +103,7 @@ class TransJardiAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("GardenTranspositor failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("Jardy failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -108,7 +111,7 @@ class TransJardiAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"GardenTranspositor is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"Jardy is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -116,19 +119,19 @@ class TransJardiAgent:
             depth=self.depth_local, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True)
+            maximizingPlayer=True,
+            recu_call=False)
         if minimax_move is not None:
             a, b, r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-         
+
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
-
 
     def randomMove(self, board):
         empty_cells = np.flatnonzero(board == 0)
@@ -170,63 +173,69 @@ class TransJardiAgent:
 
         return None
 
-    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
-        # TODO: This is a draft
-        """ Applies Alpha Beta Pruning techniques to Minimax to explore the game tree and find the best move to play in advanced depth"
+    def store_in_transposition_table(self, state_key, value, depth, alpha, beta):
+        # Determine the type of bound to store based on alpha-beta values
+        if value <= alpha:
+            flag = "UPPERBOUND"
+        elif value >= beta:
+            flag = "LOWERBOUND"
+        else:
+            flag = "EXACT"
 
-        Args:
-            board (np.ndarray): Current state of the board, in a 4d numpy array of dimension 3x3x3x3
+        # Store information in the transposition table
+        self.transposition_table[state_key] = {
+            "value": value,
+            "depth": depth,
+            "flag": flag
+        }
 
-            board_to_play (tuple or None): Tuple (a, b) indicating the global_board coordinates of the subboard to play in
-                                           If None then can choose any board
+    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, recu_call=True):
+        """ Applies Alpha Beta Pruning techniques with Transposition Table to Minimax"""
 
-            moves (tuple): List of moves to play (generated dynamically in the function for recursive calls)
-            depth (int): Level of Recursion reached
+        # Generate a unique hash for the current board state
+        state_key = hash(board.tobytes())  # Using .tobytes() to hash the board state
 
-            alpha (float): Alpha value for pruning (initially -infinity), representing the best value for the maximizing player.
-            beta (float): Beta value for pruning (initially +infinity), representing the best value for the minimizing player.
+        if recu_call:
+            # Check if the current board state is in the transposition table
+            if state_key in self.transposition_table:
+                entry = self.transposition_table[state_key]
 
-            maximizingPlayer (bool): True for the agent, False for the rival
+                # Use the stored value if entry depth is equal or greater
+                if entry["depth"] >= depth:
+                    if entry["flag"] == "EXACT":
+                        return entry["value"], None
+                    elif entry["flag"] == "LOWERBOUND" and entry["value"] > alpha:
+                        alpha = entry["value"]
+                    elif entry["flag"] == "UPPERBOUND" and entry["value"] < beta:
+                        beta = entry["value"]
 
-        Returns:
-            float: The best value for the maximizing player
-        """
+                    if alpha >= beta:
+                        return entry["value"], None
 
-        # if depth == self.depth:
-        #     print(f"Monke! My depth equality check does work")
-
-        # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
+        # Base case: If we've reached the maximum depth or the game state is terminal
         winner = checkBoardWinner(board)
         if winner != 0:
             return winner * 100000, None
-        else:
-            if depth == 0:
-                return self.boardBalance(board), None
-            # if boars isOver, but winner == 0, then it must be full, thus balance=0
-            elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"GardenTranspositor found over board (drawn) in recursion!")
-                return 0, None
-        # Si winner == 0, board is not over, and depth != 0, then we keep going
+        elif depth == 0:
+            return self.boardBalance(board), None
+        elif (self.countPlayableBoards(board) == 0) or isFull(board):
+            return 0, None
 
         best_move = None
 
         # Generate moves based on the current state
         if board_to_play is not None:
             row, col = board_to_play
-            local_to_play = board[row, col]
-            local_moves = np.argwhere(local_to_play == 0)
-            if local_moves.size == 0:
-                    raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
+            local_moves = np.argwhere(board[row, col] == 0)
 
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in local_moves:
                     loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = 1 # Simulate my move
+                    board[row, col][loc_row, loc_col] = 1  # Simulate move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
-                    board[row, col][loc_row, loc_col] = 0 # Undo my move
+                    board[row, col][loc_row, loc_col] = 0  # Undo move
 
                     if eval > max_eval:
                         max_eval = eval
@@ -235,22 +244,18 @@ class TransJardiAgent:
                     if beta <= alpha:
                         break  # Beta cutoff
 
-                if best_move is None:
-                    raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, max_eval was {max_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {local_moves}\n Current global board was:\n {board} ")
-                final_best_move = [row, col, best_move[0], best_move[1]]
-                return max_eval, final_best_move
+                self.store_in_transposition_table(state_key, max_eval, depth, alpha, beta)
+                return max_eval, [row, col, best_move[0], best_move[1]]
             
             else:
-                # Minimizer
                 min_eval = float('inf')
                 for move in local_moves:
                     loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = -1 # Simulate rival move
+                    board[row, col][loc_row, loc_col] = -1  # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0 # Undo rival move
-                    
+                    board[row, col][loc_row, loc_col] = 0  # Undo rival move
+
                     if eval < min_eval:
                         min_eval = eval
                         best_move = move
@@ -258,43 +263,25 @@ class TransJardiAgent:
                     if beta <= alpha:
                         break  # Alpha cutoff
 
-                if best_move is None:
-                    raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, min_eval was {min_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {local_moves}\n Current global board was:\n {board} ")
-                final_best_move = [row, col, best_move[0], best_move[1]]
-                return min_eval, final_best_move
-
+                self.store_in_transposition_table(state_key, min_eval, depth, alpha, beta)
+                return min_eval, [row, col, best_move[0], best_move[1]]
+        
         else:
             global_moves = []
-            der_playable_boards = self.genPlayableBoards(board)
-
-            for (row, col) in der_playable_boards:
-                local_board = board[row, col]
-                empty_indices = np.argwhere(local_board == 0)
-                
+            playable_boards = self.genPlayableBoards(board)
+            for (row, col) in playable_boards:
+                empty_indices = np.argwhere(board[row, col] == 0)
                 for submove in empty_indices:
-                    local_row, local_col = submove
-                    global_moves.append([row, col, int(local_row), int(local_col)])
-
-            if not global_moves:
-                raise ValueError(f"Global moves are empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The playble boards were {der_playable_boards}\n Current global board was:\n {board} ")
-
-            # order the global moves
-        
+                    global_moves.append([row, col, submove[0], submove[1]])
 
             if maximizingPlayer:
                 max_eval = float('-inf')
                 for move in global_moves:
-                    
-                    # if depth == self.depth:
-                    #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"GardenTranspositor is at call number 0, considering invalid move: {move}")
-
                     row, col, loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = 1 # Simulate my move
+                    board[row, col][loc_row, loc_col] = 1  # Simulate move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
-                    board[row, col][loc_row, loc_col] = 0 # Undo my move
+                    board[row, col][loc_row, loc_col] = 0  # Undo move
 
                     if eval > max_eval:
                         max_eval = eval
@@ -302,25 +289,18 @@ class TransJardiAgent:
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break
-                # if best_move is None:
-                #     raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
+
+                self.store_in_transposition_table(state_key, max_eval, depth, alpha, beta)
                 return max_eval, best_move
             
             else:
-                # Minimizer
                 min_eval = float('inf')
                 for move in global_moves:
-
-                    # if depth == self.depth:
-                    #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"GardenTranspositor is at call number 0, considering invalid move: {move}")
-
                     row, col, loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = -1 # Simulate rival move
+                    board[row, col][loc_row, loc_col] = -1  # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0 # Undo rival move
+                    board[row, col][loc_row, loc_col] = 0  # Undo rival move
 
                     if eval < min_eval:
                         min_eval = eval
@@ -328,12 +308,10 @@ class TransJardiAgent:
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break
-                # if best_move is None:
-                    # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
+
+                self.store_in_transposition_table(state_key, min_eval, depth, alpha, beta)
                 return min_eval, best_move
-
-    # TODO: ADD TRANSPOSITION TABLE
-
+    
     def generate_global_moves(self, board):
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
@@ -823,6 +801,8 @@ def localBoardEval(localBoard):
     score += diagBT_eval
 
     return score
+
+
 
 
 

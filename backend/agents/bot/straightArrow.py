@@ -36,7 +36,7 @@ class StraightArrowAgent:
     def action(self, super_board, board_to_play=None):
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
-        # print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{super_board}" + Style.RESET_ALL)
+        # print(Style.BRIGHT + Fore.MAGENTA + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{super_board}" + Style.RESET_ALL)
 
         over_boards = []
         for i in range(rows):

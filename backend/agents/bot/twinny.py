@@ -52,7 +52,7 @@ class TwinPrunerAgent:
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.BLUE + f"{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
@@ -180,7 +180,7 @@ class TwinPrunerAgent:
 
     def initialAlphaBeta(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, moves_to_try):
         ''' Uses Alpha Beta Pruning with a given ordered list for the first move simulation
-        Calls the alphaBetaModel recursive function for the rest of its calls, without the moves list '''
+        Calls the recursiveAlphaBeta recursive function for the rest of its calls, without the moves list '''
         winner = checkBoardWinner(board)
         if winner != 0:
             return winner * 100000, None
@@ -206,7 +206,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
                     if eval > max_eval:
@@ -228,7 +228,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
                     if eval < min_eval:
@@ -250,7 +250,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
                     if eval > max_eval:
@@ -268,7 +268,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
                     if eval < min_eval:
@@ -279,7 +279,7 @@ class TwinPrunerAgent:
                         break
                 return min_eval, best_move
 
-    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
+    def recursiveAlphaBeta(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
         """ Applies Alpha Beta Pruning techniques to Minimax to explore the game tree and find the best move to play in advanced depth"
 
         Args:
@@ -330,7 +330,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
                     if eval > max_eval:
@@ -352,7 +352,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
                     if eval < min_eval:
@@ -396,7 +396,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
                     if eval > max_eval:
@@ -422,7 +422,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
                     new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
                     if eval < min_eval:

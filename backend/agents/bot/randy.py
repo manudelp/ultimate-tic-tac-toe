@@ -43,7 +43,7 @@ class RandomAgent:
 
     def action(self, board, board_to_play=None):
         board = np.array(board, dtype=int)
-        # print(Style.BRIGHT + Fore.BLUE + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
+        # print(Style.BRIGHT + Fore.MAGENTA + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
 
         self.global_row, self.global_col = None, None
         
