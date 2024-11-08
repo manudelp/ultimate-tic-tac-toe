@@ -12,6 +12,7 @@ interface BoardProps {
   onlineStarts: string | null;
   resetBoard: boolean;
   onReset: () => void;
+  onExit: () => void;
 }
 
 const Board: React.FC<BoardProps> = ({
@@ -24,6 +25,7 @@ const Board: React.FC<BoardProps> = ({
   totalGames,
   resetBoard,
   onReset,
+  onExit,
 }) => {
   const {
     board,
@@ -37,11 +39,11 @@ const Board: React.FC<BoardProps> = ({
     agentId,
     agentId2,
     agentIdTurn,
-    agentId2Turn,
     playedGames,
     winPercentages,
     gameWinner,
     isBotThinking,
+    moveNumber,
     handleCellClick,
     makeMove,
   } = useGame(
@@ -55,7 +57,7 @@ const Board: React.FC<BoardProps> = ({
     resetBoard
   );
 
-  const progressPercentage = (playedGames / (totalGames || 1)) * 100;
+  const [play, setPlay] = React.useState(false);
 
   useEffect(() => {
     return () => {
@@ -64,23 +66,132 @@ const Board: React.FC<BoardProps> = ({
   }, [onReset]);
 
   return (
-    <>
-      {/* PLAYING AGAINST - PLAYER VS BOT */}
-      {gameMode === "player-vs-bot" && (
-        <div className="py-4">
-          <h2 className="flex items-center gap-2 text-lg sm:text-2xl">
-            Playing against {agentId}
-          </h2>
+    <div className="relative w-full sm:w-[600px]">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2 cursor-pointer">
+          <div onClick={onExit}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="24"
+              height="24"
+              strokeWidth="2"
+            >
+              <path d="M13 12v.01"></path>
+              <path d="M3 21h18"></path>
+              <path d="M5 21v-16a2 2 0 0 1 2 -2h7.5m2.5 10.5v7.5"></path>
+              <path d="M14 7h7m-3 -3l3 3l-3 3"></path>
+            </svg>
+          </div>
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="24"
+              height="24"
+              strokeWidth="2"
+            >
+              <path d="M9 14l-4 -4l4 -4"></path>
+              <path d="M5 10h11a4 4 0 1 1 0 8h-1"></path>
+            </svg>
+          </div>
+          {gameMode === "bot-vs-bot" && (
+            <div onClick={() => setPlay(!play)}>
+              {play ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  width="24"
+                  height="24"
+                  strokeWidth="2"
+                >
+                  <path d="M7 4v16l13 -8z"></path>
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  width="24"
+                  height="24"
+                  strokeWidth="2"
+                >
+                  <path d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path>
+                  <path d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path>
+                </svg>
+              )}
+            </div>
+          )}
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="24"
+              height="24"
+              strokeWidth="2"
+            >
+              <path d="M15 14l4 -4l-4 -4"></path>
+              <path d="M19 10h-11a4 4 0 1 0 0 8h1"></path>
+            </svg>
+          </div>
+          <div>{moveNumber}</div>
         </div>
-      )}
-
-      <div className="h-full flex flex-wrap gap-4 text-white">
+        <div className="absolute w-40 inset-x-0 m-auto text-center">
+          {gameMode === "player-vs-player" && (
+            <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
+              Player vs Player
+            </h2>
+          )}
+          {gameMode === "player-vs-bot" && (
+            <h2 className="bg-green-500 px-2 rounded-full text-sm uppercase">
+              Player vs Bot
+            </h2>
+          )}
+          {gameMode === "bot-vs-bot" && (
+            <h2 className="bg-red-500 px-2 rounded-full text-sm uppercase">
+              Bot vs Bot
+            </h2>
+          )}
+          {gameMode === "online" && (
+            <h2 className="bg-yellow-500 px-2 rounded-full text-sm uppercase">
+              Online
+            </h2>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <div>
+            {gameMode === "player-vs-player" && "Player"}
+            {gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)}
+            {gameMode === "bot-vs-bot" &&
+              (turn === agentIdTurn ? agentId : agentId2)}
+            {gameMode === "online" &&
+              (turn === userLetter ? "You" : "Opponent")}
+          </div>
+          <div>{turn}</div>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-4 text-white">
         {/* BOARD */}
-        <div
-          className={`w-full sm:w-[600px] h-full aspect-square flex flex-wrap relative ${
-            gameOver ? "pointer-events-none opacity-50" : ""
-          }`}
-        >
+        <div className="w-full sm:w-[600px] h-full sm:h-[600px] aspect-square flex flex-wrap relative">
           {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
             miniBoardRow.map((miniBoard: string[][], localColIndex) => (
               <MiniBoard
@@ -145,269 +256,154 @@ const Board: React.FC<BoardProps> = ({
             </div>
           )}
         </div>
-
-        {/* GAME INFO */}
-        <div className="w-full sm:w-auto flex flex-col gap-4 items-center sm:items-start">
-          {/* GAME MODE */}
-          {gameMode === "player-vs-player" && (
-            <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
-              Player vs Player
-            </h2>
-          )}
-          {gameMode === "player-vs-bot" && (
-            <h2 className="bg-green-500 px-2 rounded-full text-sm uppercase">
-              Player vs Bot
-            </h2>
-          )}
-          {gameMode === "bot-vs-bot" && (
-            <h2 className="bg-red-500 px-2 rounded-full text-sm uppercase">
-              Bot vs Bot
-            </h2>
-          )}
-          {gameMode === "online" && (
-            <h2 className="bg-yellow-500 px-2 rounded-full text-sm uppercase">
-              Online
-            </h2>
-          )}
-
-          {/* WHO STARTS */}
-          {gameMode === "player-vs-bot" && starts && !lastMove && (
-            <h2 className="text-lg sm:text-2xl">
-              {starts === "player" ? "You start" : agentId + " starts"}
-            </h2>
-          )}
-
-          {/* MATCH INFO - BOT VS BOT */}
-          {gameMode === "bot-vs-bot" && (
-            <div className="w-full">
-              <div className="text-lg sm:text-2xl text-center sm:text-start">
-                {agentId} ({agentIdTurn}) vs {agentId2} ({agentId2Turn})
-              </div>
-              {totalGames && (
-                <div className="my-4">
-                  <p className="text-indigo-500 p-0 m-0">Games played:</p>
-                  <div className="w-full flex gap-2">
-                    <div className="w-full h-6 bg-gray-500 overflow-hidden relative">
-                      <div
-                        className="h-full bg-indigo-500"
-                        style={{ width: `${progressPercentage}%` }}
-                      />
-                      <p className="font-medium text-white absolute inset-y-0 right-2 m-0 p-0">
-                        {playedGames + "/" + totalGames}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {playedGames > 0 && playedGames < (totalGames || 0) && (
-                <table className="w-full text-sm text-center sm:text-start ">
-                  <thead>
-                    <tr>
-                      <th className="text-start">Agent</th>
-                      <th className="text-start">Win Percentage</th>
-                      <th className="text-start">Games Won</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="text-start">
-                        {agentId} ({agentIdTurn})
-                      </td>
-                      <td
-                        className="text-start"
-                        style={{
-                          color:
-                            winPercentages[1] > winPercentages[0]
-                              ? "green"
-                              : "red",
-                        }}
-                      >
-                        {winPercentages[1]}%
-                      </td>
-                      <td className="text-start">
-                        {Math.round((winPercentages[1] / 100) * playedGames)}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="text-start">
-                        {agentId2} ({agentId2Turn})
-                      </td>
-                      <td
-                        className="text-start"
-                        style={{
-                          color:
-                            winPercentages[0] > winPercentages[1]
-                              ? "green"
-                              : "red",
-                        }}
-                      >
-                        {winPercentages[0]}%
-                      </td>
-                      <td className="text-start">
-                        {Math.round((winPercentages[0] / 100) * playedGames)}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Draw</td>
-                      <td>{winPercentages[2]}%</td>
-                      <td>
-                        {Math.round((winPercentages[2] / 100) * playedGames)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
-
-          {/* IS BOT THINKING */}
-          {gameMode === "bot-vs-bot" && isBotThinking && (
-            <div className="text-lg sm:text-xl">
-              {turn === "O" ? agentId : agentId2} is thinking...
-            </div>
-          )}
-
-          {/* TURN PLAYER VS BOT*/}
-          {gameMode === "player-vs-bot" && (
-            <>
-              <h2 className="text-lg sm:text-2xl">
-                Turn: {turn === "X" ? `You (${turn})` : `${agentId} (${turn})`}
-              </h2>
-              {isBotThinking && (
-                <div className="text-sm sm:text-xl">
-                  {agentId} is thinking...
-                </div>
-              )}
-            </>
-          )}
-
-          {/* TURN PLAYER VS PLAYER */}
-          {gameMode === "player-vs-player" && (
-            <h2 className="text-4xl">Turn: {turn}</h2>
-          )}
-
-          {/* GAME WINNER */}
-          {gameWinner && (
-            <>
-              {gameMode === "player-vs-bot" && (
-                <h2 className="text-lg sm:text-2xl md:text-4xl">
-                  {gameWinner === "X"
-                    ? "You win!"
-                    : gameWinner === "O"
-                    ? agentId + " wins! You lose!"
-                    : "Draw!"}
-                </h2>
-              )}
-
-              {/* Show game winner in player vs player */}
-              {gameMode === "player-vs-player" && (
-                <h2 className="sm:text-2xl md:text-4xl">
-                  {gameWinner === "X"
-                    ? "Player X wins!"
-                    : gameWinner === "O"
-                    ? "Player O wins!"
-                    : "Draw!"}
-                </h2>
-              )}
-
-              {/* Show game winner in bot vs bot */}
-              {gameMode === "bot-vs-bot" && (
-                <h2 className="text-lg sm:text-2xl md:text-4xl">
-                  {gameWinner === "X"
-                    ? agentId2 + " wins! (X)"
-                    : gameWinner === "O"
-                    ? agentId + " wins! (O)"
-                    : "Draw!"}
-                </h2>
-              )}
-            </>
-          )}
-
-          {/* WINNER PERCENTAGES */}
-          {playedGames === totalGames && (
-            <>
-              <table className="w-full text-sm text-center sm:text-start ">
-                <thead>
-                  <tr>
-                    <th className="text-start">Agent</th>
-                    <th className="text-start">Win Percentage</th>
-                    <th className="text-start">Games Won</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="text-start">
-                      {agentId} ({agentIdTurn})
-                    </td>
-                    <td
-                      className="text-start"
-                      style={{
-                        color:
-                          winPercentages[1] > winPercentages[0]
-                            ? "green"
-                            : "red",
-                      }}
-                    >
-                      {winPercentages[1]}%
-                    </td>
-                    <td className="text-start">
-                      {Math.round((winPercentages[1] / 100) * playedGames)}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-start">
-                      {agentId2} ({agentId2Turn})
-                    </td>
-                    <td
-                      className="text-start"
-                      style={{
-                        color:
-                          winPercentages[0] > winPercentages[1]
-                            ? "green"
-                            : "red",
-                      }}
-                    >
-                      {winPercentages[0]}%
-                    </td>
-                    <td className="text-start">
-                      {Math.round((winPercentages[0] / 100) * playedGames)}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Draw</td>
-                    <td>{winPercentages[2]}%</td>
-                    <td>
-                      {Math.round((winPercentages[2] / 100) * playedGames)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <h2 className="text-lg sm:text-2xl md:text-4xl">
-                Winner:{" "}
-                {winPercentages[1] > winPercentages[0]
-                  ? `${agentId} (${agentIdTurn})`
-                  : winPercentages[0] > winPercentages[1]
-                  ? `${agentId2} (${agentId2Turn})`
-                  : "None! (Draw)"}
-              </h2>
-            </>
-          )}
-
-          {/* ONLINE INFO */}
-          {gameMode === "online" && (
-            <>
-              <h2>Lobby ID: {lobbyId}</h2>
-              <h2>Starts: {onlineStarts}</h2>
-              <h2>You play as: {userLetter}</h2>
-              <h2>
-                Turn: {turn} &larr; {turn === userLetter ? "You" : "Opponent"}
-              </h2>
-            </>
-          )}
-        </div>
       </div>
-    </>
+
+      {/* GAME INFO */}
+      <div className="flex items-center justify-between">
+        {/* WHO STARTS */}
+        {gameMode === "player-vs-bot" && starts && (
+          <h2>{starts === "player" ? "You start" : agentId + " starts"}</h2>
+        )}
+
+        {/* IS BOT THINKING */}
+        {gameMode === "player-vs-bot" && isBotThinking && (
+          <div>{agentId} is thinking...</div>
+        )}
+
+        {/* MATCH INFO - BOT VS BOT */}
+        {gameMode === "bot-vs-bot" && (
+          <>
+            {playedGames + "/" + totalGames}
+
+            <div className="flex gap-2">
+              <div>
+                {(agentId?.slice(-2) ?? "") + (winPercentages[1] ?? 0) + "%"}
+              </div>
+              <div>
+                {(agentId2?.slice(-2) ?? "") + (winPercentages[0] ?? 0) + "%"}
+              </div>
+              <div>{"🟰" + (winPercentages[2] ?? 0) + "%"}</div>
+            </div>
+          </>
+        )}
+
+        {/* GAME WINNER */}
+        {gameWinner && (
+          <>
+            {gameMode === "player-vs-bot" && (
+              <h2>
+                {gameWinner === "X"
+                  ? "You win!"
+                  : gameWinner === "O"
+                  ? agentId + " wins! You lose!"
+                  : "Draw!"}
+              </h2>
+            )}
+
+            {/* Show game winner in player vs player */}
+            {gameMode === "player-vs-player" && (
+              <h2>
+                {gameWinner === "X"
+                  ? "Player X wins!"
+                  : gameWinner === "O"
+                  ? "Player O wins!"
+                  : "Draw!"}
+              </h2>
+            )}
+
+            {/* Show game winner in bot vs bot */}
+            {gameMode === "bot-vs-bot" && (
+              <h2>
+                {gameWinner === "X"
+                  ? agentId2 + " wins! (X)"
+                  : gameWinner === "O"
+                  ? agentId + " wins! (O)"
+                  : "Draw!"}
+              </h2>
+            )}
+          </>
+        )}
+
+        {/* WINNER PERCENTAGES */}
+        {/* {playedGames === totalGames && (
+          <>
+            <table className="w-full text-sm text-center sm:text-start ">
+              <thead>
+                <tr>
+                  <th className="text-start">Agent</th>
+                  <th className="text-start">Win Percentage</th>
+                  <th className="text-start">Games Won</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="text-start">
+                    {agentId} ({agentIdTurn})
+                  </td>
+                  <td
+                    className="text-start"
+                    style={{
+                      color:
+                        winPercentages[1] > winPercentages[0] ? "green" : "red",
+                    }}
+                  >
+                    {winPercentages[1]}%
+                  </td>
+                  <td className="text-start">
+                    {Math.round((winPercentages[1] / 100) * playedGames)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-start">
+                    {agentId2} ({agentId2Turn})
+                  </td>
+                  <td
+                    className="text-start"
+                    style={{
+                      color:
+                        winPercentages[0] > winPercentages[1] ? "green" : "red",
+                    }}
+                  >
+                    {winPercentages[0]}%
+                  </td>
+                  <td className="text-start">
+                    {Math.round((winPercentages[0] / 100) * playedGames)}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Draw</td>
+                  <td>{winPercentages[2]}%</td>
+                  <td>{Math.round((winPercentages[2] / 100) * playedGames)}</td>
+                </tr>
+              </tbody>
+            </table>
+            <h2 className="text-lg sm:text-2xl md:text-4xl">
+              Winner:{" "}
+              {winPercentages[1] > winPercentages[0]
+                ? `${agentId} (${agentIdTurn})`
+                : winPercentages[0] > winPercentages[1]
+                ? `${agentId2} (${agentId2Turn})`
+                : "None! (Draw)"}
+            </h2>
+          </>
+        )} */}
+
+        {/* ONLINE INFO */}
+        {gameMode === "online" && (
+          <>
+            <h2
+              title="Click to Copy!"
+              className="cursor-pointer"
+              onClick={() => navigator.clipboard.writeText(lobbyId || "")}
+            >
+              Lobby ID
+            </h2>
+            <p>{onlineStarts} starts</p>
+            <h2>You are {userLetter}</h2>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 

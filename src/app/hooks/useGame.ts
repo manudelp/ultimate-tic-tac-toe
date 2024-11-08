@@ -48,6 +48,7 @@ export const useGame = (
   const [gameWinner, setGameWinner] = useState<Winner | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
+  const [moveNumber, setMoveNumber] = useState(0); // New state variable for move number
 
   // Mini-board information
   const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
@@ -62,7 +63,6 @@ export const useGame = (
   const [agentId, setAgentId] = useState<AgentId>(null);
   const [agentId2, setAgentId2] = useState<AgentId>(null);
   const [agentIdTurn, setAgentIdTurn] = useState<AgentIdTurn>(null);
-  const [agentId2Turn, setAgentId2Turn] = useState<AgentIdTurn>(null);
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [turnsInverted, setTurnsInverted] = useState(false);
   const [playedGames, setPlayedGames] = useState(0);
@@ -161,6 +161,7 @@ export const useGame = (
       // Configura la última jugada y el próximo turno
       setLastMove(coords);
       setTurn((prev) => (prev === "X" ? "O" : "X"));
+      setMoveNumber((prev) => prev + 1);
     },
     [
       gameWinner,
@@ -179,14 +180,14 @@ export const useGame = (
     const coords: Coords = [a, b, c, d];
 
     if (!isBotThinking && !gameOver) {
-      makeMove(coords); // Update the local game state
+      makeMove(coords);
 
       if (gameMode === "online") {
         socket.emit("move", {
           lobby_id: lobbyId,
           player_id: playerId,
           move: coords,
-        }); // Emit the move to the server
+        });
       }
     } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
       alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
@@ -231,6 +232,7 @@ export const useGame = (
     setActiveMiniBoard(null);
     setWinningLine(null);
     setTurnsInverted(false);
+    setMoveNumber(0);
   }, []);
 
   const startAgain = useCallback(() => {
@@ -289,9 +291,6 @@ export const useGame = (
         agentsReset();
         setAgentIdTurn(() => {
           return turn === "X" ? "O" : "X";
-        });
-        setAgentId2Turn(() => {
-          return turn === "X" ? "X" : "O";
         });
       } else {
         setTimeout(handleBotMove, TIMEOUT);
@@ -356,7 +355,7 @@ export const useGame = (
       move: [number, number, number, number]; // Ensure this matches the structure sent from the server
     }) => {
       const { move } = data;
-      makeMove(move); // Call the makeMove function to update the game state
+      makeMove(move);
     };
 
     socket.on("move", handleMove); // Listen for the move event
@@ -377,11 +376,11 @@ export const useGame = (
     agentId,
     agentId2,
     agentIdTurn,
-    agentId2Turn,
     playedGames,
     winPercentages,
     gameWinner,
     isBotThinking,
+    moveNumber,
     handleCellClick,
     makeMove,
   };

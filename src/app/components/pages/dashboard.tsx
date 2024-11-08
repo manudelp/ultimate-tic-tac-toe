@@ -352,27 +352,18 @@ const Dashboard: React.FC = () => {
 
       {/* Game Board */}
       {isBoardVisible && (
-        <div className="w-full">
-          <div className="w-full">
-            <Board
-              gameMode={gameMode}
-              starts={starts}
-              totalGames={totalGames}
-              lobbyId={lobbyId}
-              playerId={playerId}
-              userLetter={userLetter}
-              onlineStarts={onlineStarts}
-              resetBoard={resetBoard}
-              onReset={handleBoardReset}
-            />
-          </div>
-          <button
-            className="px-6 py-3 bg-red-500 text-white font-medium hover:bg-red-400 transition-colors"
-            onClick={() => handleExitGame()}
-          >
-            Exit Game
-          </button>
-        </div>
+        <Board
+          gameMode={gameMode}
+          starts={starts}
+          totalGames={totalGames}
+          lobbyId={lobbyId}
+          playerId={playerId}
+          userLetter={userLetter}
+          onlineStarts={onlineStarts}
+          resetBoard={resetBoard}
+          onReset={handleBoardReset}
+          onExit={handleExitGame}
+        />
       )}
     </div>
   );

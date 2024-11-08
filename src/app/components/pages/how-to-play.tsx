@@ -3,14 +3,14 @@ import { Link } from "react-router-dom";
 
 const HowToPlay: React.FC = () => {
   return (
-    <div className="container m-auto py-8 px-4 text-white">
-      <h1 className="text-4xl font-bold mb-6 text-center">
+    <div className="container m-auto max-w-3xl py-8 px-4 text-white">
+      <h1 className="text-3xl font-bold mb-6 text-center">
         How to Play Ultimate Tic-Tac-Toe
       </h1>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Objective of the Game</h2>
-        <p className="text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Objective of the Game</h2>
+        <p className="text-base leading-relaxed">
           Ultimate Tic-Tac-Toe is a strategic twist on the classic Tic-Tac-Toe.
           Instead of one small 3x3 grid, you play on a larger 3x3 grid of
           smaller Tic-Tac-Toe boards. The objective is to win three small boards
@@ -20,8 +20,8 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Game Setup</h2>
-        <ul className="list-disc pl-6 text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Game Setup</h2>
+        <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>
             The game consists of nine mini Tic-Tac-Toe boards arranged in a 3x3
             grid.
@@ -37,8 +37,8 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Gameplay Rules</h2>
-        <ol className="list-decimal pl-6 text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Gameplay Rules</h2>
+        <ol className="list-decimal pl-6 text-base leading-relaxed">
           <li>
             On your turn, you must play your mark (&apos;X&apos; or
             &apos;O&apos;) in one of the empty cells in any of the mini boards.
@@ -68,13 +68,13 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Winning the Game</h2>
-        <p className="text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Winning the Game</h2>
+        <p className="text-base leading-relaxed">
           The goal of Ultimate Tic-Tac-Toe is to win three mini-boards in a row
           on the larger board. You can win the game by achieving three wins in a
           row either:
         </p>
-        <ul className="list-disc pl-6 text-lg leading-relaxed">
+        <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>Horizontally</li>
           <li>Vertically</li>
           <li>Diagonally</li>
@@ -82,8 +82,8 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Advanced Strategies</h2>
-        <ul className="list-disc pl-6 text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Advanced Strategies</h2>
+        <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>
             <strong>Plan Ahead:</strong> Since your move determines where your
             opponent plays, think ahead about where you&apos;re sending them.
@@ -105,8 +105,8 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Special Situations</h2>
-        <ul className="list-disc pl-6 text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Special Situations</h2>
+        <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>
             <strong>Full Boards:</strong> If a mini-board is completely filled
             with no winner, it is considered a draw and that board is no longer
@@ -129,8 +129,8 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Tips for Beginners</h2>
-        <ul className="list-disc pl-6 text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Tips for Beginners</h2>
+        <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>
             <strong>Start Simple:</strong> Don’t overthink your first few moves.
             Just focus on learning how the board works.
@@ -149,8 +149,8 @@ const HowToPlay: React.FC = () => {
       </section>
 
       <section>
-        <h2 className="text-3xl font-semibold mb-4">Game Modes</h2>
-        <ul className="list-disc pl-6 text-lg leading-relaxed">
+        <h2 className="text-2xl font-semibold mb-4">Game Modes</h2>
+        <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>
             <strong>Player vs. Player:</strong> Play against another human
             player.
