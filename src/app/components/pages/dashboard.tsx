@@ -355,7 +355,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Game Board */}
-      {isBoardVisible && (
+      {isBoardVisible && gameMode !== "online" && (
         <Board
           gameMode={gameMode}
           starts={starts}
