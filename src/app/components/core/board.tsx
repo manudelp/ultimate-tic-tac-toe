@@ -6,10 +6,10 @@ interface BoardProps {
   gameMode: string;
   starts: string | null;
   totalGames: number | null;
-  lobbyId: string | null;
-  playerId: string | null;
-  userLetter: string | null;
-  onlineStarts: string | null;
+  // lobbyId: string | null;
+  // playerId: string | null;
+  // userLetter: string | null;
+  // onlineStarts: string | null;
   resetBoard: boolean;
   onReset: () => void;
   onExit: () => void;
@@ -18,10 +18,10 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({
   gameMode,
   starts,
-  lobbyId,
-  playerId,
-  userLetter,
-  onlineStarts,
+  // lobbyId,
+  // playerId,
+  // userLetter,
+  // onlineStarts,
   totalGames,
   resetBoard,
   onReset,
@@ -48,10 +48,10 @@ const Board: React.FC<BoardProps> = ({
   } = useGame(
     gameMode,
     starts || "player",
-    lobbyId,
-    playerId,
-    userLetter,
-    onlineStarts,
+    // lobbyId,
+    // playerId,
+    // userLetter,
+    // onlineStarts,
     totalGames || 0,
     resetBoard
   );
@@ -182,8 +182,8 @@ const Board: React.FC<BoardProps> = ({
             {gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)}
             {gameMode === "bot-vs-bot" &&
               (turn === agentIdTurn ? agentId : agentId2)}
-            {gameMode === "online" &&
-              (turn === userLetter ? "You" : "Opponent")}
+            {/* {gameMode === "online" &&
+              (turn === userLetter ? "You" : "Opponent")} */}
           </div>
           <div>{turn}</div>
         </div>
@@ -388,7 +388,7 @@ const Board: React.FC<BoardProps> = ({
         )} */}
 
         {/* ONLINE INFO */}
-        {gameMode === "online" && (
+        {/* {gameMode === "online" && (
           <>
             <h2
               title="Click to Copy!"
@@ -400,7 +400,7 @@ const Board: React.FC<BoardProps> = ({
             <p>{onlineStarts} starts</p>
             <h2>You are {userLetter}</h2>
           </>
-        )}
+        )} */}
       </div>
     </div>
   );

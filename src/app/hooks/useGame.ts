@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 import { fetchBotNames, getBotMove, agentsReset } from "@/api";
 import {
   MiniBoardWinner,
@@ -8,17 +8,17 @@ import {
   checkBotWinner,
 } from "../utils";
 
-const socket = io(
-  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online"
-);
+// const socket = io(
+//   process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online"
+// );
 
 export const useGame = (
   gameMode: string,
   starts: string,
-  lobbyId: string | null,
-  playerId: string | null,
-  userLetter: string | null,
-  onlineStarts: string | null,
+  // lobbyId: string | null,
+  // playerId: string | null,
+  // userLetter: string | null,
+  // onlineStarts: string | null,
   totalGames: number,
   resetBoard: boolean
 ) => {
@@ -182,18 +182,19 @@ export const useGame = (
     if (!isBotThinking && !gameOver) {
       makeMove(coords);
 
-      if (gameMode === "online") {
-        socket.emit("move", {
-          lobby_id: lobbyId,
-          player_id: playerId,
-          move: coords,
-        });
-      }
+      // if (gameMode === "online") {
+      //   socket.emit("move", {
+      //     lobby_id: lobbyId,
+      //     player_id: playerId,
+      //     move: coords,
+      //   });
+      // }
     } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
       alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
-    } else if (gameMode === "online" && userLetter !== turn) {
-      alert("Wait for your turn.");
     }
+    // } else if (gameMode === "online" && userLetter !== turn) {
+    //   alert("Wait for your turn.");
+    // }
   };
 
   const handleBotMove = useCallback(async () => {
@@ -342,28 +343,28 @@ export const useGame = (
     }
   }, [gameMode]);
 
-  // Online
-  useEffect(() => {
-    if (gameMode === "online" && onlineStarts) {
-      setTurn(onlineStarts as Turn);
-    }
-  }, [gameMode, onlineStarts]);
+  // // Online
+  // useEffect(() => {
+  //   if (gameMode === "online" && onlineStarts) {
+  //     setTurn(onlineStarts as Turn);
+  //   }
+  // }, [gameMode, onlineStarts]);
 
-  useEffect(() => {
-    const handleMove = (data: {
-      player_id: string;
-      move: [number, number, number, number]; // Ensure this matches the structure sent from the server
-    }) => {
-      const { move } = data;
-      makeMove(move);
-    };
+  // useEffect(() => {
+  //   const handleMove = (data: {
+  //     player_id: string;
+  //     move: [number, number, number, number]; // Ensure this matches the structure sent from the server
+  //   }) => {
+  //     const { move } = data;
+  //     makeMove(move);
+  //   };
 
-    socket.on("move", handleMove);
+  //   socket.on("move", handleMove);
 
-    return () => {
-      socket.off("move", handleMove);
-    };
-  }, [makeMove]);
+  //   return () => {
+  //     socket.off("move", handleMove);
+  //   };
+  // }, [makeMove]);
   return {
     board,
     turn,
