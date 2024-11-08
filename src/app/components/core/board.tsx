@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import { useGame } from "../../hooks/useGame";
 
@@ -43,8 +43,12 @@ const Board: React.FC<BoardProps> = ({
     gameWinner,
     isBotThinking,
     moveNumber,
+    isPaused,
     handleCellClick,
     makeMove,
+    togglePlayPause,
+    undoMove,
+    redoMove,
   } = useGame(
     gameMode,
     starts || "player",
@@ -56,7 +60,7 @@ const Board: React.FC<BoardProps> = ({
     resetBoard
   );
 
-  const [play, setPlay] = React.useState(false);
+  const [play, setPlay] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -103,7 +107,13 @@ const Board: React.FC<BoardProps> = ({
             </svg>
           </div>
           {gameMode === "bot-vs-bot" && (
-            <div title={play ? "Play" : "Pause"} onClick={() => setPlay(!play)}>
+            <div
+              title={play ? "Play" : "Pause"}
+              onClick={() => {
+                setPlay(!play);
+                togglePlayPause();
+              }}
+            >
               {play ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -193,7 +203,11 @@ const Board: React.FC<BoardProps> = ({
       </div>
       <div className="flex flex-wrap gap-4 text-white">
         {/* BOARD */}
-        <div className="w-full sm:w-[600px] h-full sm:h-[600px] aspect-square flex flex-wrap relative">
+        <div
+          className={`w-full sm:w-[600px] h-full sm:h-[600px] aspect-square flex flex-wrap relative ${
+            isPaused ? "pointer-events-none" : ""
+          } `}
+        >
           {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
             miniBoardRow.map((miniBoard: string[][], localColIndex) => (
               <MiniBoard

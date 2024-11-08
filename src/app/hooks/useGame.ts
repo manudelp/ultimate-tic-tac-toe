@@ -35,6 +35,9 @@ export const useGame = (
   type PlayedGamesWinners = ("X" | "O" | "Draw")[];
   type WinPercentages = number[];
 
+  // Game
+  const [isPaused, setIsPaused] = useState(false);
+
   // Board information
   const [board, setBoard] = useState<Board>(
     Array.from({ length: 3 }, () =>
@@ -251,6 +254,10 @@ export const useGame = (
     setTurnsInverted(true);
   }, []);
 
+  const togglePlayPause = () => {
+    setIsPaused((prev) => !prev);
+  };
+
   // Reset game
   useEffect(() => {
     if (resetBoard) {
@@ -285,7 +292,8 @@ export const useGame = (
       !gameOver &&
       !isBotThinking &&
       !gameWinner &&
-      playedGames < totalGames
+      playedGames < totalGames &&
+      !isPaused
     ) {
       if (!turnsInverted) {
         invertTurns();
@@ -308,6 +316,7 @@ export const useGame = (
     handleBotMove,
     invertTurns,
     turnsInverted,
+    isPaused,
   ]);
 
   // Update playedGamesWinners whenever game ends
@@ -381,7 +390,9 @@ export const useGame = (
     gameWinner,
     isBotThinking,
     moveNumber,
+    isPaused,
     handleCellClick,
     makeMove,
+    togglePlayPause,
   };
 };
