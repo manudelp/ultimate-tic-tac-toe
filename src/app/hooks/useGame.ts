@@ -358,17 +358,16 @@ export const useGame = (
       makeMove(move);
     };
 
-    socket.on("move", handleMove); // Listen for the move event
+    socket.on("move", handleMove);
 
     return () => {
-      socket.off("move", handleMove); // Clean up the event listener on unmount
+      socket.off("move", handleMove);
     };
   }, [makeMove]);
   return {
     board,
     turn,
     lastMove,
-    gameOver,
     activeMiniBoard,
     winners,
     disabled,

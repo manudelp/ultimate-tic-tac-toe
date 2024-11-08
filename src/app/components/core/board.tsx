@@ -31,7 +31,6 @@ const Board: React.FC<BoardProps> = ({
     board,
     turn,
     lastMove,
-    gameOver,
     activeMiniBoard,
     winners,
     disabled,
