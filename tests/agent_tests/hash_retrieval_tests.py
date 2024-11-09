@@ -595,6 +595,11 @@ class RetrievalAgent:
                 except Exception as e:
                     print(f"Error parsing line: {line} - Error: {e}")
 
+board_center_only = np.array([[0, 0, 0],
+                            [0, 1, 0],
+                            [0, 0, 0]])
+
+board_center_only_another = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
 
 # Example usage:
 agent = RetrievalAgent()
@@ -760,6 +765,8 @@ def run_eval_tests_v1(agent):
     assert agent.get_eval_hash(board_10) == b10_eval, "Test Failed: Board 10 evaluation does not match"
     assert agent.get_eval_hash(board_11) == b11_eval, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_eval_hash(board_12) == b12_eval, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_hash(board_center_only) == 0.8, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_hash(board_center_only_another) == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
 
     print("All Eval V1 tests passed successfully!")
 
@@ -776,6 +783,8 @@ def run_eval_tests_v2(agent):
     assert agent.get_eval_v2_hash(board_10) == b10_eval_v2, "Test Failed: Board 10 evaluation does not match"
     assert agent.get_eval_v2_hash(board_11) == b11_eval_v2, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_eval_v2_hash(board_12) == b12_eval_v2, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_only) == 0.8, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_only_another) == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
 
     print("All Eval V2 tests passed successfully!")
 
@@ -792,6 +801,8 @@ def run_eval_tests_v3(agent):
     assert agent.get_eval_v3_hash(board_10) == b10_eval_v3, "Test Failed: Board 10 evaluation does not match"
     assert agent.get_eval_v3_hash(board_11) == b11_eval_v3, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_eval_v3_hash(board_12) == b12_eval_v3, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_only) == 0.8, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_only_another) == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
 
     print("All Eval V3 tests passed successfully!")
 

@@ -358,7 +358,7 @@ class GardenerAgent:
                 if isEdge(r, c):
                     balance += local_balance
                 elif (r, c) == (1, 1):
-                    balance += 1.5 * local_balance
+                    balance += 1.45 * local_balance
                 else:
                     balance += 1.25 * local_balance
 
