@@ -672,8 +672,6 @@ super_board_1[1, 1, 1, 1] = -1
 
 # print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
-
-
 b1_eval, b1_eval_v2, b1_eval_v3 = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1)
 b2_eval, b2_eval_v2, b2_eval_v3 = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2)
 b3_eval, b3_eval_v2, b3_eval_v3 = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3)

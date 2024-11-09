@@ -20,8 +20,8 @@ from foofinder import FooFinderAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = IteroldAgent()    # Replace with your chosen agent
-AGENT2 = ItterinoAgent()  # Replace with your chosen agent
+AGENT1 = GardenerAgent()    # Replace with your chosen agent
+AGENT2 = MaximilianoAgent()  # Replace with your chosen agent
 ROUNDS = 2 # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 
