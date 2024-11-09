@@ -5,21 +5,21 @@ import time
 from colorama import init, Fore, Style
 
 """
-depth = 8/7, plain alpha beta
+depth = 5/4, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
 
 """
 
-class GardenerAgent:
+class JardineritoAntiMidAgent:
     def __init__(self):
-        self.id = "El Jardinero"
-        self.icon = "✂️"
+        self.id = "Jardinerito CENTRO_NO!"
+        self.icon = "🚫🧿"
         self.moveNumber = 0
-        self.depth_local = 8 # when btp is not None
-        self.depth_global = 7 # when btp is None
-        self.time_limit = 12 # in seconds
+        self.depth_local = 5 # when btp is not None
+        self.depth_global = 4 # when btp is None
+        self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -73,13 +73,13 @@ class GardenerAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"Jardy, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"JarditoAntiMid, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"Jardy is thinking with alpha beta... btp is None")
+            # print(f"JarditoAntiMid is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -91,7 +91,7 @@ class GardenerAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"Jardy chose alpha beta move: {minimax_move}")
+                # print(f"JarditoAntiMid chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -100,7 +100,7 @@ class GardenerAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("Jardy failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("JarditoAntiMid failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -108,7 +108,7 @@ class GardenerAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"Jardy is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"JarditoAntiMid is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -205,7 +205,7 @@ class GardenerAgent:
                 return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"Jardy found over board (drawn) in recursion!")
+                # print(f"JarditoAntiMid found over board (drawn) in recursion!")
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -288,7 +288,7 @@ class GardenerAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"Jardy is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"JarditoAntiMid is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -314,7 +314,7 @@ class GardenerAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"Jardy is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"JarditoAntiMid is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -358,7 +358,7 @@ class GardenerAgent:
                 if isEdge(r, c):
                     balance += local_balance
                 elif (r, c) == (1, 1):
-                    balance += 1.5 * local_balance
+                    balance += 3 * local_balance
                 else:
                     balance += 1.25 * local_balance
 
@@ -823,20 +823,5 @@ def localBoardEval(localBoard):
 
     return score
 
-agent = GardenerAgent()
 
-board_test = np.zeros((3, 3, 3, 3), dtype=int)
-balance_at_0 = agent.boardBalance(board_test)
 
-board_test[1, 1][2, 2] = -1
-balance_at_1 = agent.boardBalance(board_test)
-
-# board_test[2, 2][1, 1] = 1
-# balance_at_2 = agent.boardBalance(board_test)
-
-board_test[2, 2][0, 2] = 1
-balance_at_2 = agent.boardBalance(board_test)
-
-print(f"Balance at 0: {balance_at_0}")
-print(f"Balance at 1: {balance_at_1}")
-print(f"Balance at 2: {balance_at_2}")
