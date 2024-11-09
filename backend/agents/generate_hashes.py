@@ -154,7 +154,7 @@ def localBoardEval(localBoard):
     """
     score = 0
     
-    CENTER_ONLY_EVAL = 0.21
+    CENTER_ONLY_EVAL = 0.0
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
     if np.count_nonzero(localBoard) == 1:
         if localBoard[1, 1] == 1:
@@ -220,7 +220,7 @@ def localBoardEval_v2(localBoard):
     '''
     score = 0
 
-    CENTER_ONLY_EVAL = 0.21
+    CENTER_ONLY_EVAL = 0.0
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
     if np.count_nonzero(localBoard) == 1:
         if localBoard[1, 1] == 1:
@@ -320,7 +320,7 @@ def localBoardEval_v3(localBoard):
     '''
     score = 0
 
-    CENTER_ONLY_EVAL = 0.21
+    CENTER_ONLY_EVAL = 0.0
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
     if np.count_nonzero(localBoard) == 1:
         if localBoard[1, 1] == 1:
