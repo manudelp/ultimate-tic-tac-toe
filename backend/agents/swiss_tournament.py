@@ -22,6 +22,7 @@ from bot.twinny import TwinPrunerAgent
 from foofinder import FooFinderAgent
 from bot.gardentranspositor import GardenTranspositorAgent
 from bot.itervanbytes import IterVanBytesAgent
+from bot.jarditonomid import JardineritoAntiMidAgent
 
 # Hyperparameters
 ROUNDS = 3  # Number of rounds to play

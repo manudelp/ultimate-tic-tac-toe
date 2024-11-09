@@ -16,6 +16,7 @@ from bot.maxi import MaximilianoAgent
 from bot.gardentranspositor import GardenTranspositorAgent
 from bot.itervanbytes import IterVanBytesAgent
 from foofinder import FooFinderAgent
+from bot.jarditonomid import JardineritoAntiMidAgent
 
 t0 = time.time()
 

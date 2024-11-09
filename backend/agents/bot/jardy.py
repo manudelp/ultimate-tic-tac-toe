@@ -823,20 +823,20 @@ def localBoardEval(localBoard):
 
     return score
 
-agent = GardenerAgent()
+# agent = GardenerAgent()
 
-board_test = np.zeros((3, 3, 3, 3), dtype=int)
-balance_at_0 = agent.boardBalance(board_test)
+# board_test = np.zeros((3, 3, 3, 3), dtype=int)
+# balance_at_0 = agent.boardBalance(board_test)
 
-board_test[1, 1][2, 2] = -1
-balance_at_1 = agent.boardBalance(board_test)
+# board_test[1, 1][2, 2] = -1
+# balance_at_1 = agent.boardBalance(board_test)
 
-# board_test[2, 2][1, 1] = 1
+# # board_test[2, 2][1, 1] = 1
+# # balance_at_2 = agent.boardBalance(board_test)
+
+# board_test[2, 2][0, 2] = 1
 # balance_at_2 = agent.boardBalance(board_test)
 
-board_test[2, 2][0, 2] = 1
-balance_at_2 = agent.boardBalance(board_test)
-
-print(f"Balance at 0: {balance_at_0}")
-print(f"Balance at 1: {balance_at_1}")
-print(f"Balance at 2: {balance_at_2}")
+# print(f"Balance at 0: {balance_at_0}")
+# print(f"Balance at 1: {balance_at_1}")
+# print(f"Balance at 2: {balance_at_2}")

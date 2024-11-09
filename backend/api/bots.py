@@ -15,6 +15,7 @@ from agents.bot.itterino import ItterinoAgent
 from agents.bot.ordy import TidyPodatorAgent
 from agents.bot.twinny import TwinPrunerAgent
 from agents.bot.maxi import MaximilianoAgent
+from agents.bot.jarditonomid import JardineritoAntiMidAgent
 from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
@@ -22,8 +23,9 @@ bot_routes = Blueprint('bots', __name__)
 # Initialize agents
 # INITIALIZE THE FIRST AGENT. WILL PLAY 1VPLAYER, AND PLAY FIRST AGAINST BOTS
 # AGENT1 = RandomAgent()
-AGENT1 = GardenerAgent()
+# AGENT1 = GardenerAgent()
 # AGENT1 = JardineritoAgent()
+AGENT1 = JardineritoAntiMidAgent()
 # AGENT1 = MonkeyAgent()
 # AGENT1 = TaylorAgent()
 # AGENT1 = StraightArrowAgent()
