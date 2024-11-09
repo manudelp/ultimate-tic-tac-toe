@@ -1,6 +1,7 @@
 import numpy as np
 
 CENTER_ONLY_BOARD = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+CENTER_ONLY_ENEMY_BOARD = np.array([[0, 0, 0], [0, -1, 0], [0, 0, 0]])
 
 # Auxiliaries
 def isFull(board):
@@ -155,11 +156,17 @@ def localBoardEval(localBoard):
     
     CENTER_ONLY_EVAL = 0.21
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
-    if np.count_nonzero(localBoard) == 1 and localBoard[1, 1] == 1:
-        if np.array_equal(localBoard, CENTER_ONLY_BOARD):
-            return CENTER_ONLY_EVAL
-        else:
-            raise ValueError("Invalid Center Only Board")
+    if np.count_nonzero(localBoard) == 1:
+        if localBoard[1, 1] == 1:
+            if np.array_equal(localBoard, CENTER_ONLY_BOARD):
+                return CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Board")
+        elif localBoard[1, 1] == -1:
+            if np.array_equal(localBoard, CENTER_ONLY_ENEMY_BOARD):
+                return -CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Enemy Board")
     
     row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
     if abs(row1_eval) == 1:
@@ -215,11 +222,17 @@ def localBoardEval_v2(localBoard):
 
     CENTER_ONLY_EVAL = 0.21
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
-    if np.count_nonzero(localBoard) == 1 and localBoard[1, 1] == 1:
-        if np.array_equal(localBoard, CENTER_ONLY_BOARD):
-            return CENTER_ONLY_EVAL
-        else:
-            raise ValueError("Invalid Center Only Board")
+    if np.count_nonzero(localBoard) == 1:
+        if localBoard[1, 1] == 1:
+            if np.array_equal(localBoard, CENTER_ONLY_BOARD):
+                return CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Board")
+        elif localBoard[1, 1] == -1:
+            if np.array_equal(localBoard, CENTER_ONLY_ENEMY_BOARD):
+                return -CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Enemy Board")
 
     player1_threat = False
     player2_threat = False
@@ -309,12 +322,18 @@ def localBoardEval_v3(localBoard):
 
     CENTER_ONLY_EVAL = 0.21
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
-    if np.count_nonzero(localBoard) == 1 and localBoard[1, 1] == 1:
-        if np.array_equal(localBoard, CENTER_ONLY_BOARD):
-            return CENTER_ONLY_EVAL
-        else:
-            raise ValueError("Invalid Center Only Board")
-
+    if np.count_nonzero(localBoard) == 1:
+        if localBoard[1, 1] == 1:
+            if np.array_equal(localBoard, CENTER_ONLY_BOARD):
+                return CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Board")
+        elif localBoard[1, 1] == -1:
+            if np.array_equal(localBoard, CENTER_ONLY_ENEMY_BOARD):
+                return -CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Enemy Board")
+            
     player1_threat = False
     player2_threat = False
     
