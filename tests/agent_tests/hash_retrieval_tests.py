@@ -2,6 +2,7 @@ import numpy as np
 from colorama import init, Fore, Style
 from typing import Any, Union, Tuple
 import ast
+import time
 
 def isWon(subboard):
     # TIMEIT APPROVED ✅
@@ -510,7 +511,8 @@ class RetrievalAgent:
         ''' Returns the set of winning moves for player -1, if the board is winnable '''
         board_key = board.tobytes()
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
-    
+
+    # Hyphen Numeric Hashing
     def get_HyphenNumeric_hash(self, board, board_to_play):
         ''' Returns the best move for the given HyphenNumeric board '''
         key = self.get_HyphenNumeric_key(board, board_to_play)
@@ -669,9 +671,11 @@ board_15 = np.array([[-1, -1, 0],
 
 super_board_1 = np.zeros((3, 3, 3, 3), dtype=int)
 super_board_1[0, 0, 0, 0] = 1
-super_board_1[1, 2, 1, 1] = -1
-super_board_1[0, 1, 1, 2] = 1
-super_board_1[1, 1, 1, 1] = -1
+super_board_1[0, 0, 1, 2] = -1
+super_board_1[1, 2, 1, 1] = 1
+super_board_1[1, 1, 2, 0] = -1
+BTP1 = (2, 0)
+BEST_MOVE_1 = (2, 0, 0, 2)
 
 # super_board_1_key = agent.board_to_HyphenNumeric_sets(super_board_1)
 # print(f"Super Board 1 Key: {super_board_1_key}")
@@ -751,7 +755,7 @@ def run_won_tests(agent):
     assert agent.get_winner_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
     assert agent.get_winner_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
 
-    print("All Won-Board tests passed successfully!")
+    print(Style.NORMAL + Fore.GREEN + "All Won-Board tests passed successfully!")
 
 def run_eval_tests_v1(agent):
     assert agent.get_eval_hash(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"
@@ -951,22 +955,30 @@ def run_winnable_tests_minus_one(agent):
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    assert agent.get_HyphenNumeric_hash(super_board_1, (0, 1)) == (0, 1, 0, 2), "Test Failed: Super Board 1 should have a best move of (0, 1, 0, 2)"
+    assert agent.get_HyphenNumeric_hash(super_board_1, BTP1) == BEST_MOVE_1, "Test Failed: Super Board 1 should have a best move of (0, 1, 0, 2)"
+    
+    print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
 
-# Run the Tests!
-run_won_tests(agent)
-run_eval_tests_v1(agent)
-run_eval_tests_v2(agent)
-run_eval_tests_v3(agent)
-run_draw_tests(agent)
-run_over_tests(agent)
-run_playable_tests(agent)
-run_eval_commonsense_tests(agent)
-run_eval_v2_commonsense_tests(agent)
-run_eval_v3_commonsense_tests(agent)
-run_winnable_tests_one(agent)
-run_winnable_tests_minus_one(agent)
-run_HyphenNumeric_tests(agent)
+# Test Running Function
+def run_all_agent_tests(agent):
+    t0 = time.time()
+    run_won_tests(agent)
+    run_eval_tests_v1(agent)
+    run_eval_tests_v2(agent)
+    run_eval_tests_v3(agent)
+    run_draw_tests(agent)
+    run_over_tests(agent)
+    run_playable_tests(agent)
+    run_eval_commonsense_tests(agent)
+    run_eval_v2_commonsense_tests(agent)
+    run_eval_v3_commonsense_tests(agent)
+    run_winnable_tests_one(agent)
+    run_winnable_tests_minus_one(agent)
+    run_HyphenNumeric_tests(agent)
+    t_final_ms = (time.time() - t0) * 1000
+    
+    print(Style.BRIGHT + Fore.GREEN + "\nAll tests passed successfully! 😄" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Total time taken: {t_final_ms:.2f} miliseconds" + Style.RESET_ALL)
 
-print("")
-print(Style.BRIGHT + Fore.GREEN + "All tests passed successfully! 😄" + Style.RESET_ALL)
+# Run the Tests
+run_all_agent_tests(agent)

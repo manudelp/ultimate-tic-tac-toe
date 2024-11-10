@@ -94,6 +94,26 @@ def isPlayable(board):
 def isOver(board):
     return isFull(board) or isWon(board)
 
+def isWonByBoth(board):
+    ''' False if it's won by both players at the same time '''
+    return (isWonByOne(board) and isWonByMinusOne(board))
+
+def isWonMoreThanTwiceByPlayer(board, player):
+    ''' Returns True if the given player has 3 or more 3-in-line wins on the same board '''
+    # TODO: Complete this for the mega hash
+    raise ValueError("Not Implemented Yet")
+
+def isWonMoreThanTwice(board):
+    return (isWonMoreThanTwiceByPlayer(board, player=1) or isWonMoreThanTwiceByPlayer(board, player=-1))
+
+def isIllegal(board):
+    ''' Returns True if the board is won by both players, or won more than twice by either player '''
+    return isWonByBoth(board) or isWonMoreThanTwice(board)
+
+def isLegal(board):
+    ''' Returns True if the board is neither won by both players, nor won more than twice by either player'''
+    return not isIllegal(board)
+
 def isWinnable_next(board, player):
     # If the board is already won, it can't be winnable
     if isWon(board) or isFull(board):
@@ -561,6 +581,23 @@ def generate_winnable_boards(file_path, player):
     with open(file_path, 'w') as f:
         for board_key, moves in winnable_boards.items():
             f.write(f"{board_key.hex()}:{moves}\n")
+
+def generate_legal_boards(file_path):
+    ''' Generates a list of all possible 3x3 boards that are legal '''
+    # TODO: Implement this appropriately for the mega hash
+    legal_boards = {}
+
+    for state in range(3**9):
+        board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
+        if isLegal(board):
+            legal_boards[board.tobytes()] = 0
+            # TODO: Another idea... if you're gonna be using this for the mega hash and the mega hash uses local evals, might as well generate them with local evals
+            # so you can just retrieve that from here, instead of first generating them and then retrieving their local evals separately...
+            # or else you could just do a plain Set instead of a dictionary, why a dict if you're just gonna hash to 0s? I like the local eval idea tho
+
+    with open(file_path, 'w') as f:
+        for board_key in legal_boards.keys():
+            f.write(board_key.hex() + '\n')
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
