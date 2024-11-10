@@ -357,7 +357,7 @@ class BetterJardineritoAgent:
         lb20_ev, lb21_ev, lb22_ev = self.get_local_eval(board[2, 0]), self.get_local_eval(board[2, 1]), self.get_local_eval(board[2, 2])
         balance += (1.25*lb00_ev + lb01_ev + 1.25*lb02_ev + lb10_ev + 1.5*lb11_ev + lb12_ev + 1.25*lb20_ev + lb21_ev + 1.25*lb22_ev)
         
-        results_array = np.array([[lb00_ev, lb01_ev, lb02_ev], [lb10_ev, lb11_ev, lb12_ev], [lb20_ev, lb21_ev, lb22_ev]])
+        results_array = np.array([[int(lb00_ev/6), int(lb01_ev/6), int(lb02_ev/6)], [int(lb10_ev/6), int(lb11_ev/6), int(lb12_ev/6)], [int(lb20_ev/6), int(lb21_ev/6), int(lb22_ev/6)]])
         results_balance = self.get_local_eval(results_array)
         # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
         # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 

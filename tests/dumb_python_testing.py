@@ -40,6 +40,27 @@ import time
 # print(f"Length of new_list: {len(new_list)}")
 # print(f"New list: {new_list}")
 
-results_balance = 0.8
-balance = results_balance * ((1 + abs(results_balance))**2.5) * 1.85
-print(balance)
+# results_balance = 0.8
+# balance = results_balance * ((1 + abs(results_balance))**2.5) * 1.85
+# print(balance)
+
+a = -6.1
+b = -0.8
+c = -3.2
+d = 5.9
+e = 6.4
+f = 2.5
+
+a_p = int(a/6)
+b_p = int(b/6)
+c_p = int(c/6)
+d_p = int(d/6)
+e_p = int(e/6)
+f_p = int(f/6)
+
+print(f"a_p: {a_p}")
+print(f"b_p: {b_p}")
+print(f"c_p: {c_p}")
+print(f"d_p: {d_p}")
+print(f"e_p: {e_p}")
+print(f"f_p: {f_p}")

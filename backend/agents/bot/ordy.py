@@ -5,7 +5,7 @@ import time
 from colorama import init, Fore, Style
 
 """
-depth = 6, plain alpha beta
+depth = 7/6, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves Before AlphaBeta? = TRUE
@@ -17,8 +17,8 @@ class TidyPodatorAgent:
         self.id = "Tidy Podator"
         self.icon = "🌱"
         self.moveNumber = 0
-        self.depth_local = 8 # when btp is not None
-        self.depth_global = 7 # when btp is None
+        self.depth_local = 7 # when btp is not None
+        self.depth_global = 6 # when btp is None
         self.time_limit = 20 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
