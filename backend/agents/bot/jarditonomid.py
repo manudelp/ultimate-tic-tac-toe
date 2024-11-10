@@ -9,7 +9,7 @@ depth = 5/4, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
-2.12* MULTIPLIER FOR MIDDLE LOCALM BOARD EVAL
+Uses early_boardBalance with 2.72* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while moveNumber is below 10 and there's still empty local boards
 
 """
 
@@ -23,6 +23,7 @@ class JardineritoAntiMidAgent:
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
+        self.empty_locals_bool = False
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 
@@ -46,6 +47,7 @@ class JardineritoAntiMidAgent:
         return self.str
 
     def reset(self):
+        self.empty_locals_bool = False
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.id}")
             return
@@ -64,6 +66,7 @@ class JardineritoAntiMidAgent:
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
         global_board_copy = super_board.copy()
+        self.empty_locals_bool = self.are_there_empty_locals(super_board)
 
         self.updateOverBoards(super_board)
         self.updatePlayableBoards(super_board)
@@ -142,6 +145,15 @@ class JardineritoAntiMidAgent:
 
         return c, d
 
+    def are_there_empty_locals(self, board) -> bool:
+        ''' Returns True if there are empty local boards, False otherwise '''
+        for r in range(3):
+            for c in range(3):
+                local_board = board[r, c]
+                if np.count_nonzero(local_board) == 0:
+                    return True
+        return False
+
     def zeroWinnerCheck(self, board, player, board_to_play=None):
         ''' Checks the entire board to find an immediate winning move for the player 
         If found, returns which player it is '''
@@ -203,7 +215,10 @@ class JardineritoAntiMidAgent:
             return winner * 100000, None
         else:
             if depth == 0:
-                return self.boardBalance(board), None
+                if self.empty_locals_bool or self.moveNumber < 10:
+                    return self.early_boardBalance
+                else:
+                    return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
                 # print(f"JarditoAntiMid found over board (drawn) in recursion!")
@@ -359,7 +374,28 @@ class JardineritoAntiMidAgent:
                 if isEdge(r, c):
                     balance += local_balance
                 elif (r, c) == (1, 1):
-                    balance += 2.12 * local_balance
+                    balance += 1.4 * local_balance
+                else:
+                    balance += 1.25 * local_balance
+
+        return round(balance, 4)
+
+    def early_boardBalance(self, board):
+        ''' Returns the heuristic value of the board 
+        For now it's a sum of the local board evaluations '''
+        rows, cols, *_ = board.shape
+        balance = 0
+
+        # Auxiliar For Now!
+        for r in range(rows):
+            for c in range(cols):
+                localBoard = board[r, c]
+                local_balance = self.get_local_eval(localBoard)
+                # Based on which board it is
+                if isEdge(r, c):
+                    balance += local_balance
+                elif (r, c) == (1, 1):
+                    balance += 2.72 * local_balance
                 else:
                     balance += 1.25 * local_balance
 
