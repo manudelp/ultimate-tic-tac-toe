@@ -9,7 +9,7 @@ depth = 6/5, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
-Uses early_boardBalance with 2.72* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while moveNumber is below 10 and there's still empty local boards
+Uses early_boardBalance with 2.42* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while moveNumber is below 10 and there's still empty local boards
 
 """
 
@@ -18,8 +18,8 @@ class JardineritoAntiMidAgent:
         self.id = "Jardinerito AntiCenter"
         self.icon = "🪴"
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
+        self.depth_local = 7 # when btp is not None
+        self.depth_global = 6 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -76,7 +76,7 @@ class JardineritoAntiMidAgent:
         self.model_over_boards_set = self.over_boards_set.copy()
         self.model_playable_boards_set = self.playable_boards_set.copy()
 
-        if self.empty_locals_bool or self.moveNumber < 10:
+        if self.empty_locals_bool or self.moveNumber < 8:
             self.playing_early = True
         else:
             self.playing_early = False
@@ -405,7 +405,7 @@ class JardineritoAntiMidAgent:
                 if isEdge(r, c):
                     balance += local_balance
                 elif (r, c) == (1, 1):
-                    balance += 2.72 * local_balance
+                    balance += 2.42 * local_balance
                 else:
                     balance += 1.25 * local_balance
 
