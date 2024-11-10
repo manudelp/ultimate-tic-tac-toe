@@ -2,6 +2,7 @@ import numpy as np
 
 CENTER_ONLY_BOARD = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
 CENTER_ONLY_ENEMY_BOARD = np.array([[0, 0, 0], [0, -1, 0], [0, 0, 0]])
+CENTER_ONLY_EVAL = 0.421
 
 # Auxiliaries
 def isFull(board):
@@ -171,10 +172,12 @@ def detectThreat(line):
 def localBoardEval(localBoard):
     """ 
     Evaluates the local board and returns an evaluation score for it.
+    For Non-Won Boards, Balance Ranges Theoretically from -3.6 to 3.6
+    For Won Boards, Balance is ± 6.4
+    When both players threat, nothing changes, just keep working as usual
     """
     score = 0
     
-    CENTER_ONLY_EVAL = 0.0
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
     if np.count_nonzero(localBoard) == 1:
         if localBoard[1, 1] == 1:
@@ -237,10 +240,10 @@ def localBoardEval_v2(localBoard):
     Evaluates the local board and returns an evaluation score for it 
     For Non-Won Boards, Balance Ranges Theoretically from -3.6 to 3.6
     For Won Boards, Balance is ± 6.4
+    When both players threat, returns 0
     '''
     score = 0
 
-    CENTER_ONLY_EVAL = 0.0
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
     if np.count_nonzero(localBoard) == 1:
         if localBoard[1, 1] == 1:
@@ -337,10 +340,10 @@ def localBoardEval_v3(localBoard):
     Evaluates the local board and returns an evaluation score for it 
     For Non-Won Boards, Balance Ranges Theoretically from -3.6 to 3.6
     For Won Boards, Balance is ± 6.4
+    When both players threat, tones down
     '''
     score = 0
 
-    CENTER_ONLY_EVAL = 0.0
     # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
     if np.count_nonzero(localBoard) == 1:
         if localBoard[1, 1] == 1:
@@ -439,6 +442,96 @@ def localBoardEval_v3(localBoard):
     final_score = round(score, 1)
     return final_score
 
+def globalLocalEval(localBoard):
+    # TIMEIT APPROVED ✅
+    ''' 
+    Intended to Work for Global Board Results Eval as a 3x3
+    Evaluates the local board and returns an evaluation score for it 
+    For Non-Won Boards, Balance Ranges Theoretically from -3.6 to 3.6
+    For Won Boards, Balance is ± 6.4
+    When both players threat, tone down but just a tiny bit
+    NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
+    '''
+    score = 0
+            
+    player1_threat = False
+    player2_threat = False
+    
+    # Rows
+    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
+    if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
+        player1_threat |= row1_eval > 0
+        player2_threat |= row1_eval < 0
+    if abs(row1_eval) == 1:
+        return 6.4 * row1_eval
+    score += row1_eval
+
+    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
+    if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
+        player1_threat |= row2_eval > 0
+        player2_threat |= row2_eval < 0
+    if abs(row2_eval) == 1:
+        return 6.4 * row2_eval
+    score += row2_eval
+
+    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
+    if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
+        player1_threat |= row3_eval > 0
+        player2_threat |= row3_eval < 0
+    if abs(row3_eval) == 1:
+        return 6.4 * row3_eval
+    score += row3_eval
+
+    # Columns
+    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
+    if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
+        player1_threat |= col1_eval > 0
+        player2_threat |= col1_eval < 0
+    if abs(col1_eval) == 1:
+        return 6.4 * col1_eval
+    score += col1_eval
+
+    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
+    if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
+        player1_threat |= col2_eval > 0
+        player2_threat |= col2_eval < 0
+    if abs(col2_eval) == 1:
+        return 6.4 * col2_eval
+    score += col2_eval
+
+    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
+    if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
+        player1_threat |= col3_eval > 0
+        player2_threat |= col3_eval < 0
+    if abs(col3_eval) == 1:
+        return 6.4 * col3_eval
+    score += col3_eval
+
+    # Diagonals
+    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
+    if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
+        player1_threat |= diagTB_eval > 0
+        player2_threat |= diagTB_eval < 0
+    if abs(diagTB_eval) == 1:
+        return 6.4 * diagTB_eval
+    score += diagTB_eval
+
+    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
+    if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
+        player1_threat |= diagBT_eval > 0
+        player2_threat |= diagBT_eval < 0
+    if abs(diagBT_eval) == 1:
+        return 6.4 * diagBT_eval
+    score += diagBT_eval
+
+    # Check for conflicting threats, tone down final score
+    if player1_threat and player2_threat:
+        final_score = score * 0.75
+        return round(final_score, 1)
+
+    final_score = round(score, 1)
+    return final_score
+
 # Generators
 def generate_winning_boards(file_path):
     """ 
@@ -508,6 +601,23 @@ def generate_eval_boards_v3(file_path):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
         heuristic_value = localBoardEval_v3(board)
+        evaluated_boards[board_key] = heuristic_value
+
+    with open(file_path, 'w') as f:
+        for board_key, heuristic_value in evaluated_boards.items():
+            f.write(f"{board_key.hex()}:{heuristic_value}\n")
+
+def generate_eval_boards_glob(file_path):
+    """
+    Generate all possible 3x3 Tic-Tac-Toe board states, evaluate them with localBoardEval,
+    and save them to evaluated_boards.txt in the format: hex representation of the board : heuristic value.
+    """
+    evaluated_boards = {}
+
+    for state in range(3**9):
+        board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
+        board_key = board.tobytes()
+        heuristic_value = globalLocalEval(board)
         evaluated_boards[board_key] = heuristic_value
 
     with open(file_path, 'w') as f:
@@ -601,9 +711,10 @@ def generate_legal_boards(file_path):
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
-generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
-generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
-generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+# generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
+# generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
+# generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
