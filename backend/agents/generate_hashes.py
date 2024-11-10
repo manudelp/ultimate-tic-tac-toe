@@ -94,6 +94,10 @@ def isPlayable(board):
 def isOver(board):
     return isFull(board) or isWon(board)
 
+def isLegal(board):
+    ''' False if it's won by both players at the same time '''
+    return not (isWonByOne(board) and isWonByMinusOne(board))
+
 def isWinnable_next(board, player):
     # If the board is already won, it can't be winnable
     if isWon(board) or isFull(board):
