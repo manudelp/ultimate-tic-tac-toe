@@ -15,8 +15,8 @@ Uses early_boardBalance with 2.72* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while
 
 class JardineritoAntiMidAgent:
     def __init__(self):
-        self.id = "Jardinerito CENTRO_NO!"
-        self.icon = "🚫🧿"
+        self.id = "Jardinerito AntiCenter"
+        self.icon = "🪴"
         self.moveNumber = 0
         self.depth_local = 6 # when btp is not None
         self.depth_global = 5 # when btp is None
@@ -216,7 +216,7 @@ class JardineritoAntiMidAgent:
         else:
             if depth == 0:
                 if self.empty_locals_bool or self.moveNumber < 10:
-                    return self.early_boardBalance
+                    return self.early_boardBalance(board), None
                 else:
                     return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0

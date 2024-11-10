@@ -16,7 +16,7 @@ Special Power: Calls two different Alpha Beta Functions, one that takes moves_to
 class TwinPrunerAgent:
     def __init__(self):
         self.id = "Twin Pruner"
-        self.icon = "🫐"
+        self.icon = "🍃"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
