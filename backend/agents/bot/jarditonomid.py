@@ -9,7 +9,7 @@ depth = 6/5, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
-Uses early_boardBalance with 2.72* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while moveNumber is below 10 and there's still empty local boards
+Uses early_boardBalance with 2.42* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while moveNumber is below 10 and there's still empty local boards
 
 """
 
@@ -405,7 +405,7 @@ class JardineritoAntiMidAgent:
                 if isEdge(r, c):
                     balance += local_balance
                 elif (r, c) == (1, 1):
-                    balance += 2.72 * local_balance
+                    balance += 2.42 * local_balance
                 else:
                     balance += 1.25 * local_balance
 
