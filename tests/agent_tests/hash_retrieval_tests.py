@@ -310,6 +310,96 @@ def localBoardEval_v3(localBoard):
 
     return round(score, 1)
 
+def globalLocalEval(localBoard):
+    # TIMEIT APPROVED ✅
+    ''' 
+    Intended to Work for Global Board Results Eval as a 3x3
+    Evaluates the local board and returns an evaluation score for it 
+    For Non-Won Boards, Balance Ranges Theoretically from -3.6 to 3.6
+    For Won Boards, Balance is ± 6.4
+    When both players threat, tone down but just a tiny bit
+    NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
+    '''
+    score = 0
+            
+    player1_threat = False
+    player2_threat = False
+    
+    # Rows
+    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
+    if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
+        player1_threat |= row1_eval > 0
+        player2_threat |= row1_eval < 0
+    if abs(row1_eval) == 1:
+        return 6.4 * row1_eval
+    score += row1_eval
+
+    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
+    if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
+        player1_threat |= row2_eval > 0
+        player2_threat |= row2_eval < 0
+    if abs(row2_eval) == 1:
+        return 6.4 * row2_eval
+    score += row2_eval
+
+    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
+    if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
+        player1_threat |= row3_eval > 0
+        player2_threat |= row3_eval < 0
+    if abs(row3_eval) == 1:
+        return 6.4 * row3_eval
+    score += row3_eval
+
+    # Columns
+    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
+    if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
+        player1_threat |= col1_eval > 0
+        player2_threat |= col1_eval < 0
+    if abs(col1_eval) == 1:
+        return 6.4 * col1_eval
+    score += col1_eval
+
+    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
+    if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
+        player1_threat |= col2_eval > 0
+        player2_threat |= col2_eval < 0
+    if abs(col2_eval) == 1:
+        return 6.4 * col2_eval
+    score += col2_eval
+
+    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
+    if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
+        player1_threat |= col3_eval > 0
+        player2_threat |= col3_eval < 0
+    if abs(col3_eval) == 1:
+        return 6.4 * col3_eval
+    score += col3_eval
+
+    # Diagonals
+    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
+    if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
+        player1_threat |= diagTB_eval > 0
+        player2_threat |= diagTB_eval < 0
+    if abs(diagTB_eval) == 1:
+        return 6.4 * diagTB_eval
+    score += diagTB_eval
+
+    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
+    if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
+        player1_threat |= diagBT_eval > 0
+        player2_threat |= diagBT_eval < 0
+    if abs(diagBT_eval) == 1:
+        return 6.4 * diagBT_eval
+    score += diagBT_eval
+
+    # Check for conflicting threats, tone down final score
+    if player1_threat and player2_threat:
+        final_score = score * 0.75
+        return round(final_score, 1)
+
+    final_score = round(score, 1)
+    return final_score
+
 def isFull(board):
     return np.count_nonzero(board == 0) == 0
 
@@ -327,6 +417,7 @@ class RetrievalAgent:
         self.hash_eval_boards = {}
         self.hash_eval_v2_boards = {}
         self.hash_eval_v3_boards = {}
+        self.hash_eval_glob_boards = {}
         self.hash_draw_boards = {}
         self.hash_over_boards = {}
         self.hash_winnable_boards_by_one = {}
@@ -338,6 +429,7 @@ class RetrievalAgent:
         self.load_evaluated_boards('backend/agents/hashes/hash_evaluated_boards.txt')
         self.load_evaluated_v2_boards('backend/agents/hashes/hash_evaluated_boards_v2.txt')
         self.load_evaluated_v3_boards('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+        self.load_eval_glob_boards('backend/agents/hashes/hash_eval_boards_glob.txt')
         self.load_drawn_boards('backend/agents/hashes/hash_draw_boards.txt')
         # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
         self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
@@ -389,6 +481,16 @@ class RetrievalAgent:
                 for line in file:
                     board_hex, heuristic_value = line.strip().split(':')
                     self.hash_eval_v3_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
+
+    def load_eval_glob_boards(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, heuristic_value = line.strip().split(':')
+                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -449,7 +551,6 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
 
-
     def get_winner_hash(self, board):
         """
         Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -484,6 +585,14 @@ class RetrievalAgent:
         if local_eval_v3 is None:
             raise ValueError(f"Board {board} not found in evaluated V3 boards.")
         return local_eval_v3
+
+    def get_eval_glob_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        local_eval_glob = self.hash_eval_glob_boards.get(board_key, None)
+        if local_eval_glob is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards.")
+        return local_eval_glob
 
     def get_draw_hash(self, board):
         """
@@ -682,18 +791,18 @@ BEST_MOVE_1 = (2, 0, 0, 2)
 
 # print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
-b1_eval, b1_eval_v2, b1_eval_v3 = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1)
-b2_eval, b2_eval_v2, b2_eval_v3 = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2)
-b3_eval, b3_eval_v2, b3_eval_v3 = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3)
-b4_eval, b4_eval_v2, b4_eval_v3 = localBoardEval(board_4), localBoardEval_v2(board_4), localBoardEval_v3(board_4)
-b5_eval, b5_eval_v2, b5_eval_v3 = localBoardEval(board_5), localBoardEval_v2(board_5), localBoardEval_v3(board_5)
-b6_eval, b6_eval_v2, b6_eval_v3 = localBoardEval(board_6), localBoardEval_v2(board_6), localBoardEval_v3(board_6)
-b7_eval, b7_eval_v2, b7_eval_v3 = localBoardEval(board_7), localBoardEval_v2(board_7), localBoardEval_v3(board_7)
-b8_eval, b8_eval_v2, b8_eval_v3 = localBoardEval(board_8), localBoardEval_v2(board_8), localBoardEval_v3(board_8)
-b9_eval, b9_eval_v2, b9_eval_v3 = localBoardEval(board_9), localBoardEval_v2(board_9), localBoardEval_v3(board_9)
-b10_eval, b10_eval_v2, b10_eval_v3 = localBoardEval(board_10), localBoardEval_v2(board_10), localBoardEval_v3(board_10)
-b11_eval, b11_eval_v2, b11_eval_v3 = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11)
-b12_eval, b12_eval_v2, b12_eval_v3 = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12)
+b1_eval, b1_eval_v2, b1_eval_v3, b1_eval_glob = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1), globalLocalEval(board_1)
+b2_eval, b2_eval_v2, b2_eval_v3, b2_eval_glob = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2), globalLocalEval(board_2)
+b3_eval, b3_eval_v2, b3_eval_v3, b3_eval_glob = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3), globalLocalEval(board_3)
+b4_eval, b4_eval_v2, b4_eval_v3, b4_eval_glob = localBoardEval(board_4), localBoardEval_v2(board_4), localBoardEval_v3(board_4), globalLocalEval(board_4)
+b5_eval, b5_eval_v2, b5_eval_v3, b5_eval_glob = localBoardEval(board_5), localBoardEval_v2(board_5), localBoardEval_v3(board_5), globalLocalEval(board_5)
+b6_eval, b6_eval_v2, b6_eval_v3, b6_eval_glob = localBoardEval(board_6), localBoardEval_v2(board_6), localBoardEval_v3(board_6), globalLocalEval(board_6)
+b7_eval, b7_eval_v2, b7_eval_v3, b7_eval_glob = localBoardEval(board_7), localBoardEval_v2(board_7), localBoardEval_v3(board_7), globalLocalEval(board_7)
+b8_eval, b8_eval_v2, b8_eval_v3, b8_eval_glob = localBoardEval(board_8), localBoardEval_v2(board_8), localBoardEval_v3(board_8), globalLocalEval(board_8)
+b9_eval, b9_eval_v2, b9_eval_v3, b9_eval_glob = localBoardEval(board_9), localBoardEval_v2(board_9), localBoardEval_v3(board_9), globalLocalEval(board_9)
+b10_eval, b10_eval_v2, b10_eval_v3, b10_eval_glob = localBoardEval(board_10), localBoardEval_v2(board_10), localBoardEval_v3(board_10), globalLocalEval(board_10)
+b11_eval, b11_eval_v2, b11_eval_v3, b11_eval_glob = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11), globalLocalEval(board_11)
+b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12), globalLocalEval(board_12)
 
 # region Eval Prints
 # V1 Evals
@@ -770,9 +879,9 @@ def run_eval_tests_v1(agent):
     assert agent.get_eval_hash(board_10) == b10_eval, "Test Failed: Board 10 evaluation does not match"
     assert agent.get_eval_hash(board_11) == b11_eval, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_eval_hash(board_12) == b12_eval, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_hash(board_center_only) == 0.0, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_hash(board_center_only_another) == 0.0, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_hash(board_center_enemy_only) == -0.0, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_hash(board_center_only) == 0.421, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_hash(board_center_only_another) == 0.421, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V1 tests passed successfully!")
 
@@ -789,9 +898,9 @@ def run_eval_tests_v2(agent):
     assert agent.get_eval_v2_hash(board_10) == b10_eval_v2, "Test Failed: Board 10 evaluation does not match"
     assert agent.get_eval_v2_hash(board_11) == b11_eval_v2, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_eval_v2_hash(board_12) == b12_eval_v2, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_center_only) == 0.0, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_v2_hash(board_center_only_another) == 0.0, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_v2_hash(board_center_enemy_only) == -0.0, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_only) == 0.421, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_only_another) == 0.421, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V2 tests passed successfully!")
 
@@ -808,11 +917,30 @@ def run_eval_tests_v3(agent):
     assert agent.get_eval_v3_hash(board_10) == b10_eval_v3, "Test Failed: Board 10 evaluation does not match"
     assert agent.get_eval_v3_hash(board_11) == b11_eval_v3, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_eval_v3_hash(board_12) == b12_eval_v3, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_center_only) == 0.0, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_v3_hash(board_center_only_another) == 0.0, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_v3_hash(board_center_enemy_only) == -0.0, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_only) == 0.421, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_only_another) == 0.421, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V3 tests passed successfully!")
+    
+def run_eval_tests_glob(agent):
+    assert agent.get_eval_glob_hash(board_1) == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_2) == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_3) == b3_eval_glob, "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_4) == b4_eval_glob, "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_5) == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_6) == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_7) == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_8) == b8_eval_glob, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_9) == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_10) == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_11) == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_12) == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_only) == 0.8, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_only_another) == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_enemy_only) == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
+
+    print("All Eval Global Local tests passed successfully!")
 
 def run_draw_tests(agent):
     assert agent.get_draw_hash(board_1) == False, "Test Failed: Board 1 should not be a draw"
@@ -913,6 +1041,24 @@ def run_eval_v3_commonsense_tests(agent):
     assert agent.get_eval_v3_hash(board_12) == 0, "Test Failed: Board 12 should have a score of 0"
 
     print("All Eval V3 Common-Sense tests passed successfully!")
+    
+def run_eval_glob_commonsense_tests(agent):
+    assert agent.get_eval_glob_hash(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_eval_glob_hash(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_eval_glob_hash(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_eval_glob_hash(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_eval_glob_hash(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_eval_glob_hash(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_eval_glob_hash(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_glob_hash(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
+    assert abs(agent.get_eval_glob_hash(board_8)) < 1, "Test Failed: Board 8 should have a score of 0"
+    assert agent.get_eval_glob_hash(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_eval_glob_hash(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_glob_hash(board_10) == -1 * agent.get_eval_glob_hash(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_eval_glob_hash(board_11) == 0, "Test Failed: Board 11 should have a score of 0"
+    assert agent.get_eval_glob_hash(board_12) == 0, "Test Failed: Board 12 should have a score of 0"
+
+    print("All Eval Global Local Common-Sense tests passed successfully!")
 
 def run_winnable_tests_one(agent):
     # Boards winnable by player 1
@@ -966,12 +1112,14 @@ def run_all_agent_tests(agent):
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
     run_eval_tests_v3(agent)
+    run_eval_tests_glob(agent)
     run_draw_tests(agent)
     run_over_tests(agent)
     run_playable_tests(agent)
     run_eval_commonsense_tests(agent)
     run_eval_v2_commonsense_tests(agent)
     run_eval_v3_commonsense_tests(agent)
+    run_eval_glob_commonsense_tests(agent)
     run_winnable_tests_one(agent)
     run_winnable_tests_minus_one(agent)
     run_HyphenNumeric_tests(agent)
