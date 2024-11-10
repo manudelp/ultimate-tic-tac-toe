@@ -24,6 +24,7 @@ class JardineritoAntiMidAgent:
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.empty_locals_bool = False
+        self.playing_early = False
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
 
@@ -48,6 +49,7 @@ class JardineritoAntiMidAgent:
 
     def reset(self):
         self.empty_locals_bool = False
+        self.playing_early = False
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.id}")
             return
@@ -74,12 +76,20 @@ class JardineritoAntiMidAgent:
         self.model_over_boards_set = self.over_boards_set.copy()
         self.model_playable_boards_set = self.playable_boards_set.copy()
 
+        if self.empty_locals_bool or self.moveNumber < 10:
+            self.playing_early = True
+        else:
+            self.playing_early = False
+
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
                 raise ValueError(f"{self.id}, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
+
+        if self.playing_early:
+            print(Style.BRIGHT + Fore.YELLOW + f"{self.id} is playing with early board balance" + Style.RESET_ALL)
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
@@ -215,7 +225,7 @@ class JardineritoAntiMidAgent:
             return winner * 100000, None
         else:
             if depth == 0:
-                if self.empty_locals_bool or self.moveNumber < 10:
+                if self.playing_early:
                     return self.early_boardBalance(board), None
                 else:
                     return self.boardBalance(board), None

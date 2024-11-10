@@ -23,7 +23,7 @@ t0 = time.time()
 
 # Initialize agents
 AGENT1 = BetterJardineritoAgent()    # Replace with your chosen agent
-AGENT2 = TidyPodatorAgent()  # Replace with your chosen agent
+AGENT2 = JardineritoAntiMidAgent()  # Replace with your chosen agent
 ROUNDS = 2 # Number of rounds to play, each round represents 2 games (with alternating pieces)
 GAMES = ROUNDS * 2
 
