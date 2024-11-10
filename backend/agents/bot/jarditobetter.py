@@ -17,8 +17,8 @@ class BetterJardineritoAgent:
         self.id = "Jaimito el Euristico"
         self.icon = "🍀"
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
+        self.depth_local = 7 # when btp is not None
+        self.depth_global = 6 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -355,7 +355,18 @@ class BetterJardineritoAgent:
         lb00_ev, lb01_ev, lb02_ev = self.get_local_eval(board[0, 0]), self.get_local_eval(board[0, 1]), self.get_local_eval(board[0, 2])
         lb10_ev, lb11_ev, lb12_ev = self.get_local_eval(board[1, 0]), self.get_local_eval(board[1, 1]), self.get_local_eval(board[1, 2])
         lb20_ev, lb21_ev, lb22_ev = self.get_local_eval(board[2, 0]), self.get_local_eval(board[2, 1]), self.get_local_eval(board[2, 2])
-        balance += (1.25*lb00_ev + lb01_ev + 1.25*lb02_ev + lb10_ev + 1.5*lb11_ev + lb12_ev + 1.25*lb20_ev + lb21_ev + 1.25*lb22_ev)
+        
+        # FIXME! Yeah this is stupid, its inefficientfor no reason, lo mejor es lo comentado abajo pero bue
+        balance += 1.25 * lb00_ev
+        balance += lb01_ev
+        balance += 1.25 * lb02_ev
+        balance += lb10_ev
+        balance += 1.5 * lb11_ev
+        balance += lb12_ev
+        balance += 1.25 * lb20_ev
+        balance += lb21_ev
+        balance += 1.25 * lb22_ev
+        # balance += (1.25*lb00_ev + lb01_ev + 1.25*lb02_ev + lb10_ev + 1.5*lb11_ev + lb12_ev + 1.25*lb20_ev + lb21_ev + 1.25*lb22_ev)
         
         results_array = np.array([[int(lb00_ev/6), int(lb01_ev/6), int(lb02_ev/6)], [int(lb10_ev/6), int(lb11_ev/6), int(lb12_ev/6)], [int(lb20_ev/6), int(lb21_ev/6), int(lb22_ev/6)]])
         results_balance = self.get_local_eval(results_array)

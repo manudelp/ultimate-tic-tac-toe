@@ -18,8 +18,8 @@ class JardineritoAntiMidAgent:
         self.id = "Jardinerito AntiCenter"
         self.icon = "🪴"
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
+        self.depth_local = 7 # when btp is not None
+        self.depth_global = 6 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -76,7 +76,7 @@ class JardineritoAntiMidAgent:
         self.model_over_boards_set = self.over_boards_set.copy()
         self.model_playable_boards_set = self.playable_boards_set.copy()
 
-        if self.empty_locals_bool or self.moveNumber < 10:
+        if self.empty_locals_bool or self.moveNumber < 8:
             self.playing_early = True
         else:
             self.playing_early = False

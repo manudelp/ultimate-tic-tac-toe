@@ -24,6 +24,7 @@ from bot.gardentranspositor import GardenTranspositorAgent
 from bot.itervanbytes import IterVanBytesAgent
 from bot.jarditonomid import JardineritoAntiMidAgent
 from bot.jarditobetter import BetterJardineritoAgent
+from bot.itterinobetter import BetterItterinoAgent
 
 # Hyperparameters
 ROUNDS = 4  # Number of rounds to play
@@ -44,6 +45,7 @@ AGENTS = [
     # MonkeyAgent(),
     # IteroldAgent(),
     ItterinoAgent(),
+    BetterItterinoAgent(),
     # TidyPodatorAgent(),
     # TwinPrunerAgent(),
     # GardenTranspositorAgent(),
