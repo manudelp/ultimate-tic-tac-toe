@@ -158,7 +158,7 @@ class IteroldAgent:
 
         return None
 
-    def iterative_deepening(self, board, board_to_play, max_depth):
+    def iterative_deepening(self, board, board_to_play, max_depth, cutoff_factor=0.27):
         ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
         start_time = time.time()
         moves_to_try = self.generate_moves(board, board_to_play)
@@ -199,7 +199,7 @@ class IteroldAgent:
                     del moves_to_try[index_to_remove]
                     moves_to_try.insert(0, best_move)
                     # Cut off the list, removing the worst 20% of moves
-                    moves_to_try = self.list_cutoffs(moves_to_try, 0.2)
+                    moves_to_try = self.list_cutoffs(moves_to_try, cutoff_factor)
                     # Turn back into array
                     moves_to_try = np.array(moves_to_try)
                 else:

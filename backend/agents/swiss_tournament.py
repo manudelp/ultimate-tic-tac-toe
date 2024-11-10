@@ -23,6 +23,7 @@ from foofinder import FooFinderAgent
 from bot.gardentranspositor import GardenTranspositorAgent
 from bot.itervanbytes import IterVanBytesAgent
 from bot.jarditonomid import JardineritoAntiMidAgent
+from bot.jarditobetter import BetterJardineritoAgent
 
 # Hyperparameters
 ROUNDS = 4  # Number of rounds to play
@@ -32,15 +33,16 @@ REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 
 # Initialize agents
 AGENTS = [
-    RandomAgent(),
+    # RandomAgent(),
     StraightArrowAgent(),
     TaylorAgent(),
     JardineritoAgent(),
     # MaximilianoAgent(),
     JardineritoAntiMidAgent(),
+    BetterJardineritoAgent(),
     # GardenerAgent(),
     # MonkeyAgent(),
-    IteroldAgent(),
+    # IteroldAgent(),
     ItterinoAgent(),
     # TidyPodatorAgent(),
     # TwinPrunerAgent(),

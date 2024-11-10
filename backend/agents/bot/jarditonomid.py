@@ -77,13 +77,13 @@ class JardineritoAntiMidAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"JarditoAntiMid, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"{self.id}, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"JarditoAntiMid is thinking with alpha beta... btp is None")
+            # print(f"{self.id} is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -95,7 +95,7 @@ class JardineritoAntiMidAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"JarditoAntiMid chose alpha beta move: {minimax_move}")
+                # print(f"{self.id} chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -104,7 +104,7 @@ class JardineritoAntiMidAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("JarditoAntiMid failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("{self.id} failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -112,7 +112,7 @@ class JardineritoAntiMidAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"JarditoAntiMid is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"{self.id} is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -221,7 +221,7 @@ class JardineritoAntiMidAgent:
                     return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"JarditoAntiMid found over board (drawn) in recursion!")
+                # print(f"{self.id} found over board (drawn) in recursion!")
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -304,7 +304,7 @@ class JardineritoAntiMidAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"JarditoAntiMid is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"{self.id} is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -330,7 +330,7 @@ class JardineritoAntiMidAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"JarditoAntiMid is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"{self.id} is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
