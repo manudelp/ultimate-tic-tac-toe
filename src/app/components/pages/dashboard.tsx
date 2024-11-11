@@ -105,6 +105,7 @@ const Dashboard: React.FC = () => {
     const checkBackendConnection = async () => {
       const isConnected = await checkConnection();
       setIsBackendConnected(isConnected);
+      console.log("Backend connection:", isConnected);
     };
 
     checkBackendConnection();

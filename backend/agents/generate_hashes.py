@@ -695,6 +695,9 @@ def generate_winnable_boards(file_path, player):
 def generate_legal_boards(file_path):
     ''' Generates a list of all possible 3x3 boards that are legal '''
     # TODO: Implement this appropriately for the mega hash
+    # Sorry... no! This gets outdated by the great idea of 
+    # only counting drawn boards, won boards by one and won boards by minus one, 1 time each (so, 3 instead of 8590)
+    # since all drawn boards mean the same, all won by 1 mean the same, all won by minus one mean the same
     legal_boards = {}
 
     for state in range(3**9):
