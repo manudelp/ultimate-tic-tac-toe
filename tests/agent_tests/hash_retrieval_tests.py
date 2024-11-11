@@ -1,6 +1,6 @@
 import numpy as np
 from colorama import init, Fore, Style
-from typing import Any, Union, Tuple
+from typing import Tuple, List, Union, Dict, Set, Any
 import ast
 import time
 
@@ -622,134 +622,43 @@ class RetrievalAgent:
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
     # Hyphen Numeric Hashing
-    def get_HyphenNumeric_hash(self, board, board_to_play):
-        ''' Returns the best move for the given HyphenNumeric board '''
-        key = self.get_HyphenNumeric_key(board, board_to_play)
-        return self.hash_HyphenNumeric_boards.get(key, None)
+    def get_symmetries(self, board):
+        ''' Returns all 8 symmetries (4 rotations + 4 reflections) of the board '''
+        symmetries = set()
 
-    # def get_HyphenNumeric_key(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
-    #     ''' Returns the key for the HyphenNumeric boards dictionary '''
-    #     # Split board representation into two frozensets for Player 1 and Player -1 moves
-    #     player1_set, player_minus1_set = self.board_to_HyphenNumeric_sets(board)
-    #     return ((frozenset(player1_set), frozenset(player_minus1_set)), board_to_play)
-
-    # def board_to_HyphenNumeric_sets(self, board: np.array):
-    #     ''' Convert the board to two sets of tuples representing player positions '''
-    #     player1_pieces = set()
-    #     player_minus1_pieces = set()
-
-    #     for global_row in range(board.shape[0]):
-    #         for global_col in range(board.shape[1]):
-    #             for local_row in range(board.shape[2]):
-    #                 for local_col in range(board.shape[3]):
-    #                     piece = board[global_row, global_col, local_row, local_col]
-    #                     if piece != 0:  # Only record positions with a placed piece
-    #                         position = (global_row, global_col, local_row, local_col)
-    #                         if piece == 1:
-    #                             player1_pieces.add(position)
-    #                         elif piece == -1:
-    #                             player_minus1_pieces.add(position)
-
-    #     return player1_pieces, player_minus1_pieces
-
-    # def parse_HyphenNumeric_board(self, board_str):
-    #     ''' Convert the HyphenNumeric board string into a list of player positions '''
-    #     # Split the board state by '__' to separate each move
-    #     moves = board_str.split('__')
-        
-    #     # Initialize player piece sets
-    #     player_1_positions = set()
-    #     player_neg_1_positions = set()
-        
-    #     # Process each move and assign to correct player based on position
-    #     for idx, move in enumerate(moves):
-    #         positions = tuple(map(int, move.split('_')))  # Convert the underscore-separated numbers into a tuple
-    #         if idx % 2 == 0:
-    #             player_1_positions.add(positions)  # Even positions are Player 1
-    #         else:
-    #             player_neg_1_positions.add(positions)  # Odd positions are Player -1
-
-    #     # Return the two sets as a tuple
-    #     return (frozenset(player_1_positions), frozenset(player_neg_1_positions))
-
-    # def load_HyphenNumeric_boards(self, file):
-    #     ''' 
-    #     Loads the boards from a file and stores them in a dictionary.
-    #     Each board state is stored as a key (a tuple with the board's HyphenNumeric representation and the board_to_play).
-    #     The value is the best move in (global_row, global_col, local_row, local_col) format.
-    #     '''
-    #     with open(file, 'r') as f:
-    #         for line in f:
-    #             # Skip empty lines and comments
-    #             if not line.strip() or line.strip().startswith('#'):
-    #                 continue
-
-    #             try:
-    #                 # Step 1: Split the line by ":"
-    #                 key_part, move_str = line.split(" : ")
-
-    #                 # Step 2: Split the key_part by ", " to separate board_state and board_to_play
-    #                 board_part, play_part = key_part.split(", ")
-                    
-    #                 # Parse the board state
-    #                 board_state = self.parse_HyphenNumeric_board(board_part.strip())
-                    
-    #                 # Parse board_to_play as a tuple of integers
-    #                 board_to_play = tuple(map(int, play_part.split('_')))  # Convert "0_1" into (0, 1)
-                    
-    #                 # Parse best_move as a tuple of integers
-    #                 best_move = tuple(map(int, move_str.strip().split('_')))  # Convert "0_1_0_2" into (0, 1, 0, 2)
-
-    #                 # Store the key-value pair in the dictionary
-    #                 self.hash_HyphenNumeric_boards[(board_state, board_to_play)] = best_move
-
-    #             except Exception as e:
-    #                 print(f"Error parsing line: {line} - Error: {e}")
-
-    def get_HyphenNumeric_key(self, board, board_to_play):
-        """Returns the canonical key for the HyphenNumeric boards dictionary, accounting for symmetry."""
-        player1_set, player_minus1_set = self.board_to_HyphenNumeric_sets(board)
-        return self.canonical_key(player1_set, player_minus1_set, board_to_play)
-
-    def rotate_position(self, pos, rotation):
-        """Rotates a 4D position tuple based on the specified rotation."""
-        global_row, global_col, local_row, local_col = pos
-
-        if rotation == 0:
-            return (global_row, global_col, local_row, local_col)
-        elif rotation == 1:
-            return (global_col, 2 - global_row, local_col, 2 - local_row)
-        elif rotation == 2:
-            return (2 - global_row, 2 - global_col, 2 - local_row, 2 - local_col)
-        elif rotation == 3:
-            return (2 - global_col, global_row, 2 - local_col, local_row)
-        else:
-            raise ValueError("Invalid rotation index; must be 0, 1, 2, or 3")
-
-    def generate_rotations(self, board_set):
-        """Generates all four rotated versions of a board set."""
-        rotations = []
+        # Generate all rotations (multiples of 90 degrees)
         for i in range(4):
-            rotated_board = {self.rotate_position(pos, i) for pos in board_set}
-            rotations.append(frozenset(rotated_board))
-        return rotations
-
-    def canonical_key(self, player1_set, player_minus1_set, board_to_play):
-        """Returns a canonical key representation for the board by normalizing rotations."""
-        # Generate all rotations for both players' positions
-        player1_rotations = self.generate_rotations(player1_set)
-        player_minus1_rotations = self.generate_rotations(player_minus1_set)
+            rotated_board = self.rotate_board(board, i)
+            # Add rotations and reflections of each rotation
+            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "horizontal")))
+            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "vertical")))
+            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "diagonal")))
+            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "anti_diagonal")))
         
-        # Combine rotations and pick the lexicographically smallest one
-        min_rotation = min((frozenset(p1), frozenset(p_m1)) for p1, p_m1 in zip(player1_rotations, player_minus1_rotations))
-        
-        # Return as a canonical key with the board_to_play
-        return (min_rotation, board_to_play)
+        return symmetries
 
-    def board_to_HyphenNumeric_sets(self, board):
-        """Convert the board to sets of 4D positions for each player, used to handle rotations."""
-        player1_pieces = set()
-        player_minus1_pieces = set()
+    def rotate_board(self, board, times):
+        ''' Rotates the board 90 degrees * times '''
+        for _ in range(times):
+            board = np.rot90(board, axes=(2, 3))  # Rotate along the local axes (2x3)
+        return board
+
+    def reflect_board(self, board, axis):
+        ''' Reflects the board along the specified axis '''
+        if axis == "horizontal":
+            return np.flip(board, axis=2)  # Reflect along the local row axis
+        elif axis == "vertical":
+            return np.flip(board, axis=3)  # Reflect along the local column axis
+        elif axis == "diagonal":
+            return np.flip(board, axis=(2, 3))  # Reflect along the main diagonal
+        elif axis == "anti_diagonal":
+            return np.flip(board, axis=(1, 2))  # Reflect along the anti-diagonal
+
+    def board_to_HyphenNumeric(self, board: np.array):
+        ''' Convert the 4D board (3x3x3x3) to its HyphenNumeric representation, 
+        storing only the canonical (smallest) symmetry for the board '''
+        player1_pieces = []
+        player_minus1_pieces = []
 
         for global_row in range(board.shape[0]):
             for global_col in range(board.shape[1]):
@@ -757,50 +666,73 @@ class RetrievalAgent:
                     for local_col in range(board.shape[3]):
                         piece = board[global_row, global_col, local_row, local_col]
                         if piece != 0:  # Only record positions with a placed piece
-                            # Store position as a tuple
-                            position = (global_row, global_col, local_row, local_col)
+                            # Format the position as a hyphen-separated string
+                            position = f"{global_row}_{global_col}_{local_row}_{local_col}"
                             
-                            # Add position to the respective player's set
+                            # Add position to the respective player’s list
                             if piece == 1:
-                                player1_pieces.add(position)
+                                player1_pieces.append(position)
                             elif piece == -1:
-                                player_minus1_pieces.add(position)
+                                player_minus1_pieces.append(position)
 
-        return player1_pieces, player_minus1_pieces
+        # Sort lists to ensure order-agnostic representation and join with __ separator
+        player1_pieces.sort()
+        player_minus1_pieces.sort()
+
+        # Create the raw key before applying symmetries
+        raw_key = "__".join(player1_pieces) + "__" + "__".join(player_minus1_pieces)
+        
+        # Generate all symmetries and pick the smallest one
+        symmetries = self.get_symmetries(board)
+        canonical_key = min(symmetries, key=lambda x: str(x))
+
+        # Convert the canonical symmetry board to a tuple (hashable)
+        return canonical_key
+
+    def board_to_tuple(self, board):
+        ''' Convert the numpy board to a tuple (hashable) '''
+        # Convert the numpy array to a tuple of tuples for immutability and hashability
+        return tuple(map(tuple, board.reshape(-1, board.shape[-1])))
+
+    def get_HyphenNumeric_hash(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key = self.get_HyphenNumeric_key(board, board_to_play)
+        return self.hash_HyphenNumeric_boards.get(key, None)
+
+    def get_HyphenNumeric_key(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
+        ''' Returns the key for the HyphenNumeric boards dictionary '''
+        return (self.board_to_HyphenNumeric(board), board_to_play)
 
     def load_HyphenNumeric_boards(self, file):
-        """Loads the winnable boards from a file and stores them in the dictionary."""
+        ''' Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board state is stored as a key (a tuple with the board's HyphenNumeric representation, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                self.parse_and_store_board_line(line)
+
+    def parse_and_store_board_line(self, line):
+        ''' Parse a line from the file and store the board and its best move '''
         try:
-            with open(file, 'r') as f:
-                for line in f:
-                    try:
-                        board_key_str, best_move_str = line.strip().split(" : ")
-                        board_key = self.parse_HyphenNumeric_key(board_key_str)
-                        best_move = tuple(map(int, best_move_str.split("_")))
-                        self.hash_HyphenNumeric_boards[board_key] = best_move
-                    except ValueError as e:
-                        print(f"Error parsing line: {line.strip()} - Error: {e}")
-        except FileNotFoundError:
-            print(f"File {file} not found.")
+            board_part, move_part = line.strip().split(" : ")
+            board_to_play_str, move_str = move_part.split(", ")
+            board_key = self.parse_board_key(board_part)
+            board_to_play = tuple(map(int, board_to_play_str.split("_")))
+            best_move = tuple(map(int, move_str.split("_")))
+            
+            self.hash_HyphenNumeric_boards[board_key] = best_move
+        except ValueError as e:
+            print(f"Error parsing line: {line} - Error: {e}")
 
-    def parse_HyphenNumeric_key(self, key_str):
-        """Parses a string-formatted key and returns it as a usable board key."""
-        board_part, board_to_play_str = key_str.split(", ")
-        board_to_play = tuple(map(int, board_to_play_str.split("_")))
-
-        player1_positions, player_minus1_positions = [], []
-        moves = board_part.split("__")
-        for i, move in enumerate(moves):
-            position = tuple(map(int, move.split("_")))
-            if i % 2 == 0:
-                player1_positions.append(position)
-            else:
-                player_minus1_positions.append(position)
-
-        # Create canonical sets
-        player1_set = frozenset(player1_positions)
-        player_minus1_set = frozenset(player_minus1_positions)
-        return self.canonical_key(player1_set, player_minus1_set, board_to_play)
+    def parse_board_key(self, board_str):
+        ''' Convert the HyphenNumeric string back to a canonical key '''
+        pieces = board_str.split("__")
+        player1_pieces = set(pieces[:len(pieces)//2])
+        player_minus1_pieces = set(pieces[len(pieces)//2:])
+        
+        # Build the frozenset for the key
+        return frozenset(player1_pieces), frozenset(player_minus1_pieces)
 
 
 
@@ -1199,7 +1131,8 @@ def run_winnable_tests_minus_one(agent):
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    assert agent.get_HyphenNumeric_hash(super_board_1, BTP1) == BEST_MOVE_1, "Test Failed: Super Board 1 should have a best move of (0, 1, 0, 2)"
+    print(f"\n\nBest_move_1 obtained was {agent.get_HyphenNumeric_hash(super_board_1, BTP1)}\n\n")
+    assert agent.get_HyphenNumeric_hash(super_board_1, BTP1) == BEST_MOVE_1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
     
     print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
 
