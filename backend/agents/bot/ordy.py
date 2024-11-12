@@ -2,7 +2,8 @@ import numpy as np
 import random
 import os
 import time
-from colorama import init, Fore, Style
+import ast
+from colorama import Style, Fore
 
 """
 depth = 7/6, plain alpha beta
