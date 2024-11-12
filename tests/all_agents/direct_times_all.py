@@ -1,7 +1,8 @@
 import numpy as np
 import time
 import timeit
-from colorama import init, Fore, Style
+from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 from ...backend.utils import fancyBoardPrinter, get_board_results, load_winning_boards, get_winner
 from ...backend.agents.bot.iterold import IteroldAgent
 from ...backend.agents.bot.itterino import ItterinoAgent

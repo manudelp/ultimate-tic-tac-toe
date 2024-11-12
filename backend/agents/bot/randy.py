@@ -1,6 +1,7 @@
 import random
 import numpy as np
-from colorama import init, Fore, Style
+from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 
 
 def isFull(board):

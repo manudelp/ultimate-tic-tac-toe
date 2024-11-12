@@ -4,6 +4,7 @@ import os
 import time
 import ast
 from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
 depth = 7/6, plain alpha beta

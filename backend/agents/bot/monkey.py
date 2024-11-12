@@ -4,7 +4,8 @@ import os
 import time
 import ast
 from typing import Union, Tuple
-from colorama import init, Fore, Style
+from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
 depth = iterative_deepening

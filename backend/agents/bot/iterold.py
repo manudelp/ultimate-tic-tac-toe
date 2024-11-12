@@ -4,6 +4,7 @@ import os
 import time
 import ast
 from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
 depth = iterative_deepening with move re-order and CUTOFFS, global depth=7, local depth=8, max time to start a new depth is 30 seconds

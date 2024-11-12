@@ -3,6 +3,7 @@ import os
 import time
 from typing import Tuple
 from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 
 # Board Printer
 def fancyBoardPrinter(board):

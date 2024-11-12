@@ -1,7 +1,8 @@
 import numpy as np
 import test_utils as utils
 import time
-from colorama import Fore, Style
+from colorama import Style, Fore
+from typing import List, Tuple, Dict, Any, Union, Optional
 from bot.randy import RandomAgent
 from bot.monkey import MonkeyAgent
 from bot.jardy import GardenerAgent

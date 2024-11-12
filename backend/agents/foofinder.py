@@ -4,8 +4,8 @@ import time
 import random
 import ast
 import os
+from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
-from colorama import init, Fore, Style
 
 # Other Playing Info
 """
