@@ -638,6 +638,30 @@ class RetrievalAgent:
             raise ValueError(f"Board {board} not found in evaluated V3 boards.")
         return local_eval_v3
 
+    def get_eval_result_v1_hash(self, board):
+        ''' Retrieve the result of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        _, result = self.hash_eval_boards.get(board_key, None)
+        if result is None:
+            raise ValueError(f"Board {board} not found in evaluated boards.")
+        return result
+    
+    def get_eval_result_v2_hash(self, board):
+        ''' Retrieve the result of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        _, result = self.hash_eval_v2_boards.get(board_key, None)
+        if result is None:
+            raise ValueError(f"Board {board} not found in evaluated V2 boards.")
+        return result
+    
+    def get_eval_result_v3_hash(self, board):
+        ''' Retrieve the result of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        _, result = self.hash_eval_v3_boards.get(board_key, None)
+        if result is None:
+            raise ValueError(f"Board {board} not found in evaluated V3 boards.")
+        return result
+
     def get_eval_glob_hash(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
@@ -1004,7 +1028,55 @@ def run_eval_tests_v3(agent):
     assert agent.get_eval_v3_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V3 tests passed successfully!")
+
+def get_eval_result_tests_v1(agent):
+    assert agent.get_eval_result_v1_hash(board_1) == 1, "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_2) == 1, "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_3) == 1, "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_4) == -1, "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_5) == -1, "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_6) == -1, "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_7) == 0, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_8) == 0, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_9) == 0, "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_10) == 0, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_11) == 0, "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_12) == 0, "Test Failed: Board 12 evaluation does not match"
+
+    print("All Eval Result V1 tests passed successfully!")
     
+def get_eval_result_tests_v2(agent):
+    assert agent.get_eval_result_v2_hash(board_1) == 1, "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_2) == 1, "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_3) == 1, "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_4) == -1, "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_5) == -1, "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_6) == -1, "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_7) == 0, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_8) == 0, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_9) == 0, "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_10) == 0, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_11) == 0, "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_12) == 0, "Test Failed: Board 12 evaluation does not match"
+
+    print("All Eval Result V2 tests passed successfully!")
+    
+def get_eval_result_tests_v3(agent):
+    assert agent.get_eval_result_v3_hash(board_1) == 1, "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_2) == 1, "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_3) == 1, "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_4) == -1, "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_5) == -1, "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_6) == -1, "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_7) == 0, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_8) == 0, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_9) == 0, "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_10) == 0, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_11) == 0, "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_12) == 0, "Test Failed: Board 12 evaluation does not match"
+
+    print("All Eval Result V3 tests passed successfully!")
+
 def run_eval_tests_glob(agent):
     assert agent.get_eval_glob_hash(board_1) == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
     assert agent.get_eval_glob_hash(board_2) == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"

@@ -948,7 +948,7 @@ class FooFinderAgent:
         If the board is not in the dictionary, return None (or handle it as needed).
         """
         board_key = board.tobytes()
-        local_eval = self.hash_eval_boards.get(board_key, None)
+        local_eval, _ = self.hash_eval_boards.get(board_key, None)
         if local_eval is None:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
