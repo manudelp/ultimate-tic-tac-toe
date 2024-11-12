@@ -698,21 +698,29 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
-    # Hyphen Numeric Hashing
-    def get_symmetries(self, board):
-        ''' Returns all 8 symmetries (4 rotations + 4 reflections) of the board '''
-        symmetries = set()
 
-        # Generate all rotations (multiples of 90 degrees)
+    # Hyphen Numeric Hash Functions
+    #TODO: Estas tenes que decirle que hay que hacerlas
+    def get_symmetries(self, board):
+        ''' 
+        Returns the standardized (canonical) symmetry of the board and the transformation
+        needed to reach it. The transformation includes the rotation and reflection steps.
+        '''
+        symmetries = []
+
+        # Generate all rotations (multiples of 90 degrees) and reflections for each rotation
         for i in range(4):
             rotated_board = self.rotate_board(board, i)
-            # Add rotations and reflections of each rotation
-            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "horizontal")))
-            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "vertical")))
-            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "diagonal")))
-            symmetries.add(self.board_to_tuple(self.reflect_board(rotated_board, "anti_diagonal")))
+            symmetries.append((self.board_to_tuple(rotated_board), ('rotate', i)))
+            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "horizontal")), ('rotate', i, 'reflect', 'horizontal')))
+            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "vertical")), ('rotate', i, 'reflect', 'vertical')))
+            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "diagonal")), ('rotate', i, 'reflect', 'diagonal')))
+            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "anti_diagonal")), ('rotate', i, 'reflect', 'anti_diagonal')))
         
-        return symmetries
+        # Select the canonical representation (lexicographically smallest)
+        canonical_symmetry, transformation = min(symmetries, key=lambda x: str(x[0]))
+
+        return canonical_symmetry, transformation
 
     def rotate_board(self, board, times):
         ''' Rotates the board 90 degrees * times '''
@@ -732,8 +740,10 @@ class RetrievalAgent:
             return np.flip(board, axis=(1, 2))  # Reflect along the anti-diagonal
 
     def board_to_HyphenNumeric(self, board: np.array):
-        ''' Convert the 4D board (3x3x3x3) to its HyphenNumeric representation, 
-        storing only the canonical (smallest) symmetry for the board '''
+        ''' 
+        Convert the 4D board (3x3x3x3) to its HyphenNumeric representation, 
+        storing only the canonical (smallest) symmetry for the board.
+        '''
         player1_pieces = []
         player_minus1_pieces = []
 
@@ -742,7 +752,7 @@ class RetrievalAgent:
                 for local_row in range(board.shape[2]):
                     for local_col in range(board.shape[3]):
                         piece = board[global_row, global_col, local_row, local_col]
-                        if piece != 0:  # Only record positions with a placed piece
+                        if int(piece) != 0:  # Only record positions with a placed piece
                             # Format the position as a hyphen-separated string
                             position = f"{global_row}_{global_col}_{local_row}_{local_col}"
                             
@@ -759,13 +769,69 @@ class RetrievalAgent:
         # Create the raw key before applying symmetries
         raw_key = "__".join(player1_pieces) + "__" + "__".join(player_minus1_pieces)
         
-        # Generate all symmetries and pick the smallest one
-        symmetries = self.get_symmetries(board)
-        canonical_key = min(symmetries, key=lambda x: str(x))
+        # Generate the canonical symmetry and its transformation
+        canonical_key, transformation = self.get_symmetries(board)
+        
+        # Return both the canonical key and the transformation steps
+        return canonical_key, transformation
 
-        # Convert the canonical symmetry board to a tuple (hashable)
-        return canonical_key
+    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
+        ''' 
+        Reverse the transformation applied to the board to get back the original move coordinates. 
+        This involves reversing both rotations and reflections.
+        '''
+        # Reverse each transformation in the transformation tuple in reverse order
+        for step in reversed(transformation):
+            if isinstance(step, tuple):
+                # Reflect back
+                if step[0] == 'reflect':
+                    move = self.reflect_position(move, step[1])
+            else:
+                # Rotate back
+                if step[0] == 'rotate':
+                    for _ in range(4 - step[1]):  # Counter-rotate to undo
+                        move = self.rotate_position(move)
+        
+        return move
 
+    def rotate_position(self, position):
+        ''' Rotates a single move position by 90 degrees clockwise in local coordinates '''
+        global_row, global_col, local_row, local_col = position
+        new_local_row = local_col
+        new_local_col = 2 - local_row
+        return global_row, global_col, new_local_row, new_local_col
+
+    def reflect_position(self, position, axis):
+        ''' Reflects a single move position according to the specified axis '''
+        global_row, global_col, local_row, local_col = position
+        if axis == "horizontal":
+            local_row = 2 - local_row
+        elif axis == "vertical":
+            local_col = 2 - local_col
+        elif axis == "diagonal":
+            local_row, local_col = local_col, local_row
+        elif axis == "anti_diagonal":
+            local_row, local_col = 2 - local_col, 2 - local_row
+        return global_row, global_col, local_row, local_col
+
+    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
+        ''' Returns the key for the HyphenNumeric boards dictionary
+        Along with the appropriate reflections and rotations that need to be made to reverse the changes and 
+        By turning the (board, board_to_play) pair into the appropriate ((frozenset, frozenset), Tuple/None) pair
+        Attempting all possible symmetrical transformations to check if the board is in the hash in some symmetrical way
+        '''
+        # implement logic
+        None
+    
+    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
+        ''' 
+        Reverse the given transformation that was applied to the board, to get back the original move coordinates. 
+        This involves reversing both rotations and reflections.
+        '''
+        # implement logic
+        None
+
+    # Las que ya estan bien asi
     def board_to_tuple(self, board):
         ''' Convert the numpy board to a tuple (hashable) '''
         # Convert the numpy array to a tuple of tuples for immutability and hashability
@@ -773,17 +839,15 @@ class RetrievalAgent:
 
     def get_HyphenNumeric_hash(self, board, board_to_play):
         ''' Returns the best move for the given HyphenNumeric board '''
-        key = self.get_HyphenNumeric_key(board, board_to_play)
-        return self.hash_HyphenNumeric_boards.get(key, None)
-
-    def get_HyphenNumeric_key(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
-        ''' Returns the key for the HyphenNumeric boards dictionary '''
-        return (self.board_to_HyphenNumeric(board), board_to_play)
+        key, reverse_symmetry_instructions = self.get_HyphenNumeric_key(board, board_to_play)
+        best_move_raw = self.hash_HyphenNumeric_boards.get(key, None)
+        best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
+        return best_move_processed
 
     def load_HyphenNumeric_boards(self, file):
         ''' Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board state is stored as a key (a tuple with the board's HyphenNumeric representation, and the board_to_play).
-        They are stored as (board_state, board_to_play) : best_move
+        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
         '''
         with open(file, 'r') as f:
             for line in f:
@@ -791,23 +855,32 @@ class RetrievalAgent:
 
     def parse_and_store_board_line(self, line):
         ''' Parse a line from the file and store the board and its best move '''
-        try:
-            board_part, move_part = line.strip().split(" : ")
-            board_to_play_str, move_str = move_part.split(", ")
-            board_key = self.parse_board_key(board_part)
+        # Get the data
+        key_part, move_part = line.strip().split(" : ")
+        
+        # Board
+        board_key_part = self.parse_board_key(board_part)
+        board_part, board_to_play_str = key_part.split(", ")
+
+        # Board to play
+        if board_to_play_str == 'None':
+            board_to_play = None
+        else:
             board_to_play = tuple(map(int, board_to_play_str.split("_")))
-            best_move = tuple(map(int, move_str.split("_")))
-            
-            self.hash_HyphenNumeric_boards[board_key] = best_move
-        except ValueError as e:
-            print(f"Error parsing line: {line} - Error: {e}")
+
+        # Key is Ready
+        full_key = (board_key_part, board_to_play)
+        
+        # Best Move
+        best_move = tuple(map(int, move_part.split("_")))
+        self.hash_HyphenNumeric_boards[full_key] = best_move
 
     def parse_board_key(self, board_str):
         ''' Convert the HyphenNumeric string back to a canonical key '''
         pieces = board_str.split("__")
-        player1_pieces = set(pieces[:len(pieces)//2])
-        player_minus1_pieces = set(pieces[len(pieces)//2:])
-        
+        player1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 == 0)
+        player_minus1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 != 0)
+
         # Build the frozenset for the key
         return frozenset(player1_pieces), frozenset(player_minus1_pieces)
 
@@ -890,7 +963,8 @@ super_board_1[0, 0, 0, 0] = 1
 super_board_1[0, 0, 1, 2] = -1
 super_board_1[1, 2, 1, 1] = 1
 super_board_1[1, 1, 2, 0] = -1
-BTP1 = (2, 0)
+btp1 = (2, 0)
+# btp1 = None
 BEST_MOVE_1 = (2, 0, 0, 2)
 
 # super_board_1_key = agent.board_to_HyphenNumeric_sets(super_board_1)
@@ -1256,10 +1330,13 @@ def run_winnable_tests_minus_one(agent):
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    print(f"\n\nBest_move_1 obtained was {agent.get_HyphenNumeric_hash(super_board_1, BTP1)}\n\n")
-    assert agent.get_HyphenNumeric_hash(super_board_1, BTP1) == BEST_MOVE_1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
+    print(f"\n\nBest_move_1 obtained was {agent.get_HyphenNumeric_hash(super_board_1, btp1)}\n\n")
+    assert agent.get_HyphenNumeric_hash(super_board_1, btp1) == BEST_MOVE_1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
     
     print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
+
+print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Agent hyphen numeric hash looks like this:\n{agent.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
+print(Style.BRIGHT + Fore.BLUE + f"Super Board 1 get hyphennumeric key is {agent.get_HyphenNumeric_key(super_board_1, btp1)}" + Style.RESET_ALL)
 
 # Test Running Function
 def run_all_agent_tests(agent):
@@ -1285,4 +1362,6 @@ def run_all_agent_tests(agent):
     print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Total time taken: {t_final_ms:.2f} miliseconds" + Style.RESET_ALL)
 
 # Run the Tests
-run_all_agent_tests(agent)
+# run_all_agent_tests(agent)
+
+run_HyphenNumeric_tests(agent)
