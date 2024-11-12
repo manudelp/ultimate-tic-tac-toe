@@ -470,6 +470,7 @@ class RetrievalAgent:
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
         self.hash_HyphenNumeric_boards = {}
+        self.hash_HyphenNumeric_boards_rival = {}
 
         # Load both winning boards and evaluated boards during initialization
         self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
@@ -483,7 +484,7 @@ class RetrievalAgent:
         self.load_winnable_boards_one('backend/agents/hashes/hash_winnable_boards_by_one.txt')
         self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
-
+        self.load_HyphenNumeric_boards_rival('backend/agents/hashes/hash_HyphenNumeric_boards_rival.txt')
 
     def load_winning_boards(self, file_path):
         """
@@ -706,23 +707,55 @@ class RetrievalAgent:
         Returns the key for the HyphenNumeric dictionary, checking all symmetrical variations
         to match the stored key format, and also outputs reverse transformations.
         '''
-        # Original, tupled format of the board
-        original_tuple_board = self.board_to_tuple(board)
-        print(f"Original Tuple Board: {original_tuple_board}\n")
-        
-        # Try all 8 symmetrical transformations (4 rotations and 4 reflections)
+        # Rotations
         for rotations in range(4):  # Four rotations
-            rotated_board = self.rotate_board(board, rotations)
+            processed_moves_1 = set()
+            processed_moves_2 = set()
+            raw_moves_player_1, raw_moves_player_2 = self.board_to_moves_list(board)
+            
+            # Move Rotation
+            for move in raw_moves_player_1:
+                if len(move) != 4:
+                    raise ValueError(f"Invalid move player 1: {move}")
+                rotated_move = self.rotate_coordinates_4d(move, rotations)
+                processed_moves_1.add(rotated_move)
+                
+            for move in raw_moves_player_2:
+                if len(move) != 4:
+                    raise ValueError(f"Invalid move player -1: {move}")
+                rotated_move = self.rotate_coordinates_4d(move, rotations)
+                processed_moves_2.add(rotated_move)
+            
+            # Board to Play
             rotated_board_to_play = self.rotate_coordinates_2d(coordinates=board_to_play, rotation_times=rotations)
 
-            for reflection in ['none', 'horizontal', 'vertical', 'diagonal', 'anti_diagonal']:
-                reflected_board = self.reflect_board(rotated_board, reflection)
-                reflected_board_to_play = self.reflect_coordinates_2d(rotated_board_to_play, reflection)
-                board_key_player_1, board_key_player_2 = self.board_to_HyphenNumeric_tuple(reflected_board)
+            # Reflections
+            for reflection in ['none', 'horizontal', 'vertical', 'diagonal', 'anti-diagonal']:
+                final_moves_1 = set()
+                final_moves_2 = set()
                 
+                # Move Reflection
+                for move in processed_moves_1:
+                    if len(move) != 4:
+                        raise ValueError(f"Invalid move p1 rotated: {move}")
+                    reflected_move = self.reflect_coordinates_4d(move, reflection)
+                    final_moves_1.add(reflected_move)
+                    
+                for move in processed_moves_2:
+                    if len(move) != 4:
+                        raise ValueError(f"Invalid move p2 rotated: {move}")
+                    reflected_move = self.reflect_coordinates_4d(move, reflection)
+                    final_moves_2.add(reflected_move)
+                
+                # Board to Play
+                reflected_board_to_play = self.reflect_coordinates_2d(rotated_board_to_play, reflection)
+                moves_tuple = (final_moves_1, final_moves_2)
+                board_key_player_1, board_key_player_2 = self.list_of_tuples_to_HyphenNumeric_str_frozensets(moves_tuple)
+                                
                 # Construct the hash key with this version
-                key = (frozenset({board_key_player_1}), frozenset({board_key_player_2}), reflected_board_to_play), 
-                print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: {key}, where rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
+                key = ((board_key_player_1, board_key_player_2), reflected_board_to_play)
+                print(Fore.LIGHTGREEN_EX + f"\nWhile the transposition table looks as such:\n{self.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
+                print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: \n{key}\nwhere rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
 
                 # Check if this key is in the hash dictionary
                 if key in self.hash_HyphenNumeric_boards:
@@ -730,6 +763,8 @@ class RetrievalAgent:
                 
         # If no match is found in any symmetry
         return None, None
+
+
 
     def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
         ''' Reverse the transformation to retrieve the original move coordinates '''
@@ -766,7 +801,7 @@ class RetrievalAgent:
             return np.flip(board, axis=3)
         elif axis == "diagonal":
             return np.flip(board, axis=(2, 3))
-        elif axis == "anti_diagonal":
+        elif axis == "anti-diagonal":
             return np.flip(board, axis=(1, 2))
 
     # Rotations & Reflections 2D
@@ -823,9 +858,10 @@ class RetrievalAgent:
         
         raise ValueError(f"Invalid rotation times: {rotation_times}??")
 
-    def reflect_coordinates_2d(self, a, b, reflection_type):
+    def reflect_coordinates_2d(self, move, reflection_type):
         # Normalize reflection_type to lowercase to handle different cases
         reflection_type = reflection_type.lower()
+        a, b = move
         
         if reflection_type == 'none':
             # No reflection
@@ -845,9 +881,9 @@ class RetrievalAgent:
         else:
             raise ValueError(f"Invalid reflection type: {reflection_type}")
 
-    def reverse_reflection_2d(self, a, b, reflection_type):
+    def reverse_reflection_2d(self, move, reflection_type):
         # Applying the same reflection again undoes it (reflections are self-inverse)
-        return self.reflect_coordinates_2d(a, b, reflection_type)
+        return self.reflect_coordinates_2d(move, reflection_type)
 
     # Rotations & Reflections 4D
     def rotate_coordinates_4d(self, coordinates: Union[Tuple[int, int, int, int], None], rotation_times: int):
@@ -875,7 +911,7 @@ class RetrievalAgent:
         # Reverse the rotation by performing the opposite of the given rotation.
         return self.rotate_coordinates_4d(move, (4 - rotation_times) % 4)
 
-    def reflect_coordinates_4d(self, move, axis):
+    def reflect_coordinates_4d(self, move, reflection_type):
         reflection_type = reflection_type.lower()
         a, b, c, d = move
 
@@ -902,7 +938,7 @@ class RetrievalAgent:
         return self.reflect_coordinates_4d(move, axis)
 
     # Las que ya estan bien asi
-    def board_to_HyphenNumeric_tuple(self, board) -> Tuple[Tuple[Tuple[int, int, int, int], ...], Tuple[Tuple[int, int, int, int], ...]]:
+    def board_to_moves_list(self, board) -> Tuple[Tuple[Tuple[int, int, int, int], ...], Tuple[Tuple[int, int, int, int], ...]]:
         ''' Takes a board, and returns 2 tuples, each with N tuples inside '''
         player1_pieces = []
         player_minus1_pieces = []
@@ -916,7 +952,26 @@ class RetrievalAgent:
                         elif board[i, j, k, l] == -1:
                             player_minus1_pieces.append((i, j, k, l))
 
-        return tuple(player1_pieces), tuple(player_minus1_pieces)
+        return (player1_pieces, player_minus1_pieces)
+
+    def list_of_tuples_to_HyphenNumeric_str_frozensets(self, piece_lists_tuple):
+        ''' Convert the list of tuples to the HyphenNumeric format '''
+        player_1, player_minus1 = piece_lists_tuple
+        player_1_list, player_minus1_list = [], []
+        
+        for move in player_1:
+            i, j, k, l = move
+            player_1_list.append(f"{i}_{j}_{k}_{l}")
+            
+        for move in player_minus1:
+            i, j, k, l = move
+            player_minus1_list.append(f"{i}_{j}_{k}_{l}")
+            
+        return (frozenset(player_1_list), frozenset(player_minus1_list))
+
+    def get_quick_board_key(self, board):
+        moves1, moves_minus1 = self.board_to_moves_list(board)
+        return self.list_of_tuples_to_HyphenNumeric_str_frozensets((moves1, moves_minus1))
 
     def get_HyphenNumeric_hash(self, board, board_to_play):
         ''' Returns the best move for the given HyphenNumeric board '''
@@ -1043,11 +1098,24 @@ super_board_1[0, 0, 1, 2] = -1
 super_board_1[1, 2, 1, 1] = 1
 super_board_1[1, 1, 2, 0] = -1
 btp1 = (2, 0)
-# btp1 = None
-BEST_MOVE_1 = (2, 0, 0, 2)
+bestmove1 = (2, 0, 0, 2)
 
-# super_board_1_key = agent.board_to_HyphenNumeric_sets(super_board_1)
-# print(f"Super Board 1 Key: {super_board_1_key}")
+# Print Moves for all 8 symmetries
+print(Style.BRIGHT + Fore.CYAN)
+print(f"{agent.board_to_moves_list(super_board_1)} is the key for Board 1 Original hyphen numeric")
+print(Style.RESET_ALL)
+
+# Try with 180 Rotation
+super_board_2 = np.zeros((3, 3, 3, 3), dtype=int)
+super_board_2[2, 2, 2, 2] = 1
+super_board_2[2, 2, 1, 0] = -1
+super_board_2[1, 0, 1, 1] = 1
+super_board_2[1, 1, 0, 2] = -1
+btp2 = (0, 2)
+bestmove2 = (0, 2, 2, 0)
+
+super_board_center = np.zeros((3, 3, 3, 3), dtype=int)
+super_board_center[1, 1, 1, 1] = 1
 
 # print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
@@ -1409,13 +1477,15 @@ def run_winnable_tests_minus_one(agent):
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    print(f"\n\nBest_move_1 obtained was {agent.get_HyphenNumeric_hash(super_board_1, btp1)}\n\n")
-    assert agent.get_HyphenNumeric_hash(super_board_1, btp1) == BEST_MOVE_1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
+    print(f"\nbestmove1 obtained was {agent.get_HyphenNumeric_hash(super_board_2, btp1)}\n")
+    assert agent.get_HyphenNumeric_hash(super_board_1, btp1) == bestmove1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
+    assert agent.get_HyphenNumeric_hash(super_board_2, btp2) == bestmove2, "Test Failed: Super Board 2 should have a best move of (0, 2, 2, 0)"
     
     print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
 
-print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Agent hyphen numeric hash looks like this:\n{agent.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
-print(Style.BRIGHT + Fore.BLUE + f"Super Board 1 get hyphennumeric key is {agent.get_HyphenNumeric_parameters(super_board_1, btp1)}" + Style.RESET_ALL)
+# print(Style.BRIGHT + Fore.MAGENTA + f"Super Board 2 key for board is {agent.get_quick_board_key(super_board_2)}" + Style.RESET_ALL)
+# print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Agent hyphen numeric hash looks like this:\n{agent.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
+# print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Super Board 2 running hyphennumeric attempt...\n {agent.get_HyphenNumeric_parameters(super_board_2, btp2)}" + Style.RESET_ALL)
 
 # Test Running Function
 def run_all_agent_tests(agent):
@@ -1441,6 +1511,4 @@ def run_all_agent_tests(agent):
     print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Total time taken: {t_final_ms:.2f} miliseconds" + Style.RESET_ALL)
 
 # Run the Tests
-# run_all_agent_tests(agent)
-
-run_HyphenNumeric_tests(agent)
+run_all_agent_tests(agent)
