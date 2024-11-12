@@ -701,145 +701,226 @@ class RetrievalAgent:
 
     # Hyphen Numeric Hash Functions
     #TODO: Estas tenes que decirle que hay que hacerlas
-    def get_symmetries(self, board):
+    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
         ''' 
-        Returns the standardized (canonical) symmetry of the board and the transformation
-        needed to reach it. The transformation includes the rotation and reflection steps.
+        Returns the key for the HyphenNumeric dictionary, checking all symmetrical variations
+        to match the stored key format, and also outputs reverse transformations.
         '''
-        symmetries = []
-
-        # Generate all rotations (multiples of 90 degrees) and reflections for each rotation
-        for i in range(4):
-            rotated_board = self.rotate_board(board, i)
-            symmetries.append((self.board_to_tuple(rotated_board), ('rotate', i)))
-            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "horizontal")), ('rotate', i, 'reflect', 'horizontal')))
-            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "vertical")), ('rotate', i, 'reflect', 'vertical')))
-            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "diagonal")), ('rotate', i, 'reflect', 'diagonal')))
-            symmetries.append((self.board_to_tuple(self.reflect_board(rotated_board, "anti_diagonal")), ('rotate', i, 'reflect', 'anti_diagonal')))
+        # Original, tupled format of the board
+        original_tuple_board = self.board_to_tuple(board)
+        print(f"Original Tuple Board: {original_tuple_board}\n")
         
-        # Select the canonical representation (lexicographically smallest)
-        canonical_symmetry, transformation = min(symmetries, key=lambda x: str(x[0]))
+        # Try all 8 symmetrical transformations (4 rotations and 4 reflections)
+        for rotations in range(4):  # Four rotations
+            rotated_board = self.rotate_board(board, rotations)
+            rotated_board_to_play = self.rotate_coordinates_2d(coordinates=board_to_play, rotation_times=rotations)
 
-        return canonical_symmetry, transformation
+            for reflection in ['none', 'horizontal', 'vertical', 'diagonal', 'anti_diagonal']:
+                reflected_board = self.reflect_board(rotated_board, reflection)
+                reflected_board_to_play = self.reflect_coordinates_2d(rotated_board_to_play, reflection)
+                board_key_player_1, board_key_player_2 = self.board_to_HyphenNumeric_tuple(reflected_board)
+                
+                # Construct the hash key with this version
+                key = (frozenset({board_key_player_1}), frozenset({board_key_player_2}), reflected_board_to_play), 
+                print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: {key}, where rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
 
+                # Check if this key is in the hash dictionary
+                if key in self.hash_HyphenNumeric_boards:
+                    return key, (rotations, reflection)  # Found the match with transformations
+                
+        # If no match is found in any symmetry
+        return None, None
+
+    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
+        ''' Reverse the transformation to retrieve the original move coordinates '''
+        if not transformation:
+            return move
+        
+        rotations, reflection = transformation
+        counter_move = move
+
+        # Apply inverse reflection first
+        if reflection:
+            counter_move = self.reverse_reflection_4d(counter_move, reflection)
+
+        # Apply inverse rotation
+        if rotations:
+            counter_move = self.reverse_rotation_4d(counter_move, rotations)
+
+        return counter_move
+
+    # Helper Methods
     def rotate_board(self, board, times):
-        ''' Rotates the board 90 degrees * times '''
+        ''' Rotate the board by 90 degrees * times '''
         for _ in range(times):
-            board = np.rot90(board, axes=(2, 3))  # Rotate along the local axes (2x3)
+            board = np.rot90(board, axes=(2, 3))
         return board
 
     def reflect_board(self, board, axis):
         ''' Reflects the board along the specified axis '''
-        if axis == "horizontal":
-            return np.flip(board, axis=2)  # Reflect along the local row axis
+        if axis == "none":
+            return board
+        elif axis == "horizontal":
+            return np.flip(board, axis=2)
         elif axis == "vertical":
-            return np.flip(board, axis=3)  # Reflect along the local column axis
+            return np.flip(board, axis=3)
         elif axis == "diagonal":
-            return np.flip(board, axis=(2, 3))  # Reflect along the main diagonal
+            return np.flip(board, axis=(2, 3))
         elif axis == "anti_diagonal":
-            return np.flip(board, axis=(1, 2))  # Reflect along the anti-diagonal
+            return np.flip(board, axis=(1, 2))
 
-    def board_to_HyphenNumeric(self, board: np.array):
-        ''' 
-        Convert the 4D board (3x3x3x3) to its HyphenNumeric representation, 
-        storing only the canonical (smallest) symmetry for the board.
-        '''
+    # Rotations & Reflections 2D
+    def rotate_coordinates_2d(self, coordinates: Union[Tuple[int, int], None], rotation_times: int):
+        ''' Rotate the board to play by 90 degrees * times, coordinates must be either 0, 1, 2
+        So rotations are done performing the (2 - coordinate) operation for the corresponding axis '''
+        if coordinates is None:
+            return None
+        
+        a, b = coordinates
+        rotation_times %= 4
+        
+        if rotation_times == 0:
+            # 0° rotation
+            return a, b
+        
+        elif rotation_times == 1:
+            # 90° rotation
+            return b, 2 - a
+        
+        elif rotation_times == 2:
+            # 180° rotation
+            return 2 - a, 2 - b
+        
+        elif rotation_times == 3:
+            # 270° rotation
+            return 2 - b, a
+
+        raise ValueError(f"Invalid rotation times: {rotation_times}??")
+
+    def reverse_rotation_2d(self, coordinates, rotation_times):
+        ''' Reverse the rotation of the coordinates '''
+        if coordinates is None:
+            return None
+        
+        a, b = coordinates
+        rotation_times %= 4
+        
+        if rotation_times == 0:
+            # 0° rotation
+            return a, b
+        
+        elif rotation_times == 1:
+            # 90° rotation
+            return 2 - b, a
+        
+        elif rotation_times == 2:
+            # 180° rotation
+            return 2 - a, 2 - b
+        
+        elif rotation_times == 3:
+            # 270° rotation
+            return b, 2 - a
+        
+        raise ValueError(f"Invalid rotation times: {rotation_times}??")
+
+    def reflect_coordinates_2d(self, a, b, reflection_type):
+        # Normalize reflection_type to lowercase to handle different cases
+        reflection_type = reflection_type.lower()
+        
+        if reflection_type == 'none':
+            # No reflection
+            return a, b
+        elif reflection_type == 'horizontal':
+            # Horizontal reflection (across the middle row)
+            return 2 - a, b
+        elif reflection_type == 'vertical':
+            # Vertical reflection (across the middle column)
+            return a, 2 - b
+        elif reflection_type == 'diagonal':
+            # Diagonal reflection (top-left to bottom-right)
+            return b, a
+        elif reflection_type == 'anti-diagonal':
+            # Anti-diagonal reflection (top-right to bottom-left)
+            return 2 - b, 2 - a
+        else:
+            raise ValueError(f"Invalid reflection type: {reflection_type}")
+
+    def reverse_reflection_2d(self, a, b, reflection_type):
+        # Applying the same reflection again undoes it (reflections are self-inverse)
+        return self.reflect_coordinates_2d(a, b, reflection_type)
+
+    # Rotations & Reflections 4D
+    def rotate_coordinates_4d(self, coordinates: Union[Tuple[int, int, int, int], None], rotation_times: int):
+        if coordinates is None:
+            return None
+        a, b, c, d = coordinates
+        rotation_times %= 4
+        
+        if rotation_times == 0:
+            # No rotation
+            return a, b, c, d
+        elif rotation_times == 1:
+            # 90-degree rotation: rotate first two coordinates (a, b) and last two coordinates (c, d)
+            return c, d, a, b
+        elif rotation_times == 2:
+            # 180-degree rotation: swap (a, b) and (c, d)
+            return 2 - a, 2 - b, 2 - c, 2 - d
+        elif rotation_times == 3:
+            # 270-degree rotation: rotate in the opposite direction (c, d) and (a, b)
+            return d, c, b, a
+        else:
+            raise ValueError(f"Invalid rotation time: {rotation_times}")
+
+    def reverse_rotation_4d(self, move, rotation_times):
+        # Reverse the rotation by performing the opposite of the given rotation.
+        return self.rotate_coordinates_4d(move, (4 - rotation_times) % 4)
+
+    def reflect_coordinates_4d(self, move, axis):
+        reflection_type = reflection_type.lower()
+        a, b, c, d = move
+
+        if reflection_type == 'none':
+            # No reflection
+            return a, b, c, d
+        elif reflection_type == 'horizontal':
+            # Reflect across the first two coordinates (flip a, b)
+            return 2 - a, 2 - b, c, d
+        elif reflection_type == 'vertical':
+            # Reflect across the last two coordinates (flip c, d)
+            return a, b, 2 - c, 2 - d
+        elif reflection_type == 'diagonal':
+            # Reflect across the plane swapping (a, c) and (b, d)
+            return c, d, a, b
+        elif reflection_type == 'anti-diagonal':
+            # Reflect across the plane swapping (b, d) and (a, c)
+            return d, c, b, a
+        else:
+            raise ValueError(f"Invalid reflection type: {reflection_type}")
+
+    def reverse_reflection_4d(self, move, axis):
+        ''' Apply inverse reflection to a move '''
+        return self.reflect_coordinates_4d(move, axis)
+
+    # Las que ya estan bien asi
+    def board_to_HyphenNumeric_tuple(self, board) -> Tuple[Tuple[Tuple[int, int, int, int], ...], Tuple[Tuple[int, int, int, int], ...]]:
+        ''' Takes a board, and returns 2 tuples, each with N tuples inside '''
         player1_pieces = []
         player_minus1_pieces = []
 
-        for global_row in range(board.shape[0]):
-            for global_col in range(board.shape[1]):
-                for local_row in range(board.shape[2]):
-                    for local_col in range(board.shape[3]):
-                        piece = board[global_row, global_col, local_row, local_col]
-                        if int(piece) != 0:  # Only record positions with a placed piece
-                            # Format the position as a hyphen-separated string
-                            position = f"{global_row}_{global_col}_{local_row}_{local_col}"
-                            
-                            # Add position to the respective player’s list
-                            if piece == 1:
-                                player1_pieces.append(position)
-                            elif piece == -1:
-                                player_minus1_pieces.append(position)
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        if board[i, j, k, l] == 1:
+                            player1_pieces.append((i, j, k, l))
+                        elif board[i, j, k, l] == -1:
+                            player_minus1_pieces.append((i, j, k, l))
 
-        # Sort lists to ensure order-agnostic representation and join with __ separator
-        player1_pieces.sort()
-        player_minus1_pieces.sort()
-
-        # Create the raw key before applying symmetries
-        raw_key = "__".join(player1_pieces) + "__" + "__".join(player_minus1_pieces)
-        
-        # Generate the canonical symmetry and its transformation
-        canonical_key, transformation = self.get_symmetries(board)
-        
-        # Return both the canonical key and the transformation steps
-        return canonical_key, transformation
-
-    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
-        ''' 
-        Reverse the transformation applied to the board to get back the original move coordinates. 
-        This involves reversing both rotations and reflections.
-        '''
-        # Reverse each transformation in the transformation tuple in reverse order
-        for step in reversed(transformation):
-            if isinstance(step, tuple):
-                # Reflect back
-                if step[0] == 'reflect':
-                    move = self.reflect_position(move, step[1])
-            else:
-                # Rotate back
-                if step[0] == 'rotate':
-                    for _ in range(4 - step[1]):  # Counter-rotate to undo
-                        move = self.rotate_position(move)
-        
-        return move
-
-    def rotate_position(self, position):
-        ''' Rotates a single move position by 90 degrees clockwise in local coordinates '''
-        global_row, global_col, local_row, local_col = position
-        new_local_row = local_col
-        new_local_col = 2 - local_row
-        return global_row, global_col, new_local_row, new_local_col
-
-    def reflect_position(self, position, axis):
-        ''' Reflects a single move position according to the specified axis '''
-        global_row, global_col, local_row, local_col = position
-        if axis == "horizontal":
-            local_row = 2 - local_row
-        elif axis == "vertical":
-            local_col = 2 - local_col
-        elif axis == "diagonal":
-            local_row, local_col = local_col, local_row
-        elif axis == "anti_diagonal":
-            local_row, local_col = 2 - local_col, 2 - local_row
-        return global_row, global_col, local_row, local_col
-
-    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
-        ''' Returns the key for the HyphenNumeric boards dictionary
-        Along with the appropriate reflections and rotations that need to be made to reverse the changes and 
-        By turning the (board, board_to_play) pair into the appropriate ((frozenset, frozenset), Tuple/None) pair
-        Attempting all possible symmetrical transformations to check if the board is in the hash in some symmetrical way
-        '''
-        # implement logic
-        None
-    
-    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
-        ''' 
-        Reverse the given transformation that was applied to the board, to get back the original move coordinates. 
-        This involves reversing both rotations and reflections.
-        '''
-        # implement logic
-        None
-
-    # Las que ya estan bien asi
-    def board_to_tuple(self, board):
-        ''' Convert the numpy board to a tuple (hashable) '''
-        # Convert the numpy array to a tuple of tuples for immutability and hashability
-        return tuple(map(tuple, board.reshape(-1, board.shape[-1])))
+        return tuple(player1_pieces), tuple(player_minus1_pieces)
 
     def get_HyphenNumeric_hash(self, board, board_to_play):
         ''' Returns the best move for the given HyphenNumeric board '''
-        key, reverse_symmetry_instructions = self.get_HyphenNumeric_key(board, board_to_play)
+        key, reverse_symmetry_instructions = self.get_HyphenNumeric_parameters(board, board_to_play)
         best_move_raw = self.hash_HyphenNumeric_boards.get(key, None)
         best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
         return best_move_processed
@@ -859,8 +940,8 @@ class RetrievalAgent:
         key_part, move_part = line.strip().split(" : ")
         
         # Board
-        board_key_part = self.parse_board_key(board_part)
         board_part, board_to_play_str = key_part.split(", ")
+        board_key_part = self.parse_board_key(board_part)
 
         # Board to play
         if board_to_play_str == 'None':
@@ -883,8 +964,6 @@ class RetrievalAgent:
 
         # Build the frozenset for the key
         return frozenset(player1_pieces), frozenset(player_minus1_pieces)
-
-
 
 board_center_only = np.array([[0, 0, 0],
                             [0, 1, 0],
@@ -1336,7 +1415,7 @@ def run_HyphenNumeric_tests(agent):
     print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
 
 print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Agent hyphen numeric hash looks like this:\n{agent.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
-print(Style.BRIGHT + Fore.BLUE + f"Super Board 1 get hyphennumeric key is {agent.get_HyphenNumeric_key(super_board_1, btp1)}" + Style.RESET_ALL)
+print(Style.BRIGHT + Fore.BLUE + f"Super Board 1 get hyphennumeric key is {agent.get_HyphenNumeric_parameters(super_board_1, btp1)}" + Style.RESET_ALL)
 
 # Test Running Function
 def run_all_agent_tests(agent):
