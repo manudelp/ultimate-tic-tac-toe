@@ -37,7 +37,7 @@ AGENTS = [
     RandomAgent(),
     StraightArrowAgent(),
     TaylorAgent(),
-    JardineritoAgent(),
+    # JardineritoAgent(),
     # MaximilianoAgent(),
     # JardineritoAntiMidAgent(),
     # BetterJardineritoAgent(),
@@ -69,7 +69,7 @@ class SwissTournament:
         # self.play_counts = {agent: 0 for agent in agents}  # Track the number of games played per agent
         self.history = defaultdict(list)  # To accumulate history of results for each round
         self.move_times = {agent: 0.0 for agent in agents}  # Cumulative move time for each agent
-        self.move_counts = {agent: 0 for agent in agents}  # Count of moves for each agent
+        self.matchup_counts = {agent: 0 for agent in agents}  # Count of moves for each agent
 
     def display_round_progress_bar(self, current_match, total_matches, avg_game_time_secs):
         bar_length = 30  # Length of the progress bar
@@ -88,7 +88,12 @@ class SwissTournament:
     def pair_and_play(self, rounds_per_match):
         sorted_agents = sorted(self.agents, key=lambda agent: self.scores[agent], reverse=True)
         results = []
+        total_matches = len(sorted_agents) // 2
+        current_match = 0
+        total_time_secs = 0
         i = 0
+        
+        self.display_round_progress_bar(current_match, total_matches, avg_game_time_secs=0)
 
         while i < len(sorted_agents) - 1:
             agent1 = sorted_agents[i]
@@ -96,17 +101,22 @@ class SwissTournament:
             if agent2 not in self.matches[agent1]:  # Avoid rematch
                 self.matches[agent1].append(agent2)
                 self.matches[agent2].append(agent1)
+                
+                start_time = time.time()
 
                 # Suppress agent prints while playing the game
                 with redirect_stdout(suppress_agent_prints()):
-                    # Play multiple games and gather move times
-                    agent1_wins, agent2_wins, draws, agent1_times, agent2_times = utils.play_multiple_games(agent1, agent2, rounds_per_match)
+                    agent1_wins, agent2_wins, draws, agent1_avg_times_per_game, agent2_avg_times_per_game = utils.play_multiple_games(agent1, agent2, rounds_per_match)
 
-                # Update move time statistics
-                self.move_times[agent1] += sum(agent1_times)
-                self.move_counts[agent1] += len(agent1_times)
-                self.move_times[agent2] += sum(agent2_times)
-                self.move_counts[agent2] += len(agent2_times)
+                elapsed_time_secs = (time.time() - start_time)
+                total_time_secs += elapsed_time_secs
+                avg_game_time_secs = total_time_secs / (current_match + 1)
+
+                # Update move time statistics, where move_times is the average move duration, and matchup_counts is the number of matchups played
+                self.move_times[agent1] += agent1_avg_times_per_game
+                self.matchup_counts[agent1] += 1
+                self.move_times[agent2] += agent2_avg_times_per_game
+                self.matchup_counts[agent2] += 1
 
                 # Update scores
                 self.scores[agent1] += agent1_wins + (0.5 * draws)
@@ -117,6 +127,9 @@ class SwissTournament:
                     self.ratings[agent1], self.ratings[agent2] = self.trueskill_env.rate_1vs1(self.ratings[agent1], self.ratings[agent2])
                 elif agent2_wins > agent1_wins:
                     self.ratings[agent2], self.ratings[agent1] = self.trueskill_env.rate_1vs1(self.ratings[agent2], self.ratings[agent1])
+
+                current_match += 1
+                self.display_round_progress_bar(current_match, total_matches, avg_game_time_secs)
 
                 results.append((agent1, agent2, agent1_wins, agent2_wins, draws))
                 i += 2
@@ -131,22 +144,27 @@ class SwissTournament:
             self.update_results_table()
 
     def display_averaged_results(self, averaged_scores, repeat_num=None):
-        final_standings = sorted(averaged_scores.items(), key=lambda x: x[1][0], reverse=True)
+        final_standings = sorted(
+            [(agent, (self.ratings[agent].mu, self.ratings[agent].sigma)) 
+             for agent in self.agents], 
+            key=lambda x: x[1], reverse=True
+        )
         
         if repeat_num:
             print(f"\n--- Results after Repeat Swiss {repeat_num} ---")
         else:
             print("\n--- Final Averaged Standings ---")
 
-        print("+------+----------------+----------+-----------+")
-        print("| Rank |     Agent      |  Score   | Avg Time  |")
-        print("+------+----------------+----------+-----------+")
+        print("+------+------------------------------+----------------+---------------+")
+        print("| Rank |             Agent            |   Score (±σ)   | Avg Time (ms) |")
+        print("+------+------------------------------+----------------+---------------+")
 
-        for rank, (agent, (score, sigma)) in enumerate(final_standings, start=1):
-            avg_move_time = self.move_times[agent] / self.move_counts[agent] if self.move_counts[agent] > 0 else 0.0
-            print(f"| {rank:<4} | {str(agent):<14} | {score:.2f}±{sigma:.2f} | {avg_move_time:.2f} ms |")
+        for rank, (agent, (score, deviation)) in enumerate(final_standings, start=1):
+            avg_move_time = self.move_times[agent] / self.matchup_counts[agent] if self.matchup_counts[agent] > 0 else 0.0
+            score_display = f"{score:.2f} ± {deviation:.2f}"
+            print(f"| {rank:<4} | {str(agent):<27} | {score_display:<14} | {avg_move_time:<10.4f} ms |")
 
-        print("+------+----------------+----------+-----------+")
+        print("+------+------------------------------+----------------+---------------+")
 
     def repeat_swiss(self, repeats, rounds, rounds_per_match):
         accumulated_scores = {agent: 0 for agent in self.agents}

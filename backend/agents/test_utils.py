@@ -5,6 +5,9 @@ from typing import Tuple
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
+from bot.taylor import TaylorAgent
+from bot.straightArrow import StraightArrowAgent
+
 # Board Printer
 def fancyBoardPrinter(board):
     # Output the super board in a 3x3 layout
@@ -119,6 +122,10 @@ def get_globalWinner(board):
     board_results = get_board_results(board)
     return get_winner(board_results)
 
+def reset_agents(agent1, agent2):
+    agent1.reset()
+    agent2.reset()
+
 # Hash Loading
 won_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
 over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_over_boards.txt')
@@ -127,88 +134,6 @@ load_winning_boards(won_boards_hash_path)
 load_over_boards(over_boards_hash_path)
 
 # Game Simulation Functions
-
-
-# Play one game with detailed logging
-# def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> int:
-#     """Simulates a single game between two agents, represented by 1 and -1
-#     And returns the winner of the game, or 0 of it's a draw
-
-#     Args:
-#         agent1 (class): One of the two agents to play
-#         agent2 (class): One of the two agents to play
-#         first_player_is_agent1 (bool): If True, agent1 plays first, else agent2 plays first. Useful for simulating multiple games with alternating starting agents
-
-#     Returns:
-#         int: 1 if the agent playing with 1 wins, -1 if the agent playing with -1 wins, 0 if it's a draw
-#     """
-
-#     # Initialize game board
-#     board = np.zeros((3, 3, 3, 3), dtype=int)
-#     current_agent = agent1 if first_player_is_agent1 else agent2
-#     opponent_agent = agent2 if first_player_is_agent1 else agent1
-#     board_to_play = None  # Initial freedom to choose any board
-#     turn = 1
-
-#     while True:
-#         # Determine if current agent is playing as 1 or -1
-#         agent_marker = 1 if current_agent == agent1 else -1
-#         agent_name = str(agent1) if agent_marker == 1 else str(agent2)
-        
-#         # Pass the negated board if agent is playing as -1
-#         current_board = board if agent_marker == 1 else -1 * board
-
-#         # Print the board before the agent makes a move
-#         # print(f"\nCurrent board before {agent_name}'s move:")
-#         # fancyBoardPrinter(board)
-
-#         # Current agent makes a move
-#         move = current_agent.action(current_board, board_to_play)
-#         global_row, global_col, local_row, local_col = move
-
-#         # Log the move details
-#         # print(f"Turn {turn}: {agent_name} (playing as {'1' if agent_marker == 1 else '-1'}) chose move: {(int(global_row), int(global_col), int(local_row), int(local_col))}")
-
-#         # Update the board with the move
-#         board[global_row, global_col, local_row, local_col] = agent_marker
-
-#         # Print the updated board for debugging purposes
-#         # print(f"Updated board after {agent_name}'s move:")
-#         # fancyBoardPrinter(board)
-
-#         # Check if game is over
-#         winner = get_globalWinner(board)
-#         if winner != 0:
-#             # print(f"Game over! {agent_name} wins!")
-#             return winner
-        
-#         if is_game_over(board):
-#             return winner
-
-#         # Determine next board_to_play based on this move
-#         board_to_play = (local_row, local_col) if is_board_open(board, local_row, local_col) else None
-
-#         # Swap agents for the next turn
-#         current_agent, opponent_agent = opponent_agent, current_agent
-#         turn += 1
-
-# # Run multiple games and alternate starting agent
-# def play_multiple_games(agent1, agent2, rounds):    
-#     agent1_wins, agent2_wins, draws = 0, 0, 0
-#     for round_num in range(rounds):
-#         # Alternate starting turns
-#         result1 = play_single_game(agent1, agent2, first_player_is_agent1=True)
-#         reset_agents(agent1, agent2)
-#         result2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
-#         reset_agents(agent1, agent2)
-        
-#         # Collect results for both games in each round
-#         agent1_wins += (result1 == 1) + (result2 == 1)
-#         agent2_wins += (result1 == -1) + (result2 == -1)
-#         draws += (result1 == 0) + (result2 == 0)
-        
-#     return agent1_wins, agent2_wins, draws
-
 def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> Tuple[int, dict]:
     """Simulates a single game between two agents, records the average move time per agent, 
     and returns the winner and average move times for each agent."""
@@ -243,8 +168,9 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> Tuple[int,
 
     # Calculate average move times for each agent
     avg_move_times = {agent: sum(times) / len(times) if times else 0 for agent, times in move_times.items()}
-    return winner, avg_move_times
-
+    total_amount_of_moves_ag1 = len(move_times[agent1])
+    total_amount_of_moves_ag2 = len(move_times[agent2])
+    return winner, avg_move_times, total_amount_of_moves_ag1, total_amount_of_moves_ag2
 
 def play_multiple_games(agent1, agent2, rounds):    
     agent1_wins, agent2_wins, draws = 0, 0, 0
@@ -252,14 +178,20 @@ def play_multiple_games(agent1, agent2, rounds):
 
     for round_num in range(rounds):
         # First game where agent1 goes first
-        result1, avg_move_times1 = play_single_game(agent1, agent2, first_player_is_agent1=True)
-        total_move_times[agent1].extend(avg_move_times1[agent1])
-        total_move_times[agent2].extend(avg_move_times1[agent2])
+        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True)
+        reset_agents(agent1, agent2)
+        avg_times_agent1 = avg_move_times1[agent1] / moves_amount_ag1
+        avg_times_agent2 = avg_move_times1[agent2] / moves_amount_ag2
+        total_move_times[agent1].append(avg_times_agent1)
+        total_move_times[agent2].append(avg_times_agent2)
 
         # Second game where agent2 goes first
-        result2, avg_move_times2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
-        total_move_times[agent1].extend(avg_move_times2[agent1])
-        total_move_times[agent2].extend(avg_move_times2[agent2])
+        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
+        reset_agents(agent1, agent2)
+        avg_times_agent1 = avg_move_times2[agent1] / moves_amount_ag1
+        avg_times_agent2 = avg_move_times2[agent2] / moves_amount_ag2
+        total_move_times[agent1].append(avg_times_agent1)
+        total_move_times[agent2].append(avg_times_agent2)
 
         agent1_wins += (result1 == 1) + (result2 == 1)
         agent2_wins += (result1 == -1) + (result2 == -1)
@@ -271,8 +203,32 @@ def play_multiple_games(agent1, agent2, rounds):
         agent2: sum(total_move_times[agent2]) / len(total_move_times[agent2]) if total_move_times[agent2] else 0,
     }
     
-    return agent1_wins, agent2_wins, draws, avg_move_times
+    avg_agent1_times = avg_move_times[agent1]
+    avg_agent2_times = avg_move_times[agent2]
+    
+    return agent1_wins, agent2_wins, draws, avg_agent1_times, avg_agent2_times
 
-def reset_agents(agent1, agent2):
-    agent1.reset()
-    agent2.reset()
+
+# # Run multiple games and alternate starting agent
+# def play_multiple_games(agent1, agent2, rounds):    
+#     agent1_wins, agent2_wins, draws = 0, 0, 0
+#     for round_num in range(rounds):
+#         # Alternate starting turns
+#         result1 = play_single_game(agent1, agent2, first_player_is_agent1=True)
+#         reset_agents(agent1, agent2)
+#         result2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
+#         reset_agents(agent1, agent2)
+        
+#         # Collect results for both games in each round
+#         agent1_wins += (result1 == 1) + (result2 == 1)
+#         agent2_wins += (result1 == -1) + (result2 == -1)
+#         draws += (result1 == 0) + (result2 == 0)
+        
+#     return agent1_wins, agent2_wins, draws
+
+
+# Quick Test
+# AGENT1 = TaylorAgent()
+# AGENT2 = StraightArrowAgent()
+
+# play_multiple_games(AGENT1, AGENT2, 2)
