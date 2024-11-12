@@ -370,6 +370,8 @@ class BetterJardineritoAgent:
         balance += 1.25 * lb22_ev
         # balance += (1.25*lb00_ev + lb01_ev + 1.25*lb02_ev + lb10_ev + 1.5*lb11_ev + lb12_ev + 1.25*lb20_ev + lb21_ev + 1.25*lb22_ev)
         
+        # FIXME: Replace this by using the get_full_eval_hash to return the tuple (eval, result) from the txt eval hashes, and then use eval above and result down here
+        
         results_array = np.array([[int(lb00_ev/6), int(lb01_ev/6), int(lb02_ev/6)], [int(lb10_ev/6), int(lb11_ev/6), int(lb12_ev/6)], [int(lb20_ev/6), int(lb21_ev/6), int(lb22_ev/6)]])
         results_balance = self.get_local_eval(results_array)
         result_coef = results_balance * ((1 + abs(results_balance))**2.5) * 1.85
