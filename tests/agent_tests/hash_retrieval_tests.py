@@ -410,6 +410,52 @@ def isPlayable(board):
 def isOver(board):
     return isFull(board) or isWon(board)
 
+def isWon(subboard):
+    # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
+    ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
+    # Row 0
+    sb_00, sb_01, sb_02 = subboard[0, 0], subboard[0, 1], subboard[0, 2]
+    if sb_00 == sb_01 == sb_02 != 0:
+        return sb_00
+    
+    # Row 1
+    sb_10, sb_11, sb_12 = subboard[1, 0], subboard[1, 1], subboard[1, 2]
+    if sb_10 == sb_11 == sb_12 != 0:
+        return sb_10
+    
+    sb_20 = subboard[2, 0]
+    # Save unncessary calcs, by using what we alreasy can
+
+    # Column 1
+    if sb_00 == sb_10 == sb_20 != 0:
+        return sb_00
+    
+    # Diagonal BT
+    if sb_20 == sb_11 == sb_02 != 0:
+        return sb_20
+    
+    sb_21 = subboard[2, 1]
+    # again, save time
+
+    # Check Column 2
+    if sb_01 == sb_11 == sb_21 != 0:
+        return sb_01
+    
+    sb_22 = subboard[2, 2]
+    # Row 2
+    if sb_20 == sb_21 == sb_22 != 0:
+        return sb_20
+    
+    # Column 2
+    if sb_02 == sb_12 == sb_22 != 0:
+        return sb_02
+    
+    # Diagonal TB
+    if sb_00 == sb_11 == sb_22 != 0:
+        return sb_00
+    
+    return None
+
 class RetrievalAgent:
     def __init__(self):
         # Initialize the dictionaries before loading data
@@ -459,8 +505,10 @@ class RetrievalAgent:
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, heuristic_value = line.strip().split(':')
-                    self.hash_eval_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -469,8 +517,10 @@ class RetrievalAgent:
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, heuristic_value = line.strip().split(':')
-                    self.hash_eval_v2_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_v2_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -479,8 +529,10 @@ class RetrievalAgent:
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, heuristic_value = line.strip().split(':')
-                    self.hash_eval_v3_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_v3_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -565,7 +617,7 @@ class RetrievalAgent:
         If the board is not in the dictionary, return None (or handle it as needed).
         """
         board_key = board.tobytes()
-        local_eval = self.hash_eval_boards.get(board_key, None)
+        local_eval, _ = self.hash_eval_boards.get(board_key, None)
         if local_eval is None:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
@@ -573,7 +625,7 @@ class RetrievalAgent:
     def get_eval_v2_hash(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        local_eval_v2 = self.hash_eval_v2_boards.get(board_key, None)
+        local_eval_v2, _ = self.hash_eval_v2_boards.get(board_key, None)
         if local_eval_v2 is None:
             raise ValueError(f"Board {board} not found in evaluated V2 boards.")
         return local_eval_v2
@@ -581,7 +633,7 @@ class RetrievalAgent:
     def get_eval_v3_hash(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        local_eval_v3 = self.hash_eval_v3_boards.get(board_key, None)
+        local_eval_v3, _ = self.hash_eval_v3_boards.get(board_key, None)
         if local_eval_v3 is None:
             raise ValueError(f"Board {board} not found in evaluated V3 boards.")
         return local_eval_v3

@@ -532,6 +532,53 @@ def globalLocalEval(localBoard):
     final_score = round(score, 1)
     return final_score
 
+def whoWon(subboard):
+    # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
+    ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
+    # Row 0
+    sb_00, sb_01, sb_02 = subboard[0, 0], subboard[0, 1], subboard[0, 2]
+    if sb_00 == sb_01 == sb_02 != 0:
+        return sb_00
+    
+    # Row 1
+    sb_10, sb_11, sb_12 = subboard[1, 0], subboard[1, 1], subboard[1, 2]
+    if sb_10 == sb_11 == sb_12 != 0:
+        return sb_10
+    
+    sb_20 = subboard[2, 0]
+    # Save unncessary calcs, by using what we alreasy can
+
+    # Column 1
+    if sb_00 == sb_10 == sb_20 != 0:
+        return sb_00
+    
+    # Diagonal BT
+    if sb_20 == sb_11 == sb_02 != 0:
+        return sb_20
+    
+    sb_21 = subboard[2, 1]
+    # again, save time
+
+    # Check Column 2
+    if sb_01 == sb_11 == sb_21 != 0:
+        return sb_01
+    
+    sb_22 = subboard[2, 2]
+    # Row 2
+    if sb_20 == sb_21 == sb_22 != 0:
+        return sb_20
+    
+    # Column 2
+    if sb_02 == sb_12 == sb_22 != 0:
+        return sb_02
+    
+    # Diagonal TB
+    if sb_00 == sb_11 == sb_22 != 0:
+        return sb_00
+    
+    return 0
+
+
 # Generators
 def generate_winning_boards(file_path):
     """ 
@@ -567,7 +614,11 @@ def generate_eval_boards(file_path):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
         heuristic_value = localBoardEval(board)
-        evaluated_boards[board_key] = heuristic_value
+        result = int(whoWon(board))
+        res_coef = int(heuristic_value/6)
+        if result != res_coef:
+            raise ValueError(f"Invalid Result Value for {board}, whoWon was {result} and coef was {res_coef}")
+        evaluated_boards[board_key] = (heuristic_value, result)
 
     with open(file_path, 'w') as f:
         for board_key, heuristic_value in evaluated_boards.items():
@@ -584,7 +635,11 @@ def generate_eval_boards_v2(file_path):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
         heuristic_value = localBoardEval_v2(board)
-        evaluated_boards[board_key] = heuristic_value
+        result = int(whoWon(board))
+        res_coef = int(heuristic_value/6)
+        if result != res_coef:
+            raise ValueError(f"Invalid Result Value for {board}, whoWon was {result} and coef was {res_coef}")
+        evaluated_boards[board_key] = (heuristic_value, result)
 
     with open(file_path, 'w') as f:
         for board_key, heuristic_value in evaluated_boards.items():
@@ -601,7 +656,11 @@ def generate_eval_boards_v3(file_path):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
         heuristic_value = localBoardEval_v3(board)
-        evaluated_boards[board_key] = heuristic_value
+        result = int(whoWon(board))
+        res_coef = int(heuristic_value/6)
+        if result != res_coef:
+            raise ValueError(f"Invalid Result Value for {board}, whoWon was {result} and coef was {res_coef}")
+        evaluated_boards[board_key] = (heuristic_value, result)
 
     with open(file_path, 'w') as f:
         for board_key, heuristic_value in evaluated_boards.items():
