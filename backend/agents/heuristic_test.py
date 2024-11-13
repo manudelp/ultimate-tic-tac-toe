@@ -44,8 +44,10 @@ JardineritoAntiMidAgent = JardineritoAntiMidAgent()
 BetterJardineritoAgent = BetterJardineritoAgent()
 BetterItterinoAgent = BetterItterinoAgent()
 
-# Test boards setup
-local_Empty = np.zeros((3, 3), dtype=int)  # Empty board
+# Define Local Boards
+local_Empty = np.array([[0, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0]])  # Random board, no meaningful characteristics
 
 local_Rnd_1 = np.array([[1, 0, 0],
                         [0, 0, 0],
@@ -146,3 +148,5 @@ local_OneWnbl_1 = np.array([[1, 0, 1],
 local_TwoWnbl_1 = np.array([[0, 0, 0],
                     [-1, -1, 0],
                     [-1, -1, 0]]) # winnable by -1 in (0, 0), (0, 1), (0, 2), (1, 2), (2, 2)
+
+# Define Global Boards
