@@ -20,8 +20,8 @@ class TwinPrunerAgent:
         self.id = "Twin Pruner"
         self.icon = "🍃"
         self.moveNumber = 0
-        self.depth_local = 8 # when btp is not None
-        self.depth_global = 7 # when btp is None
+        self.depth_local = 7 # when btp is not None
+        self.depth_global = 6 # when btp is None
         self.time_limit = 20 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -576,7 +576,7 @@ class TwinPrunerAgent:
         If the board is not in the dictionary, return None (or handle it as needed).
         """
         board_key = board.tobytes()
-        local_eval = self.hash_eval_boards.get(board_key, None)
+        local_eval, _ = self.hash_eval_boards.get(board_key, None)
         if local_eval is None:
             raise ValueError(f"Board {board} not found in evaluated boards.\nWhile Board is:\n{board}")
         return local_eval

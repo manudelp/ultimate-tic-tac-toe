@@ -23,7 +23,7 @@ from bot.jarditobetter import BetterJardineritoAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = JardineritoAgent()    # Replace with your chosen agent
+AGENT1 = TwinPrunerAgent()    # Replace with your chosen agent
 AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
 ROUNDS = 2 # each round is 2 games
 GAMES = ROUNDS * 2
@@ -57,7 +57,7 @@ else:
     print(Fore.YELLOW + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
 print(Style.BRIGHT + f"Drawn games: {draws}")
 
-print(Style.BRIGHT + f"\n FINAL WINNER IS {final_winner}")
+print(Style.BRIGHT + f"\nFINAL WINNER IS {final_winner}")
 
 print(Style.BRIGHT + Fore.LIGHTBLACK_EX)
 print(f"\nAverage full game time taken for {agent1_name}: {agent1_time:.2f} of I have no idea what unit ngl")
