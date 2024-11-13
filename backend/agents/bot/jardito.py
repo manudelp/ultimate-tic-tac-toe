@@ -201,7 +201,12 @@ class JardineritoAgent:
         # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
         winner = checkBoardWinner(board)
         if winner != 0:
-            return winner * 100000, None
+            if winner == 1:
+                return 100_000, None
+            elif winner == -1:
+                # print(Fore.BLUE + f"{self.id} found a loss in recursion!" + Style.RESET_ALL)
+                balance = -100_000 + depth # to prioritize the slowest loss
+                return balance, None
         else:
             if depth == 0:
                 return self.boardBalance(board), None
