@@ -3,17 +3,16 @@ import time
 import timeit
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
-from ...backend.utils import fancyBoardPrinter, get_board_results, load_winning_boards, get_winner
-from ...backend.agents.bot.iterold import IteroldAgent
-from ...backend.agents.bot.itterino import ItterinoAgent
-from ...backend.agents.bot.jardy import GardenerAgent
-from ...backend.agents.bot.monkey import MonkeyAgent
-from ...backend.agents.bot.ordy import TidyPodatorAgent
-from ...backend.agents.bot.straightArrow import StraightArrowAgent
-from ...backend.agents.bot.twinny import TwinPrunerAgent
-from ...backend.agents.bot.taylor import TaylorAgent
-from ...backend.agents.bot.randy import RandomAgent
-from ...backend.agents.foofinder import FooFinderAgent
+from bot.iterold import IteroldAgent
+from bot.itterino import ItterinoAgent
+from bot.jardy import GardenerAgent
+from bot.monkey import MonkeyAgent
+from bot.ordy import TidyPodatorAgent
+from bot.straightArrow import StraightArrowAgent
+from bot.twinny import TwinPrunerAgent
+from bot.taylor import TaylorAgent
+from bot.randy import RandomAgent
+from foofinder import FooFinderAgent
 
 # Agents
 randy = RandomAgent()
