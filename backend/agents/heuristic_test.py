@@ -45,6 +45,48 @@ BetterJardineritoAgent = BetterJardineritoAgent()
 BetterItterinoAgent = BetterItterinoAgent()
 
 # Test boards setup
+local_Empty = np.zeros((3, 3), dtype=int)  # Empty board
+
+local_Rnd_1 = np.array([[1, 0, 0],
+                        [0, 0, 0],
+                        [0, 0, 0]])  # Random board, no meaningful characteristics
+
+local_Rnd_2 = np.array([[1, 0, 0],
+                        [0, 0, 0],
+                        [-1, 0, 0]])  # Random board
+
+local_Rnd_3 = np.array([[1, 0, -1],
+                        [0, 0, 0],
+                        [-1, 0, 1]])  # Random board
+
+local_Rnd_4 = np.array([[0, 1, 0],
+                        [1, -1, 1],
+                        [0, 1, 0]])  # Random board
+
+local_Rnd_5 = np.array([[1, -1, 1],
+                        [0, 0, 1],
+                        [1, 1, -1]])  # Random board
+
+local_Rnd_6 = np.array([[1, 0, 0],
+                        [0, 0, -1],
+                        [-1, -1, 0]])  # Random board
+
+local_topOne_1 = np.array([[0, 0, 0],
+                        [0, 1, 1],
+                        [0, 1, 1]])  # Random board
+
+local_topTwo_1 = np.array([[0, 0, 0],
+                        [0, -1, -1],
+                        [0, -1, -1]])  # Random board
+
+local_topOne_2 = np.array([[0, 1, 1],
+                        [1, 0, 1],
+                        [1, 1, 0]])  # Random board
+
+local_topTwo_2 = np.array([[0, -1, -1],
+                        [-1, 0, -1],
+                        [-1, -1, 0]])  # Random board
+
 local_OneWon_1 = np.array([[1, 1, 1],
                     [0, -1, -1],
                     [0, 0, -1]])  # Player 1 wins on the top row
