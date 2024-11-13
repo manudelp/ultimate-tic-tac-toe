@@ -23,9 +23,9 @@ from bot.jarditobetter import BetterJardineritoAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = TwinPrunerAgent()    # Replace with your chosen agent
-AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
-ROUNDS = 2 # each round is 2 games
+AGENT1 = TaylorAgent()    # Replace with your chosen agent
+AGENT2 = JardineritoAntiMidAgent()  # Replace with your chosen agent
+ROUNDS = 12
 GAMES = ROUNDS * 2
 
 agent1_name = str(AGENT1)
