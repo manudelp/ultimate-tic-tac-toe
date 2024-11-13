@@ -702,7 +702,7 @@ class RetrievalAgent:
 
     # Hyphen Numeric Hash Functions
     #TODO: Estas tenes que decirle que hay que hacerlas
-    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None]):
+    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None], rival_start=False):
         ''' 
         Returns the key for the HyphenNumeric dictionary, checking all symmetrical variations
         to match the stored key format, and also outputs reverse transformations.
@@ -754,35 +754,18 @@ class RetrievalAgent:
                                 
                 # Construct the hash key with this version
                 key = ((board_key_player_1, board_key_player_2), reflected_board_to_play)
-                print(Fore.LIGHTGREEN_EX + f"\nWhile the transposition table looks as such:\n{self.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
-                print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: \n{key}\nwhere rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
+                # print(Fore.LIGHTGREEN_EX + f"\nWhile the transposition table looks as such:\n{self.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
+                # print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: \n{key}\nwhere rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
 
-                # Check if this key is in the hash dictionary
-                if key in self.hash_HyphenNumeric_boards:
-                    return key, (rotations, reflection)  # Found the match with transformations
+                # Check key in hash
+                if not rival_start:
+                    if key in self.hash_HyphenNumeric_boards:
+                        return key, (rotations, reflection)  
+                else:
+                    if key in self.hash_HyphenNumeric_boards_rival:
+                        return key, (rotations, reflection)
                 
-        # If no match is found in any symmetry
         return None, None
-
-
-
-    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
-        ''' Reverse the transformation to retrieve the original move coordinates '''
-        if not transformation:
-            return move
-        
-        rotations, reflection = transformation
-        counter_move = move
-
-        # Apply inverse reflection first
-        if reflection:
-            counter_move = self.reverse_reflection_4d(counter_move, reflection)
-
-        # Apply inverse rotation
-        if rotations:
-            counter_move = self.reverse_rotation_4d(counter_move, rotations)
-
-        return counter_move
 
     # Helper Methods
     def rotate_board(self, board, times):
@@ -938,6 +921,24 @@ class RetrievalAgent:
         return self.reflect_coordinates_4d(move, axis)
 
     # Las que ya estan bien asi
+    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
+        ''' Reverse the transformation to retrieve the original move coordinates '''
+        if not transformation:
+            return move
+        
+        rotations, reflection = transformation
+        counter_move = move
+
+        # Apply inverse reflection first
+        if reflection:
+            counter_move = self.reverse_reflection_4d(counter_move, reflection)
+
+        # Apply inverse rotation
+        if rotations:
+            counter_move = self.reverse_rotation_4d(counter_move, rotations)
+
+        return counter_move
+
     def board_to_moves_list(self, board) -> Tuple[Tuple[Tuple[int, int, int, int], ...], Tuple[Tuple[int, int, int, int], ...]]:
         ''' Takes a board, and returns 2 tuples, each with N tuples inside '''
         player1_pieces = []
@@ -988,15 +989,27 @@ class RetrievalAgent:
         with open(file, 'r') as f:
             for line in f:
                 self.parse_and_store_board_line(line)
+                
+    def load_HyphenNumeric_boards_rival(self, file):
+        ''' Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                self.parse_and_store_board_line(line, rival_start=True)
 
-    def parse_and_store_board_line(self, line):
+    def parse_and_store_board_line(self, line, rival_start=False):
         ''' Parse a line from the file and store the board and its best move '''
         # Get the data
         key_part, move_part = line.strip().split(" : ")
         
         # Board
         board_part, board_to_play_str = key_part.split(", ")
-        board_key_part = self.parse_board_key(board_part)
+        if rival_start:
+            board_key_part = self.parse_board_key_rival(board_part)
+        else:
+            board_key_part = self.parse_board_key(board_part)
 
         # Board to play
         if board_to_play_str == 'None':
@@ -1009,13 +1022,26 @@ class RetrievalAgent:
         
         # Best Move
         best_move = tuple(map(int, move_part.split("_")))
-        self.hash_HyphenNumeric_boards[full_key] = best_move
+        
+        if rival_start:
+            self.hash_HyphenNumeric_boards_rival[full_key] = best_move
+        else:
+            self.hash_HyphenNumeric_boards[full_key] = best_move
 
     def parse_board_key(self, board_str):
         ''' Convert the HyphenNumeric string back to a canonical key '''
         pieces = board_str.split("__")
         player1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 == 0)
         player_minus1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 != 0)
+
+        # Build the frozenset for the key
+        return frozenset(player1_pieces), frozenset(player_minus1_pieces)
+
+    def parse_board_key_rival(self, board_str):
+        ''' Convert the HyphenNumeric string back to a canonical key '''
+        pieces = board_str.split("__")
+        player1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 != 0)
+        player_minus1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 == 0)
 
         # Build the frozenset for the key
         return frozenset(player1_pieces), frozenset(player_minus1_pieces)
