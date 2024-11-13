@@ -21,8 +21,8 @@ class IterVanBytesAgent:
         self.transposition_table = {}
         self.transpo_hits = 0
         self.moveNumber = 0
-        self.depth_global = 6
-        self.depth_local = 7 #FIXME change at least to 7 & 8, this is too low, just wanted swiss to run, keep debugging later
+        self.depth_local = 6 # when btp is not None
+        self.depth_global = 5 # when btp is None
         self.time_limit = 30 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
