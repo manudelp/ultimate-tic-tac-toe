@@ -25,14 +25,16 @@ t0 = time.time()
 # Initialize agents
 AGENT1 = JardineritoAgent()    # Replace with your chosen agent
 AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
-ROUNDS = 2 # Number of rounds to play, each round represents 2 games (with alternating pieces)
+ROUNDS = 2 # each round is 2 games
 GAMES = ROUNDS * 2
 
 agent1_name = str(AGENT1)
 agent2_name = str(AGENT2)
 
 # Run the simulation
-agent1_wins, agent2_wins, draws = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
+agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
+agent1_time_secs = agent1_time / 1000
+agent2_time_secs = agent2_time / 1000
 if agent1_wins > agent2_wins:
     final_winner = agent1_name
 elif agent1_wins < agent2_wins:
@@ -59,4 +61,7 @@ print(Style.BRIGHT + f"Drawn games: {draws}")
 
 print(Style.BRIGHT + f"\n FINAL WINNER IS {final_winner}")
 
+print(Style.BRIGHT + Fore.LIGHTBLACK_EX)
+print(f"\nAverage full game time taken for {agent1_name}: {agent1_time_secs:.2f} seconds")
+print(f"Average full game time taken for {agent2_name}: {agent2_time_secs:.2f} seconds")
 print(f"Time taken to play {GAMES} games: {(time.time() - t0):.2f} seconds" + Style.RESET_ALL)
