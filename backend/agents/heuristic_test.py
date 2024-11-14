@@ -6,6 +6,7 @@ import trueskill
 import os
 import sys
 import time
+from colorama import Style, Fore
 
 from bot.randy import RandomAgent
 from bot.monkey import MonkeyAgent
@@ -161,7 +162,32 @@ local_mid_pOne = np.array([[1, 0, 0],
                             [0, 0, 1],
                             [0, 1, 0]])
 
+local_toBeDrawn = np.array([[1, -1, 1],
+                            [-1, -1, 1],
+                            [0, 1, -1]])  # Secured Draw (will always be Draw)
+
 # Define Global Boards
+global_to_draw = np.zeros((3, 3, 3, 3), dtype=int)
+global_to_draw[0, 0] = local_OneWon_1
+global_to_draw[0, 1] = local_TwoWon_1
+global_to_draw[0, 2] = local_OneWon_2
+global_to_draw[1, 0] = local_TwoWon_2
+global_to_draw[1, 1] = local_TwoWon_2
+global_to_draw[1, 2] = local_OneWon_3
+global_to_draw[2, 1] = local_OneWon_3
+global_to_draw[2, 2] = local_TwoWon_3
+
+global_full_draw = np.zeros((3, 3, 3, 3), dtype=int)
+global_full_draw[0, 0] = local_OneWon_2
+global_full_draw[0, 1] = local_TwoWon_1
+global_full_draw[0, 2] = local_OneWon_3
+global_full_draw[1, 0] = local_TwoWon_2
+global_full_draw[1, 1] = local_TwoWon_3
+global_full_draw[1, 2] = local_OneWon_1
+global_full_draw[2, 0] = local_OneWon_3
+global_full_draw[2, 1] = local_OneWon_1
+global_full_draw[2, 2] = local_TwoWon_2
+
 global_mid = np.zeros((3, 3, 3, 3), dtype=int)
 global_mid[1, 1] = local_TwoWon_1
 global_mid[0, 0] = local_OneWon_2
@@ -188,19 +214,29 @@ global_victory[1, 1] = local_OneWon_2
 global_victory[2, 2] = local_OneWon_3
 
 # Original Evals
+og_eval_to_be_drawn = JardineritoAgent.boardBalance(global_to_draw)
+og_eval_full_draw = JardineritoAgent.boardBalance(global_full_draw)
 og_eval_mid = JardineritoAgent.boardBalance(global_mid)
 og_eval_alr = JardineritoAgent.boardBalance(global_alr)
 og_eval_good = JardineritoAgent.boardBalance(global_good)
 og_eval_great = JardineritoAgent.boardBalance(global_great)
+og_eval_victory = JardineritoAgent.boardBalance(global_victory)
 
 # Better Evals
+better_eval_to_be_drawn = BetterJardineritoAgent.boardBalance(global_to_draw)
+better_eval_full_draw = BetterJardineritoAgent.boardBalance(global_full_draw)
 better_eval_mid = BetterJardineritoAgent.boardBalance(global_mid)
 better_eval_alr = BetterJardineritoAgent.boardBalance(global_alr)
 better_eval_good = BetterJardineritoAgent.boardBalance(global_good)
 better_eval_great = BetterJardineritoAgent.boardBalance(global_great)
+better_eval_victory = BetterJardineritoAgent.boardBalance(global_victory)
 
 # Print
+print(Style.BRIGHT + Fore.LIGHTMAGENTA_EX + f"Evals Results")
+print(f"ToBe-Drawn Board Evals: Original: {og_eval_to_be_drawn} | Better: {better_eval_to_be_drawn}")
+print(f"Full Draw Board Evals: Original: {og_eval_full_draw} | Better: {better_eval_full_draw}")
 print(f"Mid Board Evals: Original: {og_eval_mid} | Better: {better_eval_mid}")
 print(f"Alright Board Evals: Original: {og_eval_alr} | Better: {better_eval_alr}")
 print(f"Good Board Evals: Original: {og_eval_good} | Better: {better_eval_good}")
 print(f"Great Board Evals: Original: {og_eval_great} | Better: {better_eval_great}")
+print(Style.RESET_ALL)
