@@ -358,6 +358,26 @@ class BetterJardineritoAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations plus the connectivity of the global board results 
         Calculated using the local eval of the results array '''
+        ev_00, res_00, ev_01, res_01, ev_02, res_02 = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
+        ev_10, res_10, ev_11, res_11, ev_12, res_12 = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
+        ev_20, res_20, ev_21, res_21, ev_22, res_22 = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
+        
+        balance = (1.25*ev_00 + ev_01 + 1.25*ev_02 + ev_10 + 1.5*ev_11 + ev_12 + 1.25*ev_20 + ev_21 + 1.25*ev_22)
+        results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
+        results_balance = self.get_global_results_eval(results_array)
+        result_coef = results_balance * ((1 + abs(results_balance))**1.25) * 1.25
+        # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
+        # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
+        # have the same massive disproportionality with the results balance weight
+
+        balance += result_coef
+        return balance
+
+    def board_balance(self, board):
+        # NEEDS TIMEIT TESTING 🔔
+        ''' Returns the heuristic value of the board 
+        For now it's a sum of the local board evaluations plus the connectivity of the global board results 
+        Calculated using the local eval of the results array '''
         rows, cols, *_ = board.shape
         balance = 0
 
