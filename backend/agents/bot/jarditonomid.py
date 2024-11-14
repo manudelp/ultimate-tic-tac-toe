@@ -29,16 +29,19 @@ class JardineritoAntiMidAgent:
         self.playing_early = False
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
+        self.hash_eval_glob_boards = {}
 
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         # Construct the absolute paths to the files
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
 
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
+        self.load_eval_glob_boards(eval_glob_path)
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
@@ -441,6 +444,19 @@ class JardineritoAntiMidAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
+    def load_eval_glob_boards(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, heuristic_value = line.strip().split(':')
+                    if heuristic_value == "Draw":
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
+                    else:
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
+
     def get_isOver(self, board):
         # TIMEIT APPROVED ✅
         ''' If the board is found in the over boards, return True, else False '''
@@ -463,6 +479,14 @@ class JardineritoAntiMidAgent:
         if local_eval is None:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
+
+    def get_eval_glob_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        local_eval_glob = self.hash_eval_glob_boards.get(board_key, None)
+        if local_eval_glob is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards.")
+        return local_eval_glob
 
     def updateOverBoards(self, board):
         if self.get_isOver(board[0, 0]):
