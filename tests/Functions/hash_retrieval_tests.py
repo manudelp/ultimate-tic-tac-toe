@@ -544,7 +544,10 @@ class RetrievalAgent:
             with open(file_path, 'r') as file:
                 for line in file:
                     board_hex, heuristic_value = line.strip().split(':')
-                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    if heuristic_value == "Draw":
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
+                    else:
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -1218,7 +1221,7 @@ def run_won_tests(agent):
     assert agent.get_winner_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
     assert agent.get_winner_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
 
-    print(Style.NORMAL + Fore.GREEN + "All Won-Board tests passed successfully!")
+    print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Board tests passed successfully!")
 
 def run_eval_tests_v1(agent):
     assert agent.get_eval_hash(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"
@@ -1333,11 +1336,11 @@ def run_eval_tests_glob(agent):
     assert agent.get_eval_glob_hash(board_5) == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
     assert agent.get_eval_glob_hash(board_6) == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
     assert agent.get_eval_glob_hash(board_7) == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_8) == b8_eval_glob, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_8) == "Draw", "Test Failed: Board 8 evaluation does not match"
     assert agent.get_eval_glob_hash(board_9) == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
     assert agent.get_eval_glob_hash(board_10) == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_11) == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_12) == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_11) == "Draw", "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_12) == "Draw", "Test Failed: Board 12 evaluation does not match"
     assert agent.get_eval_glob_hash(board_center_only) == 0.8, "Test Failed: Board Center Only evaluation does not match"
     assert agent.get_eval_glob_hash(board_center_only_another) == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
     assert agent.get_eval_glob_hash(board_center_enemy_only) == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
@@ -1453,12 +1456,9 @@ def run_eval_glob_commonsense_tests(agent):
     assert agent.get_eval_glob_hash(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
     assert abs(agent.get_eval_glob_hash(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
     assert agent.get_eval_glob_hash(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
-    assert abs(agent.get_eval_glob_hash(board_8)) < 1, "Test Failed: Board 8 should have a score of 0"
     assert agent.get_eval_glob_hash(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
     assert abs(agent.get_eval_glob_hash(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
     assert agent.get_eval_glob_hash(board_10) == -1 * agent.get_eval_glob_hash(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
-    assert agent.get_eval_glob_hash(board_11) == 0, "Test Failed: Board 11 should have a score of 0"
-    assert agent.get_eval_glob_hash(board_12) == 0, "Test Failed: Board 12 should have a score of 0"
 
     print("All Eval Global Local Common-Sense tests passed successfully!")
 
@@ -1503,15 +1503,10 @@ def run_winnable_tests_minus_one(agent):
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    print(f"\nbestmove1 obtained was {agent.get_HyphenNumeric_hash(super_board_2, btp1)}\n")
     assert agent.get_HyphenNumeric_hash(super_board_1, btp1) == bestmove1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
     assert agent.get_HyphenNumeric_hash(super_board_2, btp2) == bestmove2, "Test Failed: Super Board 2 should have a best move of (0, 2, 2, 0)"
     
     print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
-
-# print(Style.BRIGHT + Fore.MAGENTA + f"Super Board 2 key for board is {agent.get_quick_board_key(super_board_2)}" + Style.RESET_ALL)
-# print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Agent hyphen numeric hash looks like this:\n{agent.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
-# print(Style.BRIGHT + Fore.LIGHTBLACK_EX + f"Super Board 2 running hyphennumeric attempt...\n {agent.get_HyphenNumeric_parameters(super_board_2, btp2)}" + Style.RESET_ALL)
 
 # Test Running Function
 def run_all_agent_tests(agent):
