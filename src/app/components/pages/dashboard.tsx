@@ -4,6 +4,7 @@ import Board from "@/app/components/core/board";
 import PlayerX from "../ui/playerx";
 import PlayerO from "../ui/playero";
 import io from "socket.io-client";
+import { create } from "domain";
 
 const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
 
@@ -264,7 +265,7 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* Online Mode */}
-            {gameMode === "online" && (
+            {gameMode === "online" && !createdLobby && (
               <>
                 <button
                   className="sm:w-64 py-4 text-lg bg-red-500 hover:bg-red-400 transition-colors"
