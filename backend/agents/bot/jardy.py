@@ -433,6 +433,14 @@ class GardenerAgent:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
 
+    def get_eval_glob_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        score, result = self.hash_eval_glob_boards.get(board_key, None)
+        if score is None or result is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
+        return score, result
+
     def load_eval_glob_boards(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
