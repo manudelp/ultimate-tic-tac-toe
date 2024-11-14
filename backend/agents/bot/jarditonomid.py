@@ -29,6 +29,7 @@ class JardineritoAntiMidAgent:
         self.playing_early = False
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
+        self.hash_eval_glob_boards = {}
 
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -476,6 +477,14 @@ class JardineritoAntiMidAgent:
         if local_eval is None:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
+
+    def get_eval_glob_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        local_eval_glob = self.hash_eval_glob_boards.get(board_key, None)
+        if local_eval_glob is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards.")
+        return local_eval_glob
 
     def updateOverBoards(self, board):
         if self.get_isOver(board[0, 0]):

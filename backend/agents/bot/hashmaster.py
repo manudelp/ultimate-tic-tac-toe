@@ -24,6 +24,7 @@ class MonkeyAgent:
         self.minimax_plays = 0
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
+        self.hash_eval_glob_boards = {}
 
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
