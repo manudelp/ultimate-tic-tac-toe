@@ -39,6 +39,7 @@ class TwinPrunerAgent:
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
+        self.load_eval_glob_boards(eval_glob_path)
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
