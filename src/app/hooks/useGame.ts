@@ -9,7 +9,10 @@ import {
 } from "../utils";
 
 const socket = io(
-  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online"
+  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online",
+  {
+    transports: ["websocket"],
+  }
   // "http://26.29.97.86:5000/online" // ONLINE
 );
 
