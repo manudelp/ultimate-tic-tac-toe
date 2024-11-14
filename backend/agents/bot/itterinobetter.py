@@ -525,13 +525,17 @@ class BetterItterinoAgent:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
 
-    def get_eval_glob_hash(self, board):
-        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
-        board_key = board.tobytes()
-        local_eval_glob = self.hash_eval_glob_boards.get(board_key, None)
-        if local_eval_glob is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards.")
-        return local_eval_glob
+    def load_eval_glob_boards(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
     def updateOverBoards(self, board):
         if self.get_isOver(board[0, 0]):
