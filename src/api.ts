@@ -2,8 +2,7 @@ import axios from "axios";
 
 // src/api.ts
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL + ":5000" || "http://127.0.0.1:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
 // const API_URL = "http://26.29.97.86:5000"; // ONLINE
 
 // Types

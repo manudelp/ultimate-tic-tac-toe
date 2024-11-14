@@ -9,8 +9,7 @@ import {
 } from "../utils";
 
 const socket = io(
-  process.env.NEXT_PUBLIC_API_URL + ":5000/online" ||
-    "http://localhost:5000/online",
+  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online",
   {
     transports: ["websocket"],
   }
