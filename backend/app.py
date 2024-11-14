@@ -10,7 +10,7 @@ from config import DevelopmentConfig
 from api.bots import bot_routes
 from api.auth import auth_routes
 from api.online import online_routes
-# from socketio_instance import socketio
+from socketio_instance import socketio
 
 load_dotenv()  # Load environment variables from .env
 users = []  # List to store user data
@@ -26,7 +26,7 @@ CORS(app)
 jwt = JWTManager(app)
 
 # Initialize SocketIO
-# socketio.init_app(app, cors_allowed_origins="*")
+socketio.init_app(app, cors_allowed_origins="*")
 
 # Register routes
 app.register_blueprint(bot_routes)
@@ -54,5 +54,4 @@ def unhandled_exception(e):
 
 # Run the Flask app
 if __name__ == '__main__':
-    # socketio.run(app, host='0.0.0.0', port=5000, debug=True)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='26.29.97.86', port=5000, debug=True)
