@@ -192,13 +192,24 @@ const Board: React.FC<BoardProps> = ({
           {gameMode === "bot-vs-bot" && (
             <div title="Bot's move time">{timeToMove.toFixed(2)}s</div>
           )}
-          <div title="Player">
+          <div
+            title="Player"
+            className="truncate sm:w-[150px] text-end overflow-hidden"
+          >
             {gameMode === "player-vs-player" && "Player"}
-            {gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)}
-            {gameMode === "bot-vs-bot" &&
-              (turn === agentIdTurn ? agentId : agentId2)}
-            {gameMode === "online" &&
-              (turn === userLetter ? "You" : "Opponent")}
+            {window.innerWidth > 780
+              ? gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)
+              : gameMode === "player-vs-bot" &&
+                (turn === "X" ? "You" : agentId?.slice(-2) ?? "")}
+            {window.innerWidth > 780
+              ? gameMode === "bot-vs-bot" &&
+                (turn === agentIdTurn ? agentId : agentId2)
+              : gameMode === "bot-vs-bot" &&
+                (turn === agentIdTurn
+                  ? agentId?.slice(-2) ?? ""
+                  : agentId2?.slice(-2) ?? "")}
+            {/* {gameMode === "online" &&
+              (turn === userLetter ? "You" : "Opponent")} */}
           </div>
           <div title="Turn">{turn}</div>
         </div>

@@ -9,7 +9,7 @@ class saver:
             board (np.ndarray): Current state of the board, in a 4d numpy array of dimension 3x3x3x3
 
             board_to_play (tuple or None): Tuple (a, b) indicating the global_board coordinates of the subboard to play in
-                                           If None then can choose any board
+                                            If None then can choose any board
 
             moves (tuple): List of moves to play (generated dynamically in the function for recursive calls)
             depth (int): Level of Recursion reached
