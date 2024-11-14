@@ -452,6 +452,10 @@ def globalLocalEval(localBoard):
     When both players threat, tone down but just a tiny bit
     NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
     '''
+    
+    if isDraw(localBoard):
+        return "Draw"
+    
     score = 0
             
     player1_threat = False
@@ -773,10 +777,10 @@ def generate_legal_boards(file_path):
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
-generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
-generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
-generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-# generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
+# generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
+# generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
+# generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
