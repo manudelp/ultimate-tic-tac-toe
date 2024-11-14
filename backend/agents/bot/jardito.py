@@ -108,7 +108,6 @@ class JardineritoAgent:
             a, b = board_to_play
         subboard = super_board[a, b]
 
-        # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
         # print(f"{self.id} is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
@@ -123,7 +122,7 @@ class JardineritoAgent:
             a, b, r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-         
+
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
@@ -181,7 +180,7 @@ class JardineritoAgent:
             board (np.ndarray): Current state of the board, in a 4d numpy array of dimension 3x3x3x3
 
             board_to_play (tuple or None): Tuple (a, b) indicating the global_board coordinates of the subboard to play in
-                                           If None then can choose any board
+                                            If None then can choose any board
 
             moves (tuple): List of moves to play (generated dynamically in the function for recursive calls)
             depth (int): Level of Recursion reached
