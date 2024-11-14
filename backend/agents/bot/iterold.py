@@ -479,6 +479,19 @@ class IteroldAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
+    def load_eval_glob_boards(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, heuristic_value = line.strip().split(':')
+                    if heuristic_value == "Draw":
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
+                    else:
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
+
     def get_isOver(self, board):
         # TIMEIT APPROVED ✅
         ''' If the board is found in the over boards, return True, else False '''
