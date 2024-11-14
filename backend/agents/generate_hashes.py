@@ -679,7 +679,7 @@ def generate_eval_boards_glob(file_path):
         board_key = board.tobytes()
         heuristic_value = globalLocalEval(board)
         result = 2 if isDraw(board) else int(whoWon(board))
-        evaluated_boards[board_key] = heuristic_value
+        evaluated_boards[board_key] = (heuristic_value, result)
 
     with open(file_path, 'w') as f:
         for board_key, heuristic_value in evaluated_boards.items():
