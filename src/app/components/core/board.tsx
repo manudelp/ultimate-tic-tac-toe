@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import { useGame } from "../../hooks/useGame";
+import Loader from "@/app/components/layout/loader";
 
 interface BoardProps {
   gameMode: string;
@@ -45,6 +46,7 @@ const Board: React.FC<BoardProps> = ({
     moveNumber,
     isPaused,
     timeToMove,
+    gameOver,
     handleCellClick,
     makeMove,
     togglePlayPause,
@@ -60,6 +62,19 @@ const Board: React.FC<BoardProps> = ({
   );
 
   const [play, setPlay] = useState(false);
+
+  const [showLoader, setShowLoader] = useState(false);
+
+  useEffect(() => {
+    if (
+      (gameMode === "bot-vs-bot" || gameMode === "player-vs-bot") &&
+      agentId === null
+    ) {
+      setShowLoader(true);
+    } else {
+      setShowLoader(false);
+    }
+  }, [setShowLoader, gameMode, agentId]);
 
   useEffect(() => {
     return () => {
@@ -221,6 +236,15 @@ const Board: React.FC<BoardProps> = ({
             isPaused ? "pointer-events-none" : ""
           } `}
         >
+          {showLoader && (
+            <Loader
+              text={`${
+                gameMode === "player-vs-bot"
+                  ? "Fetching opponent..."
+                  : "Fetching bots..."
+              }`}
+            />
+          )}
           {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
             miniBoardRow.map((miniBoard: string[][], localColIndex) => (
               <MiniBoard
@@ -289,9 +313,16 @@ const Board: React.FC<BoardProps> = ({
 
       {/* GAME INFO */}
       <div className="flex items-center justify-between">
-        {/* WHO STARTS */}
-        {gameMode === "player-vs-bot" && starts && (
-          <h2>{starts === "player" ? "You start" : agentId + " starts"}</h2>
+        {/* MATCH INFO - PLAYER VS BOT */}
+        {gameMode === "player-vs-bot" && starts && !gameOver && (
+          <>
+            <h2>{starts === "player" ? "You start" : agentId + " starts"}</h2>
+
+            <div>
+              Playing against{" "}
+              {window.innerWidth > 768 ? agentId : agentId?.slice(-2) ?? ""}
+            </div>
+          </>
         )}
 
         {/* IS BOT THINKING */}

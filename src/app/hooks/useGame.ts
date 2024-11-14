@@ -406,6 +406,7 @@ export const useGame = (
     moveNumber,
     isPaused,
     timeToMove,
+    gameOver,
     handleCellClick,
     makeMove,
     togglePlayPause,
