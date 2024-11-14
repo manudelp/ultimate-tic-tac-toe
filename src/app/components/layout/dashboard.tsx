@@ -159,6 +159,9 @@ const Dashboard: React.FC = () => {
               totalGames={totalGames}
               resetBoard={resetBoard}
               onReset={handleBoardReset}
+              onExit={function (): void {
+                throw new Error("Function not implemented.");
+              }}
             />
           </div>
         </>
