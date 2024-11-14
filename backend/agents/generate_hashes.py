@@ -678,6 +678,7 @@ def generate_eval_boards_glob(file_path):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
         heuristic_value = globalLocalEval(board)
+        result = 2 if isDraw(board) else int(whoWon(board))
         evaluated_boards[board_key] = heuristic_value
 
     with open(file_path, 'w') as f:
