@@ -378,7 +378,7 @@ class BetterJardineritoAgent:
         
         results_array = np.array([[int(lb00_ev/6), int(lb01_ev/6), int(lb02_ev/6)], [int(lb10_ev/6), int(lb11_ev/6), int(lb12_ev/6)], [int(lb20_ev/6), int(lb21_ev/6), int(lb22_ev/6)]])
         results_balance = self.get_local_eval(results_array)
-        result_coef = results_balance * ((1 + abs(results_balance))**2) * 1.7
+        result_coef = results_balance * ((1 + abs(results_balance))**1.25) * 1.25
         # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
         # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
         # have the same massive disproportionality with the results balance weight

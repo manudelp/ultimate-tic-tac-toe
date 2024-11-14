@@ -231,12 +231,29 @@ better_eval_good = BetterJardineritoAgent.boardBalance(global_good)
 better_eval_great = BetterJardineritoAgent.boardBalance(global_great)
 better_eval_victory = BetterJardineritoAgent.boardBalance(global_victory)
 
+# Common Sense Checks
+tbd_check = "✅" if og_eval_to_be_drawn == better_eval_to_be_drawn else "❌"
+fd_check = "✅" if og_eval_full_draw == better_eval_full_draw else "❌"
+mid_check = "✅" if og_eval_mid < better_eval_mid else "❌"
+alr_check = "✅" if (1.1 * og_eval_alr) < better_eval_alr else "❌"
+good_check = "✅" if (1.2 * og_eval_good) < better_eval_good else "❌"
+great_check = "✅" if (1.3 * og_eval_great) < better_eval_great else "❌"
+victory_check = "✅" if (2 * og_eval_victory) < better_eval_victory else "❌"
+
 # Print
-print(Style.BRIGHT + Fore.LIGHTMAGENTA_EX + f"Evals Results")
-print(f"ToBe-Drawn Board Evals: Original: {og_eval_to_be_drawn} | Better: {better_eval_to_be_drawn}")
-print(f"Full Draw Board Evals: Original: {og_eval_full_draw} | Better: {better_eval_full_draw}")
-print(f"Mid Board Evals: Original: {og_eval_mid} | Better: {better_eval_mid}")
-print(f"Alright Board Evals: Original: {og_eval_alr} | Better: {better_eval_alr}")
-print(f"Good Board Evals: Original: {og_eval_good} | Better: {better_eval_good}")
-print(f"Great Board Evals: Original: {og_eval_great} | Better: {better_eval_great}")
+print(Style.BRIGHT + f"---+--- Board Evaluation Results ---+---")
+print(Fore.GREEN if tbd_check == "✅" else Fore.RED)
+print(f"{tbd_check}  ToBe-Drawn Board Evals: Original: {og_eval_to_be_drawn} | Better: {better_eval_to_be_drawn}")
+print(Fore.GREEN if fd_check == "✅" else Fore.RED)
+print(f"{fd_check}  Full Draw Board Evals: Original: {og_eval_full_draw} | Better: {better_eval_full_draw}")
+print(Fore.GREEN if mid_check == "✅" else Fore.RED)
+print(f"{mid_check}  Mid Board Evals: Original: {og_eval_mid} | Better: {better_eval_mid}")
+print(Fore.GREEN if alr_check == "✅" else Fore.RED)
+print(f"{alr_check}  Alright Board Evals: Original: {og_eval_alr} | Better: {better_eval_alr}")
+print(Fore.GREEN if good_check == "✅" else Fore.RED)
+print(f"{good_check}  Good Board Evals: Original: {og_eval_good} | Better: {better_eval_good}")
+print(Fore.GREEN if great_check == "✅" else Fore.RED)
+print(f"{great_check}  Great Board Evals: Original: {og_eval_great} | Better: {better_eval_great}")
+print(Fore.GREEN if victory_check == "✅" else Fore.RED)
+print(f"{victory_check}  Victory Board Evals: Original: {og_eval_victory} | Better: {better_eval_victory}")
 print(Style.RESET_ALL)
