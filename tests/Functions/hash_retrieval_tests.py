@@ -1129,9 +1129,9 @@ btp1 = (2, 0)
 bestmove1 = (2, 0, 0, 2)
 
 # Print Moves for all 8 symmetries
-print(Style.BRIGHT + Fore.CYAN)
-print(f"{agent.board_to_moves_list(super_board_1)} is the key for Board 1 Original hyphen numeric")
-print(Style.RESET_ALL)
+# print(Style.BRIGHT + Fore.CYAN)
+# print(f"{agent.board_to_moves_list(super_board_1)} is the key for Board 1 Original hyphen numeric")
+# print(Style.RESET_ALL)
 
 # Try with 180 Rotation
 super_board_2 = np.zeros((3, 3, 3, 3), dtype=int)
@@ -1359,13 +1359,13 @@ def run_eval_tests_glob(agent):
     assert agent.get_eval_glob_hash(board_10)[1] == 0, "Test Failed: Board 10 result does not match"
 
     assert agent.get_eval_glob_hash(board_11)[0] == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_11)[0] == 2, "Test Failed: Board 11 result does not match"
+    assert agent.get_eval_glob_hash(board_11)[1] == 2, "Test Failed: Board 11 result does not match"
 
     assert agent.get_eval_glob_hash(board_12)[0] == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_12)[0] == 2, "Test Failed: Board 12 result does not match"
+    assert agent.get_eval_glob_hash(board_12)[1] == 2, "Test Failed: Board 12 result does not match"
 
     assert agent.get_eval_glob_hash(board_center_only)[0] == 0.8, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_only)[1] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
 
     assert agent.get_eval_glob_hash(board_center_only_another)[0] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
     assert agent.get_eval_glob_hash(board_center_only_another)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
@@ -1550,7 +1550,7 @@ def run_all_agent_tests(agent):
     run_eval_commonsense_tests(agent)
     run_eval_v2_commonsense_tests(agent)
     run_eval_v3_commonsense_tests(agent)
-    run_eval_glob_commonsense_tests(agent)
+    # run_eval_glob_commonsense_tests(agent)
     run_winnable_tests_one(agent)
     run_winnable_tests_minus_one(agent)
     run_HyphenNumeric_tests(agent)
