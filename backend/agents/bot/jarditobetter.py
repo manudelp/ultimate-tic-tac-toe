@@ -33,6 +33,7 @@ class BetterJardineritoAgent:
         # Construct the absolute paths to the files
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
 
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
