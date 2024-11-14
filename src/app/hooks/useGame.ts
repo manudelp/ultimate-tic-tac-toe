@@ -10,6 +10,7 @@ import {
 
 const socket = io(
   process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online"
+  // "http://26.29.97.86:5000/online" // ONLINE
 );
 
 export const useGame = (

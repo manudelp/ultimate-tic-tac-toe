@@ -208,8 +208,8 @@ const Board: React.FC<BoardProps> = ({
                 (turn === agentIdTurn
                   ? agentId?.slice(-2) ?? ""
                   : agentId2?.slice(-2) ?? "")}
-            {/* {gameMode === "online" &&
-              (turn === userLetter ? "You" : "Opponent")} */}
+            {gameMode === "online" &&
+              (turn === userLetter ? "You" : "Opponent")}
           </div>
           <div title="Turn">{turn}</div>
         </div>
@@ -409,7 +409,18 @@ const Board: React.FC<BoardProps> = ({
             <h2
               title="Click to Copy!"
               className="cursor-pointer"
-              onClick={() => navigator.clipboard.writeText(lobbyId || "")}
+              onClick={() => {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(lobbyId || "");
+                } else {
+                  const textArea = document.createElement("textarea");
+                  textArea.value = lobbyId || "";
+                  document.body.appendChild(textArea);
+                  textArea.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(textArea);
+                }
+              }}
             >
               Lobby ID
             </h2>
