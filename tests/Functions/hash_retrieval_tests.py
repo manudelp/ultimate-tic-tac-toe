@@ -543,11 +543,10 @@ class RetrievalAgent:
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, heuristic_value = line.strip().split(':')
-                    if heuristic_value == "Draw":
-                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
-                    else:
-                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -670,10 +669,10 @@ class RetrievalAgent:
     def get_eval_glob_hash(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        local_eval_glob = self.hash_eval_glob_boards.get(board_key, None)
-        if local_eval_glob is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards.")
-        return local_eval_glob
+        score, result = self.hash_eval_glob_boards.get(board_key, None)
+        if score is None or result is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
+        return score, result
 
     def get_draw_hash(self, board):
         """
@@ -1329,21 +1328,50 @@ def get_eval_result_tests_v3(agent):
     print("All Eval Result V3 tests passed successfully!")
 
 def run_eval_tests_glob(agent):
-    assert agent.get_eval_glob_hash(board_1) == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_2) == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_3) == b3_eval_glob, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_4) == b4_eval_glob, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_5) == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_6) == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_7) == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_8) == "Draw", "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_9) == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_10) == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_11) == "Draw", "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_12) == "Draw", "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_only) == 0.8, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_only_another) == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_enemy_only) == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_glob_hash(board_1)[0] == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_1)[1] == 1, "Test Failed: Board 1 result does not match"
+
+    assert agent.get_eval_glob_hash(board_2)[0] == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_2)[1] == 1, "Test Failed: Board 2 result does not match"
+
+    assert agent.get_eval_glob_hash(board_3)[0] == b3_eval_glob, "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_3)[1] == 1, "Test Failed: Board 3 result does not match"
+
+    assert agent.get_eval_glob_hash(board_4)[0] == b4_eval_glob, "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_4)[1] == -1, "Test Failed: Board 4 result does not match"
+
+    assert agent.get_eval_glob_hash(board_5)[0] == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_5)[1] == -1, "Test Failed: Board 5 result does not match"
+
+    assert agent.get_eval_glob_hash(board_6)[0] == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_6)[1] == -1, "Test Failed: Board 6 result does not match"
+
+    assert agent.get_eval_glob_hash(board_7)[0] == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_7)[1] == 0, "Test Failed: Board 7 result does not match"
+
+    assert agent.get_eval_glob_hash(board_8)[0] == b8_eval_glob, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_8)[1] == 2, "Test Failed: Board 8 result does not match"
+
+    assert agent.get_eval_glob_hash(board_9)[0] == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_9)[1] == 0, "Test Failed: Board 7 result does not match"
+
+    assert agent.get_eval_glob_hash(board_10)[0] == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_10)[1] == 0, "Test Failed: Board 10 result does not match"
+
+    assert agent.get_eval_glob_hash(board_11)[0] == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_11)[0] == 2, "Test Failed: Board 11 result does not match"
+
+    assert agent.get_eval_glob_hash(board_12)[0] == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_glob_hash(board_12)[0] == 2, "Test Failed: Board 12 result does not match"
+
+    assert agent.get_eval_glob_hash(board_center_only)[0] == 0.8, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_only)[1] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
+
+    assert agent.get_eval_glob_hash(board_center_only_another)[0] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_only_another)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+
+    assert agent.get_eval_glob_hash(board_center_enemy_only)[0] == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_glob_hash(board_center_enemy_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
 
     print("All Eval Global Local tests passed successfully!")
 

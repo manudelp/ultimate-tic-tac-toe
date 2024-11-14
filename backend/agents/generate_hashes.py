@@ -453,9 +453,6 @@ def globalLocalEval(localBoard):
     NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
     '''
     
-    if isDraw(localBoard):
-        return "Draw"
-    
     score = 0
             
     player1_threat = False
