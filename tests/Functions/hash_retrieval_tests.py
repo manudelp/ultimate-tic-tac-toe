@@ -666,6 +666,14 @@ class RetrievalAgent:
             raise ValueError(f"Board {board} not found in evaluated V3 boards.")
         return result
 
+    def get_global_results_eval(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        results_eval = self.hash_global_results_evals.get(board_key, None)
+        if results_eval is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards")
+        return results_eval
+
     def get_eval_glob_hash(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()

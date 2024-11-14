@@ -53,6 +53,13 @@ def lineEval(line, player=1):
             return -1
         else:
             return 0
+        
+def advanced_line_eval(line, player=1):
+    ''' Works like lineEval, but also considering tiles with a '2' as being blocked,
+    not counting to any player, and blocking any row/column/diagonal from a potential 3-in-line '''
+    if line.count(2) > 0:
+        return 0
+    return lineEval(line, player)
 
 def isDraw(board):
     ''' Returns True if the local 3x3 board is either a complete Draw, or secured to be one '''
@@ -167,7 +174,12 @@ def get_winnable_moves(board, player):
     return winning_moves
 
 def detectThreat(line):
-    return line.count(0) == 1 and (line.count(1) == 2 or line.count(-1) == 2)
+    if (line.count(0) == 1 and (line.count(1) == 2 or line.count(-1) == 2)):
+        if line.count(2) > 0:
+            raise ValueError("Invalid Line with Blocked Tiles")
+        return True
+    else:
+        return False
 
 def localBoardEval(localBoard):
     """ 
@@ -533,6 +545,91 @@ def globalLocalEval(localBoard):
     final_score = round(score, 1)
     return final_score
 
+def results_board_eval(local_board):
+    ''' Given a 3x3 board, returns the local eval 
+    Unlike the localBoardEval functions, boards for this one can have 4 types of pieces instead of the usual 3
+    1s are for player1, -1s are for player2, 0s are empty tiles, and 2s are blocked tiles that don't count for any player
+    '''
+    score = 0
+    player1_threat = False
+    player2_threat = False
+
+    # Rows
+    row1_eval = advanced_line_eval((local_board[0, 0], local_board[0, 1], local_board[0, 2]))
+    if detectThreat((local_board[0, 0], local_board[0, 1], local_board[0, 2])):
+        player1_threat |= row1_eval > 0
+        player2_threat |= row1_eval < 0
+    if abs(row1_eval) == 1:
+        return 6.4 * row1_eval
+    score += row1_eval
+
+    row2_eval = advanced_line_eval((local_board[1, 0], local_board[1, 1], local_board[1, 2]))
+    if detectThreat((local_board[1, 0], local_board[1, 1], local_board[1, 2])):
+        player1_threat |= row2_eval > 0
+        player2_threat |= row2_eval < 0
+    if abs(row2_eval) == 1:
+        return 6.4 * row2_eval
+    score += row2_eval
+
+    row3_eval = advanced_line_eval((local_board[2, 0], local_board[2, 1], local_board[2, 2]))
+    if detectThreat((local_board[2, 0], local_board[2, 1], local_board[2, 2])):
+        player1_threat |= row3_eval > 0
+        player2_threat |= row3_eval < 0
+    if abs(row3_eval) == 1:
+        return 6.4 * row3_eval
+    score += row3_eval
+
+    # Columns
+    col1_eval = advanced_line_eval((local_board[0, 0], local_board[1, 0], local_board[2, 0]))
+    if detectThreat((local_board[0, 0], local_board[1, 0], local_board[2, 0])):
+        player1_threat |= col1_eval > 0
+        player2_threat |= col1_eval < 0
+    if abs(col1_eval) == 1:
+        return 6.4 * col1_eval
+    score += col1_eval
+
+    col2_eval = advanced_line_eval((local_board[0, 1], local_board[1, 1], local_board[2, 1]))
+    if detectThreat((local_board[0, 1], local_board[1, 1], local_board[2, 1])):
+        player1_threat |= col2_eval > 0
+        player2_threat |= col2_eval < 0
+    if abs(col2_eval) == 1:
+        return 6.4 * col2_eval
+    score += col2_eval
+
+    col3_eval = advanced_line_eval((local_board[0, 2], local_board[1, 2], local_board[2, 2]))
+    if detectThreat((local_board[0, 2], local_board[1, 2], local_board[2, 2])):
+        player1_threat |= col3_eval > 0
+        player2_threat |= col3_eval < 0
+    if abs(col3_eval) == 1:
+        return 6.4 * col3_eval
+    score += col3_eval
+
+    # Diagonals
+    diagTB_eval = advanced_line_eval((local_board[0, 0], local_board[1, 1], local_board[2, 2]))
+    if detectThreat((local_board[0, 0], local_board[1, 1], local_board[2, 2])):
+        player1_threat |= diagTB_eval > 0
+        player2_threat |= diagTB_eval < 0
+    if abs(diagTB_eval) == 1:
+        return 6.4 * diagTB_eval
+    score += diagTB_eval
+
+    diagBT_eval = advanced_line_eval((local_board[2, 0], local_board[1, 1], local_board[0, 2]))
+    if detectThreat((local_board[2, 0], local_board[1, 1], local_board[0, 2])):
+        player1_threat |= diagBT_eval > 0
+        player2_threat |= diagBT_eval < 0
+    if abs(diagBT_eval) == 1:
+        return 6.4 * diagBT_eval
+    score += diagBT_eval
+
+    # Check for conflicting threats, tone down final score
+    if player1_threat and player2_threat:
+        final_score = score * 0.75
+        return round(final_score, 1)
+    
+    final_score = round(score, 1)
+    return final_score
+        
+    
 def whoWon(subboard):
     # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
     ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
@@ -685,6 +782,23 @@ def generate_eval_boards_glob(file_path):
         for board_key, heuristic_value in evaluated_boards.items():
             f.write(f"{board_key.hex()}:{heuristic_value}\n")
 
+def generate_results_board_eval(file_path):
+    """
+    Generate all possible 3x3 Tic-Tac-Toe board states, evaluate them with globalLocalEval,
+    and save them to evaluated_boards.txt in the format: hex representation of the board : heuristic value.
+    """
+    evaluated_boards = {}
+
+    for state in range(3**9):
+        board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
+        board_key = board.tobytes()
+        heuristic_value = results_board_eval(board)
+        evaluated_boards[board_key] = heuristic_value
+
+    with open(file_path, 'w') as f:
+        for board_key, heuristic_value in evaluated_boards.items():
+            f.write(f"{board_key.hex()}:{heuristic_value}\n")
+
 def generate_draw_boards(file_path):
     """
     Generate all possible 3x3 Tic-Tac-Toe board states, evaluate if they are a draw or not (with isDraw),
@@ -778,7 +892,8 @@ def generate_legal_boards(file_path):
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
+# generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
+generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
