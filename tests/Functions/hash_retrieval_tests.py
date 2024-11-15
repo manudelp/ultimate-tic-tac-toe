@@ -1148,6 +1148,26 @@ board_15 = np.array([[-1, -1, 0],
                     [-1, 0, 1],
                     [0, 1, 1]]) # winnable by 1 in (0, 2), (2, 0) || winnable by -1 in (0, 2), (2, 0)
 
+results_1 = np.array([[2, 1, 1],
+                    [2, -1, -1],
+                    [2, 2, 2]]) # should be 0
+
+results_2 = np.array([[0, 1, 1],
+                    [2, -1, -1],
+                    [0, 0, 0]]) # should be 0.6
+
+results_3 = np.array([[0, 0, 0],
+                    [0, 2, 0],
+                    [0, 0, 0]]) # should be 0
+
+results_4 = np.array([[0, 0, 0],
+                    [0, 2, 0],
+                    [-1, 0, 1]]) # should be 0
+
+results_5 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [1, 2, 1]]) # should be 0.2 * 4 = 0.8
+
 super_board_1 = np.zeros((3, 3, 3, 3), dtype=int)
 super_board_1[0, 0, 0, 0] = 1
 super_board_1[0, 0, 1, 2] = -1
@@ -1233,6 +1253,22 @@ b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), lo
 # endregion
 
 # Define Tests
+def run_eval_hash_completion_tests(agent):
+    for _ in range(1_000_000):
+        random_board = np.random.randint(-1, 2, (3, 3))
+        hash_value = agent.get_results_board_eval(random_board)
+        assert (hash_value is not None), f"Test Failed: Hash Value for Board {random_board} is None"
+        
+    print("All Regular Eval Hash Completion tests passed successfully!")
+
+def run_results_hash_completion_tests(agent):
+    for _ in range(1_000_000):
+        random_board = np.random.randint(-1, 3, (3, 3))
+        hash_value = agent.get_results_board_eval(random_board)
+        assert (hash_value is not None), f"Test Failed: Hash Value for Board {random_board} is None"
+        
+    print("All Results Board Eval Hash Completion tests passed successfully!")
+
 def run_won_tests(agent):
     # Boards won by player 1
     assert agent.get_winner_hash(board_1) == 1, "Test Failed: Player 1 should have won board_1"
@@ -1416,6 +1452,12 @@ def run_eval_results_tests(agent):
     assert agent.get_results_board_eval(board_10) == round(0.75 * b10_eval, 2), "Test Failed: Board 10 evaluation does not match"
     assert agent.get_results_board_eval(board_11) == b11_eval, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_results_board_eval(board_12) == b12_eval, "Test Failed: Board 12 evaluation does not match"
+    
+    assert agent.get_results_board_eval(results_1) == 0, f"Test Failed: Results 1 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_1)}"
+    assert agent.get_results_board_eval(results_2) == 0.6, f"Test Failed: Results 2 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_2)}"
+    assert agent.get_results_board_eval(results_3) == 0, f"Test Failed: Results 3 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_3)}"
+    assert agent.get_results_board_eval(results_4) == 0, f"Test Failed: Results 4 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_4)}"
+    assert agent.get_results_board_eval(results_5) == 0.8, f"Test Failed: Results 5 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_5)}"
 
     print("All Results Board Eval tests passed successfully!")
 
@@ -1583,6 +1625,8 @@ def run_HyphenNumeric_tests(agent):
 # Test Running Function
 def run_all_agent_tests(agent):
     t0 = time.time()
+    run_eval_hash_completion_tests(agent)
+    run_results_hash_completion_tests(agent)
     run_won_tests(agent)
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
