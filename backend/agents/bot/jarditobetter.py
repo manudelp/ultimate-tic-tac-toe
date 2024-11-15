@@ -25,17 +25,8 @@ class BetterJardineritoAgent:
         self.total_minimax_time = 0
         self.minimax_plays = 0
 
-        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-        # Construct the absolute paths to the files
-        over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
-        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
-        eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
-
-        # Load the boards using the absolute paths
-        self.load_over_boards(over_boards_path)
-        self.load_evaluated_boards(evaluated_boards_path)
-        self.load_eval_glob_boards(eval_glob_path)
+        # Hash Up
+        self.hash_loading()
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
@@ -144,6 +135,20 @@ class BetterJardineritoAgent:
         self.hash_winnable_boards_by_minus_one = {}
         self.hash_HyphenNumeric_boards = {}
         self.hash_HyphenNumeric_boards_rival = {}
+
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+        # Construct the absolute paths to the files
+        over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
+        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
+        results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_boards_eval.txt')
+
+        # Load the boards using the absolute paths
+        self.load_over_boards(over_boards_path)
+        self.load_evaluated_boards(evaluated_boards_path)
+        self.load_eval_glob_boards(eval_glob_path)
+        self.load_results_board_eval(results_eval_path)
 
 
     def randomMove(self, board):
@@ -419,18 +424,19 @@ class BetterJardineritoAgent:
 
         return round(balance, 4)
 
-    def load_over_boards(self, file_path):
-        # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
-        ''' Loads the over boards from a file and stores them in a dictionary 
-        Each board's state is stored as a key (using its byte representation)
-        '''
+    # region Hashing Functions
+    def load_winning_boards(self, file_path):
+        """
+        Load the winning boards from a file and store them in a dictionary.
+        Each board's state is stored as a key (using its byte representation) with the winner (1 or -1) as its value.
+        """
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex = line.strip()
-                    self.hash_over_boards[bytes.fromhex(board_hex)] = True
+                    board_hex, winner = line.strip().split(':')
+                    self.hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
         except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
     def load_evaluated_boards(self, file_path):
         """
@@ -447,57 +453,29 @@ class BetterJardineritoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def load_eval_glob_boards(self, file_path):
+    def load_evaluated_v2_boards(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, heuristic_value = line.strip().split(':')
-                    if heuristic_value == "Draw":
-                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
-                    else:
-                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_v2_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def get_isOver(self, board):
-        # TIMEIT APPROVED ✅
-        ''' If the board is found in the over boards, return True, else False '''
-        board_key = board.tobytes()
-        return self.hash_over_boards.get(board_key, False)
-
-    def get_isPlayable(self, board):
-        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_isOver directly 
-        # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough)
-        ''' Returns True if the board is playable, False otherwise '''
-        return not self.get_isOver(board)
-
-    def get_local_eval(self, board):
-        """
-        Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
-        If the board is not in the dictionary, return None (or handle it as needed).
-        """
-        board_key = board.tobytes()
-        local_eval, _ = self.hash_eval_boards.get(board_key, None)
-        if local_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated boards.")
-        return local_eval
-
-    def get_eval_glob_hash(self, board):
-        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
-        board_key = board.tobytes()
-        score, result = self.hash_eval_glob_boards.get(board_key, None)
-        if score is None or result is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
-        return score, result
-
-    def get_global_results_eval(self, board):
-        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
-        board_key = board.tobytes()
-        results_eval = self.hash_global_results_evals.get(board_key, None)
-        if results_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards")
-        return results_eval
+    def load_evaluated_v3_boards(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_v3_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
     def load_eval_glob_boards(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
@@ -510,6 +488,186 @@ class BetterJardineritoAgent:
                     self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
+
+    def load_results_board_eval(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, heuristic_value = line.strip().split(':')
+                    self.hash_results_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
+
+    def load_drawn_boards(self, file_path):
+        """
+        Load the drawn boards from a file and store them in a dictionary.
+        Each board's state is stored as a key (using its byte representation) with a boolean value.
+        """
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, is_draw = line.strip().split(':')
+                    self.hash_draw_boards[bytes.fromhex(board_hex)] = (is_draw == 'True')
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Drawn boards will not be loaded.")
+
+    def load_over_boards(self, file_path):
+        ''' Loads the over boards from a file and stores them in a dictionary 
+        Each board's state is stored as a key (using its byte representation)
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex = line.strip()
+                    self.hash_over_boards[bytes.fromhex(board_hex)] = True
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
+
+    def load_winnable_boards_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    def load_winnable_boards_minus_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    def get_winner_hash(self, board):
+        """
+        Retrieve the winner of a board from the preloaded dictionary of winning boards.
+        Returns 1 if player 1 won, -1 if player -1 won, or None if there is no winner.
+        """
+        board_key = board.tobytes()
+        return self.hash_won_boards.get(board_key, 0)
+
+    def get_eval_hash(self, board):
+        """
+        Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
+        If the board is not in the dictionary, return None (or handle it as needed).
+        """
+        board_key = board.tobytes()
+        local_eval, _ = self.hash_eval_boards.get(board_key, None)
+        if local_eval is None:
+            raise ValueError(f"Board {board} not found in evaluated eval boards.")
+        return local_eval
+
+    def get_eval_v2_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        local_eval_v2, _ = self.hash_eval_v2_boards.get(board_key, None)
+        if local_eval_v2 is None:
+            raise ValueError(f"Board {board} not found in evaluated V2 boards.")
+        return local_eval_v2
+    
+    def get_eval_v3_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        local_eval_v3, _ = self.hash_eval_v3_boards.get(board_key, None)
+        if local_eval_v3 is None:
+            raise ValueError(f"Board {board} not found in evaluated V3 boards.")
+        return local_eval_v3
+
+    def get_eval_result_v1_hash(self, board):
+        ''' Retrieve the result of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        _, result = self.hash_eval_boards.get(board_key, None)
+        if result is None:
+            raise ValueError(f"Board {board} not found in evaluated boards.")
+        return result
+    
+    def get_eval_result_v2_hash(self, board):
+        ''' Retrieve the result of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        _, result = self.hash_eval_v2_boards.get(board_key, None)
+        if result is None:
+            raise ValueError(f"Board {board} not found in evaluated V2 boards.")
+        return result
+    
+    def get_eval_result_v3_hash(self, board):
+        ''' Retrieve the result of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        _, result = self.hash_eval_v3_boards.get(board_key, None)
+        if result is None:
+            raise ValueError(f"Board {board} not found in evaluated V3 boards.")
+        return result
+
+    def get_global_results_eval(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        results_eval = self.hash_global_results_evals.get(board_key, None)
+        if results_eval is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards")
+        return results_eval
+
+    def get_eval_glob_hash(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        score, result = self.hash_eval_glob_boards.get(board_key, None)
+        if score is None or result is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
+        return score, result
+
+    def get_results_board_eval(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        hex_key = board_key.hex()
+        results_eval = self.hash_results_boards.get(board_key, None)
+        if results_eval is None:
+            raise ValueError(f"Board not found in results boards!, its hex key was {hex_key}. The board was\n{board}")
+        return results_eval
+
+    def get_draw_hash(self, board):
+        """
+        Retrieve the draw status of a board from the preloaded dictionary of drawn boards.
+        Returns True if the board is a draw, False otherwise.
+        """
+        board_key = board.tobytes()
+        return self.hash_draw_boards.get(board_key, False)
+
+    def get_over_hash(self, board):
+        ''' If the board is found in the over boards, return True, else False '''
+        board_key = board.tobytes()
+        return self.hash_over_boards.get(board_key, False)
+    
+    def get_playable_hash(self, board):
+        ''' Returns True if the board is playable, False otherwise '''
+        return not self.get_over_hash(board)
+
+    def get_winnable_by_one_hash(self, board):
+        ''' Returns the set of winning moves for player 1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_one.get(board_key, set())
+
+    def get_winnable_by_minus_one_hash(self, board):
+        ''' Returns the set of winning moves for player -1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_minus_one.get(board_key, set())
+
+    # endregion
 
     def updateOverBoards(self, board):
         if self.get_isOver(board[0, 0]):
