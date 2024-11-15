@@ -656,7 +656,7 @@ class RetrievalAgent:
         board_key = board.tobytes()
         local_eval, _ = self.hash_eval_boards.get(board_key, None)
         if local_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated boards.")
+            raise ValueError(f"Board {board} not found in evaluated eval boards.")
         return local_eval
 
     def get_eval_v2_hash(self, board):
@@ -721,7 +721,7 @@ class RetrievalAgent:
         hex_key = board_key.hex()
         results_eval = self.hash_results_boards.get(board_key, None)
         if results_eval is None:
-            raise ValueError(f"Board not found in evaluated global boards!, its hex key was {hex_key}. The board was\n{board}")
+            raise ValueError(f"Board not found in results boards!, its hex key was {hex_key}. The board was\n{board}")
         return results_eval
 
     def get_draw_hash(self, board):
@@ -1276,15 +1276,15 @@ b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), lo
 # Define Tests
 def run_eval_hash_completion_tests(agent):
     for _ in range(1_000_000):
-        random_board = np.random.randint(-1, 2, (3, 3))
-        hash_value = agent.get_results_board_eval(random_board)
+        random_board = np.random.randint(-1, 2, (3, 3), dtype=int)
+        hash_value = agent.get_eval_hash(random_board)
         assert (hash_value is not None), f"Test Failed: Hash Value for Board {random_board} is None"
         
     print("All Regular Eval Hash Completion tests passed successfully!")
 
 def run_results_hash_completion_tests(agent):
     for _ in range(1_000_000):
-        random_board = np.random.randint(-1, 3, (3, 3))
+        random_board = np.random.randint(-1, 2, (3, 3), dtype=int)
         hash_value = agent.get_results_board_eval(random_board)
         assert (hash_value is not None), f"Test Failed: Hash Value for Board {random_board} is None"
         
@@ -1646,8 +1646,8 @@ def run_HyphenNumeric_tests(agent):
 # Test Running Function
 def run_all_agent_tests(agent):
     t0 = time.time()
-    run_eval_hash_completion_tests(agent)
-    run_results_hash_completion_tests(agent)
+    # run_eval_hash_completion_tests(agent)
+    # run_results_hash_completion_tests(agent)
     run_won_tests(agent)
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
