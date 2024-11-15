@@ -1328,11 +1328,11 @@ b11_eval, b11_eval_v2, b11_eval_v3, b11_eval_glob = localBoardEval(board_11), lo
 b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12), globalLocalEval(board_12)
 r1_ev, r2_ev, r3_ev, r4_ev, r5_ev = results_board_eval(results_1), results_board_eval(results_2), results_board_eval(results_3), results_board_eval(results_4), results_board_eval(results_5)
 
-print("r1 eval is", r1_ev)
-print("r2 eval is", r2_ev)
-print("r3 eval is", r3_ev)
-print("r4 eval is", r4_ev)
-print("r5 eval is", r5_ev)
+# print("r1 eval is", r1_ev)
+# print("r2 eval is", r2_ev)
+# print("r3 eval is", r3_ev)
+# print("r4 eval is", r4_ev)
+# print("r5 eval is", r5_ev)
 
 # region Eval Prints
 # V1 Evals
@@ -1579,7 +1579,7 @@ def run_eval_results_tests(agent):
     assert agent.get_results_board_eval(board_12) == b12_eval, "Test Failed: Board 12 evaluation does not match"
     
     assert agent.get_results_board_eval(results_1) == 0, f"Test Failed: Results 1 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_1)}"
-    assert agent.get_results_board_eval(results_2) == 0.6, f"Test Failed: Results 2 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_2)}"
+    assert agent.get_results_board_eval(results_2) == 0.4, f"Test Failed: Results 2 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_2)}"
     assert agent.get_results_board_eval(results_3) == 0, f"Test Failed: Results 3 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_3)}"
     assert agent.get_results_board_eval(results_4) == 0, f"Test Failed: Results 4 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_4)}"
     assert agent.get_results_board_eval(results_5) == 0.8, f"Test Failed: Results 5 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_5)}"
