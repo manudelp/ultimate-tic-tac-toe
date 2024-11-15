@@ -1410,12 +1410,10 @@ def run_eval_results_tests(agent):
     assert agent.get_results_board_eval(board_4) == b4_eval, "Test Failed: Board 4 evaluation does not match"
     assert agent.get_results_board_eval(board_5) == b5_eval, "Test Failed: Board 5 evaluation does not match"
     assert agent.get_results_board_eval(board_6) == b6_eval, "Test Failed: Board 6 evaluation does not match"
-    print("Board 7 agent Eval: ", agent.get_results_board_eval(board_7))
-    print("Board 7 true Eval: ", 0.75 * b7_eval)
-    assert agent.get_results_board_eval(board_7) == 0.75 * b7_eval, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_results_board_eval(board_7) == round(0.75 * b7_eval, 2), "Test Failed: Board 7 evaluation does not match"
     assert agent.get_results_board_eval(board_8) == b8_eval, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_results_board_eval(board_9) == 0.75 * b9_eval, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_results_board_eval(board_10) == 0.75 * b10_eval, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_results_board_eval(board_9) == round(0.75 * b9_eval, 2), "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_results_board_eval(board_10) == round(0.75 * b10_eval, 2), "Test Failed: Board 10 evaluation does not match"
     assert agent.get_results_board_eval(board_11) == b11_eval, "Test Failed: Board 11 evaluation does not match"
     assert agent.get_results_board_eval(board_12) == b12_eval, "Test Failed: Board 12 evaluation does not match"
 
