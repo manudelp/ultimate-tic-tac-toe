@@ -142,7 +142,7 @@ class BetterJardineritoAgent:
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
         eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
-        results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_boards_eval.txt')
+        results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_board_eval.txt')
 
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
@@ -249,7 +249,7 @@ class BetterJardineritoAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -272,7 +272,7 @@ class BetterJardineritoAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
@@ -317,7 +317,7 @@ class BetterJardineritoAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -343,7 +343,7 @@ class BetterJardineritoAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
@@ -378,7 +378,7 @@ class BetterJardineritoAgent:
         
         balance = (1.25*ev_00 + ev_01 + 1.25*ev_02 + ev_10 + 1.5*ev_11 + ev_12 + 1.25*ev_20 + ev_21 + 1.25*ev_22)
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
-        results_balance = self.get_global_results_eval(results_array)
+        results_balance = self.get_results_board_eval(results_array)
         result_coef = results_balance * ((1 + abs(results_balance))**1.25) * 1.25
         # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
         # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
@@ -564,18 +564,6 @@ class BetterJardineritoAgent:
         board_key = board.tobytes()
         return self.hash_won_boards.get(board_key, 0)
 
-    def get_isOver(self, board):
-        # TIMEIT APPROVED ✅
-        ''' If the board is found in the over boards, return True, else False '''
-        board_key = board.tobytes()
-        return self.hash_over_boards.get(board_key, False)
-
-    def get_isPlayable(self, board):
-        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_isOver directly 
-        # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough)
-        ''' Returns True if the board is playable, False otherwise '''
-        return not self.get_isOver(board)
-
     def get_eval_hash(self, board):
         """
         Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
@@ -627,14 +615,6 @@ class BetterJardineritoAgent:
             raise ValueError(f"Board {board} not found in evaluated V3 boards.")
         return result
 
-    def get_global_results_eval(self, board):
-        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
-        board_key = board.tobytes()
-        results_eval = self.hash_global_results_evals.get(board_key, None)
-        if results_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards")
-        return results_eval
-
     def get_eval_glob_hash(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
@@ -682,110 +662,110 @@ class BetterJardineritoAgent:
     # endregion
 
     def updateOverBoards(self, board):
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.over_boards_set.add((2, 2))
 
     def updateModelOverBoards(self, board):
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.model_over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.model_over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.model_over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.model_over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.model_over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.model_over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.model_over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.model_over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.model_over_boards_set.add((2, 2))
 
     def updatePlayableBoards(self, board):
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             self.playable_boards_set.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             self.playable_boards_set.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             self.playable_boards_set.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             self.playable_boards_set.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             self.playable_boards_set.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             self.playable_boards_set.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             self.playable_boards_set.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             self.playable_boards_set.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             self.playable_boards_set.add((2, 2))
 
     def updateModelPlayableBoards(self, board):
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             self.model_playable_boards_set.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             self.model_playable_boards_set.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             self.model_playable_boards_set.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             self.model_playable_boards_set.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             self.model_playable_boards_set.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             self.model_playable_boards_set.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             self.model_playable_boards_set.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             self.model_playable_boards_set.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             self.model_playable_boards_set.add((2, 2))
 
     def isTrulyPlayable(self, board, move_row, move_col, move_row_local, move_col_local):
         ''' Returns whether or not the move is truly playable, meaning if the space is empty and the board is playable '''
         local_board = board[move_row, move_col]
-        return ((local_board[move_row_local, move_col_local] == 0) and (self.get_isPlayable(local_board)))
+        return ((local_board[move_row_local, move_col_local] == 0) and (self.get_playable_hash(local_board)))
 
     def genPlayableBoards(self, board):
         ''' Given the board, generates a set with all the local boards that are still playable '''
         playable_boards = set()
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             playable_boards.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             playable_boards.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             playable_boards.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             playable_boards.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             playable_boards.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             playable_boards.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             playable_boards.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             playable_boards.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             playable_boards.add((2, 2))
 
         return playable_boards
@@ -793,23 +773,23 @@ class BetterJardineritoAgent:
     def countPlayableBoards(self, board):
         ''' Returns the number of playable local boards in the global board '''
         count = 0
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             count += 1
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             count += 1
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             count += 1
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             count += 1
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             count += 1
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             count += 1
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             count += 1
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             count += 1
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             count += 1
 
         return count
