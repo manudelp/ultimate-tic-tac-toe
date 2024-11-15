@@ -24,9 +24,6 @@ class BetterJardineritoAgent:
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
-        self.hash_over_boards = {}
-        self.hash_eval_boards = {}
-        self.hash_eval_glob_boards = {}
 
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -48,7 +45,6 @@ class BetterJardineritoAgent:
     def __str__(self):
         self.str = f"{self.id}{self.icon}"
         return self.str
-
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
@@ -135,6 +131,19 @@ class BetterJardineritoAgent:
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
 
+    def hash_loading(self):
+        self.hash_won_boards = {}
+        self.hash_eval_boards = {}
+        self.hash_eval_v2_boards = {}
+        self.hash_eval_v3_boards = {}
+        self.hash_eval_glob_boards = {}
+        self.hash_results_boards = {}
+        self.hash_draw_boards = {}
+        self.hash_over_boards = {}
+        self.hash_winnable_boards_by_one = {}
+        self.hash_winnable_boards_by_minus_one = {}
+        self.hash_HyphenNumeric_boards = {}
+        self.hash_HyphenNumeric_boards_rival = {}
 
 
     def randomMove(self, board):
@@ -358,9 +367,9 @@ class BetterJardineritoAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations plus the connectivity of the global board results 
         Calculated using the local eval of the results array '''
-        ev_00, res_00, ev_01, res_01, ev_02, res_02 = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
-        ev_10, res_10, ev_11, res_11, ev_12, res_12 = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
-        ev_20, res_20, ev_21, res_21, ev_22, res_22 = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
+        (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
+        (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
+        (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
         
         balance = (1.25*ev_00 + ev_01 + 1.25*ev_02 + ev_10 + 1.5*ev_11 + ev_12 + 1.25*ev_20 + ev_21 + 1.25*ev_22)
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
@@ -481,6 +490,14 @@ class BetterJardineritoAgent:
         if score is None or result is None:
             raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
         return score, result
+
+    def get_global_results_eval(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        results_eval = self.hash_global_results_evals.get(board_key, None)
+        if results_eval is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards")
+        return results_eval
 
     def load_eval_glob_boards(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''

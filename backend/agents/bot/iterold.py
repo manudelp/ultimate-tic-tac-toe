@@ -526,6 +526,14 @@ class IteroldAgent:
             raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
         return score, result
 
+    def get_global_results_eval(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        results_eval = self.hash_global_results_evals.get(board_key, None)
+        if results_eval is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards")
+        return results_eval
+
     def load_eval_glob_boards(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
