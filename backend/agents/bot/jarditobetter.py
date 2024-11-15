@@ -376,10 +376,38 @@ class BetterJardineritoAgent:
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
         (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
         
-        balance = (1.25*ev_00 + ev_01 + 1.25*ev_02 + ev_10 + 1.5*ev_11 + ev_12 + 1.25*ev_20 + ev_21 + 1.25*ev_22)
+        # FIXME: You can lower or even remove the 1.1s and 1.25s for board positions since results balance already accounts for that!
+        if abs(ev_00) == 6.4:
+            ev_00 = ev_00 * 0.35
+
+        if abs(ev_01) == 6.4:
+            ev_01 = ev_01 * 0.35
+
+        if abs(ev_02) == 6.4:
+            ev_02 = ev_02 * 0.35
+
+        if abs(ev_10) == 6.4:
+            ev_10 = ev_10 * 0.35
+
+        if abs(ev_11) == 6.4:
+            ev_11 = ev_11 * 0.35
+
+        if abs(ev_12) == 6.4:
+            ev_12 = ev_12 * 0.35
+
+        if abs(ev_20) == 6.4:
+            ev_20 = ev_20 * 0.35
+
+        if abs(ev_21) == 6.4:
+            ev_21 = ev_21 * 0.35
+
+        if abs(ev_22) == 6.4:
+            ev_22 = ev_22 * 0.4
+        
+        balance = (1.1*ev_00 + ev_01 + 1.1*ev_02 + ev_10 + 1.25*ev_11 + ev_12 + 1.1*ev_20 + ev_21 + 1.1*ev_22)
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         results_balance = self.get_results_board_eval(results_array)
-        result_coef = results_balance * ((1 + abs(results_balance))**1.25) * 1.25
+        result_coef = results_balance * ((1 + abs(results_balance))**2) * 2
         # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
         # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
         # have the same massive disproportionality with the results balance weight
