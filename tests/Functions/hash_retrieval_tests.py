@@ -457,6 +457,27 @@ def isWon(subboard):
     
     return None
 
+def hex_to_board(hex_str):
+    """
+    Convert a hex string back into a 3x3 NumPy array representing a board with values -1, 0, 1, and 2.
+    
+    Args:
+    - hex_str (str): Hexadecimal string representing the board.
+
+    Returns:
+    - np.array: 3x3 NumPy array with values -1, 0, 1, and 2.
+    """
+    # Convert hex string to bytes
+    byte_data = bytes.fromhex(hex_str)
+    
+    # Convert bytes to a flat list of integers
+    int_list = list(byte_data)
+    
+    # Map integers back to board values
+    board = np.array([i - 1 for i in int_list]).reshape(3, 3)
+    
+    return board
+
 class RetrievalAgent:
     def __init__(self):
         # Initialize the dictionaries before loading data
@@ -700,7 +721,7 @@ class RetrievalAgent:
         hex_key = board_key.hex()
         results_eval = self.hash_results_boards.get(board_key, None)
         if results_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards, its hex key was {hex_key}")
+            raise ValueError(f"Board not found in evaluated global boards!, its hex key was {hex_key}. The board was\n{board}")
         return results_eval
 
     def get_draw_hash(self, board):
@@ -1252,10 +1273,6 @@ b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), lo
 # print(f"Eval Version 3 for Board 11 is {b11_eval_v3}")
 # print(f"Eval Version 3 for Board 12 is {b12_eval_v3}")
 # endregion
-
-results_hash = agent.hash_results_boards
-print("Length of Results Hash:", len(results_hash))
-
 # Define Tests
 def run_eval_hash_completion_tests(agent):
     for _ in range(1_000_000):

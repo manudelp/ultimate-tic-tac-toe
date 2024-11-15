@@ -792,13 +792,30 @@ def generate_results_board_eval(file_path):
 
     for state in range(4**9):
         board = np.array([(state // 4**i) % 4 - 1 for i in range(9)]).reshape(3, 3)
+        
+        # Debugs
+        zeros = np.count_nonzero(board == 0)
+        ones = np.count_nonzero(board == 1)
+        minus_ones = np.count_nonzero(board == -1)
+        twos = np.count_nonzero(board == 2)
+        
+        if zeros + ones + minus_ones + twos != 9:
+            raise ValueError("Invalid Board State")
+        
+        if board.shape != (3, 3):
+            raise ValueError("Invalid Board Shape")
+        
         board_key = board.tobytes()
+        if state % 1_000 == 0:
+            print(f"State: {state}")
+            print(f"Board:\n {board}")
+            print(f"Board Key: {board_key.hex()}")
         heuristic_value = results_board_eval(board)
         evaluated_boards[board_key] = heuristic_value
 
-    with open(file_path, 'w') as f:
-        for board_key, heuristic_value in evaluated_boards.items():
-            f.write(f"{board_key.hex()}:{heuristic_value}\n")
+    # with open(file_path, 'w') as f:
+    #     for board_key, heuristic_value in evaluated_boards.items():
+    #         f.write(f"{board_key.hex()}:{heuristic_value}\n")
 
 def generate_draw_boards(file_path):
     """
