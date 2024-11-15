@@ -697,9 +697,10 @@ class RetrievalAgent:
     def get_results_board_eval(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
+        hex_key = board_key.hex()
         results_eval = self.hash_results_boards.get(board_key, None)
         if results_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards")
+            raise ValueError(f"Board {board} not found in evaluated global boards, its hex key was {hex_key}")
         return results_eval
 
     def get_draw_hash(self, board):
@@ -1251,6 +1252,9 @@ b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), lo
 # print(f"Eval Version 3 for Board 11 is {b11_eval_v3}")
 # print(f"Eval Version 3 for Board 12 is {b12_eval_v3}")
 # endregion
+
+results_hash = agent.hash_results_boards
+print("Length of Results Hash:", len(results_hash))
 
 # Define Tests
 def run_eval_hash_completion_tests(agent):
