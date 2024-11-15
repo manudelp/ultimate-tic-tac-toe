@@ -590,9 +590,13 @@ class RetrievalAgent:
         self.hash_winnable_boards_by_minus_one = {}
         self.hash_HyphenNumeric_boards = {}
         self.hash_HyphenNumeric_boards_rival = {}
+        self.hash_winning_results_boards = {}
+        self.hash_draw_results_boards = {}
 
         # Load both winning boards and evaluated boards during initialization
         self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
+        self.load_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
+        self.load_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
         self.load_evaluated_boards('backend/agents/hashes/hash_evaluated_boards.txt')
         self.load_evaluated_v2_boards('backend/agents/hashes/hash_evaluated_boards_v2.txt')
         self.load_evaluated_v3_boards('backend/agents/hashes/hash_evaluated_boards_v3.txt')
@@ -605,6 +609,7 @@ class RetrievalAgent:
         self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
         self.load_HyphenNumeric_boards_rival('backend/agents/hashes/hash_HyphenNumeric_boards_rival.txt')
+        
 
     def load_winning_boards(self, file_path):
         """
@@ -616,6 +621,26 @@ class RetrievalAgent:
                 for line in file:
                     board_hex, winner = line.strip().split(':')
                     self.hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
+
+    def load_winning_results_boards(self, file_path):
+        ''' Load the winning boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, winner = line.strip().split(':')
+                    self.hash_winning_results_boards[bytes.fromhex(board_hex)] = int(winner)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
+
+    def load_draw_results_boards(self, file_path):
+        ''' Load the winning boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, winner = line.strip().split(':')
+                    self.hash_draw_results_boards[bytes.fromhex(board_hex)] = int(winner)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
@@ -744,6 +769,16 @@ class RetrievalAgent:
         """
         board_key = board.tobytes()
         return self.hash_won_boards.get(board_key, 0)
+
+    def get_winning_result_hash(self, board):
+        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
+        board_key = board.tobytes()
+        return self.hash_winning_results_boards.get(board_key, 0)
+    
+    def get_draw_result_hash(self, board):
+        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
+        board_key = board.tobytes()
+        return self.hash_draw_results_boards.get(board_key, False)
 
     def get_eval_hash(self, board):
         """
@@ -1235,8 +1270,8 @@ board_9 = np.array([[1, 1, 0],
                     [0, 0, 0]])  # Not a win yet, but close
 
 board_10 = np.array([[0, 0, 0],
-                     [1, 1, 0],
-                     [-1, -1, 0]])  # Another close board without a winner
+                    [1, 1, 0],
+                    [-1, -1, 0]])  # Another close board without a winner
 
 board_11 = np.array([[1, -1, 1],
                     [-1, -1, 1],
@@ -1402,6 +1437,8 @@ def run_won_tests(agent):
     assert agent.get_winner_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
 
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Board tests passed successfully!")
+
+
 
 def run_eval_tests_v1(agent):
     assert agent.get_eval_hash(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"

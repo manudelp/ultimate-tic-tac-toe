@@ -377,79 +377,43 @@ class BetterJardineritoAgent:
         (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
         
         # FIXME: You can lower or even remove the 1.1s and 1.25s for board positions since results balance already accounts for that!
-        if abs(ev_00) == 6.4:
-            ev_00 = ev_00 * 0.35
+        if abs(ev_00) > 2.3:
+            ev_00 = 2.3
 
-        if abs(ev_01) == 6.4:
-            ev_01 = ev_01 * 0.35
+        if abs(ev_01) > 2.3:
+            ev_01 = 2.3
 
-        if abs(ev_02) == 6.4:
-            ev_02 = ev_02 * 0.35
+        if abs(ev_02) > 2.3:
+            ev_02 = 2.3
 
-        if abs(ev_10) == 6.4:
-            ev_10 = ev_10 * 0.35
+        if abs(ev_10) > 2.3:
+            ev_10 = 2.3
 
-        if abs(ev_11) == 6.4:
-            ev_11 = ev_11 * 0.35
+        if abs(ev_11) > 2.3:
+            ev_11 = 2.3
 
-        if abs(ev_12) == 6.4:
-            ev_12 = ev_12 * 0.35
+        if abs(ev_12) > 2.3:
+            ev_12 = 2.3
 
-        if abs(ev_20) == 6.4:
-            ev_20 = ev_20 * 0.35
+        if abs(ev_20) > 2.3:
+            ev_20 = 2.3
 
-        if abs(ev_21) == 6.4:
-            ev_21 = ev_21 * 0.35
+        if abs(ev_21) > 2.3:
+            ev_21 = 2.3
 
-        if abs(ev_22) == 6.4:
-            ev_22 = ev_22 * 0.4
+        if abs(ev_22) > 2.3:
+            ev_22 = 2.3
         
-        balance = (1.1*ev_00 + ev_01 + 1.1*ev_02 + ev_10 + 1.25*ev_11 + ev_12 + 1.1*ev_20 + ev_21 + 1.1*ev_22)
+        balance = (1*ev_00 + ev_01 + 1*ev_02 + ev_10 + 1.4*ev_11 + ev_12 + 1*ev_20 + ev_21 + 1*ev_22)
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         results_balance = self.get_results_board_eval(results_array)
-        result_coef = results_balance * ((1 + abs(results_balance))**2) * 2
+        result_coef = results_balance * ((1 + abs(results_balance))**2.1) * 1.7
         # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
         # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
         # have the same massive disproportionality with the results balance weight
 
         balance += result_coef
-        return balance
-
-    def board_balance(self, board):
-        # NEEDS TIMEIT TESTING 🔔
-        ''' Returns the heuristic value of the board 
-        For now it's a sum of the local board evaluations plus the connectivity of the global board results 
-        Calculated using the local eval of the results array '''
-        rows, cols, *_ = board.shape
-        balance = 0
-
-        lb00_ev, lb01_ev, lb02_ev = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
-        lb10_ev, lb11_ev, lb12_ev = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
-        lb20_ev, lb21_ev, lb22_ev = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
         
-        # FIXME! Yeah this is stupid, its inefficientfor no reason, lo mejor es lo comentado abajo pero bue
-        balance += 1.25 * lb00_ev
-        balance += lb01_ev
-        balance += 1.25 * lb02_ev
-        balance += lb10_ev
-        balance += 1.5 * lb11_ev
-        balance += lb12_ev
-        balance += 1.25 * lb20_ev
-        balance += lb21_ev
-        balance += 1.25 * lb22_ev
-        # balance += (1.25*lb00_ev + lb01_ev + 1.25*lb02_ev + lb10_ev + 1.5*lb11_ev + lb12_ev + 1.25*lb20_ev + lb21_ev + 1.25*lb22_ev)
-        
-        # FIXME: Replace this by using the get_full_eval_hash to return the tuple (eval, result) from the txt eval hashes, and then use eval above and result down here
-        
-        results_array = np.array([[int(lb00_ev/6), int(lb01_ev/6), int(lb02_ev/6)], [int(lb10_ev/6), int(lb11_ev/6), int(lb12_ev/6)], [int(lb20_ev/6), int(lb21_ev/6), int(lb22_ev/6)]])
-        results_balance = self.get_local_eval(results_array)
-        result_coef = results_balance * ((1 + abs(results_balance))**1.25) * 1.25
-        # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
-        # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
-        # have the same massive disproportionality with the results balance weight
-        
-        balance += result_coef
-
         return round(balance, 4)
 
     # region Hashing Functions

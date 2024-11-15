@@ -71,6 +71,9 @@ def toBeDrawn(board):
     if np.count_nonzero(board == 0) > 1:
         return False
     
+    if np.count_nonzero(board == 2) > 6:
+        return True
+    
     if isWon(board):
         return False
     
@@ -629,7 +632,6 @@ def results_board_eval(local_board):
     final_score = round(score, 2)
     return final_score
 
-
 def whoWon(subboard):
     # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
     ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
@@ -686,6 +688,28 @@ def generate_winning_boards(file_path):
     winning_boards = {}
     for state in range(3**9):  # Enumerate all possible board states
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
+        won_by_one = isWonByOne(board)
+        won_by_minus_one = isWonByMinusOne(board)
+        
+        # Only include boards where exactly one player has won using XOR
+        if won_by_one ^ won_by_minus_one:  # XOR condition: one wins and the other doesn't
+            board_key = board.tobytes()  # Convert the board to a byte representation
+            winner = 1 if won_by_one else -1
+            winning_boards[board_key] = winner
+
+    # Save the winning boards to a file for later use
+    with open(file_path, 'w') as f:
+        for board_key, winner in winning_boards.items():
+            f.write(f"{board_key.hex()}:{winner}\n")
+
+def generate_winning_results_boards(file_path):
+    """ 
+    Generate all possible 3x3 Tic-Tac-Toe board states where exactly one player has won
+    And save them to winning_boards.txt in the format hex representation of the board : winner. 
+    """
+    winning_boards = {}
+    for state in range(4**9):  # Enumerate all possible board states
+        board = np.array([(state // 4**i) % 4 - 1 for i in range(9)]).reshape(3, 3)
         won_by_one = isWonByOne(board)
         won_by_minus_one = isWonByMinusOne(board)
         
@@ -838,6 +862,27 @@ def generate_draw_boards(file_path):
         for board_key, is_draw in draw_boards.items():
             f.write(f"{board_key.hex()}:{is_draw}\n")
 
+def generate_draw_results_boards(file_path):
+    """
+    Generate all possible 3x3 Tic-Tac-Toe board states, evaluate if they are a draw or not (with isDraw),
+    and save them to draw_boards.txt in the format: hex representation of the board : isDraw (bool).
+    """
+    draw_boards = {}
+
+    # Generate all possible states with -1, 1, and at most one 0
+    for state in range(4**9):  # 4^9 combinations for each cell (-1, 0, 1)
+        board = np.array([(state // 4**i) % 4 - 1 for i in range(9)]).reshape(3, 3)
+
+        # Count empty spots (0s), continue only if there's 1 or less empty spot
+        empty_count = np.count_nonzero(board == 0)
+        if empty_count <= 1:
+            board_key = board.tobytes()
+            draw_boards[board_key] = isDraw(board)
+
+    with open(file_path, 'w') as f:
+        for board_key, is_draw in draw_boards.items():
+            f.write(f"{board_key.hex()}:{is_draw}\n")
+
 def generate_over_boards(filename):
     ''' Generates a list of all possible 3x3 boards that are over '''
     over_boards = {}
@@ -907,12 +952,14 @@ def generate_legal_boards(file_path):
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
+generate_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
 # generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
-generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
+# generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
+generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
