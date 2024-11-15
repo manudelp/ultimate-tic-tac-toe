@@ -784,13 +784,14 @@ def generate_eval_boards_glob(file_path):
 
 def generate_results_board_eval(file_path):
     """
-    Generate all possible 3x3 Tic-Tac-Toe board states, evaluate them with globalLocalEval,
-    and save them to evaluated_boards.txt in the format: hex representation of the board : heuristic value.
+    Generate all possible 3x3 Tic-Tac-Toe board states (with values 1, -1, 0, 2), 
+    evaluate them with globalLocalEval, and save them to evaluated_boards.txt 
+    in the format: hex representation of the board : heuristic value.
     """
     evaluated_boards = {}
 
-    for state in range(3**9):
-        board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
+    for state in range(4**9):
+        board = np.array([(state // 4**i) % 4 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
         heuristic_value = results_board_eval(board)
         evaluated_boards[board_key] = heuristic_value
@@ -889,11 +890,11 @@ def generate_legal_boards(file_path):
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
-generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
-generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
+# generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
+# generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
 # generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
-# generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
+generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
