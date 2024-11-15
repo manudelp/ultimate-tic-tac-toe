@@ -628,8 +628,8 @@ def results_board_eval(local_board):
     
     final_score = round(score, 2)
     return final_score
-        
-    
+
+
 def whoWon(subboard):
     # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
     ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
