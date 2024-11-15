@@ -132,7 +132,7 @@ def localBoardEval(localBoard):
         return 6.4 * diagBT_eval
     score += diagBT_eval
 
-    return round(score, 1)
+    return round(score, 2)
 
 def localBoardEval_v2(localBoard):
     # TIMEIT APPROVED ✅
@@ -217,7 +217,7 @@ def localBoardEval_v2(localBoard):
     if player1_threat and player2_threat:
         return 0  # Neutralize score if both players can win in one move
 
-    return round(score, 1)
+    return round(score, 2)
 
 def localBoardEval_v3(localBoard):
     # TIMEIT APPROVED ✅
@@ -305,11 +305,11 @@ def localBoardEval_v3(localBoard):
         
         final_score = score * 0.2
         if final_score > 0:
-            return round((final_score + 0.1), 1)
+            return round((final_score + 0.1), 2)
         else:
-            return round((final_score - 0.1), 1)
+            return round((final_score - 0.1), 2)
 
-    return round(score, 1)
+    return round(score, 2)
 
 def globalLocalEval(localBoard):
     # TIMEIT APPROVED ✅
@@ -396,9 +396,9 @@ def globalLocalEval(localBoard):
     # Check for conflicting threats, tone down final score
     if player1_threat and player2_threat:
         final_score = score * 0.75
-        return round(final_score, 1)
+        return round(final_score, 2)
 
-    final_score = round(score, 1)
+    final_score = round(score, 2)
     return final_score
 
 def isFull(board):

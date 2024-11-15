@@ -243,7 +243,7 @@ def localBoardEval(localBoard):
         return 6.4 * diagBT_eval
     score += diagBT_eval
 
-    final_score = round(score, 1)
+    final_score = round(score, 2)
     return final_score
 
 def localBoardEval_v2(localBoard):
@@ -343,7 +343,7 @@ def localBoardEval_v2(localBoard):
     if player1_threat and player2_threat:
         return 0  # Neutralize score if both players can win in one move
 
-    final_score = round(score, 1)
+    final_score = round(score, 2)
     return final_score
 
 def localBoardEval_v3(localBoard):
@@ -449,9 +449,9 @@ def localBoardEval_v3(localBoard):
             ret_scored = final_score + 0.1
         else:
             ret_scored = final_score - 0.1
-        return round(ret_scored, 1)
+        return round(ret_scored, 2)
 
-    final_score = round(score, 1)
+    final_score = round(score, 2)
     return final_score
 
 def globalLocalEval(localBoard):
@@ -540,9 +540,9 @@ def globalLocalEval(localBoard):
     # Check for conflicting threats, tone down final score
     if player1_threat and player2_threat:
         final_score = score * 0.75
-        return round(final_score, 1)
+        return round(final_score, 2)
 
-    final_score = round(score, 1)
+    final_score = round(score, 2)
     return final_score
 
 def results_board_eval(local_board):
@@ -624,9 +624,9 @@ def results_board_eval(local_board):
     # Check for conflicting threats, tone down final score
     if player1_threat and player2_threat:
         final_score = score * 0.75
-        return round(final_score, 1)
+        return round(final_score, 2)
     
-    final_score = round(score, 1)
+    final_score = round(score, 2)
     return final_score
         
     
@@ -889,10 +889,10 @@ def generate_legal_boards(file_path):
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
-# generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
-# generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
-# generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-# generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
+generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
+generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
+generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
 generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
