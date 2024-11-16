@@ -33,18 +33,20 @@ def isWon(board):
     """ Returns True if the board is won by either player, False otherwise """
     return isWonByOne(board) or isWonByMinusOne(board)
 
-def lineEval(line, player=1):
+def lineEval(line, player=1, single_eval=0.20, double_eval=0.60):
+    # Keep testing single_eval and dobule_eval
     """ 
     Returns the heuristic value of the given row or column in the subboard.
     """
     empties = line.count(0)
+    
     if empties == 3:
         return 0
     player_count = line.count(player)
     if empties == 2:
-        return 0.2 if player_count == 1 else -0.2
+        return single_eval if player_count == 1 else (-1 * single_eval)
     elif empties == 1:
-        return 0.6 if player_count == 2 else (-0.6 if player_count == 0 else 0)
+        return double_eval if player_count == 2 else ((-1 * double_eval) if player_count == 0 else 0)
     else:
         # print(f"Found a full line at {line}, with {empties} empties")
         if player_count == 3:
@@ -59,27 +61,8 @@ def advanced_line_eval(line, player=1):
     not counting to any player, and blocking any row/column/diagonal from a potential 3-in-line '''
     if line.count(2) > 0:
         return 0
-    
-    empties = line.count(0)
-    SINGLE_EVAL = 0.15
-    DOUBLE_EVAL = 0.60
-    
-    if empties == 3:
-        return 0
-    player_count = line.count(player)
-    if empties == 2:
-        return SINGLE_EVAL if player_count == 1 else (-1 * SINGLE_EVAL)
-    elif empties == 1:
-        return DOUBLE_EVAL if player_count == 2 else ((-1 * DOUBLE_EVAL) if player_count == 0 else 0)
-    else:
-        # print(f"Found a full line at {line}, with {empties} empties")
-        if player_count == 3:
-            return 1
-        elif player_count == 0:
-            return -1
-        else:
-            return 0
-
+    # TODO: Keep testing single_eval and double_eval
+    return lineEval(line, player=player, single_eval=0.15, double_eval=0.60)
 
 def isDraw(board):
     ''' Returns True if the local 3x3 board is either a complete Draw, or secured to be one '''
