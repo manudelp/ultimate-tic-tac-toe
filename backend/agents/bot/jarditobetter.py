@@ -24,6 +24,7 @@ class BetterJardineritoAgent:
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
+        self.centering_early_time = 0
 
         # Hash Up
         self.hash_loading()
@@ -38,6 +39,8 @@ class BetterJardineritoAgent:
         return self.str
 
     def reset(self):
+        print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"{self.id} took centering early time of {self.centering_early_time} seconds" + Style.RESET_ALL)
+        self.centering_early_time = 0
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.id}")
             return
@@ -240,14 +243,18 @@ class BetterJardineritoAgent:
             row, col = board_to_play
             local_to_play = board[row, col]
             local_moves = np.argwhere(local_to_play == 0)
+            # TODO: Uncomment me! I remove center moves
+            before_centering_time = time.time()
             if self.moveNumber < 10 and depth == self.depth_local:
                 there_was = False
                 if any(np.all(row == [1, 1]) for row in local_moves):
                     there_was = True
                 local_moves = local_moves[np.all(local_moves != [1, 1], axis=1)]
-                if there_was and (not (any(np.all(row == [1, 1]) for row in local_moves))):
-                    print("BetterJardi removed center!")
-                    print(f"Local moves are now: {local_moves}")
+                # if there_was and (not (any(np.all(row == [1, 1]) for row in local_moves))):
+                    # print("BetterJardi removed center!")
+                    # print(f"Local moves are now: {local_moves}")
+            time_spent_centering = time.time() - before_centering_time
+            self.centering_early_time += time_spent_centering
             if local_moves.size == 0:
                     raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
 
@@ -380,49 +387,70 @@ class BetterJardineritoAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations plus the connectivity of the global board results 
         Calculated using the local eval of the results array '''
+        CORNER_MULT = 1.02
+        CENTER_MULT = 1.03
+        CAP_EVAL = 2.4
+        
+        def multi_ev(x):
+            # NEEDS TIMEIT IMPROVEMENT 🚨
+            # test it doing single linea return
+            # make sure you test this version vs the single line in a test file to check they have the same outputs and you wrote it down correctly
+            if x == 0:
+                return 0
+            
+            abs_x = abs(x)
+            coefficient = CAP_EVAL - 0.25 + (abs_x**0.5)/4
+            normalizer = (x/abs_x)
+            result = normalizer * coefficient
+            return result
+        
         (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
         (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
         
-        # FIXME: You can lower or even remove the 1.1s and 1.25s for board positions since results balance already accounts for that!
-        if abs(ev_00) > 2.3:
-            ev_00 = 2.3
+        # # FIXME: You can lower or even remove the 1.1s and 1.25s for board positions since results balance already accounts for that!
+        if abs(ev_00) > CAP_EVAL:
+            ev_00 = multi_ev(ev_00)
 
-        if abs(ev_01) > 2.3:
-            ev_01 = 2.3
+        if abs(ev_01) > CAP_EVAL:
+            ev_01 = multi_ev(ev_01)
 
-        if abs(ev_02) > 2.3:
-            ev_02 = 2.3
+        if abs(ev_02) > CAP_EVAL:
+            ev_02 = multi_ev(ev_02)
 
-        if abs(ev_10) > 2.3:
-            ev_10 = 2.3
+        if abs(ev_10) > CAP_EVAL:
+            ev_10 = multi_ev(ev_10)
 
-        if abs(ev_11) > 2.3:
-            ev_11 = 2.3
+        if abs(ev_11) > CAP_EVAL:
+            ev_11 = multi_ev(ev_11)
 
-        if abs(ev_12) > 2.3:
-            ev_12 = 2.3
+        if abs(ev_12) > CAP_EVAL:
+            ev_12 = multi_ev(ev_12)
 
-        if abs(ev_20) > 2.3:
-            ev_20 = 2.3
+        if abs(ev_20) > CAP_EVAL:
+            ev_20 = multi_ev(ev_20)
 
-        if abs(ev_21) > 2.3:
-            ev_21 = 2.3
+        if abs(ev_21) > CAP_EVAL:
+            ev_21 = multi_ev(ev_21)
 
-        if abs(ev_22) > 2.3:
-            ev_22 = 2.3
-        
-        balance = (1*ev_00 + ev_01 + 1*ev_02 + ev_10 + 1.1*ev_11 + ev_12 + 1*ev_20 + ev_21 + 1*ev_22)
+        if abs(ev_22) > CAP_EVAL:
+            ev_22 = multi_ev(ev_22)
+            
+        balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
+        # balance = (1*ev_00 + ev_01 + 1*ev_02 + ev_10 + 1.1*ev_11 + ev_12 + 1*ev_20 + ev_21 + 1*ev_22)
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
-        results_balance = self.get_results_board_eval(results_array)
-        result_coef = results_balance * ((1 + abs(results_balance))**2.1) * 1.7
-        # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
-        # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
-        # have the same massive disproportionality with the results balance weight
+        res_score = self.get_results_board_eval(results_array)
+        res_factor = (abs(res_score))
+        result_coef = res_score * res_factor * 1.2
+        # result_coef = results_balance * ((1 + abs(res_score))**2.1) * 1.7
+        # # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
+        # # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
+        # # have the same massive disproportionality with the results balance weight
 
         balance += result_coef
         
-        return round(balance, 4)
+        return balance
+        # return round(balance, 4)
 
     # region Hashing Functions
     def load_winning_boards(self, file_path):
