@@ -828,14 +828,12 @@ def generate_results_board_eval(file_path):
         
         if board.shape != (3, 3):
             raise ValueError("Invalid Board Shape")
-        
-        board_key = board.tobytes()
-        if state % 10_000 == 0:
-            print(f"State: {state}")
-            print(f"Board:\n {board}")
-            print(f"Board Key: {board_key.hex()}")
-        heuristic_value = results_board_eval(board)
-        evaluated_boards[board_key] = heuristic_value
+
+        isWonBoard = isWon(board)
+        if not isWonBoard:
+            board_key = board.tobytes()
+            heuristic_value = results_board_eval(board)
+            evaluated_boards[board_key] = heuristic_value
 
     with open(file_path, 'w') as f:
         for board_key, heuristic_value in evaluated_boards.items():
@@ -952,14 +950,14 @@ def generate_legal_boards(file_path):
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
-generate_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
+# generate_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
 # generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
-# generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
+generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
-generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
+# generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
