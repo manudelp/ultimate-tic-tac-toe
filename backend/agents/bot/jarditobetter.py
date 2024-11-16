@@ -387,61 +387,17 @@ class BetterJardineritoAgent:
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations plus the connectivity of the global board results 
         Calculated using the local eval of the results array '''
-        CORNER_MULT = 1.02
-        CENTER_MULT = 1.03
-        CAP_EVAL = 2.4
-        
-        def multi_ev(x):
-            # NEEDS TIMEIT IMPROVEMENT 🚨
-            # test it doing single linea return
-            # make sure you test this version vs the single line in a test file to check they have the same outputs and you wrote it down correctly
-            if x == 0:
-                return 0
-            
-            abs_x = abs(x)
-            coefficient = CAP_EVAL - 0.25 + (abs_x**0.5)/4
-            normalizer = (x/abs_x)
-            result = normalizer * coefficient
-            return result
+        CORNER_MULT = 1.25
+        CENTER_MULT = 1.5
         
         (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
         (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
-        
-        # # FIXME: You can lower or even remove the 1.1s and 1.25s for board positions since results balance already accounts for that!
-        if abs(ev_00) > CAP_EVAL:
-            ev_00 = multi_ev(ev_00)
-
-        if abs(ev_01) > CAP_EVAL:
-            ev_01 = multi_ev(ev_01)
-
-        if abs(ev_02) > CAP_EVAL:
-            ev_02 = multi_ev(ev_02)
-
-        if abs(ev_10) > CAP_EVAL:
-            ev_10 = multi_ev(ev_10)
-
-        if abs(ev_11) > CAP_EVAL:
-            ev_11 = multi_ev(ev_11)
-
-        if abs(ev_12) > CAP_EVAL:
-            ev_12 = multi_ev(ev_12)
-
-        if abs(ev_20) > CAP_EVAL:
-            ev_20 = multi_ev(ev_20)
-
-        if abs(ev_21) > CAP_EVAL:
-            ev_21 = multi_ev(ev_21)
-
-        if abs(ev_22) > CAP_EVAL:
-            ev_22 = multi_ev(ev_22)
-            
         balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
-        # balance = (1*ev_00 + ev_01 + 1*ev_02 + ev_10 + 1.1*ev_11 + ev_12 + 1*ev_20 + ev_21 + 1*ev_22)
+        
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         res_score = self.get_results_board_eval(results_array)
-        res_factor = (abs(res_score))
-        result_coef = res_score * res_factor * 1.2
+        result_coef = res_score * 48
         # result_coef = results_balance * ((1 + abs(res_score))**2.1) * 1.7
         # # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
         # # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
