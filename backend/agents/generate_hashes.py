@@ -53,13 +53,33 @@ def lineEval(line, player=1):
             return -1
         else:
             return 0
-        
+
 def advanced_line_eval(line, player=1):
     ''' Works like lineEval, but also considering tiles with a '2' as being blocked,
     not counting to any player, and blocking any row/column/diagonal from a potential 3-in-line '''
     if line.count(2) > 0:
         return 0
-    return lineEval(line, player)
+    
+    empties = line.count(0)
+    SINGLE_EVAL = 0.15
+    DOUBLE_EVAL = 0.60
+    
+    if empties == 3:
+        return 0
+    player_count = line.count(player)
+    if empties == 2:
+        return SINGLE_EVAL if player_count == 1 else (-1 * SINGLE_EVAL)
+    elif empties == 1:
+        return DOUBLE_EVAL if player_count == 2 else ((-1 * DOUBLE_EVAL) if player_count == 0 else 0)
+    else:
+        # print(f"Found a full line at {line}, with {empties} empties")
+        if player_count == 3:
+            return 1
+        elif player_count == 0:
+            return -1
+        else:
+            return 0
+
 
 def isDraw(board):
     ''' Returns True if the local 3x3 board is either a complete Draw, or secured to be one '''
@@ -554,6 +574,7 @@ def results_board_eval(local_board):
     1s are for player1, -1s are for player2, 0s are empty tiles, and 2s are blocked tiles that don't count for any player
     '''
     score = 0
+    VICTORY_EVAL = 6.4
     player1_threat = False
     player2_threat = False
 
@@ -563,7 +584,8 @@ def results_board_eval(local_board):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
     if abs(row1_eval) == 1:
-        return 6.4 * row1_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * row1_eval
     score += row1_eval
 
     row2_eval = advanced_line_eval((local_board[1, 0], local_board[1, 1], local_board[1, 2]))
@@ -571,7 +593,8 @@ def results_board_eval(local_board):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
     if abs(row2_eval) == 1:
-        return 6.4 * row2_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * row2_eval
     score += row2_eval
 
     row3_eval = advanced_line_eval((local_board[2, 0], local_board[2, 1], local_board[2, 2]))
@@ -579,7 +602,8 @@ def results_board_eval(local_board):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
     if abs(row3_eval) == 1:
-        return 6.4 * row3_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * row3_eval
     score += row3_eval
 
     # Columns
@@ -588,7 +612,8 @@ def results_board_eval(local_board):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
     if abs(col1_eval) == 1:
-        return 6.4 * col1_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * col1_eval
     score += col1_eval
 
     col2_eval = advanced_line_eval((local_board[0, 1], local_board[1, 1], local_board[2, 1]))
@@ -596,7 +621,8 @@ def results_board_eval(local_board):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
     if abs(col2_eval) == 1:
-        return 6.4 * col2_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * col2_eval
     score += col2_eval
 
     col3_eval = advanced_line_eval((local_board[0, 2], local_board[1, 2], local_board[2, 2]))
@@ -604,7 +630,8 @@ def results_board_eval(local_board):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
     if abs(col3_eval) == 1:
-        return 6.4 * col3_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * col3_eval
     score += col3_eval
 
     # Diagonals
@@ -613,7 +640,8 @@ def results_board_eval(local_board):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
     if abs(diagTB_eval) == 1:
-        return 6.4 * diagTB_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * diagTB_eval
     score += diagTB_eval
 
     diagBT_eval = advanced_line_eval((local_board[2, 0], local_board[1, 1], local_board[0, 2]))
@@ -621,7 +649,8 @@ def results_board_eval(local_board):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:
-        return 6.4 * diagBT_eval
+        raise ValueError(f"Found a Victory Line with {row1_eval} in {local_board}")
+        return VICTORY_EVAL * diagBT_eval
     score += diagBT_eval
 
     # Check for conflicting threats, tone down final score
