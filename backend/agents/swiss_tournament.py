@@ -39,7 +39,7 @@ AGENTS = [
     TaylorAgent(),
     JardineritoAgent(),
     # MaximilianoAgent(),
-    # JardineritoAntiMidAgent(),
+    JardineritoAntiMidAgent(),
     BetterJardineritoAgent(),
     # GardenerAgent(),
     # MonkeyAgent(),

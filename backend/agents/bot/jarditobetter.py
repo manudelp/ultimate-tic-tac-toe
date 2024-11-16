@@ -240,6 +240,14 @@ class BetterJardineritoAgent:
             row, col = board_to_play
             local_to_play = board[row, col]
             local_moves = np.argwhere(local_to_play == 0)
+            if self.moveNumber < 10 and depth == self.depth_local:
+                there_was = False
+                if any(np.all(row == [1, 1]) for row in local_moves):
+                    there_was = True
+                local_moves = local_moves[np.all(local_moves != [1, 1], axis=1)]
+                if there_was and (not (any(np.all(row == [1, 1]) for row in local_moves))):
+                    print("BetterJardi removed center!")
+                    print(f"Local moves are now: {local_moves}")
             if local_moves.size == 0:
                     raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
 
@@ -404,7 +412,7 @@ class BetterJardineritoAgent:
         if abs(ev_22) > 2.3:
             ev_22 = 2.3
         
-        balance = (1*ev_00 + ev_01 + 1*ev_02 + ev_10 + 1.4*ev_11 + ev_12 + 1*ev_20 + ev_21 + 1*ev_22)
+        balance = (1*ev_00 + ev_01 + 1*ev_02 + ev_10 + 1.1*ev_11 + ev_12 + 1*ev_20 + ev_21 + 1*ev_22)
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         results_balance = self.get_results_board_eval(results_array)
         result_coef = results_balance * ((1 + abs(results_balance))**2.1) * 1.7
