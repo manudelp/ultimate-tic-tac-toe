@@ -64,9 +64,31 @@ def advanced_line_eval(line, player=1):
     # TODO: Keep testing single_eval and double_eval
     return lineEval(line, player=player, single_eval=0.15, double_eval=0.60)
 
-def isDraw(board):
-    ''' Returns True if the local 3x3 board is either a complete Draw, or secured to be one '''
-    return fullDrawn(board) or toBeDrawn(board)
+def lineIsBlocked(line):
+    ''' Returns True if the given line is blocked '''
+    return (line.count(2) > 0)
+
+def allLinesBlocked(board):
+    ''' Returns True if all rows, columns, and diagonals are blocked '''
+    # Rows
+    for i in range(3):
+        if not lineIsBlocked((board[i, 0], board[i, 1], board[i, 2])):
+            return False
+        
+    # Columns
+    for i in range(3):
+        if not lineIsBlocked((board[0, i], board[1, i], board[2, i])):
+            return False
+        
+    # Diagonals
+    if not lineIsBlocked((board[0, 0], board[1, 1], board[2, 2])):
+        return False
+    
+    if not lineIsBlocked((board[2, 0], board[1, 1], board[0, 2])):
+        return False
+    
+    # No unblocked lines found
+    return True
 
 def toBeDrawn(board):
     ''' Returns True if the local 3x3 board is secured to be a Draw '''
@@ -74,11 +96,14 @@ def toBeDrawn(board):
     if np.count_nonzero(board == 0) > 1:
         return False
     
+    if isWon(board):
+        return False
+    
     if np.count_nonzero(board == 2) > 6:
         return True
     
-    if isWon(board):
-        return False
+    if allLinesBlocked(board):
+        return True
     
     # Check for a possible win in the next move
 
@@ -100,6 +125,10 @@ def toBeDrawn(board):
 def fullDrawn(board):
     ''' Returns True if the local 3x3 board is a complete Draw '''
     return (isFull(board) and not isWon(board))
+
+def isDraw(board):
+    ''' Returns True if the local 3x3 board is either a complete Draw, or secured to be one '''
+    return fullDrawn(board) or toBeDrawn(board)
 
 def isPlayable(board):
     ''' Returns True if the local 3x3 board is still playable '''
@@ -967,9 +996,9 @@ def generate_legal_boards(file_path):
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
 # generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
-generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
+# generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
-# generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
+generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
