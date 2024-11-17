@@ -607,7 +607,7 @@ class RetrievalAgent:
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
         self.load_HyphenNumeric_boards_rival('backend/agents/hashes/hash_HyphenNumeric_boards_rival.txt')
 
-    # Winning Loads
+    # Winning Loaders
     def load_winning_boards(self, file_path):
         """
         Load the winning boards from a file and store them in a dictionary.
@@ -663,7 +663,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
 
-    # Evaluation Loads
+    # Evaluation Loaders
     def load_evaluated_boards(self, file_path):
         """
         Load the evaluated boards from a file and store them in a dictionary.
@@ -725,7 +725,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    # Draw Loads
+    # Draw Loaders
     def load_drawn_boards(self, file_path):
         """
         Load the drawn boards from a file and store them in a dictionary.
@@ -749,7 +749,26 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
-    # Other Loads
+    # Hyphen Numeric Loaders
+    def load_HyphenNumeric_boards(self, file):
+        ''' Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                self.parse_and_store_board_line(line)
+                
+    def load_HyphenNumeric_boards_rival(self, file):
+        ''' Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                self.parse_and_store_board_line(line, rival_start=True)
+
+    # Other Loaders
     def load_over_boards(self, file_path):
         ''' Loads the over boards from a file and stores them in a dictionary 
         Each board's state is stored as a key (using its byte representation)
@@ -762,7 +781,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
 
-    # Winner Checks
+    # Winner Getters
     def get_winner_hash(self, board):
         """
         Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -786,7 +805,7 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
-    # Eval Checks
+    # Eval Getters
     def get_eval_hash(self, board):
         """
         Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
@@ -855,7 +874,7 @@ class RetrievalAgent:
             raise ValueError(f"Board not found in results boards!, its hex key was {hex_key}. The board was\n{board}")
         return results_eval
 
-    # Draw Checks
+    # Draw Getters
     def get_draw_hash(self, board):
         """
         Retrieve the draw status of a board from the preloaded dictionary of drawn boards.
@@ -869,7 +888,22 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_draw_results_boards.get(board_key, False)
 
-    # Other Checks
+    # Hyphen Numeric Getters
+    def get_HyphenNumeric_hash(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key, reverse_symmetry_instructions = self.get_HyphenNumeric_parameters(board, board_to_play)
+        best_move_raw = self.hash_HyphenNumeric_boards.get(key, None)
+        best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
+        return best_move_processed
+
+    def get_HyphenNumeric_hash_rival(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key, reverse_symmetry_instructions = self.get_HyphenNumeric_parameters(board, board_to_play, rival_start=True)
+        best_move_raw = self.hash_HyphenNumeric_boards_rival.get(key, None)
+        best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
+        return best_move_processed
+
+    # Other Getters
     def get_over_hash(self, board):
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
@@ -879,95 +913,7 @@ class RetrievalAgent:
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_over_hash(board)
 
-
-
-    # Hyphen Numeric Hash Functions
-    #TODO: Estas tenes que decirle que hay que hacerlas
-    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None], rival_start=False):
-        ''' 
-        Returns the key for the HyphenNumeric dictionary, checking all symmetrical variations
-        to match the stored key format, and also outputs reverse transformations.
-        '''
-        # Rotations
-        for rotations in range(4):  # Four rotations
-            processed_moves_1 = set()
-            processed_moves_2 = set()
-            raw_moves_player_1, raw_moves_player_2 = self.board_to_moves_list(board)
-            
-            # Move Rotation
-            for move in raw_moves_player_1:
-                if len(move) != 4:
-                    raise ValueError(f"Invalid move player 1: {move}")
-                rotated_move = self.rotate_coordinates_4d(move, rotations)
-                processed_moves_1.add(rotated_move)
-                
-            for move in raw_moves_player_2:
-                if len(move) != 4:
-                    raise ValueError(f"Invalid move player -1: {move}")
-                rotated_move = self.rotate_coordinates_4d(move, rotations)
-                processed_moves_2.add(rotated_move)
-            
-            # Board to Play
-            rotated_board_to_play = self.rotate_coordinates_2d(coordinates=board_to_play, rotation_times=rotations)
-
-            # Reflections
-            for reflection in ['none', 'horizontal', 'vertical', 'diagonal', 'anti-diagonal']:
-                final_moves_1 = set()
-                final_moves_2 = set()
-                
-                # Move Reflection
-                for move in processed_moves_1:
-                    if len(move) != 4:
-                        raise ValueError(f"Invalid move p1 rotated: {move}")
-                    reflected_move = self.reflect_coordinates_4d(move, reflection)
-                    final_moves_1.add(reflected_move)
-                    
-                for move in processed_moves_2:
-                    if len(move) != 4:
-                        raise ValueError(f"Invalid move p2 rotated: {move}")
-                    reflected_move = self.reflect_coordinates_4d(move, reflection)
-                    final_moves_2.add(reflected_move)
-                
-                # Board to Play
-                reflected_board_to_play = self.reflect_coordinates_2d(rotated_board_to_play, reflection)
-                moves_tuple = (final_moves_1, final_moves_2)
-                board_key_player_1, board_key_player_2 = self.list_of_tuples_to_HyphenNumeric_str_frozensets(moves_tuple)
-                                
-                # Construct the hash key with this version
-                key = ((board_key_player_1, board_key_player_2), reflected_board_to_play)
-                # print(Fore.LIGHTGREEN_EX + f"\nWhile the transposition table looks as such:\n{self.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
-                # print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: \n{key}\nwhere rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
-
-                # Check key in hash
-                if not rival_start:
-                    if key in self.hash_HyphenNumeric_boards:
-                        return key, (rotations, reflection)  
-                else:
-                    if key in self.hash_HyphenNumeric_boards_rival:
-                        return key, (rotations, reflection)
-                
-        return None, None
-
-    # Helper Methods
-    def rotate_board(self, board, times):
-        ''' Rotate the board by 90 degrees * times '''
-        for _ in range(times):
-            board = np.rot90(board, axes=(2, 3))
-        return board
-
-    def reflect_board(self, board, axis):
-        ''' Reflects the board along the specified axis '''
-        if axis == "none":
-            return board
-        elif axis == "horizontal":
-            return np.flip(board, axis=2)
-        elif axis == "vertical":
-            return np.flip(board, axis=3)
-        elif axis == "diagonal":
-            return np.flip(board, axis=(2, 3))
-        elif axis == "anti-diagonal":
-            return np.flip(board, axis=(1, 2))
-
+    # Move Hashing Auxiliaries Below!
     # Rotations & Reflections 2D
     def rotate_coordinates_2d(self, coordinates: Union[Tuple[int, int], None], rotation_times: int):
         ''' Rotate the board to play by 90 degrees * times, coordinates must be either 0, 1, 2
@@ -1101,7 +1047,92 @@ class RetrievalAgent:
         ''' Apply inverse reflection to a move '''
         return self.reflect_coordinates_4d(move, axis)
 
-    # Las que ya estan bien asi
+    # DEPRECATED Board Symmetry Methods
+    def rotate_board(self, board, times):
+        ''' Rotate the board by 90 degrees * times '''
+        for _ in range(times):
+            board = np.rot90(board, axes=(2, 3))
+        return board
+
+    def reflect_board(self, board, axis):
+        ''' Reflects the board along the specified axis '''
+        if axis == "none":
+            return board
+        elif axis == "horizontal":
+            return np.flip(board, axis=2)
+        elif axis == "vertical":
+            return np.flip(board, axis=3)
+        elif axis == "diagonal":
+            return np.flip(board, axis=(2, 3))
+        elif axis == "anti-diagonal":
+            return np.flip(board, axis=(1, 2))
+
+    # Hyphen Numeric Hash Processing Functions
+    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None], rival_start=False):
+        ''' 
+        Returns the key for the HyphenNumeric dictionary, checking all symmetrical variations
+        to match the stored key format, and also outputs reverse transformations.
+        '''
+        # Rotations
+        for rotations in range(4):  # Four rotations
+            processed_moves_1 = set()
+            processed_moves_2 = set()
+            raw_moves_player_1, raw_moves_player_2 = self.board_to_moves_list(board)
+            
+            # Move Rotation
+            for move in raw_moves_player_1:
+                if len(move) != 4:
+                    raise ValueError(f"Invalid move player 1: {move}")
+                rotated_move = self.rotate_coordinates_4d(move, rotations)
+                processed_moves_1.add(rotated_move)
+                
+            for move in raw_moves_player_2:
+                if len(move) != 4:
+                    raise ValueError(f"Invalid move player -1: {move}")
+                rotated_move = self.rotate_coordinates_4d(move, rotations)
+                processed_moves_2.add(rotated_move)
+            
+            # Board to Play
+            rotated_board_to_play = self.rotate_coordinates_2d(coordinates=board_to_play, rotation_times=rotations)
+
+            # Reflections
+            for reflection in ['none', 'horizontal', 'vertical', 'diagonal', 'anti-diagonal']:
+                final_moves_1 = set()
+                final_moves_2 = set()
+                
+                # Move Reflection
+                for move in processed_moves_1:
+                    if len(move) != 4:
+                        raise ValueError(f"Invalid move p1 rotated: {move}")
+                    reflected_move = self.reflect_coordinates_4d(move, reflection)
+                    final_moves_1.add(reflected_move)
+                    
+                for move in processed_moves_2:
+                    if len(move) != 4:
+                        raise ValueError(f"Invalid move p2 rotated: {move}")
+                    reflected_move = self.reflect_coordinates_4d(move, reflection)
+                    final_moves_2.add(reflected_move)
+                
+                # Board to Play
+                reflected_board_to_play = self.reflect_coordinates_2d(rotated_board_to_play, reflection)
+                moves_tuple = (final_moves_1, final_moves_2)
+                board_key_player_1, board_key_player_2 = self.list_of_tuples_to_HyphenNumeric_str_frozensets(moves_tuple)
+                                
+                # Construct the hash key with this version
+                key = ((board_key_player_1, board_key_player_2), reflected_board_to_play)
+                # print(Fore.LIGHTGREEN_EX + f"\nWhile the transposition table looks as such:\n{self.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
+                # print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: \n{key}\nwhere rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
+
+                # Check key in hash
+                if not rival_start:
+                    if key in self.hash_HyphenNumeric_boards:
+                        return key, (rotations, reflection)  
+                else:
+                    if key in self.hash_HyphenNumeric_boards_rival:
+                        return key, (rotations, reflection)
+                
+        return None, None
+
     def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
         ''' Reverse the transformation to retrieve the original move coordinates '''
         if not transformation:
@@ -1155,31 +1186,6 @@ class RetrievalAgent:
         moves1, moves_minus1 = self.board_to_moves_list(board)
         return self.list_of_tuples_to_HyphenNumeric_str_frozensets((moves1, moves_minus1))
 
-    def get_HyphenNumeric_hash(self, board, board_to_play):
-        ''' Returns the best move for the given HyphenNumeric board '''
-        key, reverse_symmetry_instructions = self.get_HyphenNumeric_parameters(board, board_to_play)
-        best_move_raw = self.hash_HyphenNumeric_boards.get(key, None)
-        best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
-        return best_move_processed
-
-    def load_HyphenNumeric_boards(self, file):
-        ''' Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
-        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
-        '''
-        with open(file, 'r') as f:
-            for line in f:
-                self.parse_and_store_board_line(line)
-                
-    def load_HyphenNumeric_boards_rival(self, file):
-        ''' Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
-        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
-        '''
-        with open(file, 'r') as f:
-            for line in f:
-                self.parse_and_store_board_line(line, rival_start=True)
-
     def parse_and_store_board_line(self, line, rival_start=False):
         ''' Parse a line from the file and store the board and its best move '''
         # Get the data
@@ -1226,6 +1232,9 @@ class RetrievalAgent:
 
         # Build the frozenset for the key
         return frozenset(player1_pieces), frozenset(player_minus1_pieces)
+
+
+# TESTING CODE BEGINS HERE
 
 board_center_only = np.array([[0, 0, 0],
                             [0, 1, 0],
