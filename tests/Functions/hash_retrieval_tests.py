@@ -631,16 +631,6 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
-    def load_draw_results_boards(self, file_path):
-        ''' Load the winning boards from a file and store them in a dictionary '''
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    board_hex, is_draw = line.strip().split(':')
-                    self.hash_draw_results_boards[bytes.fromhex(board_hex)] = (is_draw == 'True')
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
-
     def load_evaluated_boards(self, file_path):
         """
         Load the evaluated boards from a file and store them in a dictionary.
@@ -715,6 +705,16 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Drawn boards will not be loaded.")
 
+    def load_draw_results_boards(self, file_path):
+        ''' Load the winning boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, is_draw = line.strip().split(':')
+                    self.hash_draw_results_boards[bytes.fromhex(board_hex)] = (is_draw == 'True')
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
+
     def load_over_boards(self, file_path):
         ''' Loads the over boards from a file and stores them in a dictionary 
         Each board's state is stored as a key (using its byte representation)
@@ -772,11 +772,6 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_winning_results_boards.get(board_key, 0)
     
-    def get_draw_result_hash(self, board):
-        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
-        board_key = board.tobytes()
-        return self.hash_draw_results_boards.get(board_key, False)
-
     def get_eval_hash(self, board):
         """
         Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
@@ -852,6 +847,11 @@ class RetrievalAgent:
         """
         board_key = board.tobytes()
         return self.hash_draw_boards.get(board_key, False)
+
+    def get_draw_result_hash(self, board):
+        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
+        board_key = board.tobytes()
+        return self.hash_draw_results_boards.get(board_key, False)
 
     def get_over_hash(self, board):
         ''' If the board is found in the over boards, return True, else False '''
@@ -1333,8 +1333,15 @@ results_10 = np.array([[2, 2, 2],
 
 results_11 = np.array([[1, 0, 1],
                     [-1, 2, -1],
+                    [-1, 1, -1]]) # not draw (edge case)
+
+results_12 = np.array([[1, 0, -1],
+                    [-1, 2, 1],
                     [-1, 1, -1]]) # draw
 
+results_13 = np.array([[0, 0, 2],
+                        [2, 2, 0],
+                        [0, 2, 0]]) # draw (all lines blocked)
 
 
 super_board_1 = np.zeros((3, 3, 3, 3), dtype=int)
@@ -1462,30 +1469,30 @@ def run_won_tests(agent):
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Board tests passed successfully!")
 
 def run_won_results_tests(agent):
-    assert agent.get_results_winner_hash(board_1) == 1, "Test Failed: Player 1 should have won board_1"
-    assert agent.get_results_winner_hash(board_2) == 1, "Test Failed: Player 1 should have won board_2"
-    assert agent.get_results_winner_hash(board_3) == 1, "Test Failed: Player 1 should have won board_3"
-    assert agent.get_results_winner_hash(board_4) == -1, "Test Failed: Player -1 should have won board_4"
-    assert agent.get_results_winner_hash(board_5) == -1, "Test Failed: Player -1 should have won board_5"
-    assert agent.get_results_winner_hash(board_6) == -1, "Test Failed: Player -1 should have won board_6"
-    assert agent.get_results_winner_hash(board_7) == 0, "Test Failed: Board 7 should not have a winner"
-    assert agent.get_results_winner_hash(board_8) == 0, "Test Failed: Board 8 should not have a winner"
-    assert agent.get_results_winner_hash(board_9) == 0, "Test Failed: Board 9 should not have a winner"
-    assert agent.get_results_winner_hash(board_10) == 0, "Test Failed: Board 10 should not have a winner"
-    assert agent.get_results_winner_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
-    assert agent.get_results_winner_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
+    assert agent.get_winning_result_hash(board_1) == 1, "Test Failed: Player 1 should have won board_1"
+    assert agent.get_winning_result_hash(board_2) == 1, "Test Failed: Player 1 should have won board_2"
+    assert agent.get_winning_result_hash(board_3) == 1, "Test Failed: Player 1 should have won board_3"
+    assert agent.get_winning_result_hash(board_4) == -1, "Test Failed: Player -1 should have won board_4"
+    assert agent.get_winning_result_hash(board_5) == -1, "Test Failed: Player -1 should have won board_5"
+    assert agent.get_winning_result_hash(board_6) == -1, "Test Failed: Player -1 should have won board_6"
+    assert agent.get_winning_result_hash(board_7) == 0, "Test Failed: Board 7 should not have a winner"
+    assert agent.get_winning_result_hash(board_8) == 0, "Test Failed: Board 8 should not have a winner"
+    assert agent.get_winning_result_hash(board_9) == 0, "Test Failed: Board 9 should not have a winner"
+    assert agent.get_winning_result_hash(board_10) == 0, "Test Failed: Board 10 should not have a winner"
+    assert agent.get_winning_result_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
+    assert agent.get_winning_result_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
 
-    assert agent.get_results_winner_hash(results_1) == 0, "Test Failed: Player 1 should have won results_1"
-    assert agent.get_results_winner_hash(results_2) == 0, "Test Failed: Player 1 should have won results_2"
-    assert agent.get_results_winner_hash(results_3) == 0, "Test Failed: Player 1 should have won results_3"
-    assert agent.get_results_winner_hash(results_4) == 0, "Test Failed: Player 1 should have won results_4"
-    assert agent.get_results_winner_hash(results_5) == 0, "Test Failed: Player 1 should have won results_5"
-    assert agent.get_results_winner_hash(results_6) == 1, "Test Failed: Player 1 should have won results_6"
-    assert agent.get_results_winner_hash(results_7) == -1, "Test Failed: Player 1 should have won results_7"
-    assert agent.get_results_winner_hash(results_8) == 0, "Test Failed: Player 1 should have won results_8"
-    assert agent.get_results_winner_hash(results_9) == 0, "Test Failed: Player 1 should have won results_9"
-    assert agent.get_results_winner_hash(results_10) == 0, "Test Failed: Player 1 should have won results_10"
-    assert agent.get_results_winner_hash(results_11) == 0, "Test Failed: Player 1 should have won results_11"
+    assert agent.get_winning_result_hash(results_1) == 0, "Test Failed: Player 1 should have won results_1"
+    assert agent.get_winning_result_hash(results_2) == 0, "Test Failed: Player 1 should have won results_2"
+    assert agent.get_winning_result_hash(results_3) == 0, "Test Failed: Player 1 should have won results_3"
+    assert agent.get_winning_result_hash(results_4) == 0, "Test Failed: Player 1 should have won results_4"
+    assert agent.get_winning_result_hash(results_5) == 0, "Test Failed: Player 1 should have won results_5"
+    assert agent.get_winning_result_hash(results_6) == 1, "Test Failed: Player 1 should have won results_6"
+    assert agent.get_winning_result_hash(results_7) == -1, "Test Failed: Player 1 should have won results_7"
+    assert agent.get_winning_result_hash(results_8) == 0, "Test Failed: Player 1 should have won results_8"
+    assert agent.get_winning_result_hash(results_9) == 0, "Test Failed: Player 1 should have won results_9"
+    assert agent.get_winning_result_hash(results_10) == 0, "Test Failed: Player 1 should have won results_10"
+    assert agent.get_winning_result_hash(results_11) == 0, "Test Failed: Player 1 should have won results_11"
 
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Results tests passed successfully!")
 
@@ -1681,7 +1688,34 @@ def run_draw_tests(agent):
     print("All Draw-Board tests passed successfully!")
 
 def run_draw_results_tests(agent):
+    assert agent.get_draw_result_hash(board_1) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should not be a draw, result was {agent.get_draw_result_hash(board_1)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_2) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 should not be a draw, result was {agent.get_draw_result_hash(board_2)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_3) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 should not be a draw, result was {agent.get_draw_result_hash(board_3)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_4) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should not be a draw, result was {agent.get_draw_result_hash(board_4)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_5) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should not be a draw, result was {agent.get_draw_result_hash(board_5)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_6) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should not be a draw, result was {agent.get_draw_result_hash(board_6)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_7) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should not be a draw, result was {agent.get_draw_result_hash(board_7)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_8) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 should be a draw, result was {agent.get_draw_result_hash(board_8)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_9) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should not be a draw, result was {agent.get_draw_result_hash(board_9)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_10) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 should not be a draw, result was {agent.get_draw_result_hash(board_10)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_11) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 should be a draw, result was {agent.get_draw_result_hash(board_11)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_12) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 should be a draw, result was {agent.get_draw_result_hash(board_12)}" + Style.RESET_ALL
 
+    assert agent.get_draw_result_hash(results_1) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 1 should not be a draw, result was {agent.get_draw_result_hash(results_1)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_2) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 2 should not be a draw, result was {agent.get_draw_result_hash(results_2)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_3) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 3 should not be a draw, result was {agent.get_draw_result_hash(results_3)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_4) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 4 should not be a draw, result was {agent.get_draw_result_hash(results_4)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_5) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 5 should not be a draw, result was {agent.get_draw_result_hash(results_5)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_6) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 6 should not be a draw, result was {agent.get_draw_result_hash(results_6)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_7) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 7 should not be a draw, result was {agent.get_draw_result_hash(results_7)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_8) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 8 should not be a draw, result was {agent.get_draw_result_hash(results_8)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_9) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 9 should not be a draw, result was {agent.get_draw_result_hash(results_9)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_10) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 10 should not be a draw, result was {agent.get_draw_result_hash(results_10)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_11) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 11 should not be a draw, result was {agent.get_draw_result_hash(results_11)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_12) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 12 should not be a draw, result was {agent.get_draw_result_hash(results_12)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_13) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 13 should not be a draw, result was {agent.get_draw_result_hash(results_13)}" + Style.RESET_ALL
+
+    print("All Draw-Results tests passed successfully!")
 
 def run_over_tests(agent):
     assert agent.get_over_hash(board_1) == True, "Test Failed: Board 1 should be over"
@@ -1834,12 +1868,14 @@ def run_all_agent_tests(agent):
     # run_eval_hash_completion_tests(agent)
     # run_results_hash_completion_tests(agent)
     run_won_tests(agent)
+    run_won_results_tests(agent)
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
     run_eval_tests_v3(agent)
     run_eval_tests_glob(agent)
     run_eval_results_tests(agent)
     run_draw_tests(agent)
+    run_draw_results_tests(agent)
     run_over_tests(agent)
     run_playable_tests(agent)
     run_eval_commonsense_tests(agent)
