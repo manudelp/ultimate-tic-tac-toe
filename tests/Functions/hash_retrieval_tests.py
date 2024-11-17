@@ -607,7 +607,7 @@ class RetrievalAgent:
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
         self.load_HyphenNumeric_boards_rival('backend/agents/hashes/hash_HyphenNumeric_boards_rival.txt')
         
-
+    # Winning Loads
     def load_winning_boards(self, file_path):
         """
         Load the winning boards from a file and store them in a dictionary.
@@ -631,6 +631,39 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
+    def load_winnable_boards_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    def load_winnable_boards_minus_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    # Evaluation Loads
     def load_evaluated_boards(self, file_path):
         """
         Load the evaluated boards from a file and store them in a dictionary.
@@ -692,6 +725,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
+    # Draw Loads
     def load_drawn_boards(self, file_path):
         """
         Load the drawn boards from a file and store them in a dictionary.
@@ -715,6 +749,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
+    # Other Loadss
     def load_over_boards(self, file_path):
         ''' Loads the over boards from a file and stores them in a dictionary 
         Each board's state is stored as a key (using its byte representation)
@@ -727,37 +762,6 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
 
-    def load_winnable_boards_one(self, file_path):
-        ''' 
-        Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board's state is stored as a key (using its byte representation).
-        They are stored as board : winning_moves,
-        where winning_moves is a set of tuples with the moves to win.
-        '''
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    board_hex, moves = line.strip().split(':')
-                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
-                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
-
-    def load_winnable_boards_minus_one(self, file_path):
-        ''' 
-        Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board's state is stored as a key (using its byte representation).
-        They are stored as board : winning_moves,
-        where winning_moves is a set of tuples with the moves to win.
-        '''
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    board_hex, moves = line.strip().split(':')
-                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
-                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
 
     def get_winner_hash(self, board):
         """
