@@ -30,7 +30,7 @@ def get_board_results(board):
 
 
 # Load the winning boards from the hashed file
-hash_won_boards = {}
+hash_winning_boards = {}
 def load_winning_boards(file_path):
     # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
     
@@ -42,7 +42,7 @@ def load_winning_boards(file_path):
         with open(file_path, 'r') as file:
             for line in file:
                 board_hex, winner = line.strip().split(':')
-                hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+                hash_winning_boards[bytes.fromhex(board_hex)] = int(winner)
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
@@ -57,7 +57,7 @@ def get_GlobalWinner(board):
         raise ValueError("The board must be a 2d array with shape (3, 3).")
     
     board_key = board.tobytes()
-    return hash_won_boards.get(board_key, 0)
+    return hash_winning_boards.get(board_key, 0)
 
 # Determine the absolute path to the hash_winning_boards.txt file
 hash_file_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')

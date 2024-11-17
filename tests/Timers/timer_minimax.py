@@ -186,7 +186,7 @@ def checkBoardWin(board):
 class foo_agent():
     def __init__(self):
             # Initiate Hashes
-        self.hash_won_boards = {}
+        self.hash_winning_boards = {}
         self.model_global_board_results = np.zeros((3, 3), dtype=int)
 
         # Load both winning boards and evaluated boards during initialization
@@ -284,7 +284,7 @@ class foo_agent():
         Returns 1 if player 1 won, -1 if player -1 won, or None if there is no winner.
         """
         board_key = board.tobytes()
-        return self.hash_won_boards.get(board_key, 0)
+        return self.hash_winning_boards.get(board_key, 0)
 
     def load_winning_boards(self, file_path):
         # TIMEIT APPROVED ✅
@@ -296,7 +296,7 @@ class foo_agent():
             with open(file_path, 'r') as file:
                 for line in file:
                     board_hex, winner = line.strip().split(':')
-                    self.hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+                    self.hash_winning_boards[bytes.fromhex(board_hex)] = int(winner)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 

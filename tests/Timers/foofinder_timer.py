@@ -81,7 +81,7 @@ class FooFinderAgent:
         self.time_limit = 8 # Seconds
 
         # Initiate Hashes
-        self.hash_won_boards = {}
+        self.hash_winning_boards = {}
         self.hash_eval_boards = {}
         self.hash_draw_boards = {}
         self.hash_move_boards = {}
@@ -107,7 +107,7 @@ class FooFinderAgent:
         self.modelWonBoards = {}
         self.board_array = None
         self.board_tuple = None
-        self.hash_won_boards = {}
+        self.hash_winning_boards = {}
         self.hash_eval_boards = {}
         self.hash_draw_boards = {}
         self.hash_move_boards = {}

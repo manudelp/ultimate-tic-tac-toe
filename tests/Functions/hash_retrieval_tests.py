@@ -575,7 +575,7 @@ def hex_to_board(hex_str):
 class RetrievalAgent:
     def __init__(self):
         # Initialize the dictionaries before loading data
-        self.hash_won_boards = {}
+        self.hash_winning_boards = {}
         self.hash_eval_boards = {}
         self.hash_eval_v2_boards = {}
         self.hash_eval_v3_boards = {}
@@ -617,7 +617,7 @@ class RetrievalAgent:
             with open(file_path, 'r') as file:
                 for line in file:
                     board_hex, winner = line.strip().split(':')
-                    self.hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+                    self.hash_winning_boards[bytes.fromhex(board_hex)] = int(winner)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
@@ -788,7 +788,7 @@ class RetrievalAgent:
         Returns 1 if player 1 won, -1 if player -1 won, or None if there is no winner.
         """
         board_key = board.tobytes()
-        return self.hash_won_boards.get(board_key, 0)
+        return self.hash_winning_boards.get(board_key, 0)
 
     def get_winning_result_hash(self, board):
         ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''

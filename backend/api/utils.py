@@ -3,7 +3,7 @@
 import numpy as np
 import os
 
-hash_won_boards = {}
+hash_winning_boards = {}
 
 def fancyBoardPrinter(board):
     # Output the super board in a 3x3 layout
@@ -29,7 +29,7 @@ def load_winning_boards(file_path):
         with open(file_path, 'r') as file:
             for line in file:
                 board_hex, winner = line.strip().split(':')
-                hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+                hash_winning_boards[bytes.fromhex(board_hex)] = int(winner)
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
@@ -43,7 +43,7 @@ def get_winner(board):
         raise ValueError("The board must be a 2d array with shape (3, 3).")
     
     board_key = board.tobytes()
-    return hash_won_boards.get(board_key, 0)
+    return hash_winning_boards.get(board_key, 0)
 
 def get_board_results(board):
     ''' Creates a 3x3 representation of the 3x3x3x3 board, with the results of the local boars '''

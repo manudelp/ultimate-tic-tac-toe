@@ -23,7 +23,7 @@ def fancyBoardPrinter(board):
             print()  # Print a separator between sets of subboard rows
 
 # Hashes
-hash_won_boards = {}
+hash_winning_boards = {}
 hash_over_boards = {}
 
 # Hashing Functions
@@ -38,7 +38,7 @@ def load_winning_boards(file_path):
         with open(file_path, 'r') as file:
             for line in file:
                 board_hex, winner = line.strip().split(':')
-                hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+                hash_winning_boards[bytes.fromhex(board_hex)] = int(winner)
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
@@ -66,7 +66,7 @@ def get_winner(board):
         raise ValueError("The board must be a 2d array with shape (3, 3).")
     
     board_key = board.tobytes()
-    return hash_won_boards.get(board_key, 0)
+    return hash_winning_boards.get(board_key, 0)
 
 def get_isOver(board) -> bool:
     # TIMEIT APPROVED ✅

@@ -126,7 +126,7 @@ class BetterJardineritoAgent:
         return a, b, r_l, c_l
 
     def hash_loading(self):
-        self.hash_won_boards = {}
+        self.hash_winning_boards = {}
         self.hash_eval_boards = {}
         self.hash_eval_v2_boards = {}
         self.hash_eval_v3_boards = {}
@@ -142,6 +142,7 @@ class BetterJardineritoAgent:
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         # Construct the absolute paths to the files
+        winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
         eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
@@ -415,7 +416,7 @@ class BetterJardineritoAgent:
         results_list = results_array.flatten().tolist()
         # Compare the two lists
         if results_list_compare != results_list:
-            raise ValueError(f"Results List Compare and Results Array are different! {results_list_compare} vs {results_list}")
+            raise ValueError(f"Results List Compare and Results Array are different! list is {results_list_compare} vs array is {results_list}. While board was:\n{board}. For the board 1,1, list would be winner={results_list_compare[4]} and array would be winner={self.get_winner_hash(board[i, j])}")
         
         res_score = self.get_results_board_eval(results_array)
         result_coef = res_score * RESULTS_EVAL_MULT
@@ -439,7 +440,7 @@ class BetterJardineritoAgent:
             with open(file_path, 'r') as file:
                 for line in file:
                     board_hex, winner = line.strip().split(':')
-                    self.hash_won_boards[bytes.fromhex(board_hex)] = int(winner)
+                    self.hash_winning_boards[bytes.fromhex(board_hex)] = int(winner)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
@@ -610,7 +611,7 @@ class BetterJardineritoAgent:
         Returns 1 if player 1 won, -1 if player -1 won, or None if there is no winner.
         """
         board_key = board.tobytes()
-        return self.hash_won_boards.get(board_key, 0)
+        return self.hash_winning_boards.get(board_key, 0)
 
     def get_winning_result_hash(self, board):
         ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
