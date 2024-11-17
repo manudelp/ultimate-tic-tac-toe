@@ -606,7 +606,7 @@ class RetrievalAgent:
         self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
         self.load_HyphenNumeric_boards_rival('backend/agents/hashes/hash_HyphenNumeric_boards_rival.txt')
-        
+
     # Winning Loads
     def load_winning_boards(self, file_path):
         """
@@ -749,7 +749,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
-    # Other Loadss
+    # Other Loads
     def load_over_boards(self, file_path):
         ''' Loads the over boards from a file and stores them in a dictionary 
         Each board's state is stored as a key (using its byte representation)
@@ -762,7 +762,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
 
-
+    # Winner Checks
     def get_winner_hash(self, board):
         """
         Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -775,7 +775,18 @@ class RetrievalAgent:
         ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
         board_key = board.tobytes()
         return self.hash_winning_results_boards.get(board_key, 0)
-    
+
+    def get_winnable_by_one_hash(self, board):
+        ''' Returns the set of winning moves for player 1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_one.get(board_key, set())
+
+    def get_winnable_by_minus_one_hash(self, board):
+        ''' Returns the set of winning moves for player -1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_minus_one.get(board_key, set())
+
+    # Eval Checks
     def get_eval_hash(self, board):
         """
         Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
@@ -844,6 +855,7 @@ class RetrievalAgent:
             raise ValueError(f"Board not found in results boards!, its hex key was {hex_key}. The board was\n{board}")
         return results_eval
 
+    # Draw Checks
     def get_draw_hash(self, board):
         """
         Retrieve the draw status of a board from the preloaded dictionary of drawn boards.
@@ -857,6 +869,7 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_draw_results_boards.get(board_key, False)
 
+    # Other Checks
     def get_over_hash(self, board):
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
@@ -866,15 +879,6 @@ class RetrievalAgent:
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_over_hash(board)
 
-    def get_winnable_by_one_hash(self, board):
-        ''' Returns the set of winning moves for player 1, if the board is winnable '''
-        board_key = board.tobytes()
-        return self.hash_winnable_boards_by_one.get(board_key, set())
-
-    def get_winnable_by_minus_one_hash(self, board):
-        ''' Returns the set of winning moves for player -1, if the board is winnable '''
-        board_key = board.tobytes()
-        return self.hash_winnable_boards_by_minus_one.get(board_key, set())
 
 
     # Hyphen Numeric Hash Functions
