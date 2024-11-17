@@ -265,8 +265,8 @@ class FooFinderAgent:
             raise ValueError(f"Minimax Failed to Find a Move! Board to play was {board_to_play}")
 
 
-    # Minimax Auxiliaries 🌲🧠
-    # TODO REPLACE ME CON LAS DE MONKEY
+    # Minimax General Auxiliaries 🌲🧠
+    # TODO REPLACE ME CON LAS DE MONKEY Y JARDITOBETTER Y TODAS LAS MEJORES
     def new_parameters(self, board, row, col, loc_row, loc_col):
         # TIMEIT APPROVED ✅
         ''' Simulates a move on the board, given the 4d move and the player
@@ -475,6 +475,21 @@ class FooFinderAgent:
         # TODO: Complete this function
         None
 
+    def moveQuality(self, board, move: tuple) -> float:
+        ''' Returns the quality of the given move by simulating the move and getting its boardBalance '''
+        a, b, c, d = move
+        board[a, b, c, d] = 1
+        score = self.boardBalance(board)
+        board[a, b, c, d] = 0
+        return score
+
+    def orderMoves(self, board, moves):
+        ''' Given the array of possible moves to play, orders them in a way that the most promising moves are played first 
+        Meaning, it orders them based on moveQuality in descending order (greatest quality first) '''
+        # TODO: Order Moves
+        None
+
+    # Early Game Stage 🌄
     def alphaBetaEarlyGame(self):
         # TODO: Complete this function
         ''' Doesn't need to check if game is Over 
@@ -504,7 +519,20 @@ class FooFinderAgent:
         # else, don't check winner
 
         None
-    
+
+    def iterativeDeepeningEarlyGame(self):
+        ''' 
+        Call this while (depth + move_number) < 15 
+        Already wrote this down for the alpha beta, but yeah
+        If a move leads to board_to_play is None, only chose it if it's in the winnable boards hash of its local board
+        Otherwise, continue to the next move without calling alpha beta on this one
+        '''
+        None
+
+    def board_balance_earlygame(self, board):
+        None
+
+    # Mid Game Stage 🏞️
     def alphaBetaMidGame(self):
         # TODO: Complete this function
         ''' Checks everything cause it can be won or drawn at any point (for now... there might be some cooking
@@ -534,6 +562,14 @@ class FooFinderAgent:
         - Only Ordering the Moves inside the Alpha Beta if 
         '''
 
+    def iterativeDeepeningMidGame(self):
+        ''' Call this while 14 < (depth + move_number) < high '''
+        None
+
+    def board_balance_midgame(self, board):
+        None
+
+    # Late Game Stage 🌃
     def alphaBetaEndGame(self):
         # TODO: Complete this function
         ''' Doesn't need BoardBalance, just checks if Won or Draw
@@ -557,19 +593,6 @@ class FooFinderAgent:
         '''
         None
 
-    def iterativeDeepeningEarlyGame(self):
-        ''' 
-        Call this while (depth + move_number) < 15 
-        Already wrote this down for the alpha beta, but yeah
-        If a move leads to board_to_play is None, only chose it if it's in the winnable boards hash of its local board
-        Otherwise, continue to the next move without calling alpha beta on this one
-        '''
-        None
-
-    def iterativeDeepeningMidGame(self):
-        ''' Call this while 14 < (depth + move_number) < high '''
-        None
-
     def iterativeDeepeningLateGame(self):
         ''' Check at what depth=d you can run this function in less than 8 seconds, 
         and so start calling it when empty_playable_pieces <= d 
@@ -580,18 +603,7 @@ class FooFinderAgent:
         va a ser si o si menor a 16 factorial (16!), y chequear victoria es O(1)...'''
         None
 
-    def moveQuality(self, board, move: tuple) -> float:
-        ''' Returns the quality of the given move by simulating the move and getting its boardBalance '''
-        a, b, c, d = move
-        board[a, b, c, d] = 1
-        score = self.boardBalance(board)
-        board[a, b, c, d] = 0
-        return score
-
-    def orderMoves(self, board, moves):
-        ''' Given the array of possible moves to play, orders them in a way that the most promising moves are played first 
-        Meaning, it orders them based on moveQuality in descending order (greatest quality first) '''
-        # TODO: Order Moves
+    def board_balance_endgame(self, board):
         None
 
     # Board Checks & Heuristic Auxiliaries 🧮✔️
