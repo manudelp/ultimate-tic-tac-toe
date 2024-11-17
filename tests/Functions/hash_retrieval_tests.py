@@ -1311,6 +1311,32 @@ results_5 = np.array([[0, 0, 0],
                     [0, 0, 0],
                     [1, 2, 1]]) # should be 0.15 * 4 = 0.6
 
+results_6 = np.array([[0, -1, 1],
+                    [2, 2, 1],
+                    [1, 2, 1]]) # winner 1
+
+results_7 = np.array([[1, 1, 2],
+                    [-1, -1, -1],
+                    [1, 2, 1]]) # winner -1
+
+results_8 = np.array([[2, 2, 2],
+                    [2, 2, 2],
+                    [2, 2, -1]]) # draw
+
+results_9 = np.array([[1, 1, 2],
+                    [2, 2, 1],
+                    [1, 2, 1]]) # draw
+
+results_10 = np.array([[2, 2, 2],
+                    [2, 2, 2],
+                    [2, 2, 0]]) # draw
+
+results_11 = np.array([[1, 0, 1],
+                    [-1, 2, -1],
+                    [-1, 1, -1]]) # draw
+
+
+
 super_board_1 = np.zeros((3, 3, 3, 3), dtype=int)
 super_board_1[0, 0, 0, 0] = 1
 super_board_1[0, 0, 1, 2] = -1
@@ -1436,6 +1462,32 @@ def run_won_tests(agent):
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Board tests passed successfully!")
 
 def run_won_results_tests(agent):
+    assert agent.get_results_winner_hash(board_1) == 1, "Test Failed: Player 1 should have won board_1"
+    assert agent.get_results_winner_hash(board_2) == 1, "Test Failed: Player 1 should have won board_2"
+    assert agent.get_results_winner_hash(board_3) == 1, "Test Failed: Player 1 should have won board_3"
+    assert agent.get_results_winner_hash(board_4) == -1, "Test Failed: Player -1 should have won board_4"
+    assert agent.get_results_winner_hash(board_5) == -1, "Test Failed: Player -1 should have won board_5"
+    assert agent.get_results_winner_hash(board_6) == -1, "Test Failed: Player -1 should have won board_6"
+    assert agent.get_results_winner_hash(board_7) == 0, "Test Failed: Board 7 should not have a winner"
+    assert agent.get_results_winner_hash(board_8) == 0, "Test Failed: Board 8 should not have a winner"
+    assert agent.get_results_winner_hash(board_9) == 0, "Test Failed: Board 9 should not have a winner"
+    assert agent.get_results_winner_hash(board_10) == 0, "Test Failed: Board 10 should not have a winner"
+    assert agent.get_results_winner_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
+    assert agent.get_results_winner_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
+
+    assert agent.get_results_winner_hash(results_1) == 0, "Test Failed: Player 1 should have won results_1"
+    assert agent.get_results_winner_hash(results_2) == 0, "Test Failed: Player 1 should have won results_2"
+    assert agent.get_results_winner_hash(results_3) == 0, "Test Failed: Player 1 should have won results_3"
+    assert agent.get_results_winner_hash(results_4) == 0, "Test Failed: Player 1 should have won results_4"
+    assert agent.get_results_winner_hash(results_5) == 0, "Test Failed: Player 1 should have won results_5"
+    assert agent.get_results_winner_hash(results_6) == 1, "Test Failed: Player 1 should have won results_6"
+    assert agent.get_results_winner_hash(results_7) == -1, "Test Failed: Player 1 should have won results_7"
+    assert agent.get_results_winner_hash(results_8) == 0, "Test Failed: Player 1 should have won results_8"
+    assert agent.get_results_winner_hash(results_9) == 0, "Test Failed: Player 1 should have won results_9"
+    assert agent.get_results_winner_hash(results_10) == 0, "Test Failed: Player 1 should have won results_10"
+    assert agent.get_results_winner_hash(results_11) == 0, "Test Failed: Player 1 should have won results_11"
+
+    print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Results tests passed successfully!")
 
 def run_eval_tests_v1(agent):
     assert agent.get_eval_hash(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"
