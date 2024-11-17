@@ -25,7 +25,7 @@ t0 = time.time()
 # Initialize agents
 AGENT1 = JardineritoAgent()    # Replace with your chosen agent
 AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
-ROUNDS = 2
+ROUNDS = 1
 GAMES = ROUNDS * 2
 
 agent1_name = str(AGENT1)

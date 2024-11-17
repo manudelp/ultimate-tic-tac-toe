@@ -143,12 +143,15 @@ class BetterJardineritoAgent:
 
         # Construct the absolute paths to the files
         winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
+        draw_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_boards.txt')
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
         eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
         results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_board_eval.txt')
 
         # Load the boards using the absolute paths
+        self.load_winning_boards(winning_boards_path)
+        self.load_drawn_boards(draw_boards_path)
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
         self.load_eval_glob_boards(eval_glob_path)
@@ -244,9 +247,10 @@ class BetterJardineritoAgent:
             row, col = board_to_play
             local_to_play = board[row, col]
             local_moves = np.argwhere(local_to_play == 0)
+            
             # TODO: Uncomment me! I remove center moves
             before_centering_time = time.time()
-            if self.moveNumber < 10 and depth == self.depth_local:
+            if self.moveNumber + depth < 11:
                 there_was = False
                 if any(np.all(row == [1, 1]) for row in local_moves):
                     there_was = True
@@ -256,6 +260,7 @@ class BetterJardineritoAgent:
                     # print(f"Local moves are now: {local_moves}")
             time_spent_centering = time.time() - before_centering_time
             self.centering_early_time += time_spent_centering
+            
             if local_moves.size == 0:
                     raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
 
@@ -398,7 +403,8 @@ class BetterJardineritoAgent:
         balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
         
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
-        
+
+        # DELETEME: DEBUG COMPARISON TO ENSURE THE RESULTS ARE BEING PROPERLY CALCULATED
         results_list_compare = []
         for i in range(3):
             for j in range(3):
@@ -407,16 +413,10 @@ class BetterJardineritoAgent:
                 else:
                     winner = self.get_winner_hash(board[i, j])
                     results_list_compare.append(winner)
-        
-        # Compare results_list_compare with results_array
-        if len(results_list_compare) != results_array.size:
-            raise ValueError(f"Results List Compare and Results Array are of different sizes! {results_list_compare} vs {results_array}")
-        
-        # Turn results array into a list
         results_list = results_array.flatten().tolist()
-        # Compare the two lists
         if results_list_compare != results_list:
             raise ValueError(f"Results List Compare and Results Array are different! list is {results_list_compare} vs array is {results_list}. While board was:\n{board}. For the board 1,1, list would be winner={results_list_compare[4]} and array would be winner={self.get_winner_hash(board[i, j])}")
+        # DELME ABOVE
         
         res_score = self.get_results_board_eval(results_array)
         result_coef = res_score * RESULTS_EVAL_MULT
