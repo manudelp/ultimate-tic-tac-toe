@@ -409,6 +409,8 @@ class BetterJardineritoAgent:
         # return round(balance, 4)
 
     # region Hashing Functions
+
+    # Winning Loaders
     def load_winning_boards(self, file_path):
         """
         Load the winning boards from a file and store them in a dictionary.
@@ -422,6 +424,49 @@ class BetterJardineritoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
+    def load_winning_results_boards(self, file_path):
+        ''' Load the winning boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, winner = line.strip().split(':')
+                    self.hash_winning_results_boards[bytes.fromhex(board_hex)] = int(winner)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
+
+    def load_winnable_boards_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    def load_winnable_boards_minus_one(self, file_path):
+        ''' 
+        Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board's state is stored as a key (using its byte representation).
+        They are stored as board : winning_moves,
+        where winning_moves is a set of tuples with the moves to win.
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, moves = line.strip().split(':')
+                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
+                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
+
+    # Evaluation Loaders
     def load_evaluated_boards(self, file_path):
         """
         Load the evaluated boards from a file and store them in a dictionary.
@@ -483,6 +528,7 @@ class BetterJardineritoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
+    # Draw Loaders
     def load_drawn_boards(self, file_path):
         """
         Load the drawn boards from a file and store them in a dictionary.
@@ -496,6 +542,36 @@ class BetterJardineritoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Drawn boards will not be loaded.")
 
+    def load_draw_results_boards(self, file_path):
+        ''' Load the winning boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, is_draw = line.strip().split(':')
+                    self.hash_draw_results_boards[bytes.fromhex(board_hex)] = (is_draw == 'True')
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
+
+    # Hyphen Numeric Loaders
+    def load_HyphenNumeric_boards(self, file):
+        ''' Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                self.parse_and_store_board_line(line)
+                
+    def load_HyphenNumeric_boards_rival(self, file):
+        ''' Loads the winnable boards from a file and stores them in a dictionary. 
+        Each board state is stored as a key (board representated by 2 frozensets with each player's pieces, and the board_to_play).
+        They are stored as (board_state, board_to_play) : best_move (represented by a tuple of ints)
+        '''
+        with open(file, 'r') as f:
+            for line in f:
+                self.parse_and_store_board_line(line, rival_start=True)
+
+    # Other Loaders
     def load_over_boards(self, file_path):
         ''' Loads the over boards from a file and stores them in a dictionary 
         Each board's state is stored as a key (using its byte representation)
@@ -508,38 +584,7 @@ class BetterJardineritoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
 
-    def load_winnable_boards_one(self, file_path):
-        ''' 
-        Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board's state is stored as a key (using its byte representation).
-        They are stored as board : winning_moves,
-        where winning_moves is a set of tuples with the moves to win.
-        '''
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    board_hex, moves = line.strip().split(':')
-                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
-                    self.hash_winnable_boards_by_one[bytes.fromhex(board_hex)] = set(moves)
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
-
-    def load_winnable_boards_minus_one(self, file_path):
-        ''' 
-        Loads the winnable boards from a file and stores them in a dictionary. 
-        Each board's state is stored as a key (using its byte representation).
-        They are stored as board : winning_moves,
-        where winning_moves is a set of tuples with the moves to win.
-        '''
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    board_hex, moves = line.strip().split(':')
-                    moves = ast.literal_eval(moves)  # Safely evaluate the set of tuples
-                    self.hash_winnable_boards_by_minus_one[bytes.fromhex(board_hex)] = set(moves)
-        except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found. Winnable boards will not be loaded.")
-
+    # Winner Getters
     def get_winner_hash(self, board):
         """
         Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -548,6 +593,22 @@ class BetterJardineritoAgent:
         board_key = board.tobytes()
         return self.hash_won_boards.get(board_key, 0)
 
+    def get_winning_result_hash(self, board):
+        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
+        board_key = board.tobytes()
+        return self.hash_winning_results_boards.get(board_key, 0)
+
+    def get_winnable_by_one_hash(self, board):
+        ''' Returns the set of winning moves for player 1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_one.get(board_key, set())
+
+    def get_winnable_by_minus_one_hash(self, board):
+        ''' Returns the set of winning moves for player -1, if the board is winnable '''
+        board_key = board.tobytes()
+        return self.hash_winnable_boards_by_minus_one.get(board_key, set())
+
+    # Eval Getters
     def get_eval_hash(self, board):
         """
         Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards.
@@ -616,6 +677,7 @@ class BetterJardineritoAgent:
             raise ValueError(f"Board not found in results boards!, its hex key was {hex_key}. The board was\n{board}")
         return results_eval
 
+    # Draw Getters
     def get_draw_hash(self, board):
         """
         Retrieve the draw status of a board from the preloaded dictionary of drawn boards.
@@ -624,6 +686,27 @@ class BetterJardineritoAgent:
         board_key = board.tobytes()
         return self.hash_draw_boards.get(board_key, False)
 
+    def get_draw_result_hash(self, board):
+        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
+        board_key = board.tobytes()
+        return self.hash_draw_results_boards.get(board_key, False)
+
+    # Hyphen Numeric Getters
+    def get_HyphenNumeric_hash(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key, reverse_symmetry_instructions = self.get_HyphenNumeric_parameters(board, board_to_play)
+        best_move_raw = self.hash_HyphenNumeric_boards.get(key, None)
+        best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
+        return best_move_processed
+
+    def get_HyphenNumeric_hash_rival(self, board, board_to_play):
+        ''' Returns the best move for the given HyphenNumeric board '''
+        key, reverse_symmetry_instructions = self.get_HyphenNumeric_parameters(board, board_to_play, rival_start=True)
+        best_move_raw = self.hash_HyphenNumeric_boards_rival.get(key, None)
+        best_move_processed = self.counter_transform_move(best_move_raw, reverse_symmetry_instructions)
+        return best_move_processed
+
+    # Other Getters
     def get_over_hash(self, board):
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
@@ -633,15 +716,325 @@ class BetterJardineritoAgent:
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_over_hash(board)
 
-    def get_winnable_by_one_hash(self, board):
-        ''' Returns the set of winning moves for player 1, if the board is winnable '''
-        board_key = board.tobytes()
-        return self.hash_winnable_boards_by_one.get(board_key, set())
+    # Move Hashing Auxiliaries Below!
+    # Rotations & Reflections 2D
+    def rotate_coordinates_2d(self, coordinates: Union[Tuple[int, int], None], rotation_times: int):
+        ''' Rotate the board to play by 90 degrees * times, coordinates must be either 0, 1, 2
+        So rotations are done performing the (2 - coordinate) operation for the corresponding axis '''
+        if coordinates is None:
+            return None
+        
+        a, b = coordinates
+        rotation_times %= 4
+        
+        if rotation_times == 0:
+            # 0° rotation
+            return a, b
+        
+        elif rotation_times == 1:
+            # 90° rotation
+            return b, 2 - a
+        
+        elif rotation_times == 2:
+            # 180° rotation
+            return 2 - a, 2 - b
+        
+        elif rotation_times == 3:
+            # 270° rotation
+            return 2 - b, a
 
-    def get_winnable_by_minus_one_hash(self, board):
-        ''' Returns the set of winning moves for player -1, if the board is winnable '''
-        board_key = board.tobytes()
-        return self.hash_winnable_boards_by_minus_one.get(board_key, set())
+        raise ValueError(f"Invalid rotation times: {rotation_times}??")
+
+    def reverse_rotation_2d(self, coordinates, rotation_times):
+        ''' Reverse the rotation of the coordinates '''
+        if coordinates is None:
+            return None
+        
+        a, b = coordinates
+        rotation_times %= 4
+        
+        if rotation_times == 0:
+            # 0° rotation
+            return a, b
+        
+        elif rotation_times == 1:
+            # 90° rotation
+            return 2 - b, a
+        
+        elif rotation_times == 2:
+            # 180° rotation
+            return 2 - a, 2 - b
+        
+        elif rotation_times == 3:
+            # 270° rotation
+            return b, 2 - a
+        
+        raise ValueError(f"Invalid rotation times: {rotation_times}??")
+
+    def reflect_coordinates_2d(self, move, reflection_type):
+        # Normalize reflection_type to lowercase to handle different cases
+        reflection_type = reflection_type.lower()
+        a, b = move
+        
+        if reflection_type == 'none':
+            # No reflection
+            return a, b
+        elif reflection_type == 'horizontal':
+            # Horizontal reflection (across the middle row)
+            return 2 - a, b
+        elif reflection_type == 'vertical':
+            # Vertical reflection (across the middle column)
+            return a, 2 - b
+        elif reflection_type == 'diagonal':
+            # Diagonal reflection (top-left to bottom-right)
+            return b, a
+        elif reflection_type == 'anti-diagonal':
+            # Anti-diagonal reflection (top-right to bottom-left)
+            return 2 - b, 2 - a
+        else:
+            raise ValueError(f"Invalid reflection type: {reflection_type}")
+
+    def reverse_reflection_2d(self, move, reflection_type):
+        # Applying the same reflection again undoes it (reflections are self-inverse)
+        return self.reflect_coordinates_2d(move, reflection_type)
+
+    # Rotations & Reflections 4D
+    def rotate_coordinates_4d(self, coordinates: Union[Tuple[int, int, int, int], None], rotation_times: int):
+        if coordinates is None:
+            return None
+        a, b, c, d = coordinates
+        rotation_times %= 4
+        
+        if rotation_times == 0:
+            # No rotation
+            return a, b, c, d
+        elif rotation_times == 1:
+            # 90-degree rotation: rotate first two coordinates (a, b) and last two coordinates (c, d)
+            return c, d, a, b
+        elif rotation_times == 2:
+            # 180-degree rotation: swap (a, b) and (c, d)
+            return 2 - a, 2 - b, 2 - c, 2 - d
+        elif rotation_times == 3:
+            # 270-degree rotation: rotate in the opposite direction (c, d) and (a, b)
+            return d, c, b, a
+        else:
+            raise ValueError(f"Invalid rotation time: {rotation_times}")
+
+    def reverse_rotation_4d(self, move, rotation_times):
+        # Reverse the rotation by performing the opposite of the given rotation.
+        return self.rotate_coordinates_4d(move, (4 - rotation_times) % 4)
+
+    def reflect_coordinates_4d(self, move, reflection_type):
+        reflection_type = reflection_type.lower()
+        a, b, c, d = move
+
+        if reflection_type == 'none':
+            # No reflection
+            return a, b, c, d
+        elif reflection_type == 'horizontal':
+            # Reflect across the first two coordinates (flip a, b)
+            return 2 - a, 2 - b, c, d
+        elif reflection_type == 'vertical':
+            # Reflect across the last two coordinates (flip c, d)
+            return a, b, 2 - c, 2 - d
+        elif reflection_type == 'diagonal':
+            # Reflect across the plane swapping (a, c) and (b, d)
+            return c, d, a, b
+        elif reflection_type == 'anti-diagonal':
+            # Reflect across the plane swapping (b, d) and (a, c)
+            return d, c, b, a
+        else:
+            raise ValueError(f"Invalid reflection type: {reflection_type}")
+
+    def reverse_reflection_4d(self, move, axis):
+        ''' Apply inverse reflection to a move '''
+        return self.reflect_coordinates_4d(move, axis)
+
+    # DEPRECATED Board Symmetry Methods
+    def rotate_board(self, board, times):
+        ''' Rotate the board by 90 degrees * times '''
+        for _ in range(times):
+            board = np.rot90(board, axes=(2, 3))
+        return board
+
+    def reflect_board(self, board, axis):
+        ''' Reflects the board along the specified axis '''
+        if axis == "none":
+            return board
+        elif axis == "horizontal":
+            return np.flip(board, axis=2)
+        elif axis == "vertical":
+            return np.flip(board, axis=3)
+        elif axis == "diagonal":
+            return np.flip(board, axis=(2, 3))
+        elif axis == "anti-diagonal":
+            return np.flip(board, axis=(1, 2))
+
+    # Hyphen Numeric Hash Processing Functions
+    def get_HyphenNumeric_parameters(self, board: np.array, board_to_play: Union[Tuple[int, int], None], rival_start=False):
+        ''' 
+        Returns the key for the HyphenNumeric dictionary, checking all symmetrical variations
+        to match the stored key format, and also outputs reverse transformations.
+        '''
+        # Rotations
+        for rotations in range(4):  # Four rotations
+            processed_moves_1 = set()
+            processed_moves_2 = set()
+            raw_moves_player_1, raw_moves_player_2 = self.board_to_moves_list(board)
+            
+            # Move Rotation
+            for move in raw_moves_player_1:
+                if len(move) != 4:
+                    raise ValueError(f"Invalid move player 1: {move}")
+                rotated_move = self.rotate_coordinates_4d(move, rotations)
+                processed_moves_1.add(rotated_move)
+                
+            for move in raw_moves_player_2:
+                if len(move) != 4:
+                    raise ValueError(f"Invalid move player -1: {move}")
+                rotated_move = self.rotate_coordinates_4d(move, rotations)
+                processed_moves_2.add(rotated_move)
+            
+            # Board to Play
+            rotated_board_to_play = self.rotate_coordinates_2d(coordinates=board_to_play, rotation_times=rotations)
+
+            # Reflections
+            for reflection in ['none', 'horizontal', 'vertical', 'diagonal', 'anti-diagonal']:
+                final_moves_1 = set()
+                final_moves_2 = set()
+                
+                # Move Reflection
+                for move in processed_moves_1:
+                    if len(move) != 4:
+                        raise ValueError(f"Invalid move p1 rotated: {move}")
+                    reflected_move = self.reflect_coordinates_4d(move, reflection)
+                    final_moves_1.add(reflected_move)
+                    
+                for move in processed_moves_2:
+                    if len(move) != 4:
+                        raise ValueError(f"Invalid move p2 rotated: {move}")
+                    reflected_move = self.reflect_coordinates_4d(move, reflection)
+                    final_moves_2.add(reflected_move)
+                
+                # Board to Play
+                reflected_board_to_play = self.reflect_coordinates_2d(rotated_board_to_play, reflection)
+                moves_tuple = (final_moves_1, final_moves_2)
+                board_key_player_1, board_key_player_2 = self.list_of_tuples_to_HyphenNumeric_str_frozensets(moves_tuple)
+                                
+                # Construct the hash key with this version
+                key = ((board_key_player_1, board_key_player_2), reflected_board_to_play)
+                # print(Fore.LIGHTGREEN_EX + f"\nWhile the transposition table looks as such:\n{self.hash_HyphenNumeric_boards}" + Style.RESET_ALL)
+                # print(Fore.LIGHTMAGENTA_EX + f"Attempting the key: \n{key}\nwhere rotation = {rotations} and reflection = {reflection}" + Style.RESET_ALL)
+
+                # Check key in hash
+                if not rival_start:
+                    if key in self.hash_HyphenNumeric_boards:
+                        return key, (rotations, reflection)  
+                else:
+                    if key in self.hash_HyphenNumeric_boards_rival:
+                        return key, (rotations, reflection)
+                
+        return None, None
+
+    def counter_transform_move(self, move: Tuple[int, int, int, int], transformation: Tuple):
+        ''' Reverse the transformation to retrieve the original move coordinates '''
+        if not transformation:
+            return move
+        
+        rotations, reflection = transformation
+        counter_move = move
+
+        # Apply inverse reflection first
+        if reflection:
+            counter_move = self.reverse_reflection_4d(counter_move, reflection)
+
+        # Apply inverse rotation
+        if rotations:
+            counter_move = self.reverse_rotation_4d(counter_move, rotations)
+
+        return counter_move
+
+    def board_to_moves_list(self, board) -> Tuple[Tuple[Tuple[int, int, int, int], ...], Tuple[Tuple[int, int, int, int], ...]]:
+        ''' Takes a board, and returns 2 tuples, each with N tuples inside '''
+        player1_pieces = []
+        player_minus1_pieces = []
+
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        if board[i, j, k, l] == 1:
+                            player1_pieces.append((i, j, k, l))
+                        elif board[i, j, k, l] == -1:
+                            player_minus1_pieces.append((i, j, k, l))
+
+        return (player1_pieces, player_minus1_pieces)
+
+    def list_of_tuples_to_HyphenNumeric_str_frozensets(self, piece_lists_tuple):
+        ''' Convert the list of tuples to the HyphenNumeric format '''
+        player_1, player_minus1 = piece_lists_tuple
+        player_1_list, player_minus1_list = [], []
+        
+        for move in player_1:
+            i, j, k, l = move
+            player_1_list.append(f"{i}_{j}_{k}_{l}")
+            
+        for move in player_minus1:
+            i, j, k, l = move
+            player_minus1_list.append(f"{i}_{j}_{k}_{l}")
+            
+        return (frozenset(player_1_list), frozenset(player_minus1_list))
+
+    def get_quick_board_key(self, board):
+        moves1, moves_minus1 = self.board_to_moves_list(board)
+        return self.list_of_tuples_to_HyphenNumeric_str_frozensets((moves1, moves_minus1))
+
+    def parse_and_store_board_line(self, line, rival_start=False):
+        ''' Parse a line from the file and store the board and its best move '''
+        # Get the data
+        key_part, move_part = line.strip().split(" : ")
+        
+        # Board
+        board_part, board_to_play_str = key_part.split(", ")
+        if rival_start:
+            board_key_part = self.parse_board_key_rival(board_part)
+        else:
+            board_key_part = self.parse_board_key(board_part)
+
+        # Board to play
+        if board_to_play_str == 'None':
+            board_to_play = None
+        else:
+            board_to_play = tuple(map(int, board_to_play_str.split("_")))
+
+        # Key is Ready
+        full_key = (board_key_part, board_to_play)
+        
+        # Best Move
+        best_move = tuple(map(int, move_part.split("_")))
+        
+        if rival_start:
+            self.hash_HyphenNumeric_boards_rival[full_key] = best_move
+        else:
+            self.hash_HyphenNumeric_boards[full_key] = best_move
+
+    def parse_board_key(self, board_str):
+        ''' Convert the HyphenNumeric string back to a canonical key '''
+        pieces = board_str.split("__")
+        player1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 == 0)
+        player_minus1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 != 0)
+
+        # Build the frozenset for the key
+        return frozenset(player1_pieces), frozenset(player_minus1_pieces)
+
+    def parse_board_key_rival(self, board_str):
+        ''' Convert the HyphenNumeric string back to a canonical key '''
+        pieces = board_str.split("__")
+        player1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 != 0)
+        player_minus1_pieces = set(pieces[i] for i in range(len(pieces)) if i % 2 == 0)
+
+        # Build the frozenset for the key
+        return frozenset(player1_pieces), frozenset(player_minus1_pieces)
 
     # endregion
 
