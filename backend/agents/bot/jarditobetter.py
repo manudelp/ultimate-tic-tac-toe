@@ -397,11 +397,9 @@ class BetterJardineritoAgent:
         
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         res_score = self.get_results_board_eval(results_array)
-        result_coef = res_score * 48
-        # result_coef = results_balance * ((1 + abs(res_score))**2.1) * 1.7
-        # # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
-        # # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
-        # # have the same massive disproportionality with the results balance weight
+        result_coef = res_score * 24
+        # FIXME! Currently losing! Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
+        # have the same massive disproportionality with the results balance weight
 
         balance += result_coef
         
