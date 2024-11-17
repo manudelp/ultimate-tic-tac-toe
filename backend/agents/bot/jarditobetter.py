@@ -247,22 +247,26 @@ class BetterJardineritoAgent:
             row, col = board_to_play
             local_to_play = board[row, col]
             local_moves = np.argwhere(local_to_play == 0)
-            
+
+            if local_moves.size == 0:
+                    raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, move number = {self.moveNumber}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
+
             # TODO: Uncomment me! I remove center moves
             before_centering_time = time.time()
-            if self.moveNumber + depth < 11:
-                there_was = False
-                if any(np.all(row == [1, 1]) for row in local_moves):
-                    there_was = True
-                local_moves = local_moves[np.all(local_moves != [1, 1], axis=1)]
-                # if there_was and (not (any(np.all(row == [1, 1]) for row in local_moves))):
-                    # print("BetterJardi removed center!")
-                    # print(f"Local moves are now: {local_moves}")
+            if ((self.moveNumber + depth < 12) and (local_moves.size > 1)):
+                # Remove the element [1, 1] from the local_moves
+                # First, turn 2d array into a list
+                local_moves = local_moves.tolist()
+                # Then, remove the [1, 1] element
+                if [1, 1] in local_moves:
+                    local_moves.remove([1, 1])
+                # Finally, turn it back into a numpy array
+                local_moves = np.array(local_moves)
             time_spent_centering = time.time() - before_centering_time
             self.centering_early_time += time_spent_centering
             
             if local_moves.size == 0:
-                    raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
+                    raise ValueError(f"AFTER CENTERING! Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, move number = {self.moveNumber}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
 
             if maximizingPlayer:
                 max_eval = float('-inf')
