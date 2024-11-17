@@ -19,8 +19,8 @@ class BetterJardineritoAgent:
         self.id = "Jaimito el Euristico"
         self.icon = "🍀"
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
+        self.depth_local = 5 # when btp is not None
+        self.depth_global = 4 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -389,6 +389,7 @@ class BetterJardineritoAgent:
         Calculated using the local eval of the results array '''
         CORNER_MULT = 1.25
         CENTER_MULT = 1.5
+        RESULTS_EVAL_MULT = 3
         
         (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
@@ -396,8 +397,28 @@ class BetterJardineritoAgent:
         balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
         
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
+        
+        results_list_compare = []
+        for i in range(3):
+            for j in range(3):
+                if self.get_draw_hash(board[i, j]):
+                    results_list_compare.append(2)
+                else:
+                    winner = self.get_winner_hash(board[i, j])
+                    results_list_compare.append(winner)
+        
+        # Compare results_list_compare with results_array
+        if len(results_list_compare) != results_array.size:
+            raise ValueError(f"Results List Compare and Results Array are of different sizes! {results_list_compare} vs {results_array}")
+        
+        # Turn results array into a list
+        results_list = results_array.flatten().tolist()
+        # Compare the two lists
+        if results_list_compare != results_list:
+            raise ValueError(f"Results List Compare and Results Array are different! {results_list_compare} vs {results_list}")
+        
         res_score = self.get_results_board_eval(results_array)
-        result_coef = res_score * 24
+        result_coef = res_score * RESULTS_EVAL_MULT
         # FIXME! Currently losing! Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
         # have the same massive disproportionality with the results balance weight
 
