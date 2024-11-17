@@ -92,18 +92,21 @@ def allLinesBlocked(board):
 
 def toBeDrawn(board):
     ''' Returns True if the local 3x3 board is secured to be a Draw '''
+    zeros_count = np.count_nonzero(board == 0)
 
-    if np.count_nonzero(board == 0) > 1:
+    if (zeros_count > 2):
         return False
     
     if isWon(board):
         return False
+
+    if allLinesBlocked(board):
+        return True
     
     if np.count_nonzero(board == 2) > 6:
         return True
     
-    if allLinesBlocked(board):
-        return True
+
     
     # Check for a possible win in the next move
 
@@ -998,8 +1001,15 @@ def generate_legal_boards(file_path):
 # generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
 # generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
-generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
+# generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt', -1)
+
+results_13 = np.array([[0, 0, 2],
+                        [2, 2, 0],
+                        [0, 2, 0]]) # draw (all lines blocked)
+
+isDraw13 = isDraw(results_13)
+print(isDraw13)

@@ -1708,12 +1708,12 @@ def run_draw_results_tests(agent):
     assert agent.get_draw_result_hash(results_5) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 5 should not be a draw, result was {agent.get_draw_result_hash(results_5)}" + Style.RESET_ALL
     assert agent.get_draw_result_hash(results_6) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 6 should not be a draw, result was {agent.get_draw_result_hash(results_6)}" + Style.RESET_ALL
     assert agent.get_draw_result_hash(results_7) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 7 should not be a draw, result was {agent.get_draw_result_hash(results_7)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_8) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 8 should not be a draw, result was {agent.get_draw_result_hash(results_8)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_9) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 9 should not be a draw, result was {agent.get_draw_result_hash(results_9)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_8) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 8 should be a draw, result was {agent.get_draw_result_hash(results_8)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_9) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 9 should be a draw, result was {agent.get_draw_result_hash(results_9)}" + Style.RESET_ALL
     assert agent.get_draw_result_hash(results_10) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 10 should not be a draw, result was {agent.get_draw_result_hash(results_10)}" + Style.RESET_ALL
     assert agent.get_draw_result_hash(results_11) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 11 should not be a draw, result was {agent.get_draw_result_hash(results_11)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_12) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 12 should not be a draw, result was {agent.get_draw_result_hash(results_12)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_13) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 13 should not be a draw, result was {agent.get_draw_result_hash(results_13)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_12) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 12 should be a draw, result was {agent.get_draw_result_hash(results_12)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_13) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 13 should be a draw, result was {agent.get_draw_result_hash(results_13)}" + Style.RESET_ALL
 
     print("All Draw-Results tests passed successfully!")
 
