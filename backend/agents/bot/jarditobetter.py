@@ -224,7 +224,12 @@ class BetterJardineritoAgent:
         #     print(f"Monke! My depth equality check does work")
 
         # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
-        winner = checkBoardWinner(board)
+        (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
+        (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
+        (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
+        results_board = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
+        winner = self.get_winning_result_hash(results_board)
+        
         if winner != 0:
             if winner == 1:
                 return 100_000, None
@@ -232,12 +237,10 @@ class BetterJardineritoAgent:
                 balance = -100_000 + depth # to prioritize the slowest loss
                 return balance, None
         else:
-            if depth == 0:
-                return self.boardBalance(board), None
-            # if boars isOver, but winner == 0, then it must be full, thus balance=0
-            elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"{self.id} found over board (drawn) in recursion!")
+            if self.get_draw_results_hash(results_board):
                 return 0, None
+            elif depth == 0:
+                return self.boardBalance(board), None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
         best_move = None
@@ -404,9 +407,8 @@ class BetterJardineritoAgent:
         (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
         (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
-        balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
-        
         results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
+        balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
 
         # DELETEME: DEBUG COMPARISON TO ENSURE THE RESULTS ARE BEING PROPERLY CALCULATED
         results_list_compare = []
