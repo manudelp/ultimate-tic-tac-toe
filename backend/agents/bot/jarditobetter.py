@@ -19,8 +19,8 @@ class BetterJardineritoAgent:
         self.id = "Jaimito el Euristico"
         self.icon = "🍀"
         self.moveNumber = 0
-        self.depth_local = 5 # when btp is not None
-        self.depth_global = 4 # when btp is None
+        self.depth_local = 8 # when btp is not None
+        self.depth_global = 7 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -138,6 +138,8 @@ class BetterJardineritoAgent:
         self.hash_winnable_boards_by_minus_one = {}
         self.hash_HyphenNumeric_boards = {}
         self.hash_HyphenNumeric_boards_rival = {}
+        self.hash_winning_results_boards = {}
+        self.hash_draw_results_boards = {}
 
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -148,6 +150,8 @@ class BetterJardineritoAgent:
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
         eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
         results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_board_eval.txt')
+        winning_results_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_results_boards.txt')
+        draw_results_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_results_boards.txt')
 
         # Load the boards using the absolute paths
         self.load_winning_boards(winning_boards_path)
@@ -156,6 +160,8 @@ class BetterJardineritoAgent:
         self.load_evaluated_boards(evaluated_boards_path)
         self.load_eval_glob_boards(eval_glob_path)
         self.load_results_board_eval(results_eval_path)
+        self.load_winning_results_boards(winning_results_path)
+        self.load_draw_results_boards(draw_results_path)
 
 
     def randomMove(self, board):
@@ -233,7 +239,7 @@ class BetterJardineritoAgent:
                 balance = -100_000 + depth # to prioritize the slowest loss
                 return balance, None
         else:
-            if self.get_draw_results_hash(results_board):
+            if self.get_draw_result_hash(results_board):
                 return 0, None
             elif depth == 0:
                 board_balance = self.boardBalance(board=board, 
