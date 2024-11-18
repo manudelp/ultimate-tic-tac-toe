@@ -149,14 +149,16 @@ def localBoardEval_v2(localBoard):
     Evaluates the local board and returns an evaluation score for it 
     For Non-Won Boards, Balance Ranges Theoretically from -3.6 to 3.6
     For Won Boards, Balance is ± 6.4
-    Returns 0 if both have winning threat
+    Uses single_line = 0.14 & double_line = 0.60
     '''
     score = 0
     player1_threat = False
     player2_threat = False
+    single_eval = 0.14
+    double_eval = 0.60
     
     # Rows
-    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
+    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
@@ -164,7 +166,7 @@ def localBoardEval_v2(localBoard):
         return 6.4 * row1_eval
     score += row1_eval
 
-    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
+    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
@@ -172,7 +174,7 @@ def localBoardEval_v2(localBoard):
         return 6.4 * row2_eval
     score += row2_eval
 
-    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
+    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
@@ -181,7 +183,7 @@ def localBoardEval_v2(localBoard):
     score += row3_eval
 
     # Columns
-    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
+    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
@@ -189,7 +191,7 @@ def localBoardEval_v2(localBoard):
         return 6.4 * col1_eval
     score += col1_eval
 
-    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
+    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
@@ -197,7 +199,7 @@ def localBoardEval_v2(localBoard):
         return 6.4 * col2_eval
     score += col2_eval
 
-    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
+    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
@@ -206,7 +208,7 @@ def localBoardEval_v2(localBoard):
     score += col3_eval
 
     # Diagonals
-    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
+    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
@@ -214,17 +216,13 @@ def localBoardEval_v2(localBoard):
         return 6.4 * diagTB_eval
     score += diagTB_eval
 
-    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
+    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:
         return 6.4 * diagBT_eval
     score += diagBT_eval
-
-    # Check for conflicting threats
-    if player1_threat and player2_threat:
-        return 0  # Neutralize score if both players can win in one move
 
     return round(score, 2)
 
