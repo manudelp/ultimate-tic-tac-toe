@@ -21,8 +21,8 @@ class IterVanBytesAgent:
         self.transposition_table = {}
         self.transpo_hits = 0
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
+        self.depth_local = 7 # when btp is not None
+        self.depth_global = 6 # when btp is None
         self.time_limit = 30 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
