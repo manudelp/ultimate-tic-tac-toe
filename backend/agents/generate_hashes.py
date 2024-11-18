@@ -980,7 +980,7 @@ def generate_legal_boards(file_path):
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
 # generate_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
-generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
+# generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
 # generate_eval_boards_glob('backend/agents/hashes/hash_eval_boards_glob.txt')
 # generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
@@ -990,10 +990,3 @@ generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt', -1)
-
-results_13 = np.array([[0, 0, 2],
-                        [2, 2, 0],
-                        [0, 2, 0]]) # draw (all lines blocked)
-
-isDraw13 = isDraw(results_13)
-print(isDraw13)
