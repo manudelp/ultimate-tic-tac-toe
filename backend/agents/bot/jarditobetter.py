@@ -236,7 +236,12 @@ class BetterJardineritoAgent:
             if self.get_draw_results_hash(results_board):
                 return 0, None
             elif depth == 0:
-                return self.boardBalance(board), None
+                board_balance = self.boardBalance(board=board, 
+                                                results_array=results_board, 
+                                                ev_00=ev_00, ev_01=ev_01, ev_02=ev_02, 
+                                                ev_10=ev_10, ev_11=ev_11, ev_12=ev_12, 
+                                                ev_20=ev_20, ev_21=ev_21, ev_22=ev_22)
+                return board_balance, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
         # Implement Alpha Beta
