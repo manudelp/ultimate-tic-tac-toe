@@ -297,7 +297,20 @@ def localBoardEval_v2(localBoard):
     player2_threat = False
     single_eval = 0.14
     double_eval = 0.60
-    
+
+    # If board is all 0s and a 1 in the middle, return CENTER_ONLY_EVAL
+    if np.count_nonzero(localBoard) == 1:
+        if localBoard[1, 1] == 1:
+            if np.array_equal(localBoard, CENTER_ONLY_BOARD):
+                return CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Board")
+        elif localBoard[1, 1] == -1:
+            if np.array_equal(localBoard, CENTER_ONLY_ENEMY_BOARD):
+                return -CENTER_ONLY_EVAL
+            else:
+                raise ValueError("Invalid Center Only Enemy Board")
+
     # Rows
     row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
