@@ -220,9 +220,6 @@ class BetterJardineritoAgent:
             float: The best value for the maximizing player
         """
 
-        # if depth == self.depth:
-        #     print(f"Monke! My depth equality check does work")
-
         # BCheck Base Case
         (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
@@ -385,7 +382,7 @@ class BetterJardineritoAgent:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
 
-    def generate_global_moves(self, board):
+    def generate_global_moves(self, board: np.array):
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
         global_moves = []
@@ -395,7 +392,11 @@ class BetterJardineritoAgent:
                 global_moves.append([int(submove[0]), int(submove[1])])
         return global_moves
 
-    def boardBalance(self, board):
+    def boardBalance(self, board: np.ndarray,
+                    results_array: np.ndarray,
+                    ev_00: float, ev_01:float, ev_02: float,
+                    ev_10: float, ev_11:float, ev_12: float,
+                    ev_20: float, ev_21:float, ev_22: float) -> float:
         # NEEDS TIMEIT TESTING 🔔
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations plus the connectivity of the global board results 
@@ -403,11 +404,7 @@ class BetterJardineritoAgent:
         CORNER_MULT = 1.25
         CENTER_MULT = 1.5
         RESULTS_EVAL_MULT = 3
-        
-        (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
-        (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
-        (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
-        results_array = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
+
         balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
 
         # DELETEME: DEBUG COMPARISON TO ENSURE THE RESULTS ARE BEING PROPERLY CALCULATED
