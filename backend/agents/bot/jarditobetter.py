@@ -242,9 +242,8 @@ class BetterJardineritoAgent:
                                                 ev_10=ev_10, ev_11=ev_11, ev_12=ev_12, 
                                                 ev_20=ev_20, ev_21=ev_21, ev_22=ev_22)
                 return board_balance, None
-        # Si winner == 0, board is not over, and depth != 0, then we keep going
 
-        # Implement Alpha Beta
+        # No Terminal State Found, keep going and Implement Alpha Beta
         best_move = None
 
         # Generate moves based on the current state

@@ -604,6 +604,8 @@ class FooFinderAgent:
         None
 
     def board_balance_endgame(self, board):
+        ''' In the case it does need some board balance... just make it the usual results stuff with the won boards connectivity through get_results_board_eval
+        No need to waste time with Positional Scores, although to be fair no need to waste time with board balance at all either! '''
         None
 
     # Board Checks & Heuristic Auxiliaries 🧮✔️
