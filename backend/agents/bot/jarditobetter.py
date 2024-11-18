@@ -223,13 +223,12 @@ class BetterJardineritoAgent:
         # if depth == self.depth:
         #     print(f"Monke! My depth equality check does work")
 
-        # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
+        # BCheck Base Case
         (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_eval_glob_hash(board[0, 0]), self.get_eval_glob_hash(board[0, 1]), self.get_eval_glob_hash(board[0, 2])
         (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_eval_glob_hash(board[1, 0]), self.get_eval_glob_hash(board[1, 1]), self.get_eval_glob_hash(board[1, 2])
         (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_eval_glob_hash(board[2, 0]), self.get_eval_glob_hash(board[2, 1]), self.get_eval_glob_hash(board[2, 2])
         results_board = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         winner = self.get_winning_result_hash(results_board)
-        
         if winner != 0:
             if winner == 1:
                 return 100_000, None
@@ -243,6 +242,7 @@ class BetterJardineritoAgent:
                 return self.boardBalance(board), None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
+        # Implement Alpha Beta
         best_move = None
 
         # Generate moves based on the current state
