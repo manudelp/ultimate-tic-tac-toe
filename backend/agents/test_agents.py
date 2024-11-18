@@ -23,7 +23,7 @@ from bot.jarditobetter import BetterJardineritoAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = JardineritoAgent()    # Replace with your chosen agent
+AGENT1 = GardenerAgent()    # Replace with your chosen agent
 AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
 ROUNDS = 1
 GAMES = ROUNDS * 2
