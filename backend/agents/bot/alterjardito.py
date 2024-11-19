@@ -255,7 +255,7 @@ class AlterJardineritoAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -278,7 +278,7 @@ class AlterJardineritoAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
@@ -323,7 +323,7 @@ class AlterJardineritoAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -349,7 +349,7 @@ class AlterJardineritoAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
@@ -1026,43 +1026,43 @@ class AlterJardineritoAgent:
     # endregion
 
     def updateOverBoards(self, board):
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.over_boards_set.add((2, 2))
 
     def updateModelOverBoards(self, board):
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.model_over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.model_over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.model_over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.model_over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.model_over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.model_over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.model_over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.model_over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.model_over_boards_set.add((2, 2))
 
     def updatePlayableBoards(self, board):

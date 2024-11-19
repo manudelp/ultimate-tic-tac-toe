@@ -211,7 +211,7 @@ class TwinPrunerAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -233,7 +233,7 @@ class TwinPrunerAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
@@ -255,7 +255,7 @@ class TwinPrunerAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -273,7 +273,7 @@ class TwinPrunerAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
@@ -335,7 +335,7 @@ class TwinPrunerAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -357,7 +357,7 @@ class TwinPrunerAgent:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
@@ -401,7 +401,7 @@ class TwinPrunerAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -427,7 +427,7 @@ class TwinPrunerAgent:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
@@ -443,7 +443,7 @@ class TwinPrunerAgent:
 
     def new_parameters(self, board, loc_row, loc_col):
         ''' Given the local coords of a move to play, returns the new board_to_play and moves_to_try '''
-        if self.get_isOver(board[loc_row, loc_col]):
+        if self.get_over_hash(board[loc_row, loc_col]):
             board_to_play = None
             moves_to_try = self.generate_global_moves(board)
         else:
@@ -575,17 +575,17 @@ class TwinPrunerAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def get_isOver(self, board):
+    def get_over_hash(self, board):
         # TIMEIT APPROVED ✅
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
         return self.hash_over_boards.get(board_key, False)
 
     def get_isPlayable(self, board):
-        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_isOver directly 
+        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_over_hash directly 
         # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough)
         ''' Returns True if the board is playable, False otherwise '''
-        return not self.get_isOver(board)
+        return not self.get_over_hash(board)
 
     def get_local_eval(self, board):
         """
@@ -599,43 +599,43 @@ class TwinPrunerAgent:
         return local_eval
 
     def updateOverBoards(self, board):
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.over_boards_set.add((2, 2))
 
     def updateModelOverBoards(self, board):
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.model_over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.model_over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.model_over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.model_over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.model_over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.model_over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.model_over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.model_over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.model_over_boards_set.add((2, 2))
 
     def updatePlayableBoards(self, board):

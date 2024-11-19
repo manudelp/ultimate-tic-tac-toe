@@ -58,7 +58,7 @@ class saver:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -81,7 +81,7 @@ class saver:
                     loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
@@ -128,7 +128,7 @@ class saver:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
@@ -154,7 +154,7 @@ class saver:
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 

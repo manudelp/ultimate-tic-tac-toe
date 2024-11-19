@@ -272,13 +272,13 @@ class FooFinderAgent:
         # TIMEIT APPROVED ✅
         ''' Simulates a move on the board, given the 4d move and the player
         Returns the new_board_to_play and the new_moves_to_try '''
-        if self.get_isOver(board[loc_row, loc_col]):
+        if self.get_over_hash(board[loc_row, loc_col]):
             return None, self.generate_global_moves(board)
         else:
             return (loc_row, loc_col), np.argwhere(board[loc_row, loc_col] == 0)
         
         # Unfreeze in case it breaks! (this below would be kind of TIMEIT ACCEPTED ☑️)
-        # if self.get_isOver(board[loc_row, loc_col]):
+        # if self.get_over_hash(board[loc_row, loc_col]):
         #     board_to_play = None
         #     moves_to_try = self.generate_global_moves(board)
         # else:
@@ -350,7 +350,7 @@ class FooFinderAgent:
             # y si hay 0 pero no hay winner, then it's over, it's a draw! 
             # por ahora la que tiene MonkeyAgent con self.countPlaable Boards cumple la funcion que deberia
             # pero no es Time Optimal maybe, aunque maybe that doesnt even matter tbh
-            elif ((self.get_isOver(self.model_global_board_results)) or (isFullGlobal(board))):
+            elif ((self.get_over_hash(self.model_global_board_results)) or (isFullGlobal(board))):
                 # Need to check both cause si esta lleno pero ninguno gano ponele, los results son todos 0, y thats not over
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
@@ -374,7 +374,7 @@ class FooFinderAgent:
                     local_won = self.get_isWon(local_board)
                     if local_won != 0:
                         self.model_global_board_results[row, col] = local_won
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     # Undo my move, reset the global board results
                     local_board[loc_row, loc_col] = 0 
@@ -401,7 +401,7 @@ class FooFinderAgent:
                     local_won = self.get_isWon(local_board)
                     if local_won != 0:
                         self.model_global_board_results[row, col] = local_won
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     # Undo opponent move, reset the global board results
                     board[row, col][loc_row, loc_col] = 0 
@@ -430,7 +430,7 @@ class FooFinderAgent:
                     local_won = self.get_isWon(local_board)
                     if local_won != 0:
                         self.model_global_board_results[row, col] = local_won
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     # Undo my move, reset the global board results
                     local_board[loc_row, loc_col] = 0
@@ -457,7 +457,7 @@ class FooFinderAgent:
                     local_won = self.get_isWon(local_board)
                     if local_won != 0:
                         self.model_global_board_results[row, col] = local_won
-                    new_board_to_play = None if self.get_isOver(board[loc_row, loc_col]) else (loc_row, loc_col)
+                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
                     eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     # Undo opponent move, reset the global board results
                     local_board[loc_row, loc_col] = 0
@@ -552,7 +552,7 @@ class FooFinderAgent:
             if depth == 0:
                 return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
-            elif self.get_isOver(self.model_global_board_results):
+            elif self.get_over_hash(self.model_global_board_results):
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -679,7 +679,7 @@ class FooFinderAgent:
     def determine_next_board(self, board, l_row, l_col):
         ''' Given the board and last 2 indices of a move, directing to a board 
         Returns the corresponding board_to_play (None if the board is won or full) '''
-        return None if self.get_isOver(board[l_row, l_col]) else (l_row, l_col)
+        return None if self.get_over_hash(board[l_row, l_col]) else (l_row, l_col)
 
     def isTrulyPlayable(self, board, move_row, move_col, move_row_local, move_col_local):
         # TIMEIT APPROVED ✅
@@ -743,44 +743,44 @@ class FooFinderAgent:
 
     def updateOverBoards(self, board):
         # TIMEIT APPROVED ✅
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.over_boards_set.add((2, 2))
 
     def updateModelOverBoards(self, board):
         # TIMEIT APPROVED ✅
-        if self.get_isOver(board[0, 0]):
+        if self.get_over_hash(board[0, 0]):
             self.model_over_boards_set.add((0, 0))
-        if self.get_isOver(board[0, 1]):
+        if self.get_over_hash(board[0, 1]):
             self.model_over_boards_set.add((0, 1))
-        if self.get_isOver(board[0, 2]):
+        if self.get_over_hash(board[0, 2]):
             self.model_over_boards_set.add((0, 2))
-        if self.get_isOver(board[1, 0]):
+        if self.get_over_hash(board[1, 0]):
             self.model_over_boards_set.add((1, 0))
-        if self.get_isOver(board[1, 1]):
+        if self.get_over_hash(board[1, 1]):
             self.model_over_boards_set.add((1, 1))
-        if self.get_isOver(board[1, 2]):
+        if self.get_over_hash(board[1, 2]):
             self.model_over_boards_set.add((1, 2))
-        if self.get_isOver(board[2, 0]):
+        if self.get_over_hash(board[2, 0]):
             self.model_over_boards_set.add((2, 0))
-        if self.get_isOver(board[2, 1]):
+        if self.get_over_hash(board[2, 1]):
             self.model_over_boards_set.add((2, 1))
-        if self.get_isOver(board[2, 2]):
+        if self.get_over_hash(board[2, 2]):
             self.model_over_boards_set.add((2, 2))
 
     def updatePlayableBoards(self, board):
@@ -988,17 +988,17 @@ class FooFinderAgent:
         '''
         None
     
-    def get_isOver(self, board):
+    def get_over_hash(self, board):
         # TIMEIT APPROVED ✅
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
         return self.hash_over_boards.get(board_key, False)
 
     def get_isPlayable(self, board):
-        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_isOver directly 
+        # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_over_hash directly 
         # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough to check tho)
         ''' Returns True if the board is playable, False otherwise '''
-        return not self.get_isOver(board)
+        return not self.get_over_hash(board)
 
     def get_winnableByOne(self, board):
         ''' Returns the set of winning moves for player 1, if the board is winnable '''
@@ -1259,7 +1259,7 @@ board_1 = np.array([[1, 1, 1],
                     [0, -1, -1],
                     [0, 0, -1]])  # Player 1 wins on the top row
 a1 = agent.get_isWon(board_1)
-b1 = agent.get_isOver(board_1)
+b1 = agent.get_over_hash(board_1)
 c1 = agent.get_isPlayable(board_1)
 d1 = agent.get_eval(board_1)
 e1 = agent.get_isDraw(board_1)
@@ -1271,7 +1271,7 @@ board_2 = np.array([[1, -1, 1],
                     [0, -1, -1],
                     [1, 1, 0]])  # Not Won (winnable by 1 in (1, 0), (2, 2) and by -1 in (1, 0))
 a2 = agent.get_isWon(board_2)
-b2 = agent.get_isOver(board_2)
+b2 = agent.get_over_hash(board_2)
 c2 = agent.get_isPlayable(board_2)
 d2 = agent.get_eval(board_2)
 e2 = agent.get_isDraw(board_2)
@@ -1283,7 +1283,7 @@ board_3 = np.array([[1, -1, -1],
                     [-1, -1, 1],
                     [1, 1, -1]])  # Draw
 a3 = agent.get_isWon(board_3)
-b3 = agent.get_isOver(board_3)
+b3 = agent.get_over_hash(board_3)
 c3 = agent.get_isPlayable(board_3)
 d3 = agent.get_eval(board_3)
 e3 = agent.get_isDraw(board_3)

@@ -68,7 +68,7 @@ def get_winner(board):
     board_key = board.tobytes()
     return hash_winning_boards.get(board_key, 0)
 
-def get_isOver(board) -> bool:
+def get_over_hash(board) -> bool:
     # TIMEIT APPROVED ✅
     ''' Returns whether the board is over'''
     board_key = board.tobytes()
@@ -77,7 +77,7 @@ def get_isOver(board) -> bool:
 def get_isOpen(board) -> bool:
     # TIMEIT APPROVED ✅
     ''' Returns whether the board is open'''
-    return not get_isOver(board)
+    return not get_over_hash(board)
 
 def is_board_open(board, r, c):
     # TIMEIT APPROVED ✅
@@ -110,7 +110,7 @@ def is_game_over(board):
     not_over_locals = []
     for i in range(3):
         for j in range(3):
-            if not get_isOver(board[i, j]):
+            if not get_over_hash(board[i, j]):
                 not_over_locals.append((i, j))
     if len(not_over_locals) == 0:
         return True
