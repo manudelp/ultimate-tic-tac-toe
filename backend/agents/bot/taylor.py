@@ -34,7 +34,7 @@ class TaylorAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
         # Class Elements
-        self.id = "Taylor"
+        self.name = "Taylor"
         self.icon = "🦋"
         self.moveNumber = 0
         self.hash_winnable_boards_by_one = {}
@@ -48,7 +48,7 @@ class TaylorAgent:
         self.load_winnable_boards_minus_one(winnable_by_minus_one_file)
 
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
@@ -58,7 +58,7 @@ class TaylorAgent:
     def action(self, super_board, board_to_play=None):
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
-        # print(Style.BRIGHT + Fore.MAGENTA + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{super_board}" + Style.RESET_ALL)
+        # print(Style.BRIGHT + Fore.MAGENTA + f"{self.name} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{super_board}" + Style.RESET_ALL)
 
         over_boards = []
         for i in range(rows):

@@ -15,7 +15,7 @@ AB-Pruning Minimax? = True
 
 class BetterItterinoAgent:
     def __init__(self):
-        self.id = "Dr. Itterino U. Ristic"
+        self.name = "Dr. Itterino U. Ristic"
         self.icon = "🔨"
         self.transposition_table = {}
         self.moveNumber = 0
@@ -46,25 +46,25 @@ class BetterItterinoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
         self.transposition_table = {}
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            # print(f"First Game, pointless Reset for {self.id}")
+            # print(f"First Game, pointless Reset for {self.name}")
             return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.id} move number is {self.moveNumber})")
+        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.name} move number is {self.moveNumber})")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -79,13 +79,13 @@ class BetterItterinoAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"{self.id}, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
         
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"{self.id} is thinking with alpha beta... btp is None")
+            # print(f"{self.name} is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_global)
@@ -94,12 +94,12 @@ class BetterItterinoAgent:
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
-                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("{self.id} failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -107,18 +107,18 @@ class BetterItterinoAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"{self.id} is thinking with alpha beta, not iterative btp is ({a}, {b})")
+        # print(f"{self.name} is thinking with alpha beta, not iterative btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_local)
         
         if minimax_move is not None:
             r_l, c_l = minimax_move
         else:
-            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
-        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
@@ -173,10 +173,10 @@ class BetterItterinoAgent:
         # time_before_tramites = time.time()
 
         for depth in range(2, max_depth + 1):
-            # print(f"{self.id} about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
+            # print(f"{self.name} about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
             this_depth_start = time.time()
             # time_tramites = time.time() - time_before_tramites
-            # print(f"El time que le tomo a {self.id} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
+            # print(f"El time que le tomo a {self.name} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
             try:
                 minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
             except TimeoutError:
@@ -208,10 +208,10 @@ class BetterItterinoAgent:
                     moves_to_try = np.array(moves_to_try)
                 else:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
-            # print(f"Repositioning best move to first place took {self.id} {time.time() - t_before_reposition:.4f} seconds")   
+            # print(f"Repositioning best move to first place took {self.name} {time.time() - t_before_reposition:.4f} seconds")   
             
             # UNCOMMENT TO SEE TIME PER DEPTH
-            # print(f"{self.id} Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
+            # print(f"{self.name} Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
  
         return best_eval, best_move
 

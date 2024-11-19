@@ -16,8 +16,8 @@ Order Moves? = False!
 
 class JardineritoAgent:
     def __init__(self):
-        self.id = "Jaimito Jardinerito"
-        self.icon = "🌿"
+        self.name = "Jaimito Jardinerito"
+        self.icon = "☘️"
         self.moveNumber = 0
         self.depth_local = 7 # when btp is not None
         self.depth_global = 6 # when btp is None
@@ -46,24 +46,24 @@ class JardineritoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            print(f"First Game, pointless Reset for {self.id}")
+            print(f"First Game, pointless Reset for {self.name}")
             return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        # print(f"{self.id} begins action, at move number {self.moveNumber}")
+        # print(f"{self.name} begins action, at move number {self.moveNumber}")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -78,13 +78,13 @@ class JardineritoAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"{self.id}, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"{self.id} is thinking with alpha beta... btp is None")
+            # print(f"{self.name} is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -96,23 +96,23 @@ class JardineritoAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"{self.id} chose alpha beta move: {minimax_move}")
+                # print(f"{self.name} chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
-                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("{self.id} failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
         subboard = super_board[a, b]
 
         # minimax with alphabeta pruning
-        # print(f"{self.id} is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"{self.name} is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -124,11 +124,11 @@ class JardineritoAgent:
         if minimax_move is not None:
             a, b, r_l, c_l = minimax_move
         else:
-            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
 
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
-        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
@@ -206,7 +206,7 @@ class JardineritoAgent:
             if winner == 1:
                 return 100_000, None
             elif winner == -1:
-                # print(Fore.BLUE + f"{self.id} found a loss in recursion!" + Style.RESET_ALL)
+                # print(Fore.BLUE + f"{self.name} found a loss in recursion!" + Style.RESET_ALL)
                 balance = -100_000 + depth # to prioritize the slowest loss
                 return balance, None
         else:
@@ -214,7 +214,7 @@ class JardineritoAgent:
                 return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"{self.id} found over board (drawn) in recursion!")
+                # print(f"{self.name} found over board (drawn) in recursion!")
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -297,7 +297,7 @@ class JardineritoAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.id} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -323,7 +323,7 @@ class JardineritoAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.id} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 

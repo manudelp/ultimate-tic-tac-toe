@@ -15,7 +15,7 @@ AB-Pruning Minimax? = True
 
 class MonkeyAgent:
     def __init__(self):
-        self.id = "Mono"
+        self.name = "Mono"
         self.icon = "🙈"
         self.moveNumber = 0
         # self.depth = 6
@@ -35,24 +35,24 @@ class MonkeyAgent:
         self.load_AlphaNumeric_boards(alpha_numeric_boards_path)
 
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            print(f"First Game, pointless Reset for {self.id}")
+            print(f"First Game, pointless Reset for {self.name}")
             return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
 
     def action(self, board, board_to_play=None):
         self.start_time = time.time()
-        print(f"{self.id} begins action, move number to play: {self.moveNumber}")
+        print(f"{self.name} begins action, move number to play: {self.moveNumber}")
 
         board = np.array(board, dtype=int)
         rows, cols, *_ = board.shape
@@ -111,7 +111,7 @@ class MonkeyAgent:
 
         self.moveNumber += 1
         minimax_time = time.time() - self.start_time
-        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was {board_to_play}" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was {board_to_play}" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return global_row, global_col, local_row, local_col

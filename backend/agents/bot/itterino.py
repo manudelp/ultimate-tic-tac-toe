@@ -15,7 +15,7 @@ AB-Pruning Minimax? = True
 
 class ItterinoAgent:
     def __init__(self):
-        self.id = "Mr. Itterino Deepsdale"
+        self.name = "Mr. Itterino Deepsdale"
         self.icon = "⛏️"
         self.transposition_table = {}
         self.moveNumber = 0
@@ -46,25 +46,25 @@ class ItterinoAgent:
         self.model_playable_boards_set = set() 
     
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
         self.transposition_table = {}
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            # print(f"First Game, pointless Reset for {self.id}")
+            # print(f"First Game, pointless Reset for {self.name}")
             return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.id} move number is {self.moveNumber})")
+        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.name} move number is {self.moveNumber})")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -94,7 +94,7 @@ class ItterinoAgent:
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
-                print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
                 self.minimax_plays += 1
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
@@ -114,11 +114,11 @@ class ItterinoAgent:
         if minimax_move is not None:
             r_l, c_l = minimax_move
         else:
-            raise ValueError(f"{self.id} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+            raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
          
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
-        print(Style.BRIGHT + Fore.CYAN + f"{self.id} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
@@ -176,7 +176,7 @@ class ItterinoAgent:
             # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
             this_depth_start = time.time()
             # time_tramites = time.time() - time_before_tramites
-            # print(f"El time que le tomo a {self.id} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
+            # print(f"El time que le tomo a {self.name} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
             try:
                 minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
             except TimeoutError:

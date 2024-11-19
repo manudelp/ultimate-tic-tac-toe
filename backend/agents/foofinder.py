@@ -34,7 +34,7 @@ If Local Board is Edge, Do Not Multiply
 class FooFinderAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
-        self.id = "Foo Finder"
+        self.name = "Foo Finder"
         self.icon = "👑"
         
         # Counts
@@ -93,7 +93,7 @@ class FooFinderAgent:
         self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
         
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
@@ -122,7 +122,7 @@ class FooFinderAgent:
 
         # Minimax Info
         average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.id} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.total_minimax_time = 0
         self.minimax_plays = 0
 
@@ -144,7 +144,7 @@ class FooFinderAgent:
 
         # Time Start
         self.start_time = time.time()
-        print(f"{self.id} action begins, move number is {self.moveNumber}")
+        print(f"{self.name} action begins, move number is {self.moveNumber}")
 
         # Smart-Board Transformations
         self.board_array = self.board.copy()

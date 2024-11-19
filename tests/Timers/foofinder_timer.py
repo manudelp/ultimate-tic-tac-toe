@@ -65,7 +65,7 @@ def boardToHash(board):
 class FooFinderAgent:
     def __init__(self):
         # Class Elements
-        self.id = "Foo Finder 👑"
+        self.name = "Foo Finder 👑"
         self.moveNumber = 0
         self.abortedTimes = 0
         self.foo_pieces = 0
@@ -113,7 +113,7 @@ class FooFinderAgent:
         self.hash_move_boards = {}
 
     def __str__(self):
-        return self.id
+        return self.name
 
     def action(self, board, board_to_play=None):
         '''

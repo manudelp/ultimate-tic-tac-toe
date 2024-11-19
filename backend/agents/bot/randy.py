@@ -30,12 +30,12 @@ def isWon(local_board):
 
 class RandomAgent:
     def __init__(self):
-        self.id = "Randy"
+        self.name = "Randy"
         self.icon = "🎲"
         self.moveNumber = 0
 
     def __str__(self):
-        self.str = f"{self.id}{self.icon}"
+        self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
@@ -44,7 +44,7 @@ class RandomAgent:
 
     def action(self, board, board_to_play=None):
         board = np.array(board, dtype=int)
-        # print(Style.BRIGHT + Fore.MAGENTA + f"{self.id} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
+        # print(Style.BRIGHT + Fore.MAGENTA + f"{self.name} move number is {self.moveNumber}, the board_to_play he got is {board_to_play},\nthe board he received is \n{board}" + Style.RESET_ALL)
 
         self.global_row, self.global_col = None, None
         

@@ -7,26 +7,23 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-depth = 6/5, plain alpha beta
+depth = 8/7, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
-Uses early_boardBalance with 2.42* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while moveNumber is below 10 and there's still empty local boards
 
 """
 
-class JardineritoAntiMidAgent:
+class AlterGardenerAgent:
     def __init__(self):
-        self.name = "Jardinerito AntiCenter"
-        self.icon = "🪴"
+        self.name = "Alter-Jardinero"
+        self.icon = "🌿"
         self.moveNumber = 0
-        self.depth_local = 7 # when btp is not None
-        self.depth_global = 6 # when btp is None
-        self.time_limit = 10 # in seconds
+        self.depth_local = 8 # when btp is not None
+        self.depth_global = 7 # when btp is None
+        self.time_limit = 12 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
-        self.empty_locals_bool = False
-        self.playing_early = False
         self.hash_over_boards = {}
         self.hash_eval_boards = {}
         self.hash_eval_glob_boards = {}
@@ -53,8 +50,6 @@ class JardineritoAntiMidAgent:
         return self.str
 
     def reset(self):
-        self.empty_locals_bool = False
-        self.playing_early = False
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.name}")
             return
@@ -73,7 +68,6 @@ class JardineritoAntiMidAgent:
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
         global_board_copy = super_board.copy()
-        self.empty_locals_bool = self.are_there_empty_locals(super_board)
 
         self.updateOverBoards(super_board)
         self.updatePlayableBoards(super_board)
@@ -81,24 +75,16 @@ class JardineritoAntiMidAgent:
         self.model_over_boards_set = self.over_boards_set.copy()
         self.model_playable_boards_set = self.playable_boards_set.copy()
 
-        if self.empty_locals_bool or self.moveNumber < 8:
-            self.playing_early = True
-        else:
-            self.playing_early = False
-
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"alterjardy, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
-        if self.playing_early:
-            print(Style.BRIGHT + Fore.YELLOW + f"{self.name} is playing with early board balance" + Style.RESET_ALL)
-
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"{self.name} is thinking with alpha beta... btp is None")
+            # print(f"alterjardy is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -110,7 +96,7 @@ class JardineritoAntiMidAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"{self.name} chose alpha beta move: {minimax_move}")
+                # print(f"alterjardy chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -119,7 +105,7 @@ class JardineritoAntiMidAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("alterjardy failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -127,7 +113,7 @@ class JardineritoAntiMidAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"{self.name} is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"alterjardy is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -159,15 +145,6 @@ class JardineritoAntiMidAgent:
         c, d = np.unravel_index(chosen_index, board.shape)
 
         return c, d
-
-    def are_there_empty_locals(self, board) -> bool:
-        ''' Returns True if there are empty local boards, False otherwise '''
-        for r in range(3):
-            for c in range(3):
-                local_board = board[r, c]
-                if np.count_nonzero(local_board) == 0:
-                    return True
-        return False
 
     def zeroWinnerCheck(self, board, player, board_to_play=None):
         ''' Checks the entire board to find an immediate winning move for the player 
@@ -230,13 +207,10 @@ class JardineritoAntiMidAgent:
             return winner * 100000, None
         else:
             if depth == 0:
-                if self.playing_early:
-                    return self.early_boardBalance(board), None
-                else:
-                    return self.boardBalance(board), None
+                return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"{self.name} found over board (drawn) in recursion!")
+                # print(f"alterjardy found over board (drawn) in recursion!")
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -319,7 +293,7 @@ class JardineritoAntiMidAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"alterjardy is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -345,7 +319,7 @@ class JardineritoAntiMidAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"alterjardy is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -389,28 +363,7 @@ class JardineritoAntiMidAgent:
                 if isEdge(r, c):
                     balance += local_balance
                 elif (r, c) == (1, 1):
-                    balance += 1.4 * local_balance
-                else:
-                    balance += 1.25 * local_balance
-
-        return round(balance, 4)
-
-    def early_boardBalance(self, board):
-        ''' Returns the heuristic value of the board 
-        For now it's a sum of the local board evaluations '''
-        rows, cols, *_ = board.shape
-        balance = 0
-
-        # Auxiliar For Now!
-        for r in range(rows):
-            for c in range(cols):
-                localBoard = board[r, c]
-                local_balance = self.get_local_eval(localBoard)
-                # Based on which board it is
-                if isEdge(r, c):
-                    balance += local_balance
-                elif (r, c) == (1, 1):
-                    balance += 2.42 * local_balance
+                    balance += 1.5 * local_balance
                 else:
                     balance += 1.25 * local_balance
 
@@ -918,5 +871,20 @@ def localBoardEval(localBoard):
 
     return score
 
+# agent = GardenerAgent()
 
+# board_test = np.zeros((3, 3, 3, 3), dtype=int)
+# balance_at_0 = agent.boardBalance(board_test)
 
+# board_test[1, 1][2, 2] = -1
+# balance_at_1 = agent.boardBalance(board_test)
+
+# # board_test[2, 2][1, 1] = 1
+# # balance_at_2 = agent.boardBalance(board_test)
+
+# board_test[2, 2][0, 2] = 1
+# balance_at_2 = agent.boardBalance(board_test)
+
+# print(f"Balance at 0: {balance_at_0}")
+# print(f"Balance at 1: {balance_at_1}")
+# print(f"Balance at 2: {balance_at_2}")
