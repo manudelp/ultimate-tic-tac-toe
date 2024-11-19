@@ -34,7 +34,7 @@ If Local Board is Edge, Do Not Multiply
 class FooFinderAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
-        self.id = 75
+        self.id = -1
         self.name = "Foo Finder"
         self.icon = "👑"
         
