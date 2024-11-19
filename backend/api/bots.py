@@ -17,6 +17,7 @@ from agents.bot.ordy import TidyPodatorAgent
 from agents.bot.twinny import TwinPrunerAgent
 from agents.bot.maxi import MaximilianoAgent
 from agents.bot.jarditonomid import JardineritoAntiMidAgent
+from agents.bot.jarditobetter import BetterJardineritoAgent
 from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
@@ -28,7 +29,9 @@ bot_routes = Blueprint('bots', __name__)
 # AGENT1 = JardineritoAgent()
 # AGENT1 = JardineritoAntiMidAgent()
 # AGENT1 = MonkeyAgent()
-AGENT1 = JardineritoAgent()
+# AGENT1 = JardineritoAgent()
+# AGENT1 = TaylorAgent()
+AGENT1 = BetterJardineritoAgent()
 # AGENT1 = StraightArrowAgent()
 # AGENT1 = FooFinderAgent()
 # AGENT1 = IteroldAgent()
@@ -40,8 +43,8 @@ AGENT1 = JardineritoAgent()
 # INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
 # AGENT2 = RandomAgent()
 # AGENT2 = GardenerAgent()
-# AGENT2 = JardineritoAgent()
-AGENT2 = JardineritoAntiMidAgent()
+AGENT2 = JardineritoAgent()
+# AGENT2 = JardineritoAntiMidAgent()
 # AGENT2 = MonkeyAgent()
 # AGENT2 = TaylorAgent()
 # AGENT2 = StraightArrowAgent()
@@ -51,6 +54,24 @@ AGENT2 = JardineritoAntiMidAgent()
 # AGENT2 = TidyPodatorAgent()
 # AGENT2 = TwinPrunerAgent()
 # AGENT2 = MaximilianoAgent()
+
+# IDs Dictionary, Agent:obj ; ID:int
+AGENTS = {
+    RandomAgent().id : RandomAgent(),
+    MonkeyAgent().id : MonkeyAgent(), 
+    GardenerAgent().id : GardenerAgent(), 
+    TaylorAgent().id : TaylorAgent(), 
+    JardineritoAgent().id : JardineritoAgent(), 
+    StraightArrowAgent().id : StraightArrowAgent(), 
+    IteroldAgent().id : IteroldAgent(), 
+    ItterinoAgent().id : ItterinoAgent(), 
+    TidyPodatorAgent().id : TidyPodatorAgent(), 
+    TwinPrunerAgent().id : TwinPrunerAgent(), 
+    MaximilianoAgent().id : MaximilianoAgent(), 
+    JardineritoAntiMidAgent().id : JardineritoAntiMidAgent(), 
+    BetterJardineritoAgent().id : BetterJardineritoAgent(), 
+    FooFinderAgent().id : FooFinderAgent()
+} 
 
 @bot_routes.route('/get-bot-names', methods=['GET'])
 def get_bot_names():
@@ -73,6 +94,10 @@ def get_bot_move():
         # print("\n\nJSON data received:", data)
 
         # Extract 'board' and 'activeMiniBoard' from the JSON data
+        id = data.get('id') 
+        # y decimo
+        nuestro_bot = AGENTS.get(id)
+        
         board = data.get('board')
         active_mini_board = data.get('activeMiniBoard')
         turn = data.get('turn')
@@ -113,10 +138,10 @@ def get_bot_move():
         
         # Get the move from the agent
         if turn == "O":
-            agent_id = str(AGENT1)
+            agent_name = str(AGENT1)
             move = AGENT1.action(board_array, active_mini_board)
         elif turn == "X":
-            agent_id = str(AGENT2)
+            agent_name = str(AGENT2)
             board_negative = -1 * board_array
             move = AGENT2.action(board_negative, active_mini_board)
         else:
@@ -133,10 +158,10 @@ def get_bot_move():
 
         # Convert the move to a tuple of integers
         move_response = (int(move[0]), int(move[1]), int(move[2]), int(move[3]))
-        print(f"\nMove calculated by {agent_id}:", move_response)  # Print the calculated move for debugging
+        print(f"\nMove calculated by {agent_name}:", move_response)  # Print the calculated move for debugging
 
         # Return the move and agent's id as a JSON response
-        return jsonify({'move': move_response, 'agent_id': agent_id})
+        return jsonify({'move': move_response, 'agent_name': agent_name})
     except Exception as e:
         print(f"\nError: {e}\n")
 
