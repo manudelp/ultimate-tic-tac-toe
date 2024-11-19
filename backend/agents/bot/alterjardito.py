@@ -145,7 +145,7 @@ class AlterJardineritoAgent:
         winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
         draw_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_boards.txt')
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
-        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        evaluated_boards_v2_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards_v2.txt')
         eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
         results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_board_eval.txt')
         winning_results_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_results_boards.txt')
@@ -155,7 +155,7 @@ class AlterJardineritoAgent:
         self.load_winning_boards(winning_boards_path)
         self.load_drawn_boards(draw_boards_path)
         self.load_over_boards(over_boards_path)
-        self.load_evaluated_boards(evaluated_boards_path)
+        self.load_evaluated_boards(evaluated_boards_v2_path)
         self.load_eval_glob_boards(eval_glob_path)
         self.load_results_board_eval(results_eval_path)
         self.load_winning_results_boards(winning_results_path)
@@ -383,7 +383,7 @@ class AlterJardineritoAgent:
         for r in range(rows):
             for c in range(cols):
                 localBoard = board[r, c]
-                local_balance = self.get_local_eval_v2(localBoard)
+                local_balance = self.get_eval_hash(localBoard)
                 # Based on which board it is
                 if isEdge(r, c):
                     balance += local_balance
