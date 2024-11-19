@@ -19,12 +19,13 @@ from bot.itervanbytes import IterVanBytesAgent
 from foofinder import FooFinderAgent
 from bot.jarditonomid import JardineritoAntiMidAgent
 from bot.jarditobetter import BetterJardineritoAgent
+from bot.alterjardito import AlterJardineritoAgent
 
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = GardenerAgent()    # Replace with your chosen agent
-AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
+AGENT1 = JardineritoAgent()    # Replace with your chosen agent
+AGENT2 = AlterJardineritoAgent()  # Replace with your chosen agent
 ROUNDS = 1
 GAMES = ROUNDS * 2
 
