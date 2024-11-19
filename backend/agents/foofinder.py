@@ -646,7 +646,7 @@ class FooFinderAgent:
 
     def countPlayablePieces(self, board):
         ''' Counts how many playable pieces there are in total in the playable local boards of the global board '''
-        # TODO! De mas esta decir, utilize the .get_isPlayable method for a model global results array
+        # TODO! De mas esta decir, utilize the .get_playable_hash method for a model global results array
 
     def countPieces(self, board, player):
         # TIMEIT ACCEPTED ☑️ not relevant enough to be time-improved, it's just called once per action
@@ -655,7 +655,7 @@ class FooFinderAgent:
         for row in range(3):
             for col in range(3):
                 subboard = board[row, col]
-                if self.get_isPlayable(subboard):
+                if self.get_playable_hash(subboard):
                     count += np.count_nonzero(subboard == player)
         return count
 
@@ -685,7 +685,7 @@ class FooFinderAgent:
         # TIMEIT APPROVED ✅
         ''' Returns whether or not the move is truly playable, meaning if the space is empty and the board is playable '''
         local_board = board[move_row, move_col]
-        return ((local_board[move_row_local, move_col_local] == 0) and (self.get_isPlayable(local_board)))
+        return ((local_board[move_row_local, move_col_local] == 0) and (self.get_playable_hash(local_board)))
 
     # Class Element Auxiliaries 🎬📦
     def updateWonBoards(self, board):
@@ -785,44 +785,44 @@ class FooFinderAgent:
 
     def updatePlayableBoards(self, board):
         # TIMEIT APPROVED ✅
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             self.playable_boards_set.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             self.playable_boards_set.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             self.playable_boards_set.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             self.playable_boards_set.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             self.playable_boards_set.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             self.playable_boards_set.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             self.playable_boards_set.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             self.playable_boards_set.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             self.playable_boards_set.add((2, 2))
 
     def updateModelPlayableBoards(self, board):
         # TIMEIT APPROVED ✅
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             self.model_playable_boards_set.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             self.model_playable_boards_set.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             self.model_playable_boards_set.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             self.model_playable_boards_set.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             self.model_playable_boards_set.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             self.model_playable_boards_set.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             self.model_playable_boards_set.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             self.model_playable_boards_set.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             self.model_playable_boards_set.add((2, 2))
 
     def updateGlobalResults(self, board):
@@ -994,9 +994,9 @@ class FooFinderAgent:
         board_key = board.tobytes()
         return self.hash_over_boards.get(board_key, False)
 
-    def get_isPlayable(self, board):
+    def get_playable_hash(self, board):
         # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_over_hash directly 
-        # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough to check tho)
+        # instead of calling get_playable_hash to call it as a mediator, dont know if its relevant enough to check tho)
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_over_hash(board)
 
@@ -1260,7 +1260,7 @@ board_1 = np.array([[1, 1, 1],
                     [0, 0, -1]])  # Player 1 wins on the top row
 a1 = agent.get_isWon(board_1)
 b1 = agent.get_over_hash(board_1)
-c1 = agent.get_isPlayable(board_1)
+c1 = agent.get_playable_hash(board_1)
 d1 = agent.get_eval(board_1)
 e1 = agent.get_isDraw(board_1)
 f1 = agent.get_winnableByOne(board_1)
@@ -1272,7 +1272,7 @@ board_2 = np.array([[1, -1, 1],
                     [1, 1, 0]])  # Not Won (winnable by 1 in (1, 0), (2, 2) and by -1 in (1, 0))
 a2 = agent.get_isWon(board_2)
 b2 = agent.get_over_hash(board_2)
-c2 = agent.get_isPlayable(board_2)
+c2 = agent.get_playable_hash(board_2)
 d2 = agent.get_eval(board_2)
 e2 = agent.get_isDraw(board_2)
 f2 = agent.get_winnableByOne(board_2)
@@ -1284,7 +1284,7 @@ board_3 = np.array([[1, -1, -1],
                     [1, 1, -1]])  # Draw
 a3 = agent.get_isWon(board_3)
 b3 = agent.get_over_hash(board_3)
-c3 = agent.get_isPlayable(board_3)
+c3 = agent.get_playable_hash(board_3)
 d3 = agent.get_eval(board_3)
 e3 = agent.get_isDraw(board_3)
 f3 = agent.get_winnableByOne(board_3)

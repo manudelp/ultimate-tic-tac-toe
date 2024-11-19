@@ -20,8 +20,8 @@ class JardineritoAgent:
         self.name = "Jaimito Jardinerito"
         self.icon = "☘️"
         self.moveNumber = 0
-        self.depth_local = 7 # when btp is not None
-        self.depth_global = 6 # when btp is None
+        self.depth_local = 6 # when btp is not None
+        self.depth_global = 5 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
@@ -421,9 +421,9 @@ class JardineritoAgent:
         board_key = board.tobytes()
         return self.hash_over_boards.get(board_key, False)
 
-    def get_isPlayable(self, board):
+    def get_playable_hash(self, board):
         # TIMEIT UNSURE 🤔 (yes it would be faster to just call not get_over_hash directly 
-        # instead of calling get_isPlayable to call it as a mediator, dont know if its relevant enough)
+        # instead of calling get_playable_hash to call it as a mediator, dont know if its relevant enough)
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_over_hash(board)
 
@@ -507,70 +507,70 @@ class JardineritoAgent:
             self.model_over_boards_set.add((2, 2))
 
     def updatePlayableBoards(self, board):
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             self.playable_boards_set.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             self.playable_boards_set.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             self.playable_boards_set.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             self.playable_boards_set.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             self.playable_boards_set.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             self.playable_boards_set.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             self.playable_boards_set.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             self.playable_boards_set.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             self.playable_boards_set.add((2, 2))
 
     def updateModelPlayableBoards(self, board):
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             self.model_playable_boards_set.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             self.model_playable_boards_set.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             self.model_playable_boards_set.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             self.model_playable_boards_set.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             self.model_playable_boards_set.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             self.model_playable_boards_set.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             self.model_playable_boards_set.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             self.model_playable_boards_set.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             self.model_playable_boards_set.add((2, 2))
 
     def isTrulyPlayable(self, board, move_row, move_col, move_row_local, move_col_local):
         ''' Returns whether or not the move is truly playable, meaning if the space is empty and the board is playable '''
         local_board = board[move_row, move_col]
-        return ((local_board[move_row_local, move_col_local] == 0) and (self.get_isPlayable(local_board)))
+        return ((local_board[move_row_local, move_col_local] == 0) and (self.get_playable_hash(local_board)))
 
     def genPlayableBoards(self, board):
         ''' Given the board, generates a set with all the local boards that are still playable '''
         playable_boards = set()
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             playable_boards.add((0, 0))
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             playable_boards.add((0, 1))
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             playable_boards.add((0, 2))
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             playable_boards.add((1, 0))
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             playable_boards.add((1, 1))
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             playable_boards.add((1, 2))
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             playable_boards.add((2, 0))
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             playable_boards.add((2, 1))
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             playable_boards.add((2, 2))
 
         return playable_boards
@@ -578,23 +578,23 @@ class JardineritoAgent:
     def countPlayableBoards(self, board):
         ''' Returns the number of playable local boards in the global board '''
         count = 0
-        if self.get_isPlayable(board[0, 0]):
+        if self.get_playable_hash(board[0, 0]):
             count += 1
-        if self.get_isPlayable(board[0, 1]):
+        if self.get_playable_hash(board[0, 1]):
             count += 1
-        if self.get_isPlayable(board[0, 2]):
+        if self.get_playable_hash(board[0, 2]):
             count += 1
-        if self.get_isPlayable(board[1, 0]):
+        if self.get_playable_hash(board[1, 0]):
             count += 1
-        if self.get_isPlayable(board[1, 1]):
+        if self.get_playable_hash(board[1, 1]):
             count += 1
-        if self.get_isPlayable(board[1, 2]):
+        if self.get_playable_hash(board[1, 2]):
             count += 1
-        if self.get_isPlayable(board[2, 0]):
+        if self.get_playable_hash(board[2, 0]):
             count += 1
-        if self.get_isPlayable(board[2, 1]):
+        if self.get_playable_hash(board[2, 1]):
             count += 1
-        if self.get_isPlayable(board[2, 2]):
+        if self.get_playable_hash(board[2, 2]):
             count += 1
 
         return count
