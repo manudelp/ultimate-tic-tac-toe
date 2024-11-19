@@ -17,6 +17,7 @@ Uses early_boardBalance with 2.42* MULTIPLIER FOR MIDDLE LOCAL BOARD EVAL, while
 
 class JardineritoAntiMidAgent:
     def __init__(self):
+        self.id = 9
         self.name = "Jardinerito AntiCenter"
         self.icon = "🪴"
         self.moveNumber = 0

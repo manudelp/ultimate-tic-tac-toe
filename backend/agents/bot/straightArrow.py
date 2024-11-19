@@ -12,6 +12,7 @@ Otherwise plays randy
 
 class StraightArrowAgent:
     def __init__(self):
+        self.id = 1
         self.name = "Straighty"
         self.icon = "🏹"
         self.moveNumber = 0

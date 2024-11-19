@@ -16,6 +16,7 @@ Order Moves? = False!
 
 class GardenTranspositorAgent:
     def __init__(self):
+        self.id = 11
         self.name = "Dr Garden Transpositor"
         self.icon = "🧺"
         self.transposition_table = {}

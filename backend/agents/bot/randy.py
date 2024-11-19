@@ -30,6 +30,7 @@ def isWon(local_board):
 
 class RandomAgent:
     def __init__(self):
+        self.id = 0
         self.name = "Randy"
         self.icon = "🎲"
         self.moveNumber = 0
