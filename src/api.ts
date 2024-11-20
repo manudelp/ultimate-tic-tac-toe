@@ -57,6 +57,7 @@ export const fetchBotNames = async (): Promise<BotNamesResponse> => {
 };
 
 export const getBotMove = async (
+  bot: number,
   board: number[][][][],
   activeMiniBoard: number[] | null,
   turn: string
@@ -64,6 +65,7 @@ export const getBotMove = async (
   const response = await axios.post<BotMoveResponse>(
     `${API_URL}/get-bot-move`,
     {
+      bot,
       board,
       activeMiniBoard,
       turn,

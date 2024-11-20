@@ -9,10 +9,7 @@ import {
 } from "../utils";
 
 const socket = io(
-  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online",
-  {
-    transports: ["websocket"],
-  }
+  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online"
   // "http://26.29.97.86:5000/online" // ONLINE
 );
 
@@ -211,6 +208,7 @@ export const useGame = (
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
 
       const coords: Coords = await getBotMove(
+        bot,
         numericBoard,
         activeMiniBoard,
         turn
