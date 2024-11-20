@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 CENTER_ONLY_BOARD = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
 CENTER_ONLY_ENEMY_BOARD = np.array([[0, 0, 0], [0, -1, 0], [0, 0, 0]])
@@ -718,6 +719,27 @@ def whoWon(subboard):
     
     return 0
 
+def positional_lead(board: np.ndarray) -> int:
+    ''' Returns the positional lead of the board, 3 for player 1, -3 for player -1, 0 if equal '''
+    None
+
+def positional_score(board: np.ndarray, result, positional_lead: int, normalizer=5, local_eval=None) -> float:
+    ''' Given the positonal lead, returns the positional score of the board '''
+    if result != 0:
+        return 0
+    
+    best_connection = get_best_connection(board)
+    raw_score = positional_lead * best_connection / normalizer
+    
+    if local_eval is not None:
+        local_eval_coefficient = (local_eval ** 2) / 200
+        score_processor = math.exp(local_eval_coefficient)
+    else:
+        score_processor = 1
+        
+    final_score = raw_score * score_processor
+    return final_score
+
 
 # Generators
 def generate_winning_boards(file_path):
@@ -988,6 +1010,10 @@ def generate_legal_boards(file_path):
     with open(file_path, 'w') as f:
         for board_key in legal_boards.keys():
             f.write(board_key.hex() + '\n')
+
+def generate_local_boards_info(file_path):
+    ''' Generates a list of all possible 3x3 boards and their respective relevant information 
+    Such information is (evaluation, result, positional_lead, positional_score)'''
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
