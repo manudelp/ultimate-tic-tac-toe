@@ -719,6 +719,12 @@ def whoWon(subboard):
     
     return 0
 
+def get_best_connection(board, player):
+    if player == 0:
+        player = 0
+        
+    None
+
 def positional_lead(board: np.ndarray) -> int:
     ''' Returns the positional lead of the board, 3 for player 1, -3 for player -1, 0 if equal '''
     None
@@ -727,6 +733,10 @@ def positional_score(board: np.ndarray, result, positional_lead: int, normalizer
     ''' Given the positonal lead, returns the positional score of the board '''
     if result != 0:
         return 0
+    
+    lead_player = positional_lead / 3
+    if lead_player != 1 and lead_player != -1 and lead_player != 0:
+        raise ValueError(f"Invalid positional_lead value: {positional_lead}")
     
     best_connection = get_best_connection(board)
     raw_score = positional_lead * best_connection / normalizer
