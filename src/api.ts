@@ -6,9 +6,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
 // const API_URL = "http://26.29.97.86:5000"; // ONLINE
 
 // Types
-interface BotNamesResponse {
-  agent1_name: string;
-  agent2_name: string;
+interface BotListResponse {
+  id: number;
+  name: string;
+  icon: string;
 }
 
 interface BotMoveResponse {
@@ -24,10 +25,6 @@ interface LoginResponse {
   name: string;
 }
 
-interface SendMoveResponse {
-  status: string;
-  message: string;
-}
 // Conection
 export const checkConnection = async (): Promise<boolean> => {
   try {
@@ -40,20 +37,11 @@ export const checkConnection = async (): Promise<boolean> => {
 };
 
 // Bots
-export const fetchBotNames = async (): Promise<BotNamesResponse> => {
-  try {
-    const response = await axios.get<{
-      agent1_name: string;
-      agent2_name: string;
-    }>(`${API_URL}/get-bot-names`);
-    return {
-      agent1_name: response.data.agent1_name,
-      agent2_name: response.data.agent2_name,
-    };
-  } catch (error) {
-    console.error("Error fetching bot names:", error);
-    throw error;
-  }
+export const getBots = async (): Promise<BotListResponse[]> => {
+  const response = await axios.get<BotListResponse[]>(
+    `${API_URL}/get-bot-list`
+  );
+  return response.data;
 };
 
 export const getBotMove = async (
@@ -74,61 +62,14 @@ export const getBotMove = async (
   return response.data.move;
 };
 
-export const agentsReset = async (): Promise<void> => {
-  await axios.post(`${API_URL}/agents-reset`);
-};
-
-// Online
-export const createLobby = async (
-  playerId: string,
-  userLetter: string,
-  onlineStarts: string
-) => {
-  try {
-    const response = await axios.post(`${API_URL}/create-lobby`, {
-      player_id: playerId,
-      user_letter: userLetter,
-      online_starts: onlineStarts,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error creating lobby:", error);
-    return null;
-  }
-};
-
-export const joinLobby = async (lobbyId: string, playerId: string) => {
-  try {
-    const response = await axios.post(`${API_URL}/join-lobby`, {
-      lobby_id: lobbyId,
-      player_id: playerId,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error joining lobby:", error);
-    return null;
-  }
-};
-
-export const sendMove = async (
-  lobbyId: string,
-  playerId: string,
-  move: [number, number, number, number]
-): Promise<SendMoveResponse> => {
-  try {
-    const response = await axios.post<SendMoveResponse>(
-      `${API_URL}/send-move`,
-      {
-        lobby_id: lobbyId,
-        player_id: playerId,
-        move,
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error sending move:", error);
-    throw error;
-  }
+export const agentsReset = async (
+  bot: BotListResponse,
+  bot2: BotListResponse
+): Promise<void> => {
+  await axios.post(`${API_URL}/agents-reset`, {
+    bot1: bot,
+    bot2: bot2,
+  });
 };
 
 // User Registration

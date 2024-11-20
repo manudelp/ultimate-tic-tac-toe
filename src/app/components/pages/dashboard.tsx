@@ -1,21 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { checkConnection, createLobby, joinLobby } from "@/api";
+import React, { useState, useEffect } from "react";
+import { checkConnection, getBots } from "@/api";
 import Board from "@/app/components/core/board";
-import PlayerX from "../ui/playerx";
-import PlayerO from "../ui/playero";
-import io from "socket.io-client";
 
-const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
-
-// const socket = io("http://26.29.97.86:5000"); // ONLINE
-
-socket.on("connect", () => {
-  console.log("Connected to the server");
-});
-
-socket.on("disconnect", () => {
-  console.log("Disconnected from the server");
-});
+// Types
+type BotListResponse = {
+  id: number;
+  name: string;
+  icon: string;
+};
 
 const Dashboard: React.FC = () => {
   // Core
@@ -28,21 +20,15 @@ const Dashboard: React.FC = () => {
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
 
   // Bots
-  const [bot, setBot] = useState<number | null>(null);
-
-  // Online
-  const [playerId, setPlayerId] = useState<string | null>(null);
-  const [lobbyId, setLobbyId] = useState<string | null>(null);
-  const [userLetter, setUserLetter] = useState<string | null>(null);
-  const [onlineStarts, setOnlineStarts] = useState<string | null>(null);
-  const [createdLobby, setCreatedLobby] = useState<boolean>(false);
+  const [bots, setBots] = useState<BotListResponse[] | null>(null);
+  const [bot, setBot] = useState<BotListResponse | null>(null);
+  const [bot2, setBot2] = useState<BotListResponse | null>(null);
 
   // Board visibility
   const isBoardVisible =
     gameMode &&
     (gameMode !== "player-vs-bot" || starts) &&
-    (gameMode !== "bot-vs-bot" || totalGames) &&
-    (gameMode !== "online" || (lobbyId && userLetter && onlineStarts));
+    (gameMode !== "bot-vs-bot" || totalGames);
 
   // Functions
   const selectMode = (mode: string) => {
@@ -61,50 +47,9 @@ const Dashboard: React.FC = () => {
     setResetBoard(true);
     setStarts(null);
     setTotalGames(null);
-    setLobbyId(null);
-    setUserLetter(null);
-    setOnlineStarts(null);
-    setCreatedLobby(false);
+    setBot(null);
+    setBot2(null);
   };
-
-  const handleCreateLobby = async (onlineStarts: string) => {
-    const playerId = "player-" + Math.random().toString(36).substring(2, 12);
-    setPlayerId(playerId);
-    if (playerId && userLetter) {
-      const response = await createLobby(playerId, userLetter, onlineStarts);
-      if (response) {
-        setLobbyId(response.lobby_id);
-        setOnlineStarts(onlineStarts);
-        socket.emit("join", {
-          lobby_id: response.lobby_id,
-          player_id: playerId,
-          user_letter: userLetter,
-          online_starts: starts,
-        });
-        console.log("Lobby created:", response.lobby_id);
-      } else {
-        alert("Failed to create lobby. Please try again.");
-      }
-    } else {
-      alert("Player ID or user letter is not set. Please try again.");
-    }
-  };
-
-  const handleJoinLobby = useCallback(async (lobbyId: string) => {
-    const playerId = "player-" + Math.random().toString(36).substring(2, 12);
-    const response = await joinLobby(lobbyId, playerId);
-    if (response.status === "joined") {
-      setLobbyId(lobbyId);
-      setGameMode("online");
-      socket.emit("join", {
-        lobby_id: lobbyId,
-        player_id: playerId,
-      });
-      console.log("Joined lobby:", lobbyId);
-    } else {
-      alert(response.message);
-    }
-  }, []);
 
   useEffect(() => {
     const checkBackendConnection = async () => {
@@ -114,17 +59,13 @@ const Dashboard: React.FC = () => {
     };
 
     checkBackendConnection();
-
-    socket.on("game-started", (data) => {
-      setUserLetter(data.user_letter);
-      setOnlineStarts(data.online_starts);
-      setLobbyId(data.lobby_id);
-    });
-
-    return () => {
-      socket.off("game-started");
-    };
   }, []);
+
+  useEffect(() => {
+    if (gameMode === "player-vs-bot" && !bots) {
+      getBots().then((bots) => setBots(bots));
+    }
+  }, [gameMode, bots]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 text-white">
@@ -174,15 +115,33 @@ const Dashboard: React.FC = () => {
                       : "bg-gray-500 opacity-70 cursor-not-allowed"
                   }`}
                   onClick={() => isBackendConnected && selectMode("online")}
-                  disabled={!isBackendConnected}
+                  disabled={true}
                 >
                   Online
                 </button>
               </div>
             )}
 
+            {/* Choose Bot */}
+            {gameMode === "player-vs-bot" && !bot && (
+              <div className="mt-12 text-center">
+                <h2 className="text-2xl font-semibold mb-4">Choose Your Bot</h2>
+                <div>
+                  {bots?.map((bot) => (
+                    <button
+                      key={bot.id}
+                      className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      onClick={() => setBot(bot)}
+                    >
+                      {bot.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Who Starts */}
-            {gameMode === "player-vs-bot" && !starts && (
+            {gameMode === "player-vs-bot" && bot && !starts && (
               <div className="mt-12 text-center">
                 <h2 className="text-2xl font-semibold mb-4">Who Starts?</h2>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -208,8 +167,48 @@ const Dashboard: React.FC = () => {
               </div>
             )}
 
+            {/* Bots selection */}
+            {gameMode === "bot-vs-bot" && (
+              <div className="mt-12 text-center">
+                <h2 className="text-2xl font-semibold mb-4">
+                  Choose Your Bots
+                </h2>
+                <div>
+                  {bots?.map((bot) => (
+                    <button
+                      key={bot.id}
+                      className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      onClick={() => setBot(bot)}
+                    >
+                      {bot.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Choose Bot 2 */}
+            {gameMode === "bot-vs-bot" && bot && !bot2 && (
+              <div className="mt-12 text-center">
+                <h2 className="text-2xl font-semibold mb-4">
+                  Choose Your Bot 2
+                </h2>
+                <div>
+                  {bots?.map((bot) => (
+                    <button
+                      key={bot.id}
+                      className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      onClick={() => setBot2(bot)}
+                    >
+                      {bot.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Number of Games */}
-            {gameMode === "bot-vs-bot" && !totalGames && (
+            {gameMode === "bot-vs-bot" && bot && bot2 && !totalGames && (
               <div className="mt-12 text-center">
                 <h2 className="text-2xl font-semibold mb-4">Number of Games</h2>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -267,90 +266,6 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Online Mode */}
-            {gameMode === "online" && !createdLobby && (
-              <>
-                <button
-                  className="sm:w-64 py-4 text-lg bg-red-500 hover:bg-red-400 transition-colors"
-                  onClick={handleExitGame}
-                >
-                  Go Back
-                </button>
-                <button
-                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
-                    isBackendConnected
-                      ? "bg-gray-800 hover:bg-gray-700"
-                      : "bg-gray-500 opacity-70 cursor-not-allowed"
-                  }`}
-                  onClick={() => setCreatedLobby(true)}
-                  disabled={!isBackendConnected}
-                >
-                  Create Game
-                </button>
-                <button
-                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
-                    isBackendConnected
-                      ? "bg-gray-800 hover:bg-gray-700"
-                      : "bg-gray-500 opacity-70 cursor-not-allowed"
-                  }`}
-                  onClick={() => {
-                    const lobbyId = prompt("Enter Lobby ID:");
-                    if (lobbyId) handleJoinLobby(lobbyId);
-                  }}
-                  disabled={!isBackendConnected}
-                >
-                  Join Game
-                </button>
-              </>
-            )}
-
-            {/* Choose Letter */}
-            {gameMode === "online" && createdLobby && !userLetter && (
-              <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Choose Your Letter
-                </h2>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <button
-                    className="w-24 px-6 py-3 bg-blue-500 hover:bg-blue-400 transition-colors"
-                    onClick={() => setUserLetter("X")}
-                  >
-                    <PlayerX theme="dark" />
-                  </button>
-                  <button
-                    className="w-24 px-6 py-3 bg-green-500 hover:bg-green-400 transition-colors"
-                    onClick={() => setUserLetter("O")}
-                  >
-                    <PlayerO theme="dark" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Who Starts (Online) */}
-            {gameMode === "online" && userLetter && !onlineStarts && (
-              <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">Who Starts?</h2>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  {["X", "O"].map((letter) => (
-                    <button
-                      key={letter}
-                      className={`px-6 py-3 ${
-                        letter === "X"
-                          ? "bg-blue-500 hover:bg-blue-400"
-                          : "bg-green-500 hover:bg-green-400"
-                      } transition-colors`}
-                      onClick={() => {
-                        handleCreateLobby(letter);
-                      }}
-                    >
-                      {userLetter === letter ? "You" : "Opponent"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -359,12 +274,10 @@ const Dashboard: React.FC = () => {
       {isBoardVisible && (
         <Board
           gameMode={gameMode}
+          bot={bot}
+          bot2={bot2}
           starts={starts}
           totalGames={totalGames}
-          lobbyId={lobbyId}
-          playerId={playerId}
-          userLetter={userLetter}
-          onlineStarts={onlineStarts}
           resetBoard={resetBoard}
           onReset={handleBoardReset}
           onExit={handleExitGame}
