@@ -567,11 +567,10 @@ class TwinPrunerAgent:
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, heuristic_value = line.strip().split(':')
-                    if heuristic_value == "Draw":
-                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
-                    else:
-                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result = board_info_tuple
+                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
