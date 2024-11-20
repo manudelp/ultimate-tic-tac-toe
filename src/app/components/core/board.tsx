@@ -296,19 +296,15 @@ const Board: React.FC<BoardProps> = ({
       {/* GAME INFO */}
       <div className="flex items-center justify-between">
         {/* MATCH INFO - PLAYER VS BOT */}
-        {gameMode === "player-vs-bot" && starts && !gameOver && (
+        {gameMode === "player-vs-bot" && starts && !gameOver && !lastMove && (
           <>
             <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
 
             <div>
-              Playing against {window.innerWidth > 768 ? bot?.name : bot?.icon}
+              Playing against{" "}
+              {window.innerWidth > 768 ? bot?.icon + bot?.name : bot?.icon}
             </div>
           </>
-        )}
-
-        {/* IS BOT THINKING */}
-        {gameMode === "player-vs-bot" && isBotThinking && (
-          <div>{bot?.name} is thinking...</div>
         )}
 
         {/* MATCH INFO - BOT VS BOT */}
@@ -370,7 +366,7 @@ const Board: React.FC<BoardProps> = ({
             {gameMode === "bot-vs-bot" && (
               <h2>
                 {gameWinner === "X"
-                  ? "The other bot wins! (X)"
+                  ? bot2.name + "wins! (X)"
                   : gameWinner === "O"
                   ? bot?.name + " wins! (O)"
                   : "Draw!"}

@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (gameMode === "player-vs-bot" && !bots) {
+    if ((gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") && !bots) {
       getBots().then((bots) => setBots(bots));
     }
   }, [gameMode, bots]);
@@ -73,7 +73,17 @@ const Dashboard: React.FC = () => {
         {!isBoardVisible && (
           <>
             {/* Title */}
-            <h1 className="text-4xl font-bold mb-8">Choose Your Game Mode</h1>
+            {!gameMode && (
+              <h1 className="text-4xl font-bold mb-8">Choose Your Game Mode</h1>
+            )}
+
+            {gameMode && (
+              <h1 className="text-4xl font-bold mb-8">
+                {gameMode === "player-vs-bot"
+                  ? "Play vs Computer"
+                  : "Simmulate game"}
+              </h1>
+            )}
 
             {/* Choose Game Mode */}
             {gameMode === null && (
@@ -114,17 +124,24 @@ const Dashboard: React.FC = () => {
             {/* Choose Bot */}
             {gameMode === "player-vs-bot" && !bot && (
               <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">Choose Your Bot</h2>
-                <div>
-                  {bots?.map((bot) => (
-                    <button
-                      key={bot.id}
-                      className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors"
-                      onClick={() => setBot(bot)}
-                    >
-                      {bot.name}
-                    </button>
-                  ))}
+                <h2 className="text-2xl font-semibold mb-4">
+                  Choose Your Opponent
+                </h2>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {bots?.map((bot) =>
+                    bot?.id === -1 ? null : ( // TODO: Foo aint playin yet
+                      <button
+                        key={bot.id}
+                        className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                        onClick={() => setBot(bot)}
+                      >
+                        <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                          {bot.icon}
+                        </div>
+                        <p className="w-full">{bot.name}</p>
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             )}
@@ -157,19 +174,22 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* Bots selection */}
-            {gameMode === "bot-vs-bot" && (
+            {gameMode === "bot-vs-bot" && !bot && (
               <div className="mt-12 text-center">
                 <h2 className="text-2xl font-semibold mb-4">
-                  Choose Your Bots
+                  Select first agent
                 </h2>
-                <div>
+                <div className="flex flex-wrap justify-center gap-4">
                   {bots?.map((bot) => (
                     <button
                       key={bot.id}
-                      className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
                       onClick={() => setBot(bot)}
                     >
-                      {bot.name}
+                      <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                        {bot.icon}
+                      </div>
+                      <p className="w-full">{bot.name}</p>
                     </button>
                   ))}
                 </div>
@@ -180,16 +200,19 @@ const Dashboard: React.FC = () => {
             {gameMode === "bot-vs-bot" && bot && !bot2 && (
               <div className="mt-12 text-center">
                 <h2 className="text-2xl font-semibold mb-4">
-                  Choose Your Bot 2
+                  Select second agent
                 </h2>
-                <div>
+                <div className="flex flex-wrap justify-center gap-4">
                   {bots?.map((bot) => (
                     <button
                       key={bot.id}
-                      className="w-64 py-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
                       onClick={() => setBot2(bot)}
                     >
-                      {bot.name}
+                      <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                        {bot.icon}
+                      </div>
+                      <p className="w-full">{bot.name}</p>
                     </button>
                   ))}
                 </div>
