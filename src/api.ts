@@ -3,7 +3,6 @@ import axios from "axios";
 // src/api.ts
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
-// const API_URL = "http://26.29.97.86:5000"; // ONLINE
 
 // Types
 interface BotListResponse {
@@ -62,13 +61,9 @@ export const getBotMove = async (
   return response.data.move;
 };
 
-export const agentsReset = async (
-  bot: BotListResponse,
-  bot2: BotListResponse
-): Promise<void> => {
+export const agentsReset = async (bot: BotListResponse): Promise<void> => {
   await axios.post(`${API_URL}/agents-reset`, {
     bot1: bot,
-    bot2: bot2,
   });
 };
 

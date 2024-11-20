@@ -49,7 +49,7 @@ export const useGame = (
   const [gameWinner, setGameWinner] = useState<Winner | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
-  const [moveNumber, setMoveNumber] = useState(0); // New state variable for move number
+  const [moveNumber, setMoveNumber] = useState(0);
 
   // Mini-board information
   const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
@@ -190,6 +190,15 @@ export const useGame = (
 
   const handleBotMove = useCallback(async () => {
     try {
+      const startTime = performance.now();
+      let interval: NodeJS.Timeout;
+
+      // eslint-disable-next-line prefer-const
+      interval = setInterval(() => {
+        const elapsedTime = (performance.now() - startTime) / 1000;
+        setTimeToMove(elapsedTime);
+      }, 10);
+
       setIsBotThinking(true);
 
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
@@ -204,6 +213,8 @@ export const useGame = (
       makeMove(coords);
 
       setIsBotThinking(false);
+
+      clearInterval(interval);
     } catch (error) {
       setIsBotThinking(true);
       console.error("Error fetching bot's move:", error);
@@ -258,7 +269,7 @@ export const useGame = (
   useEffect(() => {
     if (!turnsInverted && starts === "bot" && turn === "X") {
       invertTurns();
-      agentsReset(bot, bot2);
+      agentsReset(bot);
     }
 
     if (gameMode === "player-vs-bot" && turn === "O" && !gameOver) {
@@ -273,7 +284,6 @@ export const useGame = (
     handleBotMove,
     invertTurns,
     bot,
-    bot2,
   ]);
 
   // Bot-vs-Bot
@@ -288,20 +298,13 @@ export const useGame = (
     ) {
       if (!turnsInverted) {
         invertTurns();
-        agentsReset(bot, bot2);
+        agentsReset(bot);
         setAgentIdTurn(() => {
           return turn === "X" ? "O" : "X";
         });
       } else {
-        const startTime = Date.now();
-        const intervalId = setInterval(() => {
-          setTimeToMove((Date.now() - startTime) / 1000);
-        }, TIMEOUT);
-
         setTimeout(async () => {
           await handleBotMove();
-          clearInterval(intervalId);
-          setTimeToMove((Date.now() - startTime) / 1000);
         }, TIMEOUT);
       }
     }
@@ -324,12 +327,12 @@ export const useGame = (
   // Update playedGamesWinners whenever game ends
   useEffect(() => {
     if (gameOver && playedGames < totalGames) {
-      agentsReset(bot, bot2);
+      agentsReset(bot);
       setPlayedGamesWinners((prev) => [...prev, gameWinner || "Draw"]);
       setPlayedGames((prev) => prev + 1);
       startAgain();
     }
-  }, [gameOver, gameWinner, playedGames, totalGames, startAgain, bot, bot2]);
+  }, [gameOver, gameWinner, playedGames, totalGames, startAgain, bot]);
 
   // Set win percentages whenever playedGamesWinners updates
   useEffect(() => {

@@ -182,29 +182,38 @@ const Board: React.FC<BoardProps> = ({
               Bot vs Bot
             </h2>
           )}
-          {gameMode === "online" && (
-            <h2 className="bg-yellow-500 px-2 rounded-full text-sm uppercase">
-              Online
-            </h2>
-          )}
         </div>
         <div className="flex gap-2">
-          {gameMode === "bot-vs-bot" && (
-            <div title="Bot's move time">{timeToMove.toFixed(2)}s</div>
+          {isBotThinking && (
+            <div
+              title="Bot's move time"
+              style={{
+                color:
+                  timeToMove >= 10
+                    ? "red"
+                    : timeToMove >= 5
+                    ? "yellow"
+                    : "inherit",
+              }}
+            >
+              {timeToMove.toFixed(2)}s
+            </div>
           )}
           <div
             title="Player"
-            className="truncate sm:w-[150px] text-end overflow-hidden"
+            className="truncate sm:max-w-[150px] text-end overflow-hidden"
           >
             {gameMode === "player-vs-player" && "Player"}
             {window.innerWidth > 780
               ? gameMode === "player-vs-bot" &&
-                (turn === "X" ? "You" : bot?.name)
+                (turn === "X" ? "You" : bot?.icon + bot?.name)
               : gameMode === "player-vs-bot" &&
                 (turn === "X" ? "You" : bot?.icon)}
             {window.innerWidth > 780
               ? gameMode === "bot-vs-bot" &&
-                (turn === agentIdTurn ? bot?.name : bot2?.name)
+                (turn === agentIdTurn
+                  ? bot?.icon + bot?.name
+                  : bot2?.icon + bot2?.name)
               : gameMode === "bot-vs-bot" &&
                 (turn === agentIdTurn ? bot?.icon : bot2?.icon)}
           </div>

@@ -59,8 +59,12 @@ def get_bot_move():
         # print("\n\nJSON data received:", data)
 
         # Extract 'board' and 'activeMiniBoard' from the JSON data
-        id = data.get('id') 
+        id = data.get('bot') 
         bot = AGENTS.get(id)
+        
+        if bot is None:
+            print(f"Invalid bot id: {id}")  # Print error message for debugging
+            return jsonify({'error': 'Invalid bot id'}), 400  # Return error response
         
         board = data.get('board')
         active_mini_board = data.get('activeMiniBoard')
@@ -117,14 +121,13 @@ def get_bot_move():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @bot_routes.route('/agents-reset', methods=['POST'])
-def agents_reset(bot, bot2):
+def agents_reset(bot):
     try:
         # Reset the agents
         bot.reset()
-        bot2.reset()
 
         # Return a success response
-        return jsonify({'message': 'Agents reset successfully'})
+        return jsonify({'message': 'Agent reset successfully'})
     except Exception as e:
         print(f"\nError: {e}\n")
 

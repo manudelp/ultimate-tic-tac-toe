@@ -108,17 +108,6 @@ const Dashboard: React.FC = () => {
                 >
                   Bot vs Bot
                 </button>
-                <button
-                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
-                    isBackendConnected
-                      ? "bg-gray-800 hover:bg-gray-700"
-                      : "bg-gray-500 opacity-70 cursor-not-allowed"
-                  }`}
-                  onClick={() => isBackendConnected && selectMode("online")}
-                  disabled={true}
-                >
-                  Online
-                </button>
               </div>
             )}
 
