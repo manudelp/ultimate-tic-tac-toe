@@ -725,11 +725,11 @@ def get_best_connection(board, player):
         
     None
 
-def positional_lead(board: np.ndarray) -> int:
+def get_positional_lead(board: np.ndarray) -> int:
     ''' Returns the positional lead of the board, 3 for player 1, -3 for player -1, 0 if equal '''
     None
 
-def positional_score(board: np.ndarray, result, positional_lead: int, normalizer=5, local_eval=None) -> float:
+def get_positional_score(board: np.ndarray, result, positional_lead: int, normalizer=5, local_eval=None) -> float:
     ''' Given the positonal lead, returns the positional score of the board '''
     if result != 0:
         return 0
@@ -870,9 +870,13 @@ def generate_local_boards_info(file_path):
     for state in range(3**9):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
+
         heuristic_value = globalLocalEval(board)
         result = 2 if isDraw(board) else int(whoWon(board))
-        evaluated_boards[board_key] = (heuristic_value, result)
+        positional_lead = get_positional_lead(board)
+        positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead)
+
+        evaluated_boards[board_key] = (heuristic_value, result, positional_lead, positional_score)
 
     with open(file_path, 'w') as f:
         for board_key, board_information in evaluated_boards.items():
@@ -1031,7 +1035,7 @@ def generate_local_boards_info(file_path):
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
 # generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-# generate_eval_boards_glob('backend/agents/hashes/hash_boards_information.txt')
+generate_local_boards_info('backend/agents/hashes/hash_boards_information.txt')
 # generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
