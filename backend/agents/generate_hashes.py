@@ -918,28 +918,6 @@ def generate_eval_boards_v3(file_path):
         for board_key, heuristic_value in evaluated_boards.items():
             f.write(f"{board_key.hex()}:{heuristic_value}\n")
 
-def generate_local_boards_info(file_path):
-    """
-    Generate all possible 3x3 Tic-Tac-Toe board states, evaluate them with localBoardEval,
-    and save them to evaluated_boards.txt in the format: hex representation of the board : heuristic value.
-    """
-    evaluated_boards = {}
-
-    for state in range(3**9):
-        board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
-        board_key = board.tobytes()
-
-        heuristic_value = globalLocalEval(board)
-        result = 2 if isDraw(board) else int(whoWon(board))
-        positional_lead = get_positional_lead(board=board, heuristic_value=heuristic_value)
-        positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead)
-
-        evaluated_boards[board_key] = (heuristic_value, result, positional_lead, positional_score)
-
-    with open(file_path, 'w') as f:
-        for board_key, board_information in evaluated_boards.items():
-            f.write(f"{board_key.hex()}:{board_information}\n")
-
 def generate_results_board_eval(file_path):
     """
     Generate all possible 3x3 Tic-Tac-Toe board states (with values 1, -1, 0, 2), 
@@ -1086,6 +1064,22 @@ def generate_legal_boards(file_path):
 def generate_local_boards_info(file_path):
     ''' Generates a list of all possible 3x3 boards and their respective relevant information 
     Such information is (evaluation, result, positional_lead, positional_score)'''
+    evaluated_boards = {}
+
+    for state in range(3**9):
+        board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
+        board_key = board.tobytes()
+
+        heuristic_value = globalLocalEval(board)
+        result = 2 if isDraw(board) else int(whoWon(board))
+        positional_lead = get_positional_lead(board=board, heuristic_value=heuristic_value)
+        positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead)
+
+        evaluated_boards[board_key] = (heuristic_value, result, positional_lead, positional_score)
+
+    with open(file_path, 'w') as f:
+        for board_key, board_information in evaluated_boards.items():
+            f.write(f"{board_key.hex()}:{board_information}\n")
 
 # Run
 # generate_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
