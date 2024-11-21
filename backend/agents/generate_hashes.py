@@ -756,7 +756,13 @@ def get_best_connection(board, player):
     main_diag = get_best_line(main_diagonal, player)
     anti_diag = get_best_line(anti_diagonal, player)
 
-    None
+    best_connection = max(row1, row2, row3, col1, col2, col3, main_diag, anti_diag)
+
+    if best_connection == 1:
+        return SINGLE_COEF
+    
+    if best_connection == 2:
+        return DOUBLE_COEF
 
 def best_connection_coefficient(board, player):
     if player == 0:
@@ -770,9 +776,17 @@ def best_connection_coefficient(board, player):
     
     return best_connection_player
 
-def get_positional_lead(board: np.ndarray) -> int:
-    ''' Returns the positional lead of the board, 3 for player 1, -3 for player -1, 0 if equal '''
-    None
+def get_positional_lead(board: np.ndarray, heuristic_value: float) -> int:
+    ''' Returns the positional lead of the board, 3 for player 1, -3 for player2, 0 if equal 
+    If heuristic is positive, lead is player1, if negative, lead is player2. Otherwise, lead is 0'''
+    if heuristic_value == 0:
+        return 0
+    elif heuristic_value > 0:
+        return 3
+    elif heuristic_value < 0:
+        return -3
+    else:
+        raise ValueError(f"Invalid heuristic value: {heuristic_value}")
 
 def get_positional_score(board: np.ndarray, result, positional_lead: int, normalizer=5, local_eval=None) -> float:
     ''' Given the positonal lead, returns the positional score of the board '''
@@ -918,7 +932,7 @@ def generate_local_boards_info(file_path):
 
         heuristic_value = globalLocalEval(board)
         result = 2 if isDraw(board) else int(whoWon(board))
-        positional_lead = get_positional_lead(board)
+        positional_lead = get_positional_lead(board=board, heuristic_value=heuristic_value)
         positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead)
 
         evaluated_boards[board_key] = (heuristic_value, result, positional_lead, positional_score)
