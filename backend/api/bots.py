@@ -23,39 +23,6 @@ from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
 
-# Initialize agents
-# INITIALIZE THE FIRST AGENT. WILL PLAY 1VPLAYER, AND PLAY FIRST AGAINST BOTS
-# AGENT1 = RandomAgent()
-# AGENT1 = GardenerAgent()
-# AGENT1 = JardineritoAgent()
-# AGENT1 = JardineritoAntiMidAgent()
-# AGENT1 = MonkeyAgent()
-# AGENT1 = JardineritoAgent()
-# AGENT1 = TaylorAgent()
-AGENT1 = BetterJardineritoAgent()
-# AGENT1 = StraightArrowAgent()
-# AGENT1 = FooFinderAgent()
-# AGENT1 = IteroldAgent()
-# AGENT1 = ItterinoAgent()
-# AGENT1 = TidyPodatorAgent()
-# AGENT1 = TwinPrunerAgent()
-# AGENT1 = MaximilianoAgent()
-
-# INITIALIZE THE SECOND AGENT. WILL PLAY SECOND AGAINST BOTS
-# AGENT2 = RandomAgent()
-# AGENT2 = GardenerAgent()
-AGENT2 = JardineritoAgent()
-# AGENT2 = JardineritoAntiMidAgent()
-# AGENT2 = MonkeyAgent()
-# AGENT2 = TaylorAgent()
-# AGENT2 = StraightArrowAgent()
-# AGENT2 = FooFinderAgent()
-# AGENT2 = IteroldAgent()
-# AGENT2 = ItterinoAgent()
-# AGENT2 = TidyPodatorAgent()
-# AGENT2 = TwinPrunerAgent()
-# AGENT2 = MaximilianoAgent()
-
 # IDs Dictionary, Agent:obj ; ID:int
 AGENTS = {
     RandomAgent().id : RandomAgent(),
@@ -74,15 +41,12 @@ AGENTS = {
     FooFinderAgent().id : FooFinderAgent()
 }
 
-@bot_routes.route('/get-bot-names', methods=['GET'])
-def get_bot_names():
-    try:
-        agent1_name = str(AGENT1)
-        agent2_name = str(AGENT2)
-        return jsonify({'agent1_name': agent1_name, 'agent2_name': agent2_name})
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'error': 'Internal Server Error'}), 500
+@bot_routes.route('/get-bot-list', methods=['GET'])
+def get_bot_list():
+    # Extract id, name and icon from each agent
+    bot_list = [{'id': agent.id, 'name': agent.name, 'icon': agent.icon} for agent in AGENTS.values()]
+    return jsonify(bot_list)
+    
 
 @bot_routes.route('/get-bot-move', methods=['POST'])
 def get_bot_move():
@@ -95,9 +59,12 @@ def get_bot_move():
         # print("\n\nJSON data received:", data)
 
         # Extract 'board' and 'activeMiniBoard' from the JSON data
-        id = data.get('id') 
-        # y decimo
-        nuestro_bot = AGENTS.get(id)
+        id = data.get('bot') 
+        bot = AGENTS.get(id)
+        
+        if bot is None:
+            print(f"Invalid bot id: {id}")  # Print error message for debugging
+            return jsonify({'error': 'Invalid bot id'}), 400  # Return error response
         
         board = data.get('board')
         active_mini_board = data.get('activeMiniBoard')
@@ -116,14 +83,6 @@ def get_bot_move():
         else:
             board_to_play = None
 
-        # for debug
-        if turn == "O":
-            agent_turn = str(AGENT1)
-        elif turn == "X":
-            agent_turn = str(AGENT2)
-        else:
-            raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
-
         # # # DEBUG BEFORE MOVE (UNCOMMENT ME)
         # print(f"It will be turn {turn} for the bot, meaning turn for {agent_turn}")
         # print(f"Their received board to play in is {active_mini_board}, which looks like this currently:\n{board_to_play}")  # Print the turn for debugging
@@ -138,15 +97,7 @@ def get_bot_move():
             return jsonify({'error': 'Game Over'}), 400
         
         # Get the move from the agent
-        if turn == "O":
-            agent_name = str(AGENT1)
-            move = AGENT1.action(board_array, active_mini_board)
-        elif turn == "X":
-            agent_name = str(AGENT2)
-            board_negative = -1 * board_array
-            move = AGENT2.action(board_negative, active_mini_board)
-        else:
-            raise ValueError(f"TURN IS NEITHER 'X' NOR 'O'!")
+        move = bot.action(board_array, active_mini_board)
 
         # # # DEBUG AFTER MOVE (UNCOMMENT ME)
         # board_copy = board_array.copy()
@@ -159,10 +110,10 @@ def get_bot_move():
 
         # Convert the move to a tuple of integers
         move_response = (int(move[0]), int(move[1]), int(move[2]), int(move[3]))
-        print(f"\nMove calculated by {agent_name}:", move_response)  # Print the calculated move for debugging
+        print(f"\nMove calculated by {bot.name}:", move_response)  # Print the calculated move for debugging
 
         # Return the move and agent's id as a JSON response
-        return jsonify({'move': move_response, 'agent_name': agent_name})
+        return jsonify({'move': move_response, 'bot_name': bot.name})
     except Exception as e:
         print(f"\nError: {e}\n")
 
@@ -170,14 +121,13 @@ def get_bot_move():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @bot_routes.route('/agents-reset', methods=['POST'])
-def agents_reset():
+def agents_reset(bot):
     try:
         # Reset the agents
-        AGENT1.reset()
-        AGENT2.reset()
+        bot.reset()
 
         # Return a success response
-        return jsonify({'message': 'Agents reset successfully'})
+        return jsonify({'message': 'Agent reset successfully'})
     except Exception as e:
         print(f"\nError: {e}\n")
 

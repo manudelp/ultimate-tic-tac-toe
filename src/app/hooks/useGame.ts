@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import io from "socket.io-client";
-import { fetchBotNames, getBotMove, agentsReset } from "@/api";
+import { getBotMove, agentsReset } from "@/api";
 import {
   MiniBoardWinner,
   GameWinner,
@@ -8,18 +7,17 @@ import {
   checkBotWinner,
 } from "../utils";
 
-const socket = io(
-  process.env.NEXT_PUBLIC_API_URL + "/online" || "http://localhost:5000/online"
-  // "http://26.29.97.86:5000/online" // ONLINE
-);
+interface BotListResponse {
+  id: number;
+  name: string;
+  icon: string;
+}
 
 export const useGame = (
   gameMode: string,
+  bot: BotListResponse,
+  bot2: BotListResponse,
   starts: string,
-  lobbyId: string | null,
-  playerId: string | null,
-  userLetter: string | null,
-  onlineStarts: string | null,
   totalGames: number,
   resetBoard: boolean
 ) => {
@@ -31,7 +29,6 @@ export const useGame = (
   type Coords = [number, number, number, number];
   type WinningLine = { type: string; index: number };
   type ActiveMiniBoard = [number, number] | null;
-  type AgentId = string | null;
   type AgentIdTurn = "X" | "O" | null;
   type PlayedGamesWinners = ("X" | "O" | "Draw")[];
   type WinPercentages = number[];
@@ -52,7 +49,7 @@ export const useGame = (
   const [gameWinner, setGameWinner] = useState<Winner | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
-  const [moveNumber, setMoveNumber] = useState(0); // New state variable for move number
+  const [moveNumber, setMoveNumber] = useState(0);
 
   // Mini-board information
   const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
@@ -64,8 +61,6 @@ export const useGame = (
   );
 
   // Bot information
-  const [agentId, setAgentId] = useState<AgentId>(null);
-  const [agentId2, setAgentId2] = useState<AgentId>(null);
   const [agentIdTurn, setAgentIdTurn] = useState<AgentIdTurn>(null);
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [turnsInverted, setTurnsInverted] = useState(false);
@@ -186,29 +181,30 @@ export const useGame = (
 
     if (!isBotThinking && !gameOver) {
       makeMove(coords);
-
-      if (gameMode === "online") {
-        socket.emit("move", {
-          lobby_id: lobbyId,
-          player_id: playerId,
-          move: coords,
-        });
-      }
     } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
-      alert("Let " + (turn === agentIdTurn ? agentId : agentId2) + " cook.");
-    } else if (gameMode === "online" && userLetter !== turn) {
+      alert("Let " + bot?.name + " cook.");
+    } else {
       alert("Wait for your turn.");
     }
   };
 
   const handleBotMove = useCallback(async () => {
     try {
+      const startTime = performance.now();
+      let interval: NodeJS.Timeout;
+
+      // eslint-disable-next-line prefer-const
+      interval = setInterval(() => {
+        const elapsedTime = (performance.now() - startTime) / 1000;
+        setTimeToMove(elapsedTime);
+      }, 10);
+
       setIsBotThinking(true);
 
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
 
       const coords: Coords = await getBotMove(
-        bot,
+        bot.id,
         numericBoard,
         activeMiniBoard,
         turn
@@ -217,11 +213,13 @@ export const useGame = (
       makeMove(coords);
 
       setIsBotThinking(false);
+
+      clearInterval(interval);
     } catch (error) {
       setIsBotThinking(true);
       console.error("Error fetching bot's move:", error);
     }
-  }, [board, activeMiniBoard, turn, makeMove]);
+  }, [board, bot, activeMiniBoard, turn, makeMove]);
 
   const resetGame = useCallback(() => {
     setBoard(
@@ -271,7 +269,7 @@ export const useGame = (
   useEffect(() => {
     if (!turnsInverted && starts === "bot" && turn === "X") {
       invertTurns();
-      agentsReset();
+      agentsReset(bot);
     }
 
     if (gameMode === "player-vs-bot" && turn === "O" && !gameOver) {
@@ -285,6 +283,7 @@ export const useGame = (
     turnsInverted,
     handleBotMove,
     invertTurns,
+    bot,
   ]);
 
   // Bot-vs-Bot
@@ -299,20 +298,13 @@ export const useGame = (
     ) {
       if (!turnsInverted) {
         invertTurns();
-        agentsReset();
+        agentsReset(bot);
         setAgentIdTurn(() => {
           return turn === "X" ? "O" : "X";
         });
       } else {
-        const startTime = Date.now();
-        const intervalId = setInterval(() => {
-          setTimeToMove((Date.now() - startTime) / 1000);
-        }, 100); // Update every 100ms
-
         setTimeout(async () => {
           await handleBotMove();
-          clearInterval(intervalId);
-          setTimeToMove((Date.now() - startTime) / 1000);
         }, TIMEOUT);
       }
     }
@@ -328,17 +320,19 @@ export const useGame = (
     invertTurns,
     turnsInverted,
     isPaused,
+    bot,
+    bot2,
   ]);
 
   // Update playedGamesWinners whenever game ends
   useEffect(() => {
     if (gameOver && playedGames < totalGames) {
-      agentsReset();
+      agentsReset(bot);
       setPlayedGamesWinners((prev) => [...prev, gameWinner || "Draw"]);
       setPlayedGames((prev) => prev + 1);
       startAgain();
     }
-  }, [gameOver, gameWinner, playedGames, totalGames, startAgain]);
+  }, [gameOver, gameWinner, playedGames, totalGames, startAgain, bot]);
 
   // Set win percentages whenever playedGamesWinners updates
   useEffect(() => {
@@ -346,45 +340,6 @@ export const useGame = (
       setWinPercentages(checkBotWinner(playedGamesWinners));
     }
   }, [playedGamesWinners, gameMode]);
-
-  // Bot IDs
-  useEffect(() => {
-    if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
-      fetchBotNames()
-        .then((data) => {
-          if (data.agent1_name && data.agent2_name) {
-            setAgentId(data.agent1_name);
-            setAgentId2(gameMode === "bot-vs-bot" ? data.agent2_name : null);
-          } else {
-            console.error("Bot names data is missing or invalid", data);
-          }
-        })
-        .catch((error) => console.error("Error in fetchBotNames:", error));
-    }
-  }, [gameMode]);
-
-  // Online
-  useEffect(() => {
-    if (gameMode === "online" && onlineStarts) {
-      setTurn(onlineStarts as Turn);
-    }
-  }, [gameMode, onlineStarts]);
-
-  useEffect(() => {
-    const handleMove = (data: {
-      player_id: string;
-      move: [number, number, number, number]; // Ensure this matches the structure sent from the server
-    }) => {
-      const { move } = data;
-      makeMove(move);
-    };
-
-    socket.on("move", handleMove);
-
-    return () => {
-      socket.off("move", handleMove);
-    };
-  }, [makeMove]);
   return {
     board,
     turn,
@@ -393,8 +348,6 @@ export const useGame = (
     winners,
     disabled,
     winningLine,
-    agentId,
-    agentId2,
     agentIdTurn,
     playedGames,
     winPercentages,

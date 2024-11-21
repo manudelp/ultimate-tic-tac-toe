@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import { useGame } from "../../hooks/useGame";
-import Loader from "@/app/components/layout/loader";
 
+interface BotListResponse {
+  id: number;
+  name: string;
+  icon: string;
+}
 interface BoardProps {
   gameMode: string;
+  bot: BotListResponse | null;
+  bot2: BotListResponse | null;
   starts: string | null;
   totalGames: number | null;
-  lobbyId: string | null;
-  playerId: string | null;
-  userLetter: string | null;
-  onlineStarts: string | null;
   resetBoard: boolean;
   onReset: () => void;
   onExit: () => void;
@@ -18,16 +20,16 @@ interface BoardProps {
 
 const Board: React.FC<BoardProps> = ({
   gameMode,
+  bot,
+  bot2,
   starts,
-  lobbyId,
-  playerId,
-  userLetter,
-  onlineStarts,
   totalGames,
   resetBoard,
   onReset,
   onExit,
 }) => {
+  bot = bot || { id: 0, name: "", icon: "" };
+  bot2 = bot2 || { id: 0, name: "", icon: "" };
   const {
     board,
     turn,
@@ -36,8 +38,6 @@ const Board: React.FC<BoardProps> = ({
     winners,
     disabled,
     winningLine,
-    agentId,
-    agentId2,
     agentIdTurn,
     playedGames,
     winPercentages,
@@ -52,29 +52,14 @@ const Board: React.FC<BoardProps> = ({
     togglePlayPause,
   } = useGame(
     gameMode,
+    bot,
+    bot2,
     starts || "player",
-    lobbyId,
-    playerId,
-    userLetter,
-    onlineStarts,
     totalGames || 0,
     resetBoard
   );
 
   const [play, setPlay] = useState(false);
-
-  const [showLoader, setShowLoader] = useState(false);
-
-  useEffect(() => {
-    if (
-      (gameMode === "bot-vs-bot" || gameMode === "player-vs-bot") &&
-      agentId === null
-    ) {
-      setShowLoader(true);
-    } else {
-      setShowLoader(false);
-    }
-  }, [setShowLoader, gameMode, agentId]);
 
   useEffect(() => {
     return () => {
@@ -197,34 +182,40 @@ const Board: React.FC<BoardProps> = ({
               Bot vs Bot
             </h2>
           )}
-          {gameMode === "online" && (
-            <h2 className="bg-yellow-500 px-2 rounded-full text-sm uppercase">
-              Online
-            </h2>
-          )}
         </div>
         <div className="flex gap-2">
-          {gameMode === "bot-vs-bot" && (
-            <div title="Bot's move time">{timeToMove.toFixed(2)}s</div>
+          {isBotThinking && (
+            <div
+              title="Bot's move time"
+              style={{
+                color:
+                  timeToMove >= 10
+                    ? "red"
+                    : timeToMove >= 5
+                    ? "yellow"
+                    : "inherit",
+              }}
+            >
+              {timeToMove.toFixed(2)}s
+            </div>
           )}
           <div
             title="Player"
-            className="truncate sm:w-[150px] text-end overflow-hidden"
+            className="truncate sm:max-w-[150px] text-end overflow-hidden"
           >
             {gameMode === "player-vs-player" && "Player"}
             {window.innerWidth > 780
-              ? gameMode === "player-vs-bot" && (turn === "X" ? "You" : agentId)
+              ? gameMode === "player-vs-bot" &&
+                (turn === "X" ? "You" : bot?.icon + bot?.name)
               : gameMode === "player-vs-bot" &&
-                (turn === "X" ? "You" : agentId?.slice(-2) ?? "")}
+                (turn === "X" ? "You" : bot?.icon)}
             {window.innerWidth > 780
               ? gameMode === "bot-vs-bot" &&
-                (turn === agentIdTurn ? agentId : agentId2)
-              : gameMode === "bot-vs-bot" &&
                 (turn === agentIdTurn
-                  ? agentId?.slice(-2) ?? ""
-                  : agentId2?.slice(-2) ?? "")}
-            {gameMode === "online" &&
-              (turn === userLetter ? "You" : "Opponent")}
+                  ? bot?.icon + bot?.name
+                  : bot2?.icon + bot2?.name)
+              : gameMode === "bot-vs-bot" &&
+                (turn === agentIdTurn ? bot?.icon : bot2?.icon)}
           </div>
           <div title="Turn">{turn}</div>
         </div>
@@ -236,15 +227,6 @@ const Board: React.FC<BoardProps> = ({
             isPaused ? "pointer-events-none" : ""
           } `}
         >
-          {showLoader && (
-            <Loader
-              text={`${
-                gameMode === "player-vs-bot"
-                  ? "Fetching opponent..."
-                  : "Fetching bots..."
-              }`}
-            />
-          )}
           {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
             miniBoardRow.map((miniBoard: string[][], localColIndex) => (
               <MiniBoard
@@ -314,20 +296,15 @@ const Board: React.FC<BoardProps> = ({
       {/* GAME INFO */}
       <div className="flex items-center justify-between">
         {/* MATCH INFO - PLAYER VS BOT */}
-        {gameMode === "player-vs-bot" && starts && !gameOver && (
+        {gameMode === "player-vs-bot" && starts && !gameOver && !lastMove && (
           <>
-            <h2>{starts === "player" ? "You start" : agentId + " starts"}</h2>
+            <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
 
             <div>
               Playing against{" "}
-              {window.innerWidth > 768 ? agentId : agentId?.slice(-2) ?? ""}
+              {window.innerWidth > 768 ? bot?.icon + bot?.name : bot?.icon}
             </div>
           </>
-        )}
-
-        {/* IS BOT THINKING */}
-        {gameMode === "player-vs-bot" && isBotThinking && (
-          <div>{agentId} is thinking...</div>
         )}
 
         {/* MATCH INFO - BOT VS BOT */}
@@ -337,32 +314,18 @@ const Board: React.FC<BoardProps> = ({
 
             <div className="flex gap-2">
               <div
-                title={`${agentId} won ${Math.round(
+                title={`${bot?.name} won ${Math.round(
                   (winPercentages[1] / 100) * playedGames
                 )} games`}
               >
-                {agentId === agentId2
-                  ? (agentId?.slice(-2) ?? "") +
-                    (agentIdTurn ?? "") +
-                    " " +
-                    (winPercentages[1] ?? 0) +
-                    "%"
-                  : (agentId?.slice(-2) ?? "") + (winPercentages[1] ?? 0) + "%"}
+                {bot?.icon + (winPercentages[1] ?? 0) + "%"}
               </div>
               <div
-                title={`${agentId2} won ${Math.round(
+                title={`the other bot won ${Math.round(
                   (winPercentages[0] / 100) * playedGames
                 )} games`}
               >
-                {agentId === agentId2
-                  ? (agentId2?.slice(-2) ?? "") +
-                    (agentIdTurn === "X" ? "O" : "X") +
-                    " " +
-                    (winPercentages[0] ?? 0) +
-                    "%"
-                  : (agentId2?.slice(-2) ?? "") +
-                    (winPercentages[0] ?? 0) +
-                    "%"}
+                {"?" + (winPercentages[0] ?? 0) + "%"}
               </div>
               <div
                 title={`There were ${Math.round(
@@ -383,7 +346,7 @@ const Board: React.FC<BoardProps> = ({
                 {gameWinner === "X"
                   ? "You win!"
                   : gameWinner === "O"
-                  ? agentId + " wins! You lose!"
+                  ? bot?.name + " wins! You lose!"
                   : "Draw!"}
               </h2>
             )}
@@ -403,9 +366,9 @@ const Board: React.FC<BoardProps> = ({
             {gameMode === "bot-vs-bot" && (
               <h2>
                 {gameWinner === "X"
-                  ? agentId2 + " wins! (X)"
+                  ? bot2.name + "wins! (X)"
                   : gameWinner === "O"
-                  ? agentId + " wins! (O)"
+                  ? bot?.name + " wins! (O)"
                   : "Draw!"}
               </h2>
             )}
@@ -417,47 +380,19 @@ const Board: React.FC<BoardProps> = ({
           <div
             title={`Global winner: ${
               winPercentages[1] > winPercentages[0]
-                ? agentId + (agentIdTurn ?? "")
+                ? bot?.name + (agentIdTurn ?? "")
                 : winPercentages[0] > winPercentages[1]
-                ? agentId2 + (agentIdTurn === "X" ? "O" : "X")
+                ? "the other bot" + (agentIdTurn === "X" ? "O" : "X")
                 : "Draw"
             }`}
           >
             👑
             {winPercentages[1] > winPercentages[0]
-              ? `${agentId?.slice(-2) ?? ""} ${agentIdTurn}`
+              ? `${bot?.icon} ${agentIdTurn}`
               : winPercentages[0] > winPercentages[1]
-              ? `${agentId2?.slice(-2) ?? ""} ${
-                  agentIdTurn === "X" ? "O" : "X"
-                }`
+              ? `? ${agentIdTurn === "X" ? "O" : "X"}`
               : "None! (Draw)"}
           </div>
-        )}
-
-        {/* ONLINE INFO */}
-        {gameMode === "online" && (
-          <>
-            <h2
-              title="Click to Copy!"
-              className="cursor-pointer"
-              onClick={() => {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                  navigator.clipboard.writeText(lobbyId || "");
-                } else {
-                  const textArea = document.createElement("textarea");
-                  textArea.value = lobbyId || "";
-                  document.body.appendChild(textArea);
-                  textArea.select();
-                  document.execCommand("copy");
-                  document.body.removeChild(textArea);
-                }
-              }}
-            >
-              Lobby ID
-            </h2>
-            <p>{onlineStarts} starts</p>
-            <h2>You are {userLetter}</h2>
-          </>
         )}
       </div>
     </div>
