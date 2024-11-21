@@ -234,11 +234,14 @@ class BetterJardineritoAgent:
         results_board = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         winner = self.get_winning_result_hash(results_board)
         if winner != 0:
+            # TODO: When optimizing for real, make it just return immediately to slightly save more time
             if winner == 1:
-                return 100_000, None
+                balance = 100_000 + depth # to prioritize the fastest win
             elif winner == -1:
-                balance = -100_000 + depth # to prioritize the slowest loss
-                return balance, None
+                balance = -100_000 - depth # to prioritize the slowest loss
+            else:
+                raise ValueError(f"Winner was not 1 or -1, it was {winner}")
+            return balance, None
         else:
             if self.get_draw_result_hash(results_board):
                 return 0, None

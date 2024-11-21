@@ -208,7 +208,7 @@ class JardineritoAgent:
                 return 100_000, None
             elif winner == -1:
                 # print(Fore.BLUE + f"{self.name} found a loss in recursion!" + Style.RESET_ALL)
-                balance = -100_000 + depth # to prioritize the slowest loss
+                balance = -100_000 - depth # to prioritize the slowest loss
                 return balance, None
         else:
             if depth == 0:
