@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # Load configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 # Initialize JWT
 jwt = JWTManager(app)
