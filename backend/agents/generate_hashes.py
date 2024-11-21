@@ -759,8 +759,8 @@ def get_best_connection(board, player):
     col3_connection = get_best_line(col3, player)
 
     # Diagonals
-    main_diagonal = [board[0, 0], board[1, 1], board[2, 2]]
-    anti_diagonal = [board[2, 0], board[1, 1], board[0, 2]]
+    main_diagonal = (board[0, 0], board[1, 1], board[2, 2])
+    anti_diagonal = (board[2, 0], board[1, 1], board[0, 2])
     main_diag_connection = get_best_line(main_diagonal, player)
     anti_diag_connection = get_best_line(anti_diagonal, player)
 
