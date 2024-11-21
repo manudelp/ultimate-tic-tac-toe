@@ -719,11 +719,56 @@ def whoWon(subboard):
     
     return 0
 
+def get_best_line(line, player):
+    if player != 1 and player != -1:
+        raise ValueError("Invalid Player Value")
+
+    if line.count(-player) > 0:
+        return 0
+    
+    if line.count(player) == 0:
+        return 0
+    
+    return line.count(player)
+
 def get_best_connection(board, player):
-    if player == 0:
-        player = 0
-        
+    ''' Returns what the best connection for the given player in the board is
+    If it's a single piece open line, returns SINGLE_EVAL, if it's a double piece open line, returns DOUBLE_EVAL'''
+    SINGLE_COEF = 2.4
+    DOUBLE_COEF = 5
+
+    if player != 1 and player != -1:
+        raise ValueError("Invalid Player Value")
+    
+    # Rows
+    row1 = get_best_line(board[0], player)
+    row2 = get_best_line(board[1], player)
+    row3 = get_best_line(board[2], player)
+
+    # Columns
+    col1 = get_best_line(board[:, 0], player)
+    col2 = get_best_line(board[:, 1], player)
+    col3 = get_best_line(board[:, 2], player)
+
+    # Diagonals
+    main_diagonal = [board[0, 0], board[1, 1], board[2, 2]]
+    anti_diagonal = [board[2, 0], board[1, 1], board[0, 2]]
+    main_diag = get_best_line(main_diagonal, player)
+    anti_diag = get_best_line(anti_diagonal, player)
+
     None
+
+def best_connection_coefficient(board, player):
+    if player == 0:
+        return 0
+    
+    best_connection_player = get_best_connection(board, player)
+    best_connection_rival = get_best_connection(board, -player)
+
+    if best_connection_rival > best_connection_player:
+        raise ValueError("Best Connection was higher for the player who wasn't the positional lead")
+    
+    return best_connection_player
 
 def get_positional_lead(board: np.ndarray) -> int:
     ''' Returns the positional lead of the board, 3 for player 1, -3 for player -1, 0 if equal '''
@@ -731,14 +776,14 @@ def get_positional_lead(board: np.ndarray) -> int:
 
 def get_positional_score(board: np.ndarray, result, positional_lead: int, normalizer=5, local_eval=None) -> float:
     ''' Given the positonal lead, returns the positional score of the board '''
-    if result != 0:
+    if result != 0 or positional_lead == 0:
         return 0
     
     lead_player = positional_lead / 3
     if lead_player != 1 and lead_player != -1 and lead_player != 0:
         raise ValueError(f"Invalid positional_lead value: {positional_lead}")
     
-    best_connection = get_best_connection(board)
+    best_connection = best_connection_coefficient(board, lead_player)
     raw_score = positional_lead * best_connection / normalizer
     
     if local_eval is not None:
