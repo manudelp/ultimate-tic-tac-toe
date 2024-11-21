@@ -741,22 +741,32 @@ def get_best_connection(board, player):
         raise ValueError("Invalid Player Value")
     
     # Rows
-    row1 = get_best_line(board[0], player)
-    row2 = get_best_line(board[1], player)
-    row3 = get_best_line(board[2], player)
+    row1 = (board[0, 0], board[0, 1], board[0, 2])
+    row2 = (board[1, 0], board[1, 1], board[1, 2])
+    row3 = (board[2, 0], board[2, 1], board[2, 2])
+
+    row1_connection = get_best_line(row1, player)
+    row2_connection = get_best_line(row2, player)
+    row3_connection = get_best_line(row3, player)
 
     # Columns
-    col1 = get_best_line(board[:, 0], player)
-    col2 = get_best_line(board[:, 1], player)
-    col3 = get_best_line(board[:, 2], player)
+    col1 = (board[0, 0], board[1, 0], board[2, 0])
+    col2 = (board[0, 1], board[1, 1], board[2, 1])
+    col3 = (board[0, 2], board[1, 2], board[2, 2])
+
+    col1_connection = get_best_line(col1, player)
+    col2_connection = get_best_line(col2, player)
+    col3_connection = get_best_line(col3, player)
 
     # Diagonals
     main_diagonal = [board[0, 0], board[1, 1], board[2, 2]]
     anti_diagonal = [board[2, 0], board[1, 1], board[0, 2]]
-    main_diag = get_best_line(main_diagonal, player)
-    anti_diag = get_best_line(anti_diagonal, player)
+    main_diag_connection = get_best_line(main_diagonal, player)
+    anti_diag_connection = get_best_line(anti_diagonal, player)
 
-    best_connection = max(row1, row2, row3, col1, col2, col3, main_diag, anti_diag)
+    best_connection = max(row1_connection, row2_connection, row3_connection, 
+                          col1_connection, col2_connection, col3_connection, 
+                          main_diag_connection, anti_diag_connection)
 
     if best_connection == 1:
         return SINGLE_COEF
