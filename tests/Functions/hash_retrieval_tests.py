@@ -577,7 +577,7 @@ class RetrievalAgent:
         self.hash_eval_boards = {}
         self.hash_eval_v2_boards = {}
         self.hash_eval_v3_boards = {}
-        self.hash_eval_glob_boards = {}
+        self.hash_boards_information = {}
         self.hash_results_boards = {}
         self.hash_draw_boards = {}
         self.hash_over_boards = {}
@@ -595,7 +595,7 @@ class RetrievalAgent:
         self.load_evaluated_boards('backend/agents/hashes/hash_evaluated_boards.txt')
         self.load_evaluated_v2_boards('backend/agents/hashes/hash_evaluated_boards_v2.txt')
         self.load_evaluated_v3_boards('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-        self.load_eval_glob_boards('backend/agents/hashes/hash_eval_boards_glob.txt')
+        self.load_boards_info('backend/agents/hashes/hash_boards_information.txt')
         self.load_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
         self.load_drawn_boards('backend/agents/hashes/hash_draw_boards.txt')
         # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
@@ -701,7 +701,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def load_eval_glob_boards(self, file_path):
+    def load_boards_info(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:
@@ -709,7 +709,7 @@ class RetrievalAgent:
                     board_hex, board_info_str = line.strip().split(':')
                     board_info_tuple = ast.literal_eval(board_info_str)
                     heuristic_value, result = board_info_tuple
-                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
+                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -855,10 +855,10 @@ class RetrievalAgent:
             raise ValueError(f"Board {board} not found in evaluated V3 boards.")
         return result
 
-    def get_eval_glob_hash(self, board):
+    def get_board_info(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        score, result = self.hash_eval_glob_boards.get(board_key, None)
+        score, result = self.hash_boards_information.get(board_key, None)
         if score is None or result is None:
             raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
         return score, result
@@ -1617,50 +1617,50 @@ def get_eval_result_tests_v3(agent):
     print("All Eval Result V3 tests passed successfully!")
 
 def run_eval_tests_glob(agent):
-    assert agent.get_eval_glob_hash(board_1)[0] == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_1)[1] == 1, "Test Failed: Board 1 result does not match"
+    assert agent.get_board_info(board_1)[0] == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_board_info(board_1)[1] == 1, "Test Failed: Board 1 result does not match"
 
-    assert agent.get_eval_glob_hash(board_2)[0] == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_2)[1] == 1, "Test Failed: Board 2 result does not match"
+    assert agent.get_board_info(board_2)[0] == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_board_info(board_2)[1] == 1, "Test Failed: Board 2 result does not match"
 
-    assert agent.get_eval_glob_hash(board_3)[0] == b3_eval_glob, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_3)[1] == 1, "Test Failed: Board 3 result does not match"
+    assert agent.get_board_info(board_3)[0] == b3_eval_glob, "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_board_info(board_3)[1] == 1, "Test Failed: Board 3 result does not match"
 
-    assert agent.get_eval_glob_hash(board_4)[0] == b4_eval_glob, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_4)[1] == -1, "Test Failed: Board 4 result does not match"
+    assert agent.get_board_info(board_4)[0] == b4_eval_glob, "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_board_info(board_4)[1] == -1, "Test Failed: Board 4 result does not match"
 
-    assert agent.get_eval_glob_hash(board_5)[0] == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_5)[1] == -1, "Test Failed: Board 5 result does not match"
+    assert agent.get_board_info(board_5)[0] == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_board_info(board_5)[1] == -1, "Test Failed: Board 5 result does not match"
 
-    assert agent.get_eval_glob_hash(board_6)[0] == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_6)[1] == -1, "Test Failed: Board 6 result does not match"
+    assert agent.get_board_info(board_6)[0] == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_board_info(board_6)[1] == -1, "Test Failed: Board 6 result does not match"
 
-    assert agent.get_eval_glob_hash(board_7)[0] == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_7)[1] == 0, "Test Failed: Board 7 result does not match"
+    assert agent.get_board_info(board_7)[0] == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_board_info(board_7)[1] == 0, "Test Failed: Board 7 result does not match"
 
-    assert agent.get_eval_glob_hash(board_8)[0] == b8_eval_glob, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_8)[1] == 2, "Test Failed: Board 8 result does not match"
+    assert agent.get_board_info(board_8)[0] == b8_eval_glob, "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_board_info(board_8)[1] == 2, "Test Failed: Board 8 result does not match"
 
-    assert agent.get_eval_glob_hash(board_9)[0] == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_9)[1] == 0, "Test Failed: Board 7 result does not match"
+    assert agent.get_board_info(board_9)[0] == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_board_info(board_9)[1] == 0, "Test Failed: Board 7 result does not match"
 
-    assert agent.get_eval_glob_hash(board_10)[0] == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_10)[1] == 0, "Test Failed: Board 10 result does not match"
+    assert agent.get_board_info(board_10)[0] == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_board_info(board_10)[1] == 0, "Test Failed: Board 10 result does not match"
 
-    assert agent.get_eval_glob_hash(board_11)[0] == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_11)[1] == 2, "Test Failed: Board 11 result does not match"
+    assert agent.get_board_info(board_11)[0] == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_board_info(board_11)[1] == 2, "Test Failed: Board 11 result does not match"
 
-    assert agent.get_eval_glob_hash(board_12)[0] == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_glob_hash(board_12)[1] == 2, "Test Failed: Board 12 result does not match"
+    assert agent.get_board_info(board_12)[0] == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_board_info(board_12)[1] == 2, "Test Failed: Board 12 result does not match"
 
-    assert agent.get_eval_glob_hash(board_center_only)[0] == 0.8, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_only)[0] == 0.8, "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_board_info(board_center_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
 
-    assert agent.get_eval_glob_hash(board_center_only_another)[0] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_only_another)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_only_another)[0] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_only_another)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
 
-    assert agent.get_eval_glob_hash(board_center_enemy_only)[0] == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
-    assert agent.get_eval_glob_hash(board_center_enemy_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_board_info(board_center_enemy_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
 
     print("All Eval Global Local tests passed successfully!")
 
@@ -1817,17 +1817,17 @@ def run_eval_v3_commonsense_tests(agent):
     print("All Eval V3 Common-Sense tests passed successfully!")
     
 def run_eval_glob_commonsense_tests(agent):
-    assert agent.get_eval_glob_hash(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
-    assert agent.get_eval_glob_hash(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
-    assert agent.get_eval_glob_hash(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
-    assert agent.get_eval_glob_hash(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
-    assert agent.get_eval_glob_hash(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
-    assert agent.get_eval_glob_hash(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
-    assert abs(agent.get_eval_glob_hash(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_glob_hash(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
-    assert agent.get_eval_glob_hash(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
-    assert abs(agent.get_eval_glob_hash(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_glob_hash(board_10) == -1 * agent.get_eval_glob_hash(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_board_info(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_board_info(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_board_info(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_board_info(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_board_info(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_board_info(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_board_info(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_board_info(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
+    assert agent.get_board_info(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_board_info(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_board_info(board_10) == -1 * agent.get_board_info(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
 
     print("All Eval Global Local Common-Sense tests passed successfully!")
 

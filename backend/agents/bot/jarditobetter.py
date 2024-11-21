@@ -88,7 +88,7 @@ class BetterJardineritoAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"{self.name} chose alpha beta move: {minimax_move}")
+                # prnt(f"{self.name} chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
