@@ -768,11 +768,17 @@ def get_best_connection(board, player):
                           col1_connection, col2_connection, col3_connection, 
                           main_diag_connection, anti_diag_connection)
 
-    if best_connection == 1:
+    if best_connection == 0:
+        return 0
+
+    elif best_connection == 1:
         return SINGLE_COEF
     
-    if best_connection == 2:
+    elif best_connection == 2:
         return DOUBLE_COEF
+    
+    else:
+        raise ValueError("Invalid Best Connection Value")
 
 def best_connection_coefficient(board, player):
     if player == 0:
