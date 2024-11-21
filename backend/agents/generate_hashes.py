@@ -809,7 +809,6 @@ def get_positional_score(board: np.ndarray, result, positional_lead: int, normal
     final_score = raw_score * score_processor
     return final_score
 
-
 # Generators
 def generate_winning_boards(file_path):
     """ 
