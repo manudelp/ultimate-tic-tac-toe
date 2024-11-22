@@ -39,7 +39,7 @@ class BetterItterinoAgent:
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
-        self.load_eval_glob_boards(board_info_path)
+        self.load_boards_info(board_info_path)
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
@@ -490,7 +490,7 @@ class BetterItterinoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def load_eval_glob_boards(self, file_path):
+    def load_boards_info(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:
@@ -526,13 +526,13 @@ class BetterItterinoAgent:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
 
-    def get_eval_glob_hash(self, board):
+    def get_board_info(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        score, result = self.hash_eval_glob_boards.get(board_key, None)
-        if score is None or result is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
-        return score, result
+        score, result, positional_lead, positional_score = self.hash_boards_information.get(board_key, None)
+        if score is None or result is None or positional_lead is None or positional_score is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Info was {score}, {result}, {positional_lead}, {positional_score}")
+        return score, result, positional_lead, positional_score
 
     def get_global_results_eval(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
@@ -542,7 +542,7 @@ class BetterItterinoAgent:
             raise ValueError(f"Board {board} not found in evaluated global boards")
         return results_eval
 
-    def load_eval_glob_boards(self, file_path):
+    def load_boards_info(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:
