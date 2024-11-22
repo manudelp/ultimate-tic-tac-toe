@@ -708,8 +708,8 @@ class RetrievalAgent:
                 for line in file:
                     board_hex, board_info_str = line.strip().split(':')
                     board_info_tuple = ast.literal_eval(board_info_str)
-                    heuristic_value, result = board_info_tuple
-                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
+                    heuristic_value, result, positional_lead, positional_score = board_info_tuple
+                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result), int(positional_lead), float(positional_score))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -858,10 +858,10 @@ class RetrievalAgent:
     def get_board_info(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        score, result = self.hash_boards_information.get(board_key, None)
-        if score is None or result is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
-        return score, result
+        score, result, positional_lead, positional_score = self.hash_boards_information.get(board_key, None)
+        if score is None or result is None or positional_lead is None or positional_score is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Info was {score}, {result}, {positional_lead}, {positional_score}")
+        return score, result, positional_lead, positional_score
 
     def get_results_board_eval(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
@@ -1616,7 +1616,7 @@ def get_eval_result_tests_v3(agent):
 
     print("All Eval Result V3 tests passed successfully!")
 
-def run_eval_tests_glob(agent):
+def run_board_info_tests(agent):
     assert agent.get_board_info(board_1)[0] == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
     assert agent.get_board_info(board_1)[1] == 1, "Test Failed: Board 1 result does not match"
 
@@ -1662,7 +1662,7 @@ def run_eval_tests_glob(agent):
     assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
     assert agent.get_board_info(board_center_enemy_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
 
-    print("All Eval Global Local tests passed successfully!")
+    print("All Board Information tests passed successfully!")
 
 def run_eval_results_tests(agent):
     # assert agent.get_results_board_eval(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"
@@ -1887,7 +1887,7 @@ def run_all_agent_tests(agent):
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
     run_eval_tests_v3(agent)
-    run_eval_tests_glob(agent)
+    run_board_info_tests(agent)
     run_eval_results_tests(agent)
     run_draw_tests(agent)
     run_draw_results_tests(agent)
