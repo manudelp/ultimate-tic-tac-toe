@@ -39,7 +39,7 @@ class TidyPodatorAgent:
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
-        self.load_eval_glob_boards(board_info_path)
+        self.load_boards_info(board_info_path)
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
@@ -467,7 +467,7 @@ class TidyPodatorAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def load_eval_glob_boards(self, file_path):
+    def load_boards_info(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:

@@ -596,7 +596,7 @@ class RetrievalAgent:
         self.load_evaluated_boards('backend/agents/hashes/hash_evaluated_boards.txt')
         self.load_evaluated_v2_boards('backend/agents/hashes/hash_evaluated_boards_v2.txt')
         self.load_evaluated_v3_boards('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-        self.load_eval_glob_boards('backend/agents/hashes/hash_eval_boards_glob.txt')
+        self.load_boards_info('backend/agents/hashes/hash_eval_boards_glob.txt')
         self.load_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
         self.load_drawn_boards('backend/agents/hashes/hash_draw_boards.txt')
         # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
@@ -658,7 +658,7 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def load_eval_glob_boards(self, file_path):
+    def load_boards_info(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:

@@ -156,7 +156,7 @@ class AlterJardineritoAgent:
         self.load_drawn_boards(draw_boards_path)
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_v2_path)
-        self.load_eval_glob_boards(board_info_path)
+        self.load_boards_info(board_info_path)
         self.load_results_board_eval(results_eval_path)
         self.load_winning_results_boards(winning_results_path)
         self.load_draw_results_boards(draw_results_path)
@@ -493,7 +493,7 @@ class AlterJardineritoAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
-    def load_eval_glob_boards(self, file_path):
+    def load_boards_info(self, file_path):
         ''' Load the evaluated boards from a file and store them in a dictionary '''
         try:
             with open(file_path, 'r') as file:
