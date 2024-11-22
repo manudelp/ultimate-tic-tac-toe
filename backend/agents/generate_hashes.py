@@ -489,7 +489,7 @@ def localBoardEval_v3(localBoard):
     final_score = round(score, 2)
     return final_score
 
-def globalLocalEval(localBoard):
+def local_evaluation(localBoard):
     # TIMEIT APPROVED ✅
     ''' 
     Intended to Work for Global Board Results Eval as a 3x3
@@ -499,14 +499,15 @@ def globalLocalEval(localBoard):
     When both players threat, tone down but just a tiny bit
     NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
     '''
-    
     score = 0
-            
+
+    single_eval = 0.14
+    double_eval = 0.60
     player1_threat = False
     player2_threat = False
     
     # Rows
-    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
+    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
@@ -514,7 +515,7 @@ def globalLocalEval(localBoard):
         return 6.4 * row1_eval
     score += row1_eval
 
-    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
+    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
@@ -522,7 +523,7 @@ def globalLocalEval(localBoard):
         return 6.4 * row2_eval
     score += row2_eval
 
-    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
+    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
@@ -531,7 +532,7 @@ def globalLocalEval(localBoard):
     score += row3_eval
 
     # Columns
-    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
+    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
@@ -539,7 +540,7 @@ def globalLocalEval(localBoard):
         return 6.4 * col1_eval
     score += col1_eval
 
-    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
+    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
@@ -547,7 +548,7 @@ def globalLocalEval(localBoard):
         return 6.4 * col2_eval
     score += col2_eval
 
-    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
+    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
@@ -556,7 +557,7 @@ def globalLocalEval(localBoard):
     score += col3_eval
 
     # Diagonals
-    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
+    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
@@ -564,7 +565,7 @@ def globalLocalEval(localBoard):
         return 6.4 * diagTB_eval
     score += diagTB_eval
 
-    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
+    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
@@ -937,7 +938,7 @@ def generate_eval_boards_v3(file_path):
 def generate_results_board_eval(file_path):
     """
     Generate all possible 3x3 Tic-Tac-Toe board states (with values 1, -1, 0, 2), 
-    evaluate them with globalLocalEval, and save them to evaluated_boards.txt 
+    evaluate them with local_evaluation, and save them to evaluated_boards.txt 
     in the format: hex representation of the board : heuristic value.
     """
     evaluated_boards = {}
@@ -1086,7 +1087,7 @@ def generate_local_boards_info(file_path):
         board = np.array([(state // 3**i) % 3 - 1 for i in range(9)]).reshape(3, 3)
         board_key = board.tobytes()
 
-        heuristic_value = globalLocalEval(board)
+        heuristic_value = local_evaluation(board)
         result = 2 if isDraw(board) else int(whoWon(board))
         positional_lead = get_positional_lead(board=board, heuristic_value=heuristic_value)
         positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead)
