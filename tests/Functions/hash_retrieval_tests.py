@@ -1457,7 +1457,7 @@ def run_eval_hash_completion_tests(agent):
     for _ in range(1_000_000):
         random_board = np.random.randint(-1, 2, (3, 3), dtype=int)
         hash_value = agent.get_eval_hash(random_board)
-        assert (hash_value is not None), f"Test Failed: Hash Value for Board {random_board} is None"
+        assert (hash_value is not None), Style.BRIGHT + Fore.RED + f"Test Failed: Hash Value for Board {random_board} is None"
         
     print("All Regular Eval Hash Completion tests passed successfully!")
 
@@ -1465,418 +1465,418 @@ def run_results_hash_completion_tests(agent):
     for _ in range(1_000_000):
         random_board = np.random.randint(-1, 2, (3, 3), dtype=int)
         hash_value = agent.get_results_board_eval(random_board)
-        assert (hash_value is not None), f"Test Failed: Hash Value for Board {random_board} is None"
+        assert (hash_value is not None), Style.BRIGHT + Fore.RED + f"Test Failed: Hash Value for Board {random_board} is None"
         
     print("All Results Board Eval Hash Completion tests passed successfully!")
 
 def run_won_tests(agent):
     # Boards won by player 1
-    assert agent.get_winner_hash(board_1) == 1, "Test Failed: Player 1 should have won board_1"
-    assert agent.get_winner_hash(board_2) == 1, "Test Failed: Player 1 should have won board_2"
-    assert agent.get_winner_hash(board_3) == 1, "Test Failed: Player 1 should have won board_3"
-    assert agent.get_winner_hash(board_4) == -1, "Test Failed: Player -1 should have won board_4"
-    assert agent.get_winner_hash(board_5) == -1, "Test Failed: Player -1 should have won board_5"
-    assert agent.get_winner_hash(board_6) == -1, "Test Failed: Player -1 should have won board_6"
-    assert agent.get_winner_hash(board_7) == 0, "Test Failed: Board 7 should not have a winner"
-    assert agent.get_winner_hash(board_8) == 0, "Test Failed: Board 8 should not have a winner"
-    assert agent.get_winner_hash(board_9) == 0, "Test Failed: Board 9 should not have a winner"
-    assert agent.get_winner_hash(board_10) == 0, "Test Failed: Board 10 should not have a winner"
-    assert agent.get_winner_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
-    assert agent.get_winner_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
+    assert agent.get_winner_hash(board_1) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won board_1"
+    assert agent.get_winner_hash(board_2) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won board_2"
+    assert agent.get_winner_hash(board_3) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won board_3"
+    assert agent.get_winner_hash(board_4) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player -1 should have won board_4"
+    assert agent.get_winner_hash(board_5) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player -1 should have won board_5"
+    assert agent.get_winner_hash(board_6) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player -1 should have won board_6"
+    assert agent.get_winner_hash(board_7) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a winner"
+    assert agent.get_winner_hash(board_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should not have a winner"
+    assert agent.get_winner_hash(board_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a winner"
+    assert agent.get_winner_hash(board_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should not have a winner"
+    assert agent.get_winner_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should not have a winner"
+    assert agent.get_winner_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should not have a winner"
 
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Board tests passed successfully!")
 
 def run_won_results_tests(agent):
-    assert agent.get_winning_result_hash(board_1) == 1, "Test Failed: Player 1 should have won board_1"
-    assert agent.get_winning_result_hash(board_2) == 1, "Test Failed: Player 1 should have won board_2"
-    assert agent.get_winning_result_hash(board_3) == 1, "Test Failed: Player 1 should have won board_3"
-    assert agent.get_winning_result_hash(board_4) == -1, "Test Failed: Player -1 should have won board_4"
-    assert agent.get_winning_result_hash(board_5) == -1, "Test Failed: Player -1 should have won board_5"
-    assert agent.get_winning_result_hash(board_6) == -1, "Test Failed: Player -1 should have won board_6"
-    assert agent.get_winning_result_hash(board_7) == 0, "Test Failed: Board 7 should not have a winner"
-    assert agent.get_winning_result_hash(board_8) == 0, "Test Failed: Board 8 should not have a winner"
-    assert agent.get_winning_result_hash(board_9) == 0, "Test Failed: Board 9 should not have a winner"
-    assert agent.get_winning_result_hash(board_10) == 0, "Test Failed: Board 10 should not have a winner"
-    assert agent.get_winning_result_hash(board_11) == 0, "Test Failed: Board 11 should not have a winner"
-    assert agent.get_winning_result_hash(board_12) == 0, "Test Failed: Board 12 should not have a winner"
+    assert agent.get_winning_result_hash(board_1) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won board_1"
+    assert agent.get_winning_result_hash(board_2) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won board_2"
+    assert agent.get_winning_result_hash(board_3) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won board_3"
+    assert agent.get_winning_result_hash(board_4) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player -1 should have won board_4"
+    assert agent.get_winning_result_hash(board_5) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player -1 should have won board_5"
+    assert agent.get_winning_result_hash(board_6) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player -1 should have won board_6"
+    assert agent.get_winning_result_hash(board_7) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a winner"
+    assert agent.get_winning_result_hash(board_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should not have a winner"
+    assert agent.get_winning_result_hash(board_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a winner"
+    assert agent.get_winning_result_hash(board_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should not have a winner"
+    assert agent.get_winning_result_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should not have a winner"
+    assert agent.get_winning_result_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should not have a winner"
 
-    assert agent.get_winning_result_hash(results_1) == 0, "Test Failed: Player 1 should have won results_1"
-    assert agent.get_winning_result_hash(results_2) == 0, "Test Failed: Player 1 should have won results_2"
-    assert agent.get_winning_result_hash(results_3) == 0, "Test Failed: Player 1 should have won results_3"
-    assert agent.get_winning_result_hash(results_4) == 0, "Test Failed: Player 1 should have won results_4"
-    assert agent.get_winning_result_hash(results_5) == 0, "Test Failed: Player 1 should have won results_5"
-    assert agent.get_winning_result_hash(results_6) == 1, "Test Failed: Player 1 should have won results_6"
-    assert agent.get_winning_result_hash(results_7) == -1, "Test Failed: Player 1 should have won results_7"
-    assert agent.get_winning_result_hash(results_8) == 0, "Test Failed: Player 1 should have won results_8"
-    assert agent.get_winning_result_hash(results_9) == 0, "Test Failed: Player 1 should have won results_9"
-    assert agent.get_winning_result_hash(results_10) == 0, "Test Failed: Player 1 should have won results_10"
-    assert agent.get_winning_result_hash(results_11) == 0, "Test Failed: Player 1 should have won results_11"
+    assert agent.get_winning_result_hash(results_1) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_1"
+    assert agent.get_winning_result_hash(results_2) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_2"
+    assert agent.get_winning_result_hash(results_3) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_3"
+    assert agent.get_winning_result_hash(results_4) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_4"
+    assert agent.get_winning_result_hash(results_5) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_5"
+    assert agent.get_winning_result_hash(results_6) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_6"
+    assert agent.get_winning_result_hash(results_7) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_7"
+    assert agent.get_winning_result_hash(results_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_8"
+    assert agent.get_winning_result_hash(results_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_9"
+    assert agent.get_winning_result_hash(results_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_10"
+    assert agent.get_winning_result_hash(results_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Player 1 should have won results_11"
 
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Won-Results tests passed successfully!")
 
 def run_eval_tests_v1(agent):
-    assert agent.get_eval_hash(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_hash(board_2) == b2_eval, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_hash(board_3) == b3_eval, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_hash(board_4) == b4_eval, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_hash(board_5) == b5_eval, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_hash(board_6) == b6_eval, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_hash(board_7) == b7_eval, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_hash(board_8) == b8_eval, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_hash(board_9) == b9_eval, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_hash(board_10) == b10_eval, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_hash(board_11) == b11_eval, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_hash(board_12) == b12_eval, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_hash(board_center_only) == 0.421, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_hash(board_center_only_another) == 0.421, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_hash(board_1) == b1_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_hash(board_2) == b2_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_hash(board_3) == b3_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_hash(board_4) == b4_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_hash(board_5) == b5_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_hash(board_6) == b6_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_hash(board_7) == b7_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_hash(board_8) == b8_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_hash(board_9) == b9_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_hash(board_10) == b10_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_hash(board_11) == b11_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_hash(board_12) == b12_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_hash(board_center_only) == 0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_hash(board_center_only_another) == 0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_hash(board_center_enemy_only) == -0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V1 tests passed successfully!")
 
 def run_eval_tests_v2(agent):
-    assert agent.get_eval_v2_hash(board_1) == b1_eval_v2, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_2) == b2_eval_v2, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_3) == b3_eval_v2, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_4) == b4_eval_v2, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_5) == b5_eval_v2, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_6) == b6_eval_v2, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_7) == b7_eval_v2, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_8) == b8_eval_v2, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_9) == b9_eval_v2, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_10) == b10_eval_v2, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_11) == b11_eval_v2, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_12) == b12_eval_v2, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_v2_hash(board_center_only) == 0.421, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_v2_hash(board_center_only_another) == 0.421, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_v2_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_v2_hash(board_1) == b1_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_2) == b2_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_3) == b3_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_4) == b4_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_5) == b5_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_6) == b6_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_7) == b7_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_8) == b8_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_9) == b9_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_10) == b10_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_11) == b11_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_12) == b12_eval_v2, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_only) == 0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_only_another) == 0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_v2_hash(board_center_enemy_only) == -0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V2 tests passed successfully!")
 
 def run_eval_tests_v3(agent):
-    assert agent.get_eval_v3_hash(board_1) == b1_eval_v3, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_2) == b2_eval_v3, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_3) == b3_eval_v3, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_4) == b4_eval_v3, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_5) == b5_eval_v3, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_6) == b6_eval_v3, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_7) == b7_eval_v3, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_8) == b8_eval_v3, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_9) == b9_eval_v3, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_10) == b10_eval_v3, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_11) == b11_eval_v3, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_12) == b12_eval_v3, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_eval_v3_hash(board_center_only) == 0.421, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_eval_v3_hash(board_center_only_another) == 0.421, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_eval_v3_hash(board_center_enemy_only) == -0.421, "Test Failed: Board Center Enemy Only evaluation does not match"
+    assert agent.get_eval_v3_hash(board_1) == b1_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_2) == b2_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_3) == b3_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_4) == b4_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_5) == b5_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_6) == b6_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_7) == b7_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_8) == b8_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_9) == b9_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_10) == b10_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_11) == b11_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_12) == b12_eval_v3, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_only) == 0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Only evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_only_another) == 0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_eval_v3_hash(board_center_enemy_only) == -0.421, Style.BRIGHT + Fore.RED + "Test Failed: Board Center Enemy Only evaluation does not match"
 
     print("All Eval V3 tests passed successfully!")
 
 def get_eval_result_tests_v1(agent):
-    assert agent.get_eval_result_v1_hash(board_1) == 1, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_2) == 1, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_3) == 1, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_4) == -1, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_5) == -1, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_6) == -1, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_7) == 0, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_8) == 0, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_9) == 0, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_10) == 0, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_11) == 0, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_result_v1_hash(board_12) == 0, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_1) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_2) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_3) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_4) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_5) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_6) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_7) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_result_v1_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 evaluation does not match"
 
     print("All Eval Result V1 tests passed successfully!")
     
 def get_eval_result_tests_v2(agent):
-    assert agent.get_eval_result_v2_hash(board_1) == 1, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_2) == 1, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_3) == 1, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_4) == -1, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_5) == -1, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_6) == -1, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_7) == 0, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_8) == 0, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_9) == 0, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_10) == 0, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_11) == 0, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_result_v2_hash(board_12) == 0, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_1) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_2) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_3) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_4) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_5) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_6) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_7) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_result_v2_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 evaluation does not match"
 
     print("All Eval Result V2 tests passed successfully!")
     
 def get_eval_result_tests_v3(agent):
-    assert agent.get_eval_result_v3_hash(board_1) == 1, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_2) == 1, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_3) == 1, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_4) == -1, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_5) == -1, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_6) == -1, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_7) == 0, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_8) == 0, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_9) == 0, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_10) == 0, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_11) == 0, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_eval_result_v3_hash(board_12) == 0, "Test Failed: Board 12 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_1) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_2) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_3) == 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_4) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_5) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_6) == -1, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_7) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 evaluation does not match"
+    assert agent.get_eval_result_v3_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 evaluation does not match"
 
     print("All Eval Result V3 tests passed successfully!")
 
 def run_board_info_tests(agent):
-    assert agent.get_board_info(board_1)[0] == b1_eval_glob, f"Test Failed: Board 1 evaluation does not match, evaluation was {agent.get_board_info(board_1)[0]}"
-    assert agent.get_board_info(board_1)[1] == 1, f"Test Failed: Board 1 result does not match, result was {agent.get_board_info(board_1)[1]}"
+    assert agent.get_board_info(board_1)[0] == b1_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 evaluation does not match, evaluation was {agent.get_board_info(board_1)[0]}"
+    assert agent.get_board_info(board_1)[1] == 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 result does not match, result was {agent.get_board_info(board_1)[1]}"
 
-    assert agent.get_board_info(board_2)[0] == b2_eval_glob, f"Test Failed: Board 2 evaluation does not match, evaluation was {agent.get_board_info(board_2)[0]}"
-    assert agent.get_board_info(board_2)[1] == 1, f"Test Failed: Board 2 result does not match, result was {agent.get_board_info(board_2)[1]}"
+    assert agent.get_board_info(board_2)[0] == b2_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 evaluation does not match, evaluation was {agent.get_board_info(board_2)[0]}"
+    assert agent.get_board_info(board_2)[1] == 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 result does not match, result was {agent.get_board_info(board_2)[1]}"
 
-    assert agent.get_board_info(board_3)[0] == b3_eval_glob, f"Test Failed: Board 3 evaluation does not match, evaluation was {agent.get_board_info(board_3)[0]}"
-    assert agent.get_board_info(board_3)[1] == 1, f"Test Failed: Board 3 result does not match, result was {agent.get_board_info(board_3)[1]}"
+    assert agent.get_board_info(board_3)[0] == b3_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 evaluation does not match, evaluation was {agent.get_board_info(board_3)[0]}"
+    assert agent.get_board_info(board_3)[1] == 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 result does not match, result was {agent.get_board_info(board_3)[1]}"
 
-    assert agent.get_board_info(board_4)[0] == b4_eval_glob, f"Test Failed: Board 4 evaluation does not match, evaluation was {agent.get_board_info(board_4)[0]}"
-    assert agent.get_board_info(board_4)[1] == -1, f"Test Failed: Board 4 result does not match, result was {agent.get_board_info(board_4)[1]}"
+    assert agent.get_board_info(board_4)[0] == b4_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 evaluation does not match, evaluation was {agent.get_board_info(board_4)[0]}"
+    assert agent.get_board_info(board_4)[1] == -1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 result does not match, result was {agent.get_board_info(board_4)[1]}"
 
-    assert agent.get_board_info(board_5)[0] == b5_eval_glob, f"Test Failed: Board 5 evaluation does not match, evaluation was {agent.get_board_info(board_5)[0]}"
-    assert agent.get_board_info(board_5)[1] == -1, f"Test Failed: Board 5 result does not match, result was {agent.get_board_info(board_5)[1]}"
+    assert agent.get_board_info(board_5)[0] == b5_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 evaluation does not match, evaluation was {agent.get_board_info(board_5)[0]}"
+    assert agent.get_board_info(board_5)[1] == -1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 result does not match, result was {agent.get_board_info(board_5)[1]}"
 
-    assert agent.get_board_info(board_6)[0] == b6_eval_glob, f"Test Failed: Board 6 evaluation does not match, evaluation was {agent.get_board_info(board_6)[0]}"
-    assert agent.get_board_info(board_6)[1] == -1, f"Test Failed: Board 6 result does not match, result was {agent.get_board_info(board_6)[1]}"
+    assert agent.get_board_info(board_6)[0] == b6_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 evaluation does not match, evaluation was {agent.get_board_info(board_6)[0]}"
+    assert agent.get_board_info(board_6)[1] == -1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 result does not match, result was {agent.get_board_info(board_6)[1]}"
 
-    assert agent.get_board_info(board_7)[0] == b7_eval_glob, f"Test Failed: Board 7 evaluation does not match, evaluation was {agent.get_board_info(board_7)[0]}"
-    assert agent.get_board_info(board_7)[1] == 0, f"Test Failed: Board 7 result does not match, result was {agent.get_board_info(board_7)[1]}"
+    assert agent.get_board_info(board_7)[0] == b7_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 evaluation does not match, evaluation was {agent.get_board_info(board_7)[0]}"
+    assert agent.get_board_info(board_7)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 result does not match, result was {agent.get_board_info(board_7)[1]}"
 
-    assert agent.get_board_info(board_8)[0] == b8_eval_glob, f"Test Failed: Board 8 evaluation does not match, evaluation was {agent.get_board_info(board_8)[0]}"
-    assert agent.get_board_info(board_8)[1] == 2, f"Test Failed: Board 8 result does not match, result was {agent.get_board_info(board_8)[1]}"
+    assert agent.get_board_info(board_8)[0] == b8_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 evaluation does not match, evaluation was {agent.get_board_info(board_8)[0]}"
+    assert agent.get_board_info(board_8)[1] == 2, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 result does not match, result was {agent.get_board_info(board_8)[1]}"
 
-    assert agent.get_board_info(board_9)[0] == b9_eval_glob, f"Test Failed: Board 9 evaluation does not match, evaluation was {agent.get_board_info(board_9)[0]}"
-    assert agent.get_board_info(board_9)[1] == 0, f"Test Failed: Board 7 result does not match, result was {agent.get_board_info(board_9)[1]}"
+    assert agent.get_board_info(board_9)[0] == b9_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 evaluation does not match, evaluation was {agent.get_board_info(board_9)[0]}"
+    assert agent.get_board_info(board_9)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 result does not match, result was {agent.get_board_info(board_9)[1]}"
 
-    assert agent.get_board_info(board_10)[0] == b10_eval_glob, f"Test Failed: Board 10 evaluation does not match, evaluation was {agent.get_board_info(board_10)[0]}"
-    assert agent.get_board_info(board_10)[1] == 0, f"Test Failed: Board 10 result does not match, result was {agent.get_board_info(board_10)[1]}"
+    assert agent.get_board_info(board_10)[0] == b10_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 evaluation does not match, evaluation was {agent.get_board_info(board_10)[0]}"
+    assert agent.get_board_info(board_10)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 result does not match, result was {agent.get_board_info(board_10)[1]}"
 
-    assert agent.get_board_info(board_11)[0] == b11_eval_glob, f"Test Failed: Board 11 evaluation does not match, evaluation was {agent.get_board_info(board_11)[0]}"
-    assert agent.get_board_info(board_11)[1] == 2, f"Test Failed: Board 11 result does not match, result was {agent.get_board_info(board_11)[1]}"
+    assert agent.get_board_info(board_11)[0] == b11_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 evaluation does not match, evaluation was {agent.get_board_info(board_11)[0]}"
+    assert agent.get_board_info(board_11)[1] == 2, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 result does not match, result was {agent.get_board_info(board_11)[1]}"
 
-    assert agent.get_board_info(board_12)[0] == b12_eval_glob, f"Test Failed: Board 12 evaluation does not match, evaluation was {agent.get_board_info(board_12)[0]}"
-    assert agent.get_board_info(board_12)[1] == 2, f"Test Failed: Board 12 result does not match, result was {agent.get_board_info(board_12)[1]}"
+    assert agent.get_board_info(board_12)[0] == b12_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 evaluation does not match, evaluation was {agent.get_board_info(board_12)[0]}"
+    assert agent.get_board_info(board_12)[1] == 2, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 result does not match, result was {agent.get_board_info(board_12)[1]}"
 
-    assert agent.get_board_info(board_center_only)[0] == 0.8, f"Test Failed: Board Center_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_only)[0]}"
-    assert agent.get_board_info(board_center_only)[1] == 0, f"Test Failed: Board Center_Only result does not match, result was {agent.get_board_info(board_center_only)[1]}"
+    assert agent.get_board_info(board_center_only)[0] == 0.8, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_only)[0]}"
+    assert agent.get_board_info(board_center_only)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only result does not match, result was {agent.get_board_info(board_center_only)[1]}"
 
-    assert agent.get_board_info(board_center_only_another)[0] == 0.8, f"Test Failed: Board Center_Only_Another evaluation does not match, evaluation was {agent.get_board_info(board_center_only_another)[0]}"
-    assert agent.get_board_info(board_center_only_another)[1] == 0, f"Test Failed: Board Center_Only_Another result does not match, result was {agent.get_board_info(board_center_only_another)[1]}"
+    assert agent.get_board_info(board_center_only_another)[0] == 0.8, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only_Another evaluation does not match, evaluation was {agent.get_board_info(board_center_only_another)[0]}"
+    assert agent.get_board_info(board_center_only_another)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only_Another result does not match, result was {agent.get_board_info(board_center_only_another)[1]}"
 
-    assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, f"Test Failed: Board Center_Enemy_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_enemy_only)[0]}"
-    assert agent.get_board_info(board_center_enemy_only)[1] == 0, f"Test Failed: Board Center_Enemy_Only result does not match, result was {agent.get_board_info(board_center_enemy_only)[1]}"
+    assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Enemy_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_enemy_only)[0]}"
+    assert agent.get_board_info(board_center_enemy_only)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Enemy_Only result does not match, result was {agent.get_board_info(board_center_enemy_only)[1]}"
 
     print("All Board Information tests passed successfully!")
 
 def run_eval_results_tests(agent):
-    # assert agent.get_results_board_eval(board_1) == b1_eval, "Test Failed: Board 1 evaluation does not match"
-    # assert agent.get_results_board_eval(board_2) == b2_eval, "Test Failed: Board 2 evaluation does not match"
-    # assert agent.get_results_board_eval(board_3) == b3_eval, "Test Failed: Board 3 evaluation does not match"
-    # assert agent.get_results_board_eval(board_4) == b4_eval, "Test Failed: Board 4 evaluation does not match"
-    # assert agent.get_results_board_eval(board_5) == b5_eval, "Test Failed: Board 5 evaluation does not match"
-    # assert agent.get_results_board_eval(board_6) == b6_eval, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_results_board_eval(board_7) == round(0.75 * b7_eval, 2), f"Test Failed: Board 7 evaluation does not match"
-    assert agent.get_results_board_eval(board_8) == b8_eval, f"Test Failed: Board 8 evaluation does not match, evaluation is {agent.get_results_board_eval(board_8)}"
-    assert agent.get_results_board_eval(board_9) == round((0.75 * -0.15), 2), f"Test Failed: Board 9 evaluation does not match, evaluation is {agent.get_results_board_eval(board_9)}"
-    assert agent.get_results_board_eval(board_10) == round((0.75 * 0.15), 2), f"Test Failed: Board 10 evaluation does not match, evaluation is {agent.get_results_board_eval(board_10)}"
-    assert agent.get_results_board_eval(board_11) == b11_eval, f"Test Failed: Board 11 evaluation does not match, evaluation is {agent.get_results_board_eval(board_11)}"
-    assert agent.get_results_board_eval(board_12) == b12_eval, f"Test Failed: Board 12 evaluation does not match, evaluation is {agent.get_results_board_eval(board_12)}"
+    # assert agent.get_results_board_eval(board_1) == b1_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
+    # assert agent.get_results_board_eval(board_2) == b2_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 evaluation does not match"
+    # assert agent.get_results_board_eval(board_3) == b3_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 evaluation does not match"
+    # assert agent.get_results_board_eval(board_4) == b4_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 evaluation does not match"
+    # assert agent.get_results_board_eval(board_5) == b5_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 evaluation does not match"
+    # assert agent.get_results_board_eval(board_6) == b6_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 evaluation does not match"
+    assert agent.get_results_board_eval(board_7) == round(0.75 * b7_eval, 2), Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 evaluation does not match"
+    assert agent.get_results_board_eval(board_8) == b8_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 evaluation does not match, evaluation is {agent.get_results_board_eval(board_8)}"
+    assert agent.get_results_board_eval(board_9) == round((0.75 * -0.15), 2), Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 evaluation does not match, evaluation is {agent.get_results_board_eval(board_9)}"
+    assert agent.get_results_board_eval(board_10) == round((0.75 * 0.15), 2), Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 evaluation does not match, evaluation is {agent.get_results_board_eval(board_10)}"
+    assert agent.get_results_board_eval(board_11) == b11_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 evaluation does not match, evaluation is {agent.get_results_board_eval(board_11)}"
+    assert agent.get_results_board_eval(board_12) == b12_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 evaluation does not match, evaluation is {agent.get_results_board_eval(board_12)}"
     
-    assert agent.get_results_board_eval(results_1) == 0, f"Test Failed: Results 1 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_1)}"
-    assert agent.get_results_board_eval(results_2) == 0.45, f"Test Failed: Results 2 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_2)}"
-    assert agent.get_results_board_eval(results_3) == 0, f"Test Failed: Results 3 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_3)}"
-    assert agent.get_results_board_eval(results_4) == 0, f"Test Failed: Results 4 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_4)}"
-    assert agent.get_results_board_eval(results_5) == 0.6, f"Test Failed: Results 5 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_5)}"
+    assert agent.get_results_board_eval(results_1) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Results 1 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_1)}"
+    assert agent.get_results_board_eval(results_2) == 0.45, Style.BRIGHT + Fore.RED + f"Test Failed: Results 2 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_2)}"
+    assert agent.get_results_board_eval(results_3) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Results 3 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_3)}"
+    assert agent.get_results_board_eval(results_4) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Results 4 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_4)}"
+    assert agent.get_results_board_eval(results_5) == 0.6, Style.BRIGHT + Fore.RED + f"Test Failed: Results 5 evaluation does not match, the evaluation was {agent.get_results_board_eval(results_5)}"
 
     print("All Results Board Eval tests passed successfully!")
 
 def run_draw_tests(agent):
-    assert agent.get_draw_hash(board_1) == False, "Test Failed: Board 1 should not be a draw"
-    assert agent.get_draw_hash(board_2) == False, "Test Failed: Board 2 should not be a draw"
-    assert agent.get_draw_hash(board_3) == False, "Test Failed: Board 3 should not be a draw"
-    assert agent.get_draw_hash(board_4) == False, "Test Failed: Board 4 should not be a draw"
-    assert agent.get_draw_hash(board_5) == False, "Test Failed: Board 5 should not be a draw"
-    assert agent.get_draw_hash(board_6) == False, "Test Failed: Board 6 should not be a draw"
-    assert agent.get_draw_hash(board_7) == False, "Test Failed: Board 7 should not be a draw"
-    assert agent.get_draw_hash(board_8) == True, "Test Failed: Board 8 should be a draw"
-    assert agent.get_draw_hash(board_9) == False, "Test Failed: Board 9 should not be a draw"
-    assert agent.get_draw_hash(board_10) == False, "Test Failed: Board 10 should not be a draw"
-    assert agent.get_draw_hash(board_11) == True, "Test Failed: Board 11 should be a draw"
-    assert agent.get_draw_hash(board_12) == True, "Test Failed: Board 12 should be a draw"
+    assert agent.get_draw_hash(board_1) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should not be a draw"
+    assert agent.get_draw_hash(board_2) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should not be a draw"
+    assert agent.get_draw_hash(board_3) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should not be a draw"
+    assert agent.get_draw_hash(board_4) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should not be a draw"
+    assert agent.get_draw_hash(board_5) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should not be a draw"
+    assert agent.get_draw_hash(board_6) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should not be a draw"
+    assert agent.get_draw_hash(board_7) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not be a draw"
+    assert agent.get_draw_hash(board_8) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should be a draw"
+    assert agent.get_draw_hash(board_9) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not be a draw"
+    assert agent.get_draw_hash(board_10) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should not be a draw"
+    assert agent.get_draw_hash(board_11) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should be a draw"
+    assert agent.get_draw_hash(board_12) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should be a draw"
 
     print("All Draw-Board tests passed successfully!")
 
 def run_draw_results_tests(agent):
-    assert agent.get_draw_result_hash(board_1) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should not be a draw, result was {agent.get_draw_result_hash(board_1)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_2) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 should not be a draw, result was {agent.get_draw_result_hash(board_2)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_3) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 should not be a draw, result was {agent.get_draw_result_hash(board_3)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_4) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should not be a draw, result was {agent.get_draw_result_hash(board_4)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_5) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should not be a draw, result was {agent.get_draw_result_hash(board_5)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_6) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should not be a draw, result was {agent.get_draw_result_hash(board_6)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_7) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should not be a draw, result was {agent.get_draw_result_hash(board_7)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_8) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 should be a draw, result was {agent.get_draw_result_hash(board_8)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_9) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should not be a draw, result was {agent.get_draw_result_hash(board_9)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_10) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 should not be a draw, result was {agent.get_draw_result_hash(board_10)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_11) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 should be a draw, result was {agent.get_draw_result_hash(board_11)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(board_12) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 should be a draw, result was {agent.get_draw_result_hash(board_12)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_1) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should not be a draw, result was {agent.get_draw_result_hash(board_1)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_2) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 should not be a draw, result was {agent.get_draw_result_hash(board_2)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_3) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 should not be a draw, result was {agent.get_draw_result_hash(board_3)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_4) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should not be a draw, result was {agent.get_draw_result_hash(board_4)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_5) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should not be a draw, result was {agent.get_draw_result_hash(board_5)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_6) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should not be a draw, result was {agent.get_draw_result_hash(board_6)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_7) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should not be a draw, result was {agent.get_draw_result_hash(board_7)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_8) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 should be a draw, result was {agent.get_draw_result_hash(board_8)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_9) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should not be a draw, result was {agent.get_draw_result_hash(board_9)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_10) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 should not be a draw, result was {agent.get_draw_result_hash(board_10)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_11) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 should be a draw, result was {agent.get_draw_result_hash(board_11)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(board_12) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 should be a draw, result was {agent.get_draw_result_hash(board_12)}" + Style.RESET_ALL
 
-    assert agent.get_draw_result_hash(results_1) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 1 should not be a draw, result was {agent.get_draw_result_hash(results_1)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_2) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 2 should not be a draw, result was {agent.get_draw_result_hash(results_2)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_3) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 3 should not be a draw, result was {agent.get_draw_result_hash(results_3)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_4) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 4 should not be a draw, result was {agent.get_draw_result_hash(results_4)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_5) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 5 should not be a draw, result was {agent.get_draw_result_hash(results_5)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_6) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 6 should not be a draw, result was {agent.get_draw_result_hash(results_6)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_7) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 7 should not be a draw, result was {agent.get_draw_result_hash(results_7)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_8) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 8 should be a draw, result was {agent.get_draw_result_hash(results_8)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_9) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 9 should be a draw, result was {agent.get_draw_result_hash(results_9)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_10) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 10 should not be a draw, result was {agent.get_draw_result_hash(results_10)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_11) == False, Style.BRIGHT + Fore.RED + f"Test Failed: Results 11 should not be a draw, result was {agent.get_draw_result_hash(results_11)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_12) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 12 should be a draw, result was {agent.get_draw_result_hash(results_12)}" + Style.RESET_ALL
-    assert agent.get_draw_result_hash(results_13) == True, Style.BRIGHT + Fore.RED + f"Test Failed: Results 13 should be a draw, result was {agent.get_draw_result_hash(results_13)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_1) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 1 should not be a draw, result was {agent.get_draw_result_hash(results_1)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_2) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 2 should not be a draw, result was {agent.get_draw_result_hash(results_2)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_3) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 3 should not be a draw, result was {agent.get_draw_result_hash(results_3)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_4) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 4 should not be a draw, result was {agent.get_draw_result_hash(results_4)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_5) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 5 should not be a draw, result was {agent.get_draw_result_hash(results_5)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_6) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 6 should not be a draw, result was {agent.get_draw_result_hash(results_6)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_7) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 7 should not be a draw, result was {agent.get_draw_result_hash(results_7)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_8) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 8 should be a draw, result was {agent.get_draw_result_hash(results_8)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_9) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 9 should be a draw, result was {agent.get_draw_result_hash(results_9)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_10) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 10 should not be a draw, result was {agent.get_draw_result_hash(results_10)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_11) == False, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 11 should not be a draw, result was {agent.get_draw_result_hash(results_11)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_12) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 12 should be a draw, result was {agent.get_draw_result_hash(results_12)}" + Style.RESET_ALL
+    assert agent.get_draw_result_hash(results_13) == True, Style.BRIGHT + Fore.RED + Style.BRIGHT + Fore.RED + f"Test Failed: Results 13 should be a draw, result was {agent.get_draw_result_hash(results_13)}" + Style.RESET_ALL
 
     print("All Draw-Results tests passed successfully!")
 
 def run_over_tests(agent):
-    assert agent.get_over_hash(board_1) == True, "Test Failed: Board 1 should be over"
-    assert agent.get_over_hash(board_2) == True, "Test Failed: Board 2 should be over"
-    assert agent.get_over_hash(board_3) == True, "Test Failed: Board 3 should be over"
-    assert agent.get_over_hash(board_4) == True, "Test Failed: Board 4 should be over"
-    assert agent.get_over_hash(board_5) == True, "Test Failed: Board 5 should be over"
-    assert agent.get_over_hash(board_6) == True, "Test Failed: Board 6 should be over"
-    assert agent.get_over_hash(board_7) == False, "Test Failed: Board 7 should not be over"
-    assert agent.get_over_hash(board_8) == True, "Test Failed: Board 8 should be over"
-    assert agent.get_over_hash(board_9) == False, "Test Failed: Board 9 should not be over"
-    assert agent.get_over_hash(board_10) == False, "Test Failed: Board 10 should not be over"
-    assert agent.get_over_hash(board_11) == False, "Test Failed: Board 11 should not be over"
-    assert agent.get_over_hash(board_12) == False, "Test Failed: Board 12 should not be over"
+    assert agent.get_over_hash(board_1) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should be over"
+    assert agent.get_over_hash(board_2) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should be over"
+    assert agent.get_over_hash(board_3) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should be over"
+    assert agent.get_over_hash(board_4) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should be over"
+    assert agent.get_over_hash(board_5) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should be over"
+    assert agent.get_over_hash(board_6) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should be over"
+    assert agent.get_over_hash(board_7) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not be over"
+    assert agent.get_over_hash(board_8) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should be over"
+    assert agent.get_over_hash(board_9) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not be over"
+    assert agent.get_over_hash(board_10) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should not be over"
+    assert agent.get_over_hash(board_11) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should not be over"
+    assert agent.get_over_hash(board_12) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should not be over"
     print("All Over-Board tests passed successfully!")
 
 def run_playable_tests(agent):
-    assert agent.get_playable_hash(board_1) == isPlayable(board_1) == False, "Test Failed: Board 1 should not be playable"
-    assert agent.get_playable_hash(board_2) == isPlayable(board_2) == False, "Test Failed: Board 2 should not be playable"
-    assert agent.get_playable_hash(board_3) == isPlayable(board_3) == False, "Test Failed: Board 3 should not be playable"
-    assert agent.get_playable_hash(board_4) == isPlayable(board_4) == False, "Test Failed: Board 4 should not be playable"
-    assert agent.get_playable_hash(board_5) == isPlayable(board_5) == False, "Test Failed: Board 5 should not be playable"
-    assert agent.get_playable_hash(board_6) == isPlayable(board_6) == False, "Test Failed: Board 6 should not be playable"
-    assert agent.get_playable_hash(board_7) == isPlayable(board_7) == True, "Test Failed: Board 7 should be playable"
-    assert agent.get_playable_hash(board_8) == isPlayable(board_8) == False, "Test Failed: Board 8 should not be playable"
-    assert agent.get_playable_hash(board_9) == isPlayable(board_9) == True, "Test Failed: Board 9 should be playable"
-    assert agent.get_playable_hash(board_10) == isPlayable(board_10) == True, "Test Failed: Board 10 should be playable"
-    assert agent.get_playable_hash(board_11) == isPlayable(board_11) == True, "Test Failed: Board 11 should be playable"
-    assert agent.get_playable_hash(board_12) == isPlayable(board_12) == True, "Test Failed: Board 12 should be playable"
+    assert agent.get_playable_hash(board_1) == isPlayable(board_1) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should not be playable"
+    assert agent.get_playable_hash(board_2) == isPlayable(board_2) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should not be playable"
+    assert agent.get_playable_hash(board_3) == isPlayable(board_3) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should not be playable"
+    assert agent.get_playable_hash(board_4) == isPlayable(board_4) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should not be playable"
+    assert agent.get_playable_hash(board_5) == isPlayable(board_5) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should not be playable"
+    assert agent.get_playable_hash(board_6) == isPlayable(board_6) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should not be playable"
+    assert agent.get_playable_hash(board_7) == isPlayable(board_7) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should be playable"
+    assert agent.get_playable_hash(board_8) == isPlayable(board_8) == False, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should not be playable"
+    assert agent.get_playable_hash(board_9) == isPlayable(board_9) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should be playable"
+    assert agent.get_playable_hash(board_10) == isPlayable(board_10) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should be playable"
+    assert agent.get_playable_hash(board_11) == isPlayable(board_11) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should be playable"
+    assert agent.get_playable_hash(board_12) == isPlayable(board_12) == True, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should be playable"
     print("All Playable-Board tests passed successfully!")
 
 def run_eval_commonsense_tests(agent):
-    assert agent.get_eval_hash(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
-    assert agent.get_eval_hash(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
-    assert agent.get_eval_hash(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
-    assert agent.get_eval_hash(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
-    assert agent.get_eval_hash(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
-    assert agent.get_eval_hash(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
-    assert abs(agent.get_eval_hash(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_hash(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
-    assert abs(agent.get_eval_hash(board_8)) < 1, "Test Failed: Board 8 should have a score of 0"
-    assert agent.get_eval_hash(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
-    assert abs(agent.get_eval_hash(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_hash(board_10) == -1 * agent.get_eval_hash(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
-    assert agent.get_eval_hash(board_11) == 0, "Test Failed: Board 11 should have a score of 0"
-    assert agent.get_eval_hash(board_12) == 0, "Test Failed: Board 12 should have a score of 0"
+    assert agent.get_eval_hash(board_1) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_eval_hash(board_2) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_eval_hash(board_3) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_eval_hash(board_4) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_eval_hash(board_5) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_eval_hash(board_6) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_eval_hash(board_7)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_hash(board_7) >= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a negative score"
+    assert abs(agent.get_eval_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should have a score of 0"
+    assert agent.get_eval_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_eval_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_hash(board_10) == -1 * agent.get_eval_hash(board_9), Style.BRIGHT + Fore.RED + "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_eval_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should have a score of 0"
+    assert agent.get_eval_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should have a score of 0"
 
     print("All Eval Common-Sense tests passed successfully!")
 
 def run_eval_v2_commonsense_tests(agent):
-    assert agent.get_eval_v2_hash(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
-    assert agent.get_eval_v2_hash(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
-    assert agent.get_eval_v2_hash(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
-    assert agent.get_eval_v2_hash(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
-    assert agent.get_eval_v2_hash(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
-    assert agent.get_eval_v2_hash(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
-    assert abs(agent.get_eval_v2_hash(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_v2_hash(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
-    assert abs(agent.get_eval_v2_hash(board_8)) < 1, "Test Failed: Board 8 should have a score of 0"
-    assert agent.get_eval_v2_hash(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
-    assert abs(agent.get_eval_v2_hash(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_v2_hash(board_10) == -1 * agent.get_eval_v2_hash(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
-    assert agent.get_eval_v2_hash(board_11) == 0, "Test Failed: Board 11 should have a score of 0"
-    assert agent.get_eval_v2_hash(board_12) == 0, "Test Failed: Board 12 should have a score of 0"
+    assert agent.get_eval_v2_hash(board_1) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_eval_v2_hash(board_2) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_eval_v2_hash(board_3) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_eval_v2_hash(board_4) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_eval_v2_hash(board_5) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_eval_v2_hash(board_6) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_eval_v2_hash(board_7)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_v2_hash(board_7) >= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a negative score"
+    assert abs(agent.get_eval_v2_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should have a score of 0"
+    assert agent.get_eval_v2_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_eval_v2_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_v2_hash(board_10) == -1 * agent.get_eval_v2_hash(board_9), Style.BRIGHT + Fore.RED + "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_eval_v2_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should have a score of 0"
+    assert agent.get_eval_v2_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should have a score of 0"
 
     print("All Eval V2 Common-Sense tests passed successfully!")
 
 def run_eval_v3_commonsense_tests(agent):
-    assert agent.get_eval_v3_hash(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
-    assert agent.get_eval_v3_hash(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
-    assert agent.get_eval_v3_hash(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
-    assert agent.get_eval_v3_hash(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
-    assert agent.get_eval_v3_hash(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
-    assert agent.get_eval_v3_hash(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
-    assert abs(agent.get_eval_v3_hash(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_v3_hash(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
-    assert abs(agent.get_eval_v3_hash(board_8)) < 1, "Test Failed: Board 8 should have a score of 0"
-    assert agent.get_eval_v3_hash(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
-    assert abs(agent.get_eval_v3_hash(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_eval_v3_hash(board_10) == -1 * agent.get_eval_v3_hash(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
-    assert agent.get_eval_v3_hash(board_11) == 0, "Test Failed: Board 11 should have a score of 0"
-    assert agent.get_eval_v3_hash(board_12) == 0, "Test Failed: Board 12 should have a score of 0"
+    assert agent.get_eval_v3_hash(board_1) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_eval_v3_hash(board_2) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_eval_v3_hash(board_3) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_eval_v3_hash(board_4) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_eval_v3_hash(board_5) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_eval_v3_hash(board_6) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_eval_v3_hash(board_7)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_v3_hash(board_7) >= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a negative score"
+    assert abs(agent.get_eval_v3_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should have a score of 0"
+    assert agent.get_eval_v3_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_eval_v3_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_v3_hash(board_10) == -1 * agent.get_eval_v3_hash(board_9), Style.BRIGHT + Fore.RED + "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_eval_v3_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should have a score of 0"
+    assert agent.get_eval_v3_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should have a score of 0"
 
     print("All Eval V3 Common-Sense tests passed successfully!")
     
 def run_eval_glob_commonsense_tests(agent):
-    assert agent.get_board_info(board_1) == 6.4, "Test Failed: Board 1 should have a score of 6.4 since its won"
-    assert agent.get_board_info(board_2) == 6.4, "Test Failed: Board 2 should have a score of 6.4 since its won"
-    assert agent.get_board_info(board_3) == 6.4, "Test Failed: Board 3 should have a score of 6.4 since its won"
-    assert agent.get_board_info(board_4) == -6.4, "Test Failed: Board 4 should have a score of -6.4 since its won"
-    assert agent.get_board_info(board_5) == -6.4, "Test Failed: Board 5 should have a score of -6.4 since its won"
-    assert agent.get_board_info(board_6) == -6.4, "Test Failed: Board 6 should have a score of -6.4 since its won"
-    assert abs(agent.get_board_info(board_7)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_board_info(board_7) >= 0, "Test Failed: Board 7 should not have a negative score"
-    assert agent.get_board_info(board_9) <= 0, "Test Failed: Board 9 should not have a positive score"
-    assert abs(agent.get_board_info(board_9)) < 1, "Test Failed: Board 7 should have a low absolute score"
-    assert agent.get_board_info(board_10) == -1 * agent.get_board_info(board_9), "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_board_info(board_1) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_board_info(board_2) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_board_info(board_3) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_board_info(board_4) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_board_info(board_5) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_board_info(board_6) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_board_info(board_7)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_board_info(board_7) >= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a negative score"
+    assert agent.get_board_info(board_9) <= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_board_info(board_9)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_board_info(board_10) == -1 * agent.get_board_info(board_9), Style.BRIGHT + Fore.RED + "Test Failed: Board 10 score should be inverse of Board 9"
 
     print("All Eval Global Local Common-Sense tests passed successfully!")
 
 def run_winnable_tests_one(agent):
     # Boards winnable by player 1
-    assert agent.get_winnable_by_one_hash(board_1) == set(), "Test Failed: Board 1 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_2) == set(), "Test Failed: Board 2 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_3) == set(), "Test Failed: Board 3 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_4) == set(), "Test Failed: Board 4 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_5) == set(), "Test Failed: Board 5 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_6) == set(), "Test Failed: Board 6 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_7) == {(2, 0)}, "Test Failed: Board 7 should be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_8) == set(), "Test Failed: Board 8 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_9) == {(0, 2)}, "Test Failed: Board 9 should be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_10) == {(1, 2)}, "Test Failed: Board 10 should be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_11) == set(), "Test Failed: Board 11 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_12) == set(), "Test Failed: Board 12 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_13) == {(0, 1), (1, 1), (1, 2), (2, 0)}, "Test Failed: Board 13 should be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_14) == set(), "Test Failed: Board 14 should not be winnable by player 1"
-    assert agent.get_winnable_by_one_hash(board_15) == {(0, 2), (2, 0)}, "Test Failed: Board 15 should be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_1) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_2) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_3) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_4) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_5) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_6) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_7) == {(2, 0)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_8) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_9) == {(0, 2)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_10) == {(1, 2)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_11) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_12) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_13) == {(0, 1), (1, 1), (1, 2), (2, 0)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 13 should be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_14) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 14 should not be winnable by player 1"
+    assert agent.get_winnable_by_one_hash(board_15) == {(0, 2), (2, 0)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 15 should be winnable by player 1"
 
     print("All Winnable-By-One tests passed successfully!")
 
 def run_winnable_tests_minus_one(agent):
     # Boards winnable by player -1
-    assert agent.get_winnable_by_minus_one_hash(board_1) == set(), "Test Failed: Board 1 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_2) == set(), "Test Failed: Board 2 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_3) == set(), "Test Failed: Board 3 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_4) == set(), "Test Failed: Board 4 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_5) == set(), "Test Failed: Board 5 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_6) == set(), "Test Failed: Board 6 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_7) == {(2, 0)}, "Test Failed: Board 7 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_8) == set(), "Test Failed: Board 8 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_9) == {(1, 2)}, "Test Failed: Board 9 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_10) == {(2, 2)}, "Test Failed: Board 10 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_11) == set(), "Test Failed: Board 11 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_12) == set(), "Test Failed: Board 12 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_13) == set(), "Test Failed: Board 13 should not be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_14) == {(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)}, "Test Failed: Board 14 should be winnable by player -1"
-    assert agent.get_winnable_by_minus_one_hash(board_15) == {(0, 2), (2, 0)}, "Test Failed: Board 15 should be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_1) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_2) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_3) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_4) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_5) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_6) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_7) == {(2, 0)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_8) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_9) == {(1, 2)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_10) == {(2, 2)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 10 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_11) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_12) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_13) == set(), Style.BRIGHT + Fore.RED + "Test Failed: Board 13 should not be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_14) == {(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 14 should be winnable by player -1"
+    assert agent.get_winnable_by_minus_one_hash(board_15) == {(0, 2), (2, 0)}, Style.BRIGHT + Fore.RED + "Test Failed: Board 15 should be winnable by player -1"
 
     print("All Winnable-By-Minus-One tests passed successfully!")
 
 def run_HyphenNumeric_tests(agent):
-    assert agent.get_HyphenNumeric_hash(super_board_1, btp1) == bestmove1, "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
-    assert agent.get_HyphenNumeric_hash(super_board_2, btp2) == bestmove2, "Test Failed: Super Board 2 should have a best move of (0, 2, 2, 0)"
+    assert agent.get_HyphenNumeric_hash(super_board_1, btp1) == bestmove1, Style.BRIGHT + Fore.RED + "Test Failed: Super Board 1 should have a best move of (2, 0, 0, 2)"
+    assert agent.get_HyphenNumeric_hash(super_board_2, btp2) == bestmove2, Style.BRIGHT + Fore.RED + "Test Failed: Super Board 2 should have a best move of (0, 2, 2, 0)"
     
     print("All HyphenNumeric tests passed successfully!" + Style.RESET_ALL)
 
