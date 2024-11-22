@@ -128,20 +128,18 @@ const Dashboard: React.FC = () => {
                   Choose Your Opponent
                 </h2>
                 <div className="flex flex-wrap justify-center gap-4">
-                  {bots?.map((bot) =>
-                    bot?.id === -1 ? null : ( // TODO: Foo aint playin yet
-                      <button
-                        key={bot.id}
-                        className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
-                        onClick={() => setBot(bot)}
-                      >
-                        <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                          {bot.icon}
-                        </div>
-                        <p className="w-full">{bot.name}</p>
-                      </button>
-                    )
-                  )}
+                  {bots?.map((bot) => (
+                    <button
+                      key={bot.id}
+                      className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                      onClick={() => setBot(bot)}
+                    >
+                      <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                        {bot.icon}
+                      </div>
+                      <p className="w-full">{bot.name}</p>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
