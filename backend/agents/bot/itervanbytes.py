@@ -535,13 +535,13 @@ class IterVanBytesAgent:
             raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
 
-    def get_eval_glob_hash(self, board):
+    def get_board_info(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
         board_key = board.tobytes()
-        score, result = self.hash_eval_glob_boards.get(board_key, None)
-        if score is None or result is None:
-            raise ValueError(f"Board {board} not found in evaluated global boards. Score was {score} and result was {result}")
-        return score, result
+        score, result, positional_lead, positional_score = self.hash_boards_information.get(board_key, None)
+        if score is None or result is None or positional_lead is None or positional_score is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Info was {score}, {result}, {positional_lead}, {positional_score}")
+        return score, result, positional_lead, positional_score
 
     def get_global_results_eval(self, board):
         ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
