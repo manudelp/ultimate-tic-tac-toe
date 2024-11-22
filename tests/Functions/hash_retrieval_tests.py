@@ -1620,50 +1620,50 @@ def get_eval_result_tests_v3(agent):
     print("All Eval Result V3 tests passed successfully!")
 
 def run_board_info_tests(agent):
-    assert agent.get_board_info(board_1)[0] == b1_eval_glob, "Test Failed: Board 1 evaluation does not match"
-    assert agent.get_board_info(board_1)[1] == 1, "Test Failed: Board 1 result does not match"
+    assert agent.get_board_info(board_1)[0] == b1_eval_glob, f"Test Failed: Board 1 evaluation does not match, evaluation was {agent.get_board_info(board_1)[0]}"
+    assert agent.get_board_info(board_1)[1] == 1, f"Test Failed: Board 1 result does not match, result was {agent.get_board_info(board_1)[1]}"
 
-    assert agent.get_board_info(board_2)[0] == b2_eval_glob, "Test Failed: Board 2 evaluation does not match"
-    assert agent.get_board_info(board_2)[1] == 1, "Test Failed: Board 2 result does not match"
+    assert agent.get_board_info(board_2)[0] == b2_eval_glob, f"Test Failed: Board 2 evaluation does not match, evaluation was {agent.get_board_info(board_2)[0]}"
+    assert agent.get_board_info(board_2)[1] == 1, f"Test Failed: Board 2 result does not match, result was {agent.get_board_info(board_2)[1]}"
 
-    assert agent.get_board_info(board_3)[0] == b3_eval_glob, "Test Failed: Board 3 evaluation does not match"
-    assert agent.get_board_info(board_3)[1] == 1, "Test Failed: Board 3 result does not match"
+    assert agent.get_board_info(board_3)[0] == b3_eval_glob, f"Test Failed: Board 3 evaluation does not match, evaluation was {agent.get_board_info(board_3)[0]}"
+    assert agent.get_board_info(board_3)[1] == 1, f"Test Failed: Board 3 result does not match, result was {agent.get_board_info(board_3)[1]}"
 
-    assert agent.get_board_info(board_4)[0] == b4_eval_glob, "Test Failed: Board 4 evaluation does not match"
-    assert agent.get_board_info(board_4)[1] == -1, "Test Failed: Board 4 result does not match"
+    assert agent.get_board_info(board_4)[0] == b4_eval_glob, f"Test Failed: Board 4 evaluation does not match, evaluation was {agent.get_board_info(board_4)[0]}"
+    assert agent.get_board_info(board_4)[1] == -1, f"Test Failed: Board 4 result does not match, result was {agent.get_board_info(board_4)[1]}"
 
-    assert agent.get_board_info(board_5)[0] == b5_eval_glob, "Test Failed: Board 5 evaluation does not match"
-    assert agent.get_board_info(board_5)[1] == -1, "Test Failed: Board 5 result does not match"
+    assert agent.get_board_info(board_5)[0] == b5_eval_glob, f"Test Failed: Board 5 evaluation does not match, evaluation was {agent.get_board_info(board_5)[0]}"
+    assert agent.get_board_info(board_5)[1] == -1, f"Test Failed: Board 5 result does not match, result was {agent.get_board_info(board_5)[1]}"
 
-    assert agent.get_board_info(board_6)[0] == b6_eval_glob, "Test Failed: Board 6 evaluation does not match"
-    assert agent.get_board_info(board_6)[1] == -1, "Test Failed: Board 6 result does not match"
+    assert agent.get_board_info(board_6)[0] == b6_eval_glob, f"Test Failed: Board 6 evaluation does not match, evaluation was {agent.get_board_info(board_6)[0]}"
+    assert agent.get_board_info(board_6)[1] == -1, f"Test Failed: Board 6 result does not match, result was {agent.get_board_info(board_6)[1]}"
 
-    assert agent.get_board_info(board_7)[0] == b7_eval_glob, "Test Failed: Board 7 evaluation does not match"
-    assert agent.get_board_info(board_7)[1] == 0, "Test Failed: Board 7 result does not match"
+    assert agent.get_board_info(board_7)[0] == b7_eval_glob, f"Test Failed: Board 7 evaluation does not match, evaluation was {agent.get_board_info(board_7)[0]}"
+    assert agent.get_board_info(board_7)[1] == 0, f"Test Failed: Board 7 result does not match, result was {agent.get_board_info(board_7)[1]}"
 
-    assert agent.get_board_info(board_8)[0] == b8_eval_glob, "Test Failed: Board 8 evaluation does not match"
-    assert agent.get_board_info(board_8)[1] == 2, "Test Failed: Board 8 result does not match"
+    assert agent.get_board_info(board_8)[0] == b8_eval_glob, f"Test Failed: Board 8 evaluation does not match, evaluation was {agent.get_board_info(board_8)[0]}"
+    assert agent.get_board_info(board_8)[1] == 2, f"Test Failed: Board 8 result does not match, result was {agent.get_board_info(board_8)[1]}"
 
-    assert agent.get_board_info(board_9)[0] == b9_eval_glob, "Test Failed: Board 9 evaluation does not match"
-    assert agent.get_board_info(board_9)[1] == 0, "Test Failed: Board 7 result does not match"
+    assert agent.get_board_info(board_9)[0] == b9_eval_glob, f"Test Failed: Board 9 evaluation does not match, evaluation was {agent.get_board_info(board_9)[0]}"
+    assert agent.get_board_info(board_9)[1] == 0, f"Test Failed: Board 7 result does not match, result was {agent.get_board_info(board_9)[1]}"
 
-    assert agent.get_board_info(board_10)[0] == b10_eval_glob, "Test Failed: Board 10 evaluation does not match"
-    assert agent.get_board_info(board_10)[1] == 0, "Test Failed: Board 10 result does not match"
+    assert agent.get_board_info(board_10)[0] == b10_eval_glob, f"Test Failed: Board 10 evaluation does not match, evaluation was {agent.get_board_info(board_10)[0]}"
+    assert agent.get_board_info(board_10)[1] == 0, f"Test Failed: Board 10 result does not match, result was {agent.get_board_info(board_10)[1]}"
 
-    assert agent.get_board_info(board_11)[0] == b11_eval_glob, "Test Failed: Board 11 evaluation does not match"
-    assert agent.get_board_info(board_11)[1] == 2, "Test Failed: Board 11 result does not match"
+    assert agent.get_board_info(board_11)[0] == b11_eval_glob, f"Test Failed: Board 11 evaluation does not match, evaluation was {agent.get_board_info(board_11)[0]}"
+    assert agent.get_board_info(board_11)[1] == 2, f"Test Failed: Board 11 result does not match, result was {agent.get_board_info(board_11)[1]}"
 
-    assert agent.get_board_info(board_12)[0] == b12_eval_glob, "Test Failed: Board 12 evaluation does not match"
-    assert agent.get_board_info(board_12)[1] == 2, "Test Failed: Board 12 result does not match"
+    assert agent.get_board_info(board_12)[0] == b12_eval_glob, f"Test Failed: Board 12 evaluation does not match, evaluation was {agent.get_board_info(board_12)[0]}"
+    assert agent.get_board_info(board_12)[1] == 2, f"Test Failed: Board 12 result does not match, result was {agent.get_board_info(board_12)[1]}"
 
-    assert agent.get_board_info(board_center_only)[0] == 0.8, "Test Failed: Board Center Only evaluation does not match"
-    assert agent.get_board_info(board_center_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_only)[0] == 0.8, f"Test Failed: Board Center_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_only)[0]}"
+    assert agent.get_board_info(board_center_only)[1] == 0, f"Test Failed: Board Center_Only result does not match, result was {agent.get_board_info(board_center_only)[1]}"
 
-    assert agent.get_board_info(board_center_only_another)[0] == 0.8, "Test Failed: Board Center Only Another evaluation does not match"
-    assert agent.get_board_info(board_center_only_another)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_only_another)[0] == 0.8, f"Test Failed: Board Center_Only_Another evaluation does not match, evaluation was {agent.get_board_info(board_center_only_another)[0]}"
+    assert agent.get_board_info(board_center_only_another)[1] == 0, f"Test Failed: Board Center_Only_Another result does not match, result was {agent.get_board_info(board_center_only_another)[1]}"
 
-    assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, "Test Failed: Board Center Enemy Only evaluation does not match"
-    assert agent.get_board_info(board_center_enemy_only)[1] == 0, "Test Failed: Board Center Only Another evaluation does not match"
+    assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, f"Test Failed: Board Center_Enemy_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_enemy_only)[0]}"
+    assert agent.get_board_info(board_center_enemy_only)[1] == 0, f"Test Failed: Board Center_Enemy_Only result does not match, result was {agent.get_board_info(board_center_enemy_only)[1]}"
 
     print("All Board Information tests passed successfully!")
 
