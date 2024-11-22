@@ -5,6 +5,8 @@ from typing import Tuple, List, Union, Dict, Set, Any
 import ast
 import time
 
+CENTER_ONLY_EVAL = 0.35
+
 def isWon(subboard):
     # TIMEIT APPROVED ✅
     ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
@@ -328,6 +330,7 @@ def local_evaluation(localBoard):
     When both players threat, tone down but just a tiny bit
     NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
     '''
+
     score = 0
 
     single_eval = 0.14
@@ -1656,13 +1659,13 @@ def run_board_info_tests(agent):
     assert agent.get_board_info(board_12)[0] == b12_eval_glob, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 evaluation does not match, evaluation was {agent.get_board_info(board_12)[0]}"
     assert agent.get_board_info(board_12)[1] == 2, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 result does not match, result was {agent.get_board_info(board_12)[1]}"
 
-    assert agent.get_board_info(board_center_only)[0] == 0.8, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_only)[0]}"
+    assert agent.get_board_info(board_center_only)[0] == CENTER_ONLY_EVAL, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_only)[0]}"
     assert agent.get_board_info(board_center_only)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only result does not match, result was {agent.get_board_info(board_center_only)[1]}"
 
-    assert agent.get_board_info(board_center_only_another)[0] == 0.8, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only_Another evaluation does not match, evaluation was {agent.get_board_info(board_center_only_another)[0]}"
+    assert agent.get_board_info(board_center_only_another)[0] == CENTER_ONLY_EVAL, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only_Another evaluation does not match, evaluation was {agent.get_board_info(board_center_only_another)[0]}"
     assert agent.get_board_info(board_center_only_another)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Only_Another result does not match, result was {agent.get_board_info(board_center_only_another)[1]}"
 
-    assert agent.get_board_info(board_center_enemy_only)[0] == -0.8, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Enemy_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_enemy_only)[0]}"
+    assert agent.get_board_info(board_center_enemy_only)[0] == -CENTER_ONLY_EVAL, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Enemy_Only evaluation does not match, evaluation was {agent.get_board_info(board_center_enemy_only)[0]}"
     assert agent.get_board_info(board_center_enemy_only)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Enemy_Only result does not match, result was {agent.get_board_info(board_center_enemy_only)[1]}"
 
     print("All Board Information tests passed successfully!")

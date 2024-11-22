@@ -499,8 +499,22 @@ def local_evaluation(localBoard):
     When both players threat, tone down but just a tiny bit
     NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
     '''
-    score = 0
 
+    center_only_eval = 0.35
+    # If board is all 0s and a 1 in the middle, return center only eval
+    if np.count_nonzero(localBoard) == 1:
+        if localBoard[1, 1] == 1:
+            if np.array_equal(localBoard, CENTER_ONLY_BOARD):
+                return center_only_eval
+            else:
+                raise ValueError("Invalid Center Only Board")
+        elif localBoard[1, 1] == -1:
+            if np.array_equal(localBoard, CENTER_ONLY_ENEMY_BOARD):
+                return -center_only_eval
+            else:
+                raise ValueError("Invalid Center Only Enemy Board")
+
+    score = 0
     single_eval = 0.14
     double_eval = 0.60
     winning_eval = 4.5
