@@ -323,7 +323,7 @@ def localBoardEval_v3(localBoard):
 
     return round(score, 2)
 
-def globalLocalEval(localBoard):
+def local_evaluation(localBoard):
     # TIMEIT APPROVED ✅
     ''' 
     Intended to Work for Global Board Results Eval as a 3x3
@@ -1314,18 +1314,18 @@ super_board_center[1, 1, 1, 1] = 1
 
 # print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
-b1_eval, b1_eval_v2, b1_eval_v3, b1_eval_glob = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1), globalLocalEval(board_1)
-b2_eval, b2_eval_v2, b2_eval_v3, b2_eval_glob = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2), globalLocalEval(board_2)
-b3_eval, b3_eval_v2, b3_eval_v3, b3_eval_glob = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3), globalLocalEval(board_3)
-b4_eval, b4_eval_v2, b4_eval_v3, b4_eval_glob = localBoardEval(board_4), localBoardEval_v2(board_4), localBoardEval_v3(board_4), globalLocalEval(board_4)
-b5_eval, b5_eval_v2, b5_eval_v3, b5_eval_glob = localBoardEval(board_5), localBoardEval_v2(board_5), localBoardEval_v3(board_5), globalLocalEval(board_5)
-b6_eval, b6_eval_v2, b6_eval_v3, b6_eval_glob = localBoardEval(board_6), localBoardEval_v2(board_6), localBoardEval_v3(board_6), globalLocalEval(board_6)
-b7_eval, b7_eval_v2, b7_eval_v3, b7_eval_glob = localBoardEval(board_7), localBoardEval_v2(board_7), localBoardEval_v3(board_7), globalLocalEval(board_7)
-b8_eval, b8_eval_v2, b8_eval_v3, b8_eval_glob = localBoardEval(board_8), localBoardEval_v2(board_8), localBoardEval_v3(board_8), globalLocalEval(board_8)
-b9_eval, b9_eval_v2, b9_eval_v3, b9_eval_glob = localBoardEval(board_9), localBoardEval_v2(board_9), localBoardEval_v3(board_9), globalLocalEval(board_9)
-b10_eval, b10_eval_v2, b10_eval_v3, b10_eval_glob = localBoardEval(board_10), localBoardEval_v2(board_10), localBoardEval_v3(board_10), globalLocalEval(board_10)
-b11_eval, b11_eval_v2, b11_eval_v3, b11_eval_glob = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11), globalLocalEval(board_11)
-b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12), globalLocalEval(board_12)
+b1_eval, b1_eval_v2, b1_eval_v3, b1_eval_glob = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1), local_evaluation(board_1)
+b2_eval, b2_eval_v2, b2_eval_v3, b2_eval_glob = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2), local_evaluation(board_2)
+b3_eval, b3_eval_v2, b3_eval_v3, b3_eval_glob = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3), local_evaluation(board_3)
+b4_eval, b4_eval_v2, b4_eval_v3, b4_eval_glob = localBoardEval(board_4), localBoardEval_v2(board_4), localBoardEval_v3(board_4), local_evaluation(board_4)
+b5_eval, b5_eval_v2, b5_eval_v3, b5_eval_glob = localBoardEval(board_5), localBoardEval_v2(board_5), localBoardEval_v3(board_5), local_evaluation(board_5)
+b6_eval, b6_eval_v2, b6_eval_v3, b6_eval_glob = localBoardEval(board_6), localBoardEval_v2(board_6), localBoardEval_v3(board_6), local_evaluation(board_6)
+b7_eval, b7_eval_v2, b7_eval_v3, b7_eval_glob = localBoardEval(board_7), localBoardEval_v2(board_7), localBoardEval_v3(board_7), local_evaluation(board_7)
+b8_eval, b8_eval_v2, b8_eval_v3, b8_eval_glob = localBoardEval(board_8), localBoardEval_v2(board_8), localBoardEval_v3(board_8), local_evaluation(board_8)
+b9_eval, b9_eval_v2, b9_eval_v3, b9_eval_glob = localBoardEval(board_9), localBoardEval_v2(board_9), localBoardEval_v3(board_9), local_evaluation(board_9)
+b10_eval, b10_eval_v2, b10_eval_v3, b10_eval_glob = localBoardEval(board_10), localBoardEval_v2(board_10), localBoardEval_v3(board_10), local_evaluation(board_10)
+b11_eval, b11_eval_v2, b11_eval_v3, b11_eval_glob = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11), local_evaluation(board_11)
+b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12), local_evaluation(board_12)
 
 r1_ev = results_board_eval(results_1)
 r2_ev = results_board_eval(results_2)

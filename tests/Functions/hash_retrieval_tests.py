@@ -318,7 +318,7 @@ def localBoardEval_v3(localBoard):
 
     return round(score, 2)
 
-def globalLocalEval(localBoard):
+def local_evaluation(localBoard):
     # TIMEIT APPROVED ✅
     ''' 
     Intended to Work for Global Board Results Eval as a 3x3
@@ -329,12 +329,14 @@ def globalLocalEval(localBoard):
     NO CENTER COEFFICIENT OR ANYTHING LIKE THAT
     '''
     score = 0
-            
+
+    single_eval = 0.14
+    double_eval = 0.60
     player1_threat = False
     player2_threat = False
     
     # Rows
-    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
+    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
@@ -342,7 +344,7 @@ def globalLocalEval(localBoard):
         return 6.4 * row1_eval
     score += row1_eval
 
-    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
+    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
@@ -350,7 +352,7 @@ def globalLocalEval(localBoard):
         return 6.4 * row2_eval
     score += row2_eval
 
-    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
+    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
@@ -359,7 +361,7 @@ def globalLocalEval(localBoard):
     score += row3_eval
 
     # Columns
-    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
+    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
@@ -367,7 +369,7 @@ def globalLocalEval(localBoard):
         return 6.4 * col1_eval
     score += col1_eval
 
-    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
+    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
@@ -375,7 +377,7 @@ def globalLocalEval(localBoard):
         return 6.4 * col2_eval
     score += col2_eval
 
-    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
+    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
@@ -384,7 +386,7 @@ def globalLocalEval(localBoard):
     score += col3_eval
 
     # Diagonals
-    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
+    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
@@ -392,7 +394,7 @@ def globalLocalEval(localBoard):
         return 6.4 * diagTB_eval
     score += diagTB_eval
 
-    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
+    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
@@ -1386,18 +1388,18 @@ super_board_center[1, 1, 1, 1] = 1
 
 # print(Style.BRIGHT + Fore.YELLOW + f"\nThe HyphenNumeric Hash currently looks like this:\n{agent.hash_HyphenNumeric_boards}\n" + Style.RESET_ALL)
 
-b1_eval, b1_eval_v2, b1_eval_v3, b1_eval_glob = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1), globalLocalEval(board_1)
-b2_eval, b2_eval_v2, b2_eval_v3, b2_eval_glob = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2), globalLocalEval(board_2)
-b3_eval, b3_eval_v2, b3_eval_v3, b3_eval_glob = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3), globalLocalEval(board_3)
-b4_eval, b4_eval_v2, b4_eval_v3, b4_eval_glob = localBoardEval(board_4), localBoardEval_v2(board_4), localBoardEval_v3(board_4), globalLocalEval(board_4)
-b5_eval, b5_eval_v2, b5_eval_v3, b5_eval_glob = localBoardEval(board_5), localBoardEval_v2(board_5), localBoardEval_v3(board_5), globalLocalEval(board_5)
-b6_eval, b6_eval_v2, b6_eval_v3, b6_eval_glob = localBoardEval(board_6), localBoardEval_v2(board_6), localBoardEval_v3(board_6), globalLocalEval(board_6)
-b7_eval, b7_eval_v2, b7_eval_v3, b7_eval_glob = localBoardEval(board_7), localBoardEval_v2(board_7), localBoardEval_v3(board_7), globalLocalEval(board_7)
-b8_eval, b8_eval_v2, b8_eval_v3, b8_eval_glob = localBoardEval(board_8), localBoardEval_v2(board_8), localBoardEval_v3(board_8), globalLocalEval(board_8)
-b9_eval, b9_eval_v2, b9_eval_v3, b9_eval_glob = localBoardEval(board_9), localBoardEval_v2(board_9), localBoardEval_v3(board_9), globalLocalEval(board_9)
-b10_eval, b10_eval_v2, b10_eval_v3, b10_eval_glob = localBoardEval(board_10), localBoardEval_v2(board_10), localBoardEval_v3(board_10), globalLocalEval(board_10)
-b11_eval, b11_eval_v2, b11_eval_v3, b11_eval_glob = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11), globalLocalEval(board_11)
-b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12), globalLocalEval(board_12)
+b1_eval, b1_eval_v2, b1_eval_v3, b1_eval_glob = localBoardEval(board_1), localBoardEval_v2(board_1), localBoardEval_v3(board_1), local_evaluation(board_1)
+b2_eval, b2_eval_v2, b2_eval_v3, b2_eval_glob = localBoardEval(board_2), localBoardEval_v2(board_2), localBoardEval_v3(board_2), local_evaluation(board_2)
+b3_eval, b3_eval_v2, b3_eval_v3, b3_eval_glob = localBoardEval(board_3), localBoardEval_v2(board_3), localBoardEval_v3(board_3), local_evaluation(board_3)
+b4_eval, b4_eval_v2, b4_eval_v3, b4_eval_glob = localBoardEval(board_4), localBoardEval_v2(board_4), localBoardEval_v3(board_4), local_evaluation(board_4)
+b5_eval, b5_eval_v2, b5_eval_v3, b5_eval_glob = localBoardEval(board_5), localBoardEval_v2(board_5), localBoardEval_v3(board_5), local_evaluation(board_5)
+b6_eval, b6_eval_v2, b6_eval_v3, b6_eval_glob = localBoardEval(board_6), localBoardEval_v2(board_6), localBoardEval_v3(board_6), local_evaluation(board_6)
+b7_eval, b7_eval_v2, b7_eval_v3, b7_eval_glob = localBoardEval(board_7), localBoardEval_v2(board_7), localBoardEval_v3(board_7), local_evaluation(board_7)
+b8_eval, b8_eval_v2, b8_eval_v3, b8_eval_glob = localBoardEval(board_8), localBoardEval_v2(board_8), localBoardEval_v3(board_8), local_evaluation(board_8)
+b9_eval, b9_eval_v2, b9_eval_v3, b9_eval_glob = localBoardEval(board_9), localBoardEval_v2(board_9), localBoardEval_v3(board_9), local_evaluation(board_9)
+b10_eval, b10_eval_v2, b10_eval_v3, b10_eval_glob = localBoardEval(board_10), localBoardEval_v2(board_10), localBoardEval_v3(board_10), local_evaluation(board_10)
+b11_eval, b11_eval_v2, b11_eval_v3, b11_eval_glob = localBoardEval(board_11), localBoardEval_v2(board_11), localBoardEval_v3(board_11), local_evaluation(board_11)
+b12_eval, b12_eval_v2, b12_eval_v3, b12_eval_glob = localBoardEval(board_12), localBoardEval_v2(board_12), localBoardEval_v3(board_12), local_evaluation(board_12)
 r1_ev, r2_ev, r3_ev, r4_ev, r5_ev = results_board_eval(results_1), results_board_eval(results_2), results_board_eval(results_3), results_board_eval(results_4), results_board_eval(results_5)
 
 # print("r1 eval is", r1_ev)
