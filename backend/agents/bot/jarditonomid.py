@@ -37,12 +37,12 @@ class JardineritoAntiMidAgent:
         # Construct the absolute paths to the files
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
         evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
-        eval_glob_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_eval_boards_glob.txt')
+        board_info_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_boards_information.txt')
 
         # Load the boards using the absolute paths
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
-        self.load_eval_glob_boards(eval_glob_path)
+        self.load_eval_glob_boards(board_info_path)
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
