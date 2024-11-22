@@ -1299,7 +1299,6 @@ board_12 = np.array([[-1, 0, 1],
                     [1, -1, -1],
                     [-1, 1, 1]]) # Secured Draw (will always be Draw)
 
-# For Winnable Tests Only!
 board_13 = np.array([[1, 0, 1],
                     [1, 0, 0],
                     [0, 1, 1]]) # winnable by 1 in (0, 1), (1, 1), (1, 2), (2, 0)
@@ -1312,6 +1311,24 @@ board_15 = np.array([[-1, -1, 0],
                     [-1, 0, 1],
                     [0, 1, 1]]) # winnable by 1 in (0, 2), (2, 0) || winnable by -1 in (0, 2), (2, 0)
 
+# 16, 17, 18, 19 prepare interesting for board info positional stuff
+board_16 = np.array([[-1, 0, 1],
+                    [0, 0, -1],
+                    [1, -1, 0]])
+
+board_17 = np.array([[0, 0, -1],
+                    [0, 1, -1],
+                    [-1, -1, 1]])
+
+board_18 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]])
+
+board_19 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]])
+
+# Results Boards (contain 2s)
 results_1 = np.array([[2, 1, 1],
                     [2, -1, -1],
                     [2, 2, 2]]) # should be 0
@@ -1669,6 +1686,26 @@ def run_board_info_tests(agent):
     assert agent.get_board_info(board_center_enemy_only)[1] == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board Center_Enemy_Only result does not match, result was {agent.get_board_info(board_center_enemy_only)[1]}"
 
     print("All Board Information tests passed successfully!")
+
+def run_board_info_commonsense_tests(agent):
+    b1_eval, b1_result, b1_lead, b1_score = agent.get_board_info(board_1)
+    b2_eval, b2_result, b2_lead, b2_score = agent.get_board_info(board_2)
+    b3_eval, b3_result, b3_lead, b3_score = agent.get_board_info(board_3)
+    b4_eval, b4_result, b4_lead, b4_score = agent.get_board_info(board_4)
+    b5_eval, b5_result, b5_lead, b5_score = agent.get_board_info(board_5)
+    b6_eval, b6_result, b6_lead, b6_score = agent.get_board_info(board_6)
+    b7_eval, b7_result, b7_lead, b7_score = agent.get_board_info(board_7)
+    b8_eval, b8_result, b8_lead, b8_score = agent.get_board_info(board_8)
+    b9_eval, b9_result, b9_lead, b9_score = agent.get_board_info(board_9)
+    b10_eval, b10_result, b10_lead, b10_score = agent.get_board_info(board_10)
+    b11_eval, b11_result, b11_lead, b11_score = agent.get_board_info(board_11)
+    b12_eval, b12_result, b12_lead, b12_score = agent.get_board_info(board_12)
+
+    bCO, bCO_result, bCO_lead, bCO_score = agent.get_board_info(board_center_only)
+    bCOA, bCOA_result, bCOA_lead, bCOA_score = agent.get_board_info(board_center_only_another)
+    bCEO, bCEO_result, bCEO_lead, bCEO_score = agent.get_board_info(board_center_enemy_only)
+
+
 
 def run_eval_results_tests(agent):
     # assert agent.get_results_board_eval(board_1) == b1_eval, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 evaluation does not match"
