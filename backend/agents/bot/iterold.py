@@ -16,7 +16,7 @@ AB-Pruning Minimax? = True
 class IteroldAgent:
     def __init__(self):
         self.id = 14
-        self.name = "Mike Iterold Oxlong"
+        self.name = "Mike Coxlong"
         self.icon = "🪶"
         self.moveNumber = 0
         self.depth_local = 7 # when btp is not None

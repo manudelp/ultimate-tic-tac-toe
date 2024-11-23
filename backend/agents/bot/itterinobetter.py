@@ -16,7 +16,7 @@ AB-Pruning Minimax? = True
 class BetterItterinoAgent:
     def __init__(self):
         self.id = 15
-        self.name = "Dr. Itterino U. Ristic"
+        self.name = "Dr. Deepsdale"
         self.icon = "🔨"
         self.transposition_table = {}
         self.moveNumber = 0

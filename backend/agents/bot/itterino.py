@@ -16,7 +16,7 @@ AB-Pruning Minimax? = True
 class ItterinoAgent:
     def __init__(self):
         self.id = 13
-        self.name = "Mr. Itterino Deepsdale"
+        self.name = "Mr. Itterino"
         self.icon = "⛏️"
         self.transposition_table = {}
         self.moveNumber = 0
