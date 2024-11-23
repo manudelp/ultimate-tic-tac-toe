@@ -504,8 +504,8 @@ class JardineritoAntiMidAgent:
                 for line in file:
                     board_hex, board_info_str = line.strip().split(':')
                     board_info_tuple = ast.literal_eval(board_info_str)
-                    heuristic_value, result = board_info_tuple
-                    self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
+                    heuristic_value, result, positional_lead, positional_score = board_info_tuple
+                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result), int(positional_lead), float(positional_score))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 

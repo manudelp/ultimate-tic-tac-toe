@@ -5,6 +5,8 @@ from typing import Tuple, List, Union, Dict, Set, Any
 import ast
 import time
 
+# el goat
+
 CENTER_ONLY_EVAL = 0.35
 
 def isWon(subboard):
