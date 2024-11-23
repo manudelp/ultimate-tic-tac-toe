@@ -186,9 +186,7 @@ const Dashboard: React.FC = () => {
 
             {gameMode && (
               <h1 className="text-4xl font-bold mb-8">
-                {gameMode === "player-vs-bot"
-                  ? "Play vs Computer"
-                  : "Player vs Player"}
+                So you fighting us, huh?
               </h1>
             )}
 
@@ -221,7 +219,7 @@ const Dashboard: React.FC = () => {
             {gameMode === "player-vs-bot" && !bot && (
               <div className="mt-12 text-center">
                 <h2 className="text-2xl font-semibold mb-4">
-                  Choose Your Opponent
+                  Choose your opponent
                 </h2>
                 <div className="flex flex-wrap justify-center gap-4">
                   {bots?.map((bot) => (
@@ -237,13 +235,19 @@ const Dashboard: React.FC = () => {
                     </button>
                   ))}
                 </div>
+                <button
+                  className="mt-4 px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
+                  onClick={() => handleExitGame()}
+                >
+                  Go Back
+                </button>
               </div>
             )}
 
             {/* Who Starts */}
             {gameMode === "player-vs-bot" && bot && !starts && (
               <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">Who Starts?</h2>
+                <h2 className="text-2xl font-semibold mb-4">Who starts?</h2>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <button
                     className="px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"

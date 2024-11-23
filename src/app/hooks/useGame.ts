@@ -202,14 +202,15 @@ export const useGame = (
 
   // Automatically handle bot move whenever it's the bot's turn
   useEffect(() => {
-    if (starts === "bot" && turn === "X") {
-      agentsReset(bot);
-    }
-
-    if (gameMode === "player-vs-bot" && turn === "O" && !gameOver) {
+    if (
+      gameMode === "player-vs-bot" &&
+      ((starts === "player" && turn === "O") ||
+        (starts === "bot" && turn === "X")) &&
+      !gameOver
+    ) {
       handleBotMove();
     }
-  }, [gameMode, starts, gameOver, turn, handleBotMove, bot]);
+  }, [turn, starts, gameMode, handleBotMove, gameOver]);
   return {
     board,
     turn,
