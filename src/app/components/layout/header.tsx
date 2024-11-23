@@ -37,7 +37,11 @@ const Header = () => {
     const headerElement = document.querySelector(".absolute.m-4");
     if (
       headerElement &&
-      performance.navigation.type === performance.navigation.TYPE_NAVIGATE
+      (
+        performance.getEntriesByType(
+          "navigation"
+        )[0] as PerformanceNavigationTiming
+      ).type === "navigate"
     ) {
       headerElement.classList.add("animate-bounce");
       const timeout = setTimeout(() => {
@@ -54,7 +58,7 @@ const Header = () => {
       onDragEnd={handleDragEnd}
     >
       <Link to="/" reloadDocument>
-        <div className="p-4 bg-gray-950 transition-colors duration-300 rounded-full">
+        <div className="p-4 bg-gray-950 rounded-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
