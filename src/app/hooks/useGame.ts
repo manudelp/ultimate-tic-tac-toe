@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getBotMove, agentsReset } from "@/api";
-import {
-  MiniBoardWinner,
-  GameWinner,
-  convertBoardToNumeric,
-  checkBotWinner,
-} from "../utils";
+import { MiniBoardWinner, GameWinner, convertBoardToNumeric } from "../utils";
 
 interface BotListResponse {
   id: number;
@@ -16,10 +11,7 @@ interface BotListResponse {
 export const useGame = (
   gameMode: string,
   bot: BotListResponse,
-  bot2: BotListResponse,
-  starts: string,
-  totalGames: number,
-  resetBoard: boolean
+  starts: string
 ) => {
   // Types
   type Board = string[][][][];
@@ -29,12 +21,6 @@ export const useGame = (
   type Coords = [number, number, number, number];
   type WinningLine = { type: string; index: number };
   type ActiveMiniBoard = [number, number] | null;
-  type AgentIdTurn = "X" | "O" | null;
-  type PlayedGamesWinners = ("X" | "O" | "Draw")[];
-  type WinPercentages = number[];
-
-  // Game
-  const [isPaused, setIsPaused] = useState(false);
 
   // Board information
   const [board, setBoard] = useState<Board>(
@@ -61,15 +47,8 @@ export const useGame = (
   );
 
   // Bot information
-  const [agentIdTurn, setAgentIdTurn] = useState<AgentIdTurn>(null);
   const [isBotThinking, setIsBotThinking] = useState(false);
-  const [turnsInverted, setTurnsInverted] = useState(false);
   const [timeToMove, setTimeToMove] = useState<number>(0.0);
-  const [playedGames, setPlayedGames] = useState(0);
-  const [playedGamesWinners, setPlayedGamesWinners] =
-    useState<PlayedGamesWinners>([]);
-  const [winPercentages, setWinPercentages] = useState<WinPercentages>([]);
-  const TIMEOUT = 0; // TODO: TIMEOUT (replace the "0" [in milliseconds])
 
   const updateMiniBoardState = useCallback(
     (a: number, b: number, winner: "X" | "O" | "Draw") => {
@@ -181,7 +160,7 @@ export const useGame = (
 
     if (!isBotThinking && !gameOver) {
       makeMove(coords);
-    } else if (gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") {
+    } else if (gameMode === "player-vs-bot") {
       alert("Let " + bot?.name + " cook.");
     } else {
       alert("Wait for your turn.");
@@ -221,125 +200,16 @@ export const useGame = (
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
 
-  const resetGame = useCallback(() => {
-    setBoard(
-      Array.from({ length: 3 }, () =>
-        Array.from({ length: 3 }, () =>
-          Array.from({ length: 3 }, () => ["", "", ""])
-        )
-      )
-    );
-    setTurn("X");
-    setWinners(Array.from({ length: 3 }, () => Array(3).fill(null)));
-    setDisabled(Array.from({ length: 3 }, () => Array(3).fill(false)));
-    setGameWinner(null);
-    setActiveMiniBoard(null);
-    setWinningLine(null);
-    setTurnsInverted(false);
-    setMoveNumber(0);
-  }, []);
-
-  const startAgain = useCallback(() => {
-    resetGame();
-    setGameOver(false);
-    setLastMove(null);
-    setTurnsInverted(false);
-  }, [resetGame]);
-
-  const invertTurns = useCallback(() => {
-    setTurn((prev) => {
-      const newTurn = prev === "X" ? "O" : "X";
-      return newTurn;
-    });
-    setTurnsInverted(true);
-  }, []);
-
-  const togglePlayPause = () => {
-    setIsPaused((prev) => !prev);
-  };
-
-  // Reset game
-  useEffect(() => {
-    if (resetBoard) {
-      resetGame();
-    }
-  }, [resetBoard, resetGame]);
-
   // Automatically handle bot move whenever it's the bot's turn
   useEffect(() => {
-    if (!turnsInverted && starts === "bot" && turn === "X") {
-      invertTurns();
+    if (starts === "bot" && turn === "X") {
       agentsReset(bot);
     }
 
     if (gameMode === "player-vs-bot" && turn === "O" && !gameOver) {
       handleBotMove();
     }
-  }, [
-    gameMode,
-    starts,
-    gameOver,
-    turn,
-    turnsInverted,
-    handleBotMove,
-    invertTurns,
-    bot,
-  ]);
-
-  // Bot-vs-Bot
-  useEffect(() => {
-    if (
-      gameMode === "bot-vs-bot" &&
-      !gameOver &&
-      !isBotThinking &&
-      !gameWinner &&
-      playedGames < totalGames &&
-      !isPaused
-    ) {
-      if (!turnsInverted) {
-        invertTurns();
-        agentsReset(bot);
-        setAgentIdTurn(() => {
-          return turn === "X" ? "O" : "X";
-        });
-      } else {
-        setTimeout(async () => {
-          await handleBotMove();
-        }, TIMEOUT);
-      }
-    }
-  }, [
-    gameMode,
-    totalGames,
-    gameOver,
-    isBotThinking,
-    gameWinner,
-    playedGames,
-    turn,
-    handleBotMove,
-    invertTurns,
-    turnsInverted,
-    isPaused,
-    bot,
-    bot2,
-  ]);
-
-  // Update playedGamesWinners whenever game ends
-  useEffect(() => {
-    if (gameOver && playedGames < totalGames) {
-      agentsReset(bot);
-      setPlayedGamesWinners((prev) => [...prev, gameWinner || "Draw"]);
-      setPlayedGames((prev) => prev + 1);
-      startAgain();
-    }
-  }, [gameOver, gameWinner, playedGames, totalGames, startAgain, bot]);
-
-  // Set win percentages whenever playedGamesWinners updates
-  useEffect(() => {
-    if (gameMode === "bot-vs-bot" && playedGamesWinners.length) {
-      setWinPercentages(checkBotWinner(playedGamesWinners));
-    }
-  }, [playedGamesWinners, gameMode]);
+  }, [gameMode, starts, gameOver, turn, handleBotMove, bot]);
   return {
     board,
     turn,
@@ -348,17 +218,12 @@ export const useGame = (
     winners,
     disabled,
     winningLine,
-    agentIdTurn,
-    playedGames,
-    winPercentages,
     gameWinner,
     isBotThinking,
     moveNumber,
-    isPaused,
     timeToMove,
     gameOver,
     handleCellClick,
     makeMove,
-    togglePlayPause,
   };
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import { useGame } from "../../hooks/useGame";
 
@@ -10,7 +10,6 @@ interface BotListResponse {
 interface BoardProps {
   gameMode: string;
   bot: BotListResponse | null;
-  bot2: BotListResponse | null;
   starts: string | null;
   totalGames: number | null;
   resetBoard: boolean;
@@ -21,15 +20,11 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({
   gameMode,
   bot,
-  bot2,
   starts,
-  totalGames,
-  resetBoard,
   onReset,
   onExit,
 }) => {
   bot = bot || { id: 0, name: "", icon: "" };
-  bot2 = bot2 || { id: 0, name: "", icon: "" };
   const {
     board,
     turn,
@@ -38,28 +33,14 @@ const Board: React.FC<BoardProps> = ({
     winners,
     disabled,
     winningLine,
-    agentIdTurn,
-    playedGames,
-    winPercentages,
     gameWinner,
     isBotThinking,
     moveNumber,
-    isPaused,
     timeToMove,
     gameOver,
     handleCellClick,
     makeMove,
-    togglePlayPause,
-  } = useGame(
-    gameMode,
-    bot,
-    bot2,
-    starts || "player",
-    totalGames || 0,
-    resetBoard
-  );
-
-  const [play, setPlay] = useState(false);
+  } = useGame(gameMode, bot, starts || "player");
 
   useEffect(() => {
     return () => {
@@ -105,46 +86,6 @@ const Board: React.FC<BoardProps> = ({
               <path d="M5 10h11a4 4 0 1 1 0 8h-1"></path>
             </svg>
           </div>
-          {gameMode === "bot-vs-bot" && (
-            <div
-              title={play ? "Play" : "Pause"}
-              onClick={() => {
-                setPlay(!play);
-                togglePlayPause();
-              }}
-            >
-              {play ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  width="24"
-                  height="24"
-                  strokeWidth="2"
-                >
-                  <path d="M7 4v16l13 -8z"></path>
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  width="24"
-                  height="24"
-                  strokeWidth="2"
-                >
-                  <path d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path>
-                  <path d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"></path>
-                </svg>
-              )}
-            </div>
-          )}
           <div title="Redo">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -177,11 +118,6 @@ const Board: React.FC<BoardProps> = ({
               Player vs Bot
             </h2>
           )}
-          {gameMode === "bot-vs-bot" && (
-            <h2 className="bg-red-500 px-2 rounded-full text-sm uppercase">
-              Bot vs Bot
-            </h2>
-          )}
         </div>
         <div className="flex gap-2">
           {isBotThinking && (
@@ -209,24 +145,13 @@ const Board: React.FC<BoardProps> = ({
                 (turn === "X" ? "You" : bot?.icon + bot?.name)
               : gameMode === "player-vs-bot" &&
                 (turn === "X" ? "You" : bot?.icon)}
-            {window.innerWidth > 780
-              ? gameMode === "bot-vs-bot" &&
-                (turn === agentIdTurn
-                  ? bot?.icon + bot?.name
-                  : bot2?.icon + bot2?.name)
-              : gameMode === "bot-vs-bot" &&
-                (turn === agentIdTurn ? bot?.icon : bot2?.icon)}
           </div>
           <div title="Turn">{turn}</div>
         </div>
       </div>
       <div className="flex flex-wrap gap-4 text-white">
         {/* BOARD */}
-        <div
-          className={`w-full sm:w-[600px] h-full sm:h-[600px] aspect-square flex flex-wrap relative ${
-            isPaused ? "pointer-events-none" : ""
-          } `}
-        >
+        <div className="w-full sm:w-[600px] h-full sm:h-[600px] aspect-square flex flex-wrap relative">
           {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
             miniBoardRow.map((miniBoard: string[][], localColIndex) => (
               <MiniBoard
@@ -307,37 +232,6 @@ const Board: React.FC<BoardProps> = ({
           </>
         )}
 
-        {/* MATCH INFO - BOT VS BOT */}
-        {gameMode === "bot-vs-bot" && (
-          <>
-            <div>{playedGames + "/" + totalGames}</div>
-
-            <div className="flex gap-2">
-              <div
-                title={`${bot?.name} won ${Math.round(
-                  (winPercentages[1] / 100) * playedGames
-                )} games`}
-              >
-                {bot?.icon + (winPercentages[1] ?? 0) + "%"}
-              </div>
-              <div
-                title={`the other bot won ${Math.round(
-                  (winPercentages[0] / 100) * playedGames
-                )} games`}
-              >
-                {"?" + (winPercentages[0] ?? 0) + "%"}
-              </div>
-              <div
-                title={`There were ${Math.round(
-                  (winPercentages[2] / 100) * playedGames
-                )} draws`}
-              >
-                {"🟰" + (winPercentages[2] ?? 0) + "%"}
-              </div>
-            </div>
-          </>
-        )}
-
         {/* GAME WINNER */}
         {gameWinner && (
           <>
@@ -361,38 +255,7 @@ const Board: React.FC<BoardProps> = ({
                   : "Draw!"}
               </h2>
             )}
-
-            {/* Show game winner in bot vs bot */}
-            {gameMode === "bot-vs-bot" && (
-              <h2>
-                {gameWinner === "X"
-                  ? bot2.name + "wins! (X)"
-                  : gameWinner === "O"
-                  ? bot?.name + " wins! (O)"
-                  : "Draw!"}
-              </h2>
-            )}
           </>
-        )}
-
-        {/* WINNER PERCENTAGES */}
-        {playedGames === totalGames && (
-          <div
-            title={`Global winner: ${
-              winPercentages[1] > winPercentages[0]
-                ? bot?.name + (agentIdTurn ?? "")
-                : winPercentages[0] > winPercentages[1]
-                ? "the other bot" + (agentIdTurn === "X" ? "O" : "X")
-                : "Draw"
-            }`}
-          >
-            👑
-            {winPercentages[1] > winPercentages[0]
-              ? `${bot?.icon} ${agentIdTurn}`
-              : winPercentages[0] > winPercentages[1]
-              ? `? ${agentIdTurn === "X" ? "O" : "X"}`
-              : "None! (Draw)"}
-          </div>
         )}
       </div>
     </div>
