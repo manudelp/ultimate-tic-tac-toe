@@ -5,10 +5,12 @@ const ContactUs: React.FC = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted:", { name, email, message });
+  const generateMailToLink = () => {
+    const subject = encodeURIComponent(`Contact Form Submission from ${name}`);
+    const body = encodeURIComponent(
+      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+    );
+    return `mailto:your-email@example.com?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -20,7 +22,7 @@ const ContactUs: React.FC = () => {
         <h3 className="text-lg font-medium mb-6 text-gray-600 dark:text-gray-400">
           We are here to assist you with any inquiries
         </h3>
-        <form onSubmit={handleSubmit}>
+        <form>
           <div className="mb-4">
             <label
               htmlFor="name"
@@ -68,12 +70,12 @@ const ContactUs: React.FC = () => {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+          <a
+            href={generateMailToLink()}
+            className="block w-full text-center py-2 px-4 bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
             Submit
-          </button>
+          </a>
         </form>
       </div>
     </div>
