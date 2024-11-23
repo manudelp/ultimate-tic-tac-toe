@@ -829,7 +829,7 @@ def get_positional_score(board: np.ndarray, result, positional_lead: int, local_
     if lead_player != 1 and lead_player != -1 and lead_player != 0:
         raise ValueError(f"Invalid positional_lead value: {positional_lead}")
     
-    local_eval_factor = (local_eval ** 2) / 42
+    local_eval_factor = ((local_eval ** 2) ** 0.9) / 42
     local_eval_coefficient = math.exp(local_eval_factor)
     best_connection = best_connection_coefficient(board, lead_player)
     

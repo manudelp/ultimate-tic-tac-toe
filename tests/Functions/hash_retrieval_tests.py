@@ -577,6 +577,79 @@ def hex_to_board(hex_str):
     
     return board
 
+def get_best_line(line, player):
+    if player != 1 and player != -1:
+        raise ValueError("Invalid Player Value")
+
+    if line.count(-player) > 0:
+        return 0
+    
+    if line.count(player) == 0:
+        return 0
+    
+    return line.count(player)
+
+def get_best_connection(board, player):
+    ''' Returns what the best connection for the given player in the board is
+    If it's a single piece open line, returns SINGLE_EVAL, if it's a double piece open line, returns DOUBLE_EVAL'''
+    SINGLE_COEF = 2.4
+    DOUBLE_COEF = 5
+
+    if player != 1 and player != -1:
+        raise ValueError("Invalid Player Value")
+    
+    # Rows
+    row1 = (board[0, 0], board[0, 1], board[0, 2])
+    row2 = (board[1, 0], board[1, 1], board[1, 2])
+    row3 = (board[2, 0], board[2, 1], board[2, 2])
+
+    row1_connection = get_best_line(row1, player)
+    row2_connection = get_best_line(row2, player)
+    row3_connection = get_best_line(row3, player)
+
+    # Columns
+    col1 = (board[0, 0], board[1, 0], board[2, 0])
+    col2 = (board[0, 1], board[1, 1], board[2, 1])
+    col3 = (board[0, 2], board[1, 2], board[2, 2])
+
+    col1_connection = get_best_line(col1, player)
+    col2_connection = get_best_line(col2, player)
+    col3_connection = get_best_line(col3, player)
+
+    # Diagonals
+    main_diagonal = (board[0, 0], board[1, 1], board[2, 2])
+    anti_diagonal = (board[2, 0], board[1, 1], board[0, 2])
+    main_diag_connection = get_best_line(main_diagonal, player)
+    anti_diag_connection = get_best_line(anti_diagonal, player)
+
+    best_connection = max(row1_connection, row2_connection, row3_connection, 
+                          col1_connection, col2_connection, col3_connection, 
+                          main_diag_connection, anti_diag_connection)
+
+    if best_connection == 0:
+        return 0
+
+    elif best_connection == 1:
+        return SINGLE_COEF
+    
+    elif best_connection == 2:
+        return DOUBLE_COEF
+    
+    else:
+        raise ValueError("Invalid Best Connection Value")
+
+def best_connection_coefficient(board, player):
+    if player == 0:
+        return 0
+    
+    best_connection_player = get_best_connection(board, player)
+    best_connection_rival = get_best_connection(board, -player)
+
+    if best_connection_rival > best_connection_player:
+        raise ValueError("Best Connection was higher for the player who wasn't the positional lead")
+    
+    return best_connection_player
+
 
 class RetrievalAgent:
     def __init__(self):
@@ -1702,10 +1775,21 @@ def run_board_info_commonsense_tests(agent):
     b10_eval, b10_result, b10_lead, b10_score = agent.get_board_info(board_10)
     b11_eval, b11_result, b11_lead, b11_score = agent.get_board_info(board_11)
     b12_eval, b12_result, b12_lead, b12_score = agent.get_board_info(board_12)
+    b13_eval, b13_result, b13_lead, b13_score = agent.get_board_info(board_13)
+    b14_eval, b14_result, b14_lead, b14_score = agent.get_board_info(board_14)
+    b15_eval, b15_result, b15_lead, b15_score = agent.get_board_info(board_15)
+    b16_eval, b16_result, b16_lead, b16_score = agent.get_board_info(board_16)
+    b17_eval, b17_result, b17_lead, b17_score = agent.get_board_info(board_17)
+    b18_eval, b18_result, b18_lead, b18_score = agent.get_board_info(board_18)
+    b19_eval, b19_result, b19_lead, b19_score = agent.get_board_info(board_19)
 
     bCO, bCO_result, bCO_lead, bCO_score = agent.get_board_info(board_center_only)
     bCOA, bCOA_result, bCOA_lead, bCOA_score = agent.get_board_info(board_center_only_another)
     bCEO, bCEO_result, bCEO_lead, bCEO_score = agent.get_board_info(board_center_enemy_only)
+    
+    print(f"b16 score is {b16_score}, b16 eval is {b16_eval}, best connection coef is {best_connection_coefficient(board_16, player=b16_lead / 3)}")
+    print(f"b17 score is {b17_score}, b17 eval is {b17_eval}, best connection coef is {best_connection_coefficient(board_17, player=b17_lead / 3)}")
+    print(f"b18 score is {b18_score}, b18 eval is {b18_eval}, best connection coef is {best_connection_coefficient(board_18, player=b18_lead / 3)}")
 
 
 
@@ -1933,6 +2017,7 @@ def run_all_agent_tests(agent):
     run_eval_tests_v2(agent)
     run_eval_tests_v3(agent)
     run_board_info_tests(agent)
+    run_board_info_commonsense_tests(agent)
     run_eval_results_tests(agent)
     run_draw_tests(agent)
     run_draw_results_tests(agent)
@@ -1941,7 +2026,6 @@ def run_all_agent_tests(agent):
     run_eval_commonsense_tests(agent)
     run_eval_v2_commonsense_tests(agent)
     run_eval_v3_commonsense_tests(agent)
-    # run_eval_glob_commonsense_tests(agent)
     run_winnable_tests_one(agent)
     run_winnable_tests_minus_one(agent)
     run_HyphenNumeric_tests(agent)
