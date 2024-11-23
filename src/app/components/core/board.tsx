@@ -83,12 +83,12 @@ const Board: React.FC<BoardProps> = ({
         >
           {gameMode === "player-vs-player" && (
             <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
-              Player vs Player
+              PvP
             </h2>
           )}
           {gameMode === "player-vs-bot" && (
             <h2 className="bg-green-500 px-2 rounded-full text-sm uppercase">
-              Player vs Bot
+              Fighting us
             </h2>
           )}
         </div>
@@ -113,11 +113,14 @@ const Board: React.FC<BoardProps> = ({
             className="truncate sm:max-w-[150px] text-end overflow-hidden"
           >
             {gameMode === "player-vs-player" && "Player"}
-            {window.innerWidth > 780
-              ? gameMode === "player-vs-bot" &&
-                (turn === "X" ? "You" : bot?.icon + bot?.name)
-              : gameMode === "player-vs-bot" &&
-                (turn === "X" ? "You" : bot?.icon)}
+            {gameMode === "player-vs-bot" &&
+              (turn === "X"
+                ? starts === "player"
+                  ? "You"
+                  : bot?.name
+                : starts === "player"
+                ? bot?.name
+                : "You")}
           </div>
           <div title="Turn">{turn}</div>
         </div>
@@ -194,7 +197,7 @@ const Board: React.FC<BoardProps> = ({
       {/* GAME INFO */}
       <div className="flex items-center justify-between">
         {/* MATCH INFO - PLAYER VS BOT */}
-        {gameMode === "player-vs-bot" && starts && !gameOver && !lastMove && (
+        {gameMode === "player-vs-bot" && starts && !gameOver && (
           <>
             <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
 
@@ -210,9 +213,15 @@ const Board: React.FC<BoardProps> = ({
           <>
             {gameMode === "player-vs-bot" && (
               <h2>
-                {gameWinner === "X"
-                  ? "You win!"
+                {starts === "player"
+                  ? gameWinner === "X"
+                    ? "You win!"
+                    : gameWinner === "O"
+                    ? bot?.name + " wins! You lose!"
+                    : "Draw!"
                   : gameWinner === "O"
+                  ? "You win!"
+                  : gameWinner === "X"
                   ? bot?.name + " wins! You lose!"
                   : "Draw!"}
               </h2>

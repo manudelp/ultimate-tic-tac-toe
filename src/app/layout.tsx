@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: "/icon.png",
-        width: 800,
-        height: 600,
+        url: "/og_img.jpg",
+        width: 1200,
+        height: 630,
         alt: "Ultimate Tic Tac Toe Logo",
       },
     ],

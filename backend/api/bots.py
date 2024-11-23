@@ -90,7 +90,11 @@ def get_bot_move():
             return jsonify({'error': 'Game Over'}), 400
         
         # Get the move from the agent
-        move = bot.action(board_array, active_mini_board)
+        if turn == "X":
+            board_array = board_array * -1
+            move = bot.action(board_array, active_mini_board)
+        else:
+            move = bot.action(board_array, active_mini_board)
 
         # # # DEBUG AFTER MOVE (UNCOMMENT ME)
         # board_copy = board_array.copy()
@@ -114,8 +118,13 @@ def get_bot_move():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @bot_routes.route('/agents-reset', methods=['POST'])
-def agents_reset(bot):
+def agents_reset():
     try:
+        
+        # Identify the agent to reset
+        id = request.json.get('id')
+        bot = AGENTS.get(id)
+        
         # Reset the agents
         bot.reset()
 
