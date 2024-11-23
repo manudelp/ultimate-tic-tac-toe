@@ -22,13 +22,9 @@ const Dashboard: React.FC = () => {
   // Bots
   const [bots, setBots] = useState<BotListResponse[] | null>(null);
   const [bot, setBot] = useState<BotListResponse | null>(null);
-  const [bot2, setBot2] = useState<BotListResponse | null>(null);
 
   // Board visibility
-  const isBoardVisible =
-    gameMode &&
-    (gameMode !== "player-vs-bot" || starts) &&
-    (gameMode !== "bot-vs-bot" || totalGames);
+  const isBoardVisible = gameMode && (gameMode !== "player-vs-bot" || starts);
 
   // Functions
   const selectMode = (mode: string) => {
@@ -48,7 +44,6 @@ const Dashboard: React.FC = () => {
     setStarts(null);
     setTotalGames(null);
     setBot(null);
-    setBot2(null);
   };
 
   useEffect(() => {
@@ -62,7 +57,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if ((gameMode === "player-vs-bot" || gameMode === "bot-vs-bot") && !bots) {
+    if (gameMode === "player-vs-bot" && !bots) {
       getBots().then((bots) => setBots(bots));
     }
   }, [gameMode, bots]);
@@ -81,7 +76,7 @@ const Dashboard: React.FC = () => {
               <h1 className="text-4xl font-bold mb-8">
                 {gameMode === "player-vs-bot"
                   ? "Play vs Computer"
-                  : "Simmulate game"}
+                  : "Player vs Player"}
               </h1>
             )}
 
@@ -106,17 +101,6 @@ const Dashboard: React.FC = () => {
                   disabled={!isBackendConnected}
                 >
                   Player vs Bot
-                </button>
-                <button
-                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
-                    isBackendConnected
-                      ? "bg-gray-800 hover:bg-gray-700"
-                      : "bg-gray-500 opacity-70 cursor-not-allowed"
-                  }`}
-                  onClick={() => isBackendConnected && selectMode("bot-vs-bot")}
-                  disabled={!isBackendConnected}
-                >
-                  Bot vs Bot
                 </button>
               </div>
             )}
@@ -170,112 +154,6 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Bots selection */}
-            {gameMode === "bot-vs-bot" && !bot && (
-              <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Select first agent
-                </h2>
-                <div className="flex flex-wrap justify-center gap-4">
-                  {bots?.map((bot) => (
-                    <button
-                      key={bot.id}
-                      className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
-                      onClick={() => setBot(bot)}
-                    >
-                      <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                        {bot.icon}
-                      </div>
-                      <p className="w-full">{bot.name}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Choose Bot 2 */}
-            {gameMode === "bot-vs-bot" && bot && !bot2 && (
-              <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Select second agent
-                </h2>
-                <div className="flex flex-wrap justify-center gap-4">
-                  {bots?.map((bot) => (
-                    <button
-                      key={bot.id}
-                      className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
-                      onClick={() => setBot2(bot)}
-                    >
-                      <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                        {bot.icon}
-                      </div>
-                      <p className="w-full">{bot.name}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Number of Games */}
-            {gameMode === "bot-vs-bot" && bot && bot2 && !totalGames && (
-              <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">Number of Games</h2>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <button
-                    className="px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
-                    onClick={() => handleExitGame()}
-                  >
-                    Go Back
-                  </button>
-                  <button
-                    className="px-6 py-3 bg-gray-800 hover:bg-gray-700 transition-colors"
-                    onClick={() => setTotalGames(1)}
-                  >
-                    1 Game
-                  </button>
-                  <button
-                    className="px-6 py-3 bg-gray-800 hover:bg-gray-700 transition-colors"
-                    onClick={() => setTotalGames(10)}
-                  >
-                    10 Games
-                  </button>
-                  <button
-                    className="px-6 py-3 bg-gray-800 hover:bg-gray-700 transition-colors"
-                    onClick={() => setTotalGames(100)}
-                  >
-                    100 Games
-                  </button>
-                  <form
-                    className="flex gap-2"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const input = (e.target as HTMLFormElement).querySelector(
-                        "input"
-                      );
-                      if (input) {
-                        const games = parseInt(input.value, 10);
-                        setTotalGames(games);
-                      }
-                    }}
-                  >
-                    <input
-                      className="w-full sm:w-24 px-3 py-2 border-b border-gray-500 bg-gray-900 focus:outline-none focus:border-gray-700 transition-colors"
-                      type="number"
-                      name="games"
-                      placeholder="Custom"
-                      min={1}
-                    />
-                    <button
-                      className="w-1/2 sm:w-auto px-4 py-2 bg-gray-800 hover:bg-gray-700 transition-colors"
-                      type="submit"
-                    >
-                      Set
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -285,7 +163,6 @@ const Dashboard: React.FC = () => {
         <Board
           gameMode={gameMode}
           bot={bot}
-          bot2={bot2}
           starts={starts}
           totalGames={totalGames}
           resetBoard={resetBoard}
