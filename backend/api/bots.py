@@ -26,19 +26,11 @@ bot_routes = Blueprint('bots', __name__)
 # IDs Dictionary, Agent:obj ; ID:int
 AGENTS = {
     RandomAgent().id : RandomAgent(),
-    MonkeyAgent().id : MonkeyAgent(), 
-    GardenerAgent().id : GardenerAgent(), 
     TaylorAgent().id : TaylorAgent(), 
-    JardineritoAgent().id : JardineritoAgent(), 
     StraightArrowAgent().id : StraightArrowAgent(), 
-    IteroldAgent().id : IteroldAgent(), 
-    ItterinoAgent().id : ItterinoAgent(), 
-    TidyPodatorAgent().id : TidyPodatorAgent(), 
-    TwinPrunerAgent().id : TwinPrunerAgent(), 
-    MaximilianoAgent().id : MaximilianoAgent(), 
-    JardineritoAntiMidAgent().id : JardineritoAntiMidAgent(), 
+    JardineritoAgent().id : JardineritoAgent(), 
     BetterJardineritoAgent().id : BetterJardineritoAgent(), 
-    FooFinderAgent().id : FooFinderAgent()
+    MonkeyAgent().id : MonkeyAgent(), 
 }
 
 @bot_routes.route('/get-bot-list', methods=['GET'])
