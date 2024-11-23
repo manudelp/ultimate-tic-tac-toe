@@ -13,11 +13,11 @@ AB-Pruning Minimax? = True
 
 """
 
-class MonkeyAgent:
+class HashmasterAgent:
     def __init__(self):
         self.id = 7
-        self.name = "Mono"
-        self.icon = "🙈"
+        self.name = "Hashmaster"
+        self.icon = "📖"
         self.moveNumber = 0
         # self.depth = 6
         self.time_limit = 20 # in seconds
