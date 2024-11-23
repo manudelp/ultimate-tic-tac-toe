@@ -820,7 +820,7 @@ def get_positional_lead(board: np.ndarray, heuristic_value: float) -> int:
     else:
         raise ValueError(f"Invalid heuristic value: {heuristic_value}")
 
-def get_positional_score(board: np.ndarray, result, positional_lead: int, normalizer=5, local_eval=None) -> float:
+def get_positional_score(board: np.ndarray, result, positional_lead: int, local_eval, normalizer=4.25) -> float:
     ''' Given the positonal lead, returns the positional score of the board '''
     if result != 0 or positional_lead == 0:
         return 0
@@ -829,16 +829,18 @@ def get_positional_score(board: np.ndarray, result, positional_lead: int, normal
     if lead_player != 1 and lead_player != -1 and lead_player != 0:
         raise ValueError(f"Invalid positional_lead value: {positional_lead}")
     
+    local_eval_factor = (local_eval ** 2) / 42
+    local_eval_coefficient = math.exp(local_eval_factor)
     best_connection = best_connection_coefficient(board, lead_player)
-    raw_score = positional_lead * best_connection / normalizer
     
-    if local_eval is not None:
-        local_eval_coefficient = (local_eval ** 2) / 200
-        score_processor = math.exp(local_eval_coefficient)
-    else:
-        score_processor = 1
-        
-    final_score = raw_score * score_processor
+    final_score = lead_player * best_connection * local_eval_coefficient / normalizer
+    
+    if math.copysign(1, final_score) != lead_player:
+        raise ValueError(f"Invalid positional score sign: {final_score} for lead player: {lead_player}")
+    
+    if (final_score / abs(final_score)) != lead_player:
+        raise ValueError(f"Invalid positional score sign: {final_score} for lead player: {lead_player}")
+    
     return final_score
 
 # Generators
@@ -1105,7 +1107,7 @@ def generate_local_boards_info(file_path):
         heuristic_value = local_evaluation(board)
         result = 2 if isDraw(board) else int(whoWon(board))
         positional_lead = get_positional_lead(board=board, heuristic_value=heuristic_value)
-        positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead)
+        positional_score = get_positional_score(board=board, result=result, positional_lead=positional_lead, local_eval=heuristic_value)
 
         evaluated_boards[board_key] = (heuristic_value, result, positional_lead, positional_score)
 

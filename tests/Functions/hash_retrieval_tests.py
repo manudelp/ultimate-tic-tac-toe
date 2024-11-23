@@ -1316,13 +1316,13 @@ board_15 = np.array([[-1, -1, 0],
 # 16, 17, 18, 19 prepare interesting for board info positional stuff
 board_16 = np.array([[-1, 0, 1],
                     [0, 0, -1],
-                    [1, -1, 0]])
+                    [1, -1, 0]]) # 1 is better! (slight)
 
 board_17 = np.array([[0, 0, -1],
                     [0, 1, -1],
-                    [-1, -1, 1]])
+                    [-1, -1, 1]]) # 1 is better! (slight)
 
-board_18 = np.array([[0, 0, 0],
+board_18 = np.array([[1, 0, 0],
                     [0, 0, 0],
                     [0, 0, 0]])
 
