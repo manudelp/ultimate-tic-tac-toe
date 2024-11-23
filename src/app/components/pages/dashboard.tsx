@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { checkConnection, getBots } from "@/api";
 import Board from "@/app/components/core/board";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faWhatsapp,
+  faTwitter,
+  faReddit,
+} from "@fortawesome/free-brands-svg-icons";
 
 // Types
 type BotListResponse = {
@@ -100,6 +106,35 @@ const Dashboard: React.FC = () => {
     setBot(null);
   };
 
+  const shareOnWhatsApp = () => {
+    const link = window.location.href;
+    const message = `Think you're the ultimate strategist? Prove it! 🕹️ Play Ultimate Tic Tac Toe with me: ${link}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
+  };
+
+  const shareOnTwitter = () => {
+    const link = window.location.href;
+    const text = `Challenge your mind and your friends! 🧠🔥 Play Ultimate Tic Tac Toe:`;
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        text
+      )}&url=${encodeURIComponent(link)}`,
+      "_blank"
+    );
+  };
+
+  const shareOnReddit = () => {
+    const link = window.location.href;
+    const title =
+      "Can you outsmart the bot or your friends? 🕹️ Play Ultimate Tic Tac Toe now!";
+    window.open(
+      `https://www.reddit.com/submit?url=${encodeURIComponent(
+        link
+      )}&title=${encodeURIComponent(title)}`,
+      "_blank"
+    );
+  };
+
   // Check backend connection
   useEffect(() => {
     const checkBackendConnection = async () => {
@@ -172,8 +207,8 @@ const Dashboard: React.FC = () => {
         {!isBoardVisible && (
           <>
             {/* Title */}
-            {!gameMode && (
-              <h1 className="text-4xl font-bold mb-8">
+            {!gameMode ? (
+              <h1 className="text-3xl sm:text-4xl font-bold mb-8">
                 <small>Welcome to the</small>
                 <br />
                 Ultimate Tic-Tac-Toe,
@@ -182,9 +217,7 @@ const Dashboard: React.FC = () => {
                   a game of <span id="type" ref={typeRef}></span>.
                 </small>
               </h1>
-            )}
-
-            {gameMode && (
+            ) : (
               <h1 className="text-4xl font-bold mb-8">
                 So you fighting us, huh?
               </h1>
@@ -222,18 +255,39 @@ const Dashboard: React.FC = () => {
                   Choose your opponent
                 </h2>
                 <div className="flex flex-wrap justify-center gap-4">
-                  {bots?.map((bot) => (
-                    <button
-                      key={bot.id}
-                      className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
-                      onClick={() => setBot(bot)}
-                    >
-                      <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                        {bot.icon}
-                      </div>
-                      <p className="w-full">{bot.name}</p>
-                    </button>
-                  ))}
+                  {bots?.map((bot) =>
+                    bot.id === -1 ? (
+                      <button
+                        key={bot.id}
+                        className="relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black cursor-not-allowed"
+                        onClick={() => setBot(bot)}
+                        disabled
+                      >
+                        {/* Background Image Layer */}
+                        <div
+                          className="absolute inset-0 bg-cover bg-center opacity-40"
+                          style={{ backgroundImage: `url('/fire.gif')` }}
+                        ></div>
+
+                        {/* Button Content */}
+                        <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                          {bot.icon}
+                        </div>
+                        <p className="relative z-10 w-full">{bot.name}</p>
+                      </button>
+                    ) : (
+                      <button
+                        key={bot.id}
+                        className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                        onClick={() => setBot(bot)}
+                      >
+                        <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                          {bot.icon}
+                        </div>
+                        <p className="w-full">{bot.name}</p>
+                      </button>
+                    )
+                  )}
                 </div>
                 <button
                   className="mt-4 px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
@@ -270,6 +324,31 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Share with friends */}
+            <div className="mt-12 text-center">
+              <h3 className="mb-2">Share with friends!</h3>
+              <div className="flex justify-center gap-6">
+                <button
+                  onClick={shareOnWhatsApp}
+                  className="text-3xl hover:text-green-500 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faWhatsapp} />
+                </button>
+                <button
+                  onClick={shareOnTwitter}
+                  className="text-3xl hover:text-blue-500 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faTwitter} />
+                </button>
+                <button
+                  onClick={shareOnReddit}
+                  className="text-3xl hover:text-orange-500 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faReddit} />
+                </button>
+              </div>
+            </div>
           </>
         )}
       </div>
