@@ -256,6 +256,7 @@ const Dashboard: React.FC = () => {
                 </h2>
                 <div className="flex flex-wrap justify-center gap-4">
                   {bots?.map((bot) =>
+                    // Foo Finder
                     bot.id === -1 ? (
                       <button
                         key={bot.id}
@@ -263,19 +264,17 @@ const Dashboard: React.FC = () => {
                         onClick={() => setBot(bot)}
                         disabled
                       >
-                        {/* Background Image Layer */}
                         <div
                           className="absolute inset-0 bg-cover bg-center opacity-40"
                           style={{ backgroundImage: `url('/fire.gif')` }}
                         ></div>
-
-                        {/* Button Content */}
                         <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
                           {bot.icon}
                         </div>
                         <p className="relative z-10 w-full">{bot.name}</p>
                       </button>
                     ) : (
+                      // All bots
                       <button
                         key={bot.id}
                         className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
