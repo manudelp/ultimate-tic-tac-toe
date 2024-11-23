@@ -131,7 +131,7 @@ class BetterJardineritoAgent:
         self.hash_eval_boards = {}
         self.hash_eval_v2_boards = {}
         self.hash_eval_v3_boards = {}
-        self.hash_eval_glob_boards = {}
+        self.hash_boards_information = {}
         self.hash_results_boards = {}
         self.hash_draw_boards = {}
         self.hash_over_boards = {}
