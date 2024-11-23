@@ -52,6 +52,10 @@ const Footer: React.FC = () => {
         |{" "}
         <Link to="/contact" className="text-blue-400 hover:underline">
           Contact Us
+        </Link>{" "}
+        |{" "}
+        <Link to="/how-to-play" className="text-blue-400 hover:underline">
+          How to Play
         </Link>
       </div>
       <div>

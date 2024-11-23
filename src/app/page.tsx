@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/layout/sidebar";
 import Dashboard from "./components/pages/dashboard";
 import HowToPlay from "./components/pages/how-to-play";
 import PrivacyPolicy from "./components/pages/privacy-policy";
@@ -23,20 +22,15 @@ export default function Home() {
     <Router>
       <div className="min-h-screen bg-gray-900 text-white">
         <Header />
-        <div className="flex">
-          <Sidebar />
-          <div className="w-full flex flex-col">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/how-to-play" element={<HowToPlay />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="*" element={<h1>Not Found</h1>} />
-            </Routes>
-            <Footer />
-          </div>
-        </div>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/how-to-play" element={<HowToPlay />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="*" element={<h1>Not Found</h1>} />
+        </Routes>
+        <Footer />
       </div>
     </Router>
   );

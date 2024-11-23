@@ -1,80 +1,79 @@
-import React, { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
+const positions = {
+  topLeft: "top-0 left-0",
+  topRight: "top-0 right-0",
+  bottomLeft: "bottom-0 left-0",
+  bottomRight: "bottom-0 right-0",
+};
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
+const Header = () => {
+  const [position, setPosition] = useState<keyof typeof positions>(() => {
+    const savedPosition = localStorage.getItem("headerPosition");
+    return (savedPosition as keyof typeof positions) || "bottomRight";
+  });
+
+  const handleDragEnd = (e: { clientX: number; clientY: number }) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+
+    let newPosition: keyof typeof positions;
+    if (clientX < innerWidth / 2 && clientY < innerHeight / 2) {
+      newPosition = "topLeft";
+    } else if (clientX >= innerWidth / 2 && clientY < innerHeight / 2) {
+      newPosition = "topRight";
+    } else if (clientX < innerWidth / 2 && clientY >= innerHeight / 2) {
+      newPosition = "bottomLeft";
+    } else {
+      newPosition = "bottomRight";
+    }
+
+    setPosition(newPosition);
+    localStorage.setItem("headerPosition", newPosition);
   };
 
+  useEffect(() => {
+    const headerElement = document.querySelector(".absolute.m-4");
+    if (
+      headerElement &&
+      performance.navigation.type === performance.navigation.TYPE_NAVIGATE
+    ) {
+      headerElement.classList.add("animate-bounce");
+      const timeout = setTimeout(() => {
+        headerElement.classList.remove("animate-bounce");
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [position]);
+
   return (
-    <div className="sm:hidden absolute w-full p-4 bg-gray-950">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2 text-white">
-          <Image src="/icon.png" alt="Logo" width={30} height={30} />
-          Ultimate Tic TacToe
+    <div
+      className={`absolute m-4 ${positions[position]}`}
+      draggable
+      onDragEnd={handleDragEnd}
+    >
+      <Link to="/" reloadDocument>
+        <div className="p-4 bg-gray-950 transition-colors duration-300 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            width="24"
+            height="24"
+            strokeWidth="1.5"
+          >
+            <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+            <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+            <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+          </svg>
         </div>
-        <button
-          onClick={toggleMenu}
-          className={`text-white transition-transform duration-300 ${
-            isOpen ? "rotate" : ""
-          }`}
-        >
-          {isOpen ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16m-7 6h7"
-              />
-            </svg>
-          )}
-        </button>
-      </div>
-      <div
-        className={`mt-2 transition-all duration-300 ease-in-out ${
-          isOpen
-            ? "max-h-screen opacity-100 pointer-events-auto"
-            : "max-h-0 opacity-0 pointer-events-none"
-        }`}
-      >
-        <ul className="list-none">
-          <Link to="/">
-            <li className="p-2 hover:bg-gray-800 transition-colors duration-300">
-              Home
-            </li>
-          </Link>
-          <Link to="/how-to-play">
-            <li className="p-2 hover:bg-gray-800 transition-colors duration-300">
-              How to Play
-            </li>
-          </Link>
-        </ul>
-      </div>
+      </Link>
     </div>
   );
-}
+};
+
+export default Header;
