@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import GameOverModal from "../ui/game-over";
 import { useGame } from "../../hooks/useGame";
@@ -20,6 +20,15 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
   bot = bot || { id: 0, name: "", icon: "" };
 
   const [closeModal, setCloseModal] = useState(false);
+  const moveHistoryRef = useRef<HTMLDivElement>(null);
+  const [hoveredMove, setHoveredMove] = useState<
+    [number, number, number, number] | null
+  >(null);
+
+  // Handle hovering over a move in the history
+  const handleMoveHover = (coords: [number, number, number, number] | null) => {
+    setHoveredMove(coords);
+  };
 
   const {
     board,
@@ -34,6 +43,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
     moveNumber,
     timeToMove,
     gameOver,
+    moveHistory,
     handleCellClick,
     makeMove,
     resetGame,
@@ -46,6 +56,12 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
       setCloseModal(false);
     }, 0);
   };
+
+  useEffect(() => {
+    if (moveHistoryRef.current) {
+      moveHistoryRef.current.scrollLeft = moveHistoryRef.current.scrollWidth;
+    }
+  }, [moveHistory]);
 
   return (
     <div className="relative w-full sm:w-[600px]">
@@ -70,28 +86,15 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
               <path d="M14 7h7m-3 -3l3 3l-3 3"></path>
             </svg>
           </div>
-          {gameMode === "player-vs-bot" && (
-            <div title={bot?.icon + " " + bot?.name}>
-              {window.innerWidth > 768 ? bot?.icon + bot?.name : bot?.icon}
-            </div>
-          )}
+
           <div title="Move number">{moveNumber}</div>
         </div>
-        <div
-          title="Game Mode"
-          className="w-fit absolute inset-x-0 m-auto text-center cursor-default"
-        >
-          {gameMode === "player-vs-player" && (
-            <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
-              PvP
-            </h2>
-          )}
-          {gameMode === "player-vs-bot" && (
-            <h2 className="bg-green-500 px-2 rounded-full text-sm uppercase">
-              Fighting us
-            </h2>
-          )}
-        </div>
+        {gameMode === "player-vs-bot" && (
+          <div title={bot?.icon + " " + bot?.name}>
+            You vs{" "}
+            {window.innerWidth > 768 ? bot?.icon + " " + bot?.name : bot?.icon}
+          </div>
+        )}
         <div className="flex gap-2">
           {isBotThinking && (
             <div
@@ -141,6 +144,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
                 activeMiniBoard={activeMiniBoard}
                 lastMove={lastMove}
                 gameOver={gameOver}
+                hoveredMove={hoveredMove} // Pass the hovered move to MiniBoard
                 handleCellClick={handleCellClick}
                 makeMove={makeMove}
               />
@@ -185,7 +189,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
                     transform: "rotate(45deg)",
                     width: "120%",
                     top: "50%",
-                    left: "-10%",
+                    left: "0",
                   }}
                 />
               )}
@@ -199,7 +203,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
                     transform: "rotate(-45deg)",
                     width: "120%",
                     top: "50%",
-                    left: "-10%",
+                    left: "0",
                   }}
                 />
               )}
@@ -214,6 +218,33 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
         {gameMode === "player-vs-bot" && starts && !gameOver && !lastMove && (
           <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
         )}
+
+        {/* MOVE HISTORY */}
+        <div
+          title="Move History"
+          ref={moveHistoryRef}
+          className="flex gap-4 max-w-full overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700 cursor-help"
+        >
+          {moveHistory.map((move, index) => (
+            <div
+              key={index}
+              className={`inline-block ${
+                index === moveHistory.length - 1 ? "underline" : ""
+              }`}
+              onMouseEnter={() =>
+                handleMoveHover([
+                  move.coords[0], // localRowIndex
+                  move.coords[1], // localColIndex
+                  move.coords[2], // rowIndex
+                  move.coords[3], // cellIndex
+                ])
+              }
+              onMouseLeave={() => handleMoveHover(null)}
+            >
+              {index + 1}. {move.turn}: ({move.coords.join(", ")})
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* GAME OVER */}

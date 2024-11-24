@@ -4,14 +4,15 @@ import O from "../ui/playero";
 import Draw from "../ui/draw";
 
 interface MiniBoardProps {
-  miniBoard: string[][]; // The mini-board state
+  miniBoard: string[][];
   localRowIndex: number;
   localColIndex: number;
-  winners: (string | null)[][]; // Array that holds the winner for each mini-board
-  disabled: boolean[][]; // To disable interaction with a mini-board
-  activeMiniBoard: [number, number] | null; // The active mini-board for the next move
+  winners: (string | null)[][];
+  disabled: boolean[][];
+  activeMiniBoard: [number, number] | null;
   lastMove: [number, number, number, number] | null;
-  gameOver: boolean; // To determine if the game is over
+  gameOver: boolean;
+  hoveredMove: [number, number, number, number] | null; // Global hover state
   handleCellClick: (
     localRowIndex: number,
     localColIndex: number,
@@ -30,6 +31,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
   activeMiniBoard,
   lastMove,
   gameOver,
+  hoveredMove,
   handleCellClick,
 }) => {
   const winner = winners?.[localRowIndex]?.[localColIndex];
@@ -126,6 +128,14 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
       {miniBoard.map((row: string[], rowIndex: number) => (
         <div key={rowIndex} className="h-1/3 flex flex-wrap">
           {row.map((cell: string, cellIndex: number) => {
+            // Apply hover effect based on global hoveredMove
+            const isHovered =
+              hoveredMove &&
+              hoveredMove[0] === localRowIndex &&
+              hoveredMove[1] === localColIndex &&
+              hoveredMove[2] === rowIndex &&
+              hoveredMove[3] === cellIndex;
+
             const isWinningCell = winningLine.some(
               (line) => line[0] === rowIndex && line[1] === cellIndex
             );
@@ -142,15 +152,17 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                 }
                 key={cellIndex}
                 className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-red-500 ${
-                  lastMove &&
-                  lastMove[0] === localRowIndex &&
-                  lastMove[1] === localColIndex &&
-                  lastMove[2] === rowIndex &&
-                  lastMove[3] === cellIndex
+                  isHovered
+                    ? "bg-green-500"
+                    : lastMove &&
+                      lastMove[0] === localRowIndex &&
+                      lastMove[1] === localColIndex &&
+                      lastMove[2] === rowIndex &&
+                      lastMove[3] === cellIndex
                     ? "bg-indigo-400"
-                    : ""
-                } ${
-                  disabled?.[localRowIndex]?.[localColIndex] && !gameOver
+                    : isWinningCell
+                    ? "bg-yellow-500"
+                    : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
                     ? "pointer-events-none"
                     : ""
                 }`}
@@ -159,15 +171,6 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                   borderBottom: rowIndex === 1 ? `2px solid white` : "none",
                   borderLeft: cellIndex === 1 ? `2px solid white` : "none",
                   borderRight: cellIndex === 1 ? `2px solid white` : "none",
-                  ...(window.innerWidth < 768 && {
-                    borderTop: rowIndex === 1 ? `1px solid white` : "none",
-                    borderBottom: rowIndex === 1 ? `1px solid white` : "none",
-                    borderLeft: cellIndex === 1 ? `1px solid white` : "none",
-                    borderRight: cellIndex === 1 ? `1px solid white` : "none",
-                  }),
-                  ...(isWinningCell && {
-                    backgroundColor: "rgba(255, 215, 0, 0.7)", // Highlight winning cells with a yellow background
-                  }),
                 }}
               >
                 {cell === "X" && <X theme={"dark"} />}
@@ -179,7 +182,15 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
       ))}
 
       {winner && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 opacity-100 hover:opacity-0 pointer-events-none transition-opacity">
+        <div
+          className={`absolute inset-0 flex items-center justify-center bg-gray-900 opacity-100 hover:opacity-0 pointer-events-none transition-opacity ${
+            hoveredMove &&
+            hoveredMove[0] === localRowIndex &&
+            hoveredMove[1] === localColIndex
+              ? "opacity-0"
+              : ""
+          }`}
+        >
           <div className="pointer-events-auto grid place-items-center">
             {winner === "X" ? (
               <X theme={"dark"} />

@@ -21,6 +21,7 @@ export const useGame = (
   type Coords = [number, number, number, number];
   type WinningLine = { type: string; index: number };
   type ActiveMiniBoard = [number, number] | null;
+  type MoveHistory = { turn: Turn; coords: Coords }[];
 
   // Initial state
   const initialBoard = Array.from({ length: 3 }, () =>
@@ -37,6 +38,7 @@ export const useGame = (
     gameOver: false,
     winningLine: null,
     moveNumber: 0,
+    moveHistory: [] as MoveHistory,
   };
 
   // Board information
@@ -47,6 +49,7 @@ export const useGame = (
   const [gameOver, setGameOver] = useState(false);
   const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
   const [moveNumber, setMoveNumber] = useState(0);
+  const [moveHistory, setMoveHistory] = useState<MoveHistory>([]);
 
   // Mini-board information
   const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
@@ -162,6 +165,9 @@ export const useGame = (
       setLastMove(coords);
       setTurn((prev) => (prev === "X" ? "O" : "X"));
       setMoveNumber((prev) => prev + 1);
+
+      // Add move to history
+      setMoveHistory((prev) => [...prev, { turn, coords }]);
     },
     [
       gameWinner,
@@ -177,9 +183,13 @@ export const useGame = (
   );
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
+    if (gameOver) {
+      return;
+    }
+
     const coords: Coords = [a, b, c, d];
 
-    if (!isBotThinking && !gameOver) {
+    if (!isBotThinking) {
       makeMove(coords);
     } else if (gameMode === "player-vs-bot") {
       alert("Let " + bot?.name + " cook.");
@@ -234,6 +244,7 @@ export const useGame = (
     setDisabled(Array.from({ length: 3 }, () => Array(3).fill(false)));
     setIsBotThinking(false);
     setTimeToMove(0);
+    setMoveHistory([]);
   };
 
   // Restart bot move each game
@@ -264,9 +275,11 @@ export const useGame = (
       !isBotThinking &&
       !gameOver
     ) {
+      setIsBotThinking(true);
       handleBotMove();
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
+
   return {
     board,
     turn,
@@ -280,6 +293,7 @@ export const useGame = (
     moveNumber,
     timeToMove,
     gameOver,
+    moveHistory,
     handleCellClick,
     makeMove,
     resetGame,

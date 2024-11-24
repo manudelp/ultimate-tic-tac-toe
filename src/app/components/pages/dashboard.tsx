@@ -4,7 +4,7 @@ import Board from "@/app/components/core/board";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faWhatsapp,
-  faTwitter,
+  faXTwitter,
   faReddit,
 } from "@fortawesome/free-brands-svg-icons";
 
@@ -366,9 +366,9 @@ const Dashboard: React.FC = () => {
                 </button>
                 <button
                   onClick={shareOnTwitter}
-                  className="text-3xl hover:text-blue-500 transition-colors"
+                  className="text-3xl hover:text-black transition-colors"
                 >
-                  <FontAwesomeIcon icon={faTwitter} />
+                  <FontAwesomeIcon icon={faXTwitter} />
                 </button>
                 <button
                   onClick={shareOnReddit}
