@@ -31,7 +31,7 @@ AGENTS = {
     JardineritoAgent().id : JardineritoAgent(), 
     BetterJardineritoAgent().id : BetterJardineritoAgent(), 
     MonkeyAgent().id : MonkeyAgent(),
-    FooFinderAgent().id : FooFinderAgent(),
+    # FooFinderAgent().id : FooFinderAgent(),
 }
 
 @bot_routes.route('/get-bot-list', methods=['GET'])

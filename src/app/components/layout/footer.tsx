@@ -14,8 +14,8 @@ const Footer: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full p-8 text-sm text-white text-center bg-gray-950">
-      <div className="mb-4">
+    <div className="w-full min-h-fit flex flex-col items-center justify-center gap-2  p-8 text-sm text-white text-center bg-gray-950">
+      <div>
         <p>
           &copy; <span id="year"></span> Ultimate Tic Tac Toe. All rights
           reserved.
@@ -41,21 +41,23 @@ const Footer: React.FC = () => {
           </a>
         </p>
       </div>
-      <div className="mb-4">
+      <div>
         <Link to="/privacy-policy" className="text-blue-400 hover:underline">
-          Privacy Policy
+          <button>Privacy Policy</button>
         </Link>{" "}
         |{" "}
         <Link to="/terms-of-service" className="text-blue-400 hover:underline">
-          Terms of Service
+          <button>Terms of Service</button>
         </Link>{" "}
         |{" "}
         <Link to="/contact" className="text-blue-400 hover:underline">
-          Contact Us
+          <button className="cursor-not-allowed" disabled>
+            Contact Us
+          </button>
         </Link>{" "}
         |{" "}
         <Link to="/how-to-play" className="text-blue-400 hover:underline">
-          How to Play
+          <button>How to Play</button>
         </Link>
       </div>
       <div>

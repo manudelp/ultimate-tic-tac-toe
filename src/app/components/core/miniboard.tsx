@@ -4,13 +4,14 @@ import O from "../ui/playero";
 import Draw from "../ui/draw";
 
 interface MiniBoardProps {
-  miniBoard: string[][];
+  miniBoard: string[][]; // The mini-board state
   localRowIndex: number;
   localColIndex: number;
-  winners: (string | null)[][];
-  disabled: boolean[][];
-  activeMiniBoard: [number, number] | null;
+  winners: (string | null)[][]; // Array that holds the winner for each mini-board
+  disabled: boolean[][]; // To disable interaction with a mini-board
+  activeMiniBoard: [number, number] | null; // The active mini-board for the next move
   lastMove: [number, number, number, number] | null;
+  gameOver: boolean; // To determine if the game is over
   handleCellClick: (
     localRowIndex: number,
     localColIndex: number,
@@ -28,16 +29,70 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
   disabled,
   activeMiniBoard,
   lastMove,
+  gameOver,
   handleCellClick,
 }) => {
   const winner = winners?.[localRowIndex]?.[localColIndex];
+
+  // Function to determine the line of the winning cells (row, column, diagonal)
+  const getWinningLine = () => {
+    if (!winner) return [];
+
+    const winningLine: number[][] = [];
+
+    // Check for horizontal lines
+    for (let row = 0; row < 3; row++) {
+      if (
+        miniBoard[row][0] === winner &&
+        miniBoard[row][1] === winner &&
+        miniBoard[row][2] === winner
+      ) {
+        winningLine.push([row, 0], [row, 1], [row, 2]);
+      }
+    }
+
+    // Check for vertical lines
+    for (let col = 0; col < 3; col++) {
+      if (
+        miniBoard[0][col] === winner &&
+        miniBoard[1][col] === winner &&
+        miniBoard[2][col] === winner
+      ) {
+        winningLine.push([0, col], [1, col], [2, col]);
+      }
+    }
+
+    // Check for diagonal lines
+    if (
+      miniBoard[0][0] === winner &&
+      miniBoard[1][1] === winner &&
+      miniBoard[2][2] === winner
+    ) {
+      winningLine.push([0, 0], [1, 1], [2, 2]);
+    }
+
+    if (
+      miniBoard[0][2] === winner &&
+      miniBoard[1][1] === winner &&
+      miniBoard[2][0] === winner
+    ) {
+      winningLine.push([0, 2], [1, 1], [2, 0]);
+    }
+
+    return winningLine;
+  };
+
+  // Get the winning line for the mini-board
+  const winningLine = getWinningLine();
+
   return (
     <div
       className={`w-1/3 h-1/3 p-2 sm:p-4 transition relative ${
-        disabled?.[localRowIndex]?.[localColIndex] ||
-        (activeMiniBoard !== null &&
-          (activeMiniBoard?.[0] !== localRowIndex ||
-            activeMiniBoard?.[1] !== localColIndex))
+        (disabled?.[localRowIndex]?.[localColIndex] ||
+          (activeMiniBoard !== null &&
+            (activeMiniBoard?.[0] !== localRowIndex ||
+              activeMiniBoard?.[1] !== localColIndex))) &&
+        !gameOver
           ? "opacity-25 pointer-events-none"
           : ""
       }`}
@@ -70,47 +125,56 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
     >
       {miniBoard.map((row: string[], rowIndex: number) => (
         <div key={rowIndex} className="h-1/3 flex flex-wrap">
-          {row.map((cell: string, cellIndex: number) => (
-            <div
-              onClick={() =>
-                handleCellClick(
-                  localRowIndex,
-                  localColIndex,
-                  rowIndex,
-                  cellIndex
-                )
-              }
-              key={cellIndex}
-              className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-red-500 ${
-                lastMove &&
-                lastMove[0] === localRowIndex &&
-                lastMove[1] === localColIndex &&
-                lastMove[2] === rowIndex &&
-                lastMove[3] === cellIndex
-                  ? "bg-indigo-400"
-                  : ""
-              } ${
-                disabled?.[localRowIndex]?.[localColIndex]
-                  ? "pointer-events-none"
-                  : ""
-              }`}
-              style={{
-                borderTop: rowIndex === 1 ? `2px solid white` : "none",
-                borderBottom: rowIndex === 1 ? `2px solid white` : "none",
-                borderLeft: cellIndex === 1 ? `2px solid white` : "none",
-                borderRight: cellIndex === 1 ? `2px solid white` : "none",
-                ...(window.innerWidth < 768 && {
-                  borderTop: rowIndex === 1 ? `1px solid white` : "none",
-                  borderBottom: rowIndex === 1 ? `1px solid white` : "none",
-                  borderLeft: cellIndex === 1 ? `1px solid white` : "none",
-                  borderRight: cellIndex === 1 ? `1px solid white` : "none",
-                }),
-              }}
-            >
-              {cell === "X" && <X theme={"dark"} />}
-              {cell === "O" && <O theme={"dark"} />}
-            </div>
-          ))}
+          {row.map((cell: string, cellIndex: number) => {
+            const isWinningCell = winningLine.some(
+              (line) => line[0] === rowIndex && line[1] === cellIndex
+            );
+
+            return (
+              <div
+                onClick={() =>
+                  handleCellClick(
+                    localRowIndex,
+                    localColIndex,
+                    rowIndex,
+                    cellIndex
+                  )
+                }
+                key={cellIndex}
+                className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-red-500 ${
+                  lastMove &&
+                  lastMove[0] === localRowIndex &&
+                  lastMove[1] === localColIndex &&
+                  lastMove[2] === rowIndex &&
+                  lastMove[3] === cellIndex
+                    ? "bg-indigo-400"
+                    : ""
+                } ${
+                  disabled?.[localRowIndex]?.[localColIndex] && !gameOver
+                    ? "pointer-events-none"
+                    : ""
+                }`}
+                style={{
+                  borderTop: rowIndex === 1 ? `2px solid white` : "none",
+                  borderBottom: rowIndex === 1 ? `2px solid white` : "none",
+                  borderLeft: cellIndex === 1 ? `2px solid white` : "none",
+                  borderRight: cellIndex === 1 ? `2px solid white` : "none",
+                  ...(window.innerWidth < 768 && {
+                    borderTop: rowIndex === 1 ? `1px solid white` : "none",
+                    borderBottom: rowIndex === 1 ? `1px solid white` : "none",
+                    borderLeft: cellIndex === 1 ? `1px solid white` : "none",
+                    borderRight: cellIndex === 1 ? `1px solid white` : "none",
+                  }),
+                  ...(isWinningCell && {
+                    backgroundColor: "rgba(255, 215, 0, 0.7)", // Highlight winning cells with a yellow background
+                  }),
+                }}
+              >
+                {cell === "X" && <X theme={"dark"} />}
+                {cell === "O" && <O theme={"dark"} />}
+              </div>
+            );
+          })}
         </div>
       ))}
 

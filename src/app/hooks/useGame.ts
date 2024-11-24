@@ -22,14 +22,25 @@ export const useGame = (
   type WinningLine = { type: string; index: number };
   type ActiveMiniBoard = [number, number] | null;
 
-  // Board information
-  const [board, setBoard] = useState<Board>(
+  // Initial state
+  const initialBoard = Array.from({ length: 3 }, () =>
     Array.from({ length: 3 }, () =>
-      Array.from({ length: 3 }, () =>
-        Array.from({ length: 3 }, () => ["", "", ""])
-      )
+      Array.from({ length: 3 }, () => ["", "", ""])
     )
   );
+
+  const initialState = {
+    board: initialBoard,
+    turn: starts === "player" ? "X" : "O",
+    lastMove: null,
+    gameWinner: null,
+    gameOver: false,
+    winningLine: null,
+    moveNumber: 0,
+  };
+
+  // Board information
+  const [board, setBoard] = useState<Board>(initialBoard);
   const [turn, setTurn] = useState<Turn>("X");
   const [lastMove, setLastMove] = useState<Coords | null>(null);
   const [gameWinner, setGameWinner] = useState<Winner | null>(null);
@@ -98,6 +109,11 @@ export const useGame = (
       if (overallWinner) {
         setGameWinner(overallWinner as "X" | "O" | "Draw");
         setGameOver(true);
+
+        const winnerSound = new Audio("/assets/sounds/winner_xmas.mp3");
+        winnerSound.volume = 0.25;
+        winnerSound.play();
+
         setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
       }
       return prev;
@@ -111,7 +127,7 @@ export const useGame = (
         return;
       }
 
-      const updatedBoard = [...board];
+      const updatedBoard = structuredClone(board);
       updatedBoard[a][b][c][d] = turn;
       setBoard(updatedBoard);
 
@@ -136,6 +152,11 @@ export const useGame = (
 
       // Verifica si el juego general tiene un ganador
       checkOverallGameWinner();
+
+      // Reproduce el sonido de la jugada
+      const tapSound = new Audio("/assets/sounds/tap.mp3");
+      tapSound.volume = 0.25; // Lower the volume
+      tapSound.play();
 
       // Configura la última jugada y el próximo turno
       setLastMove(coords);
@@ -195,17 +216,42 @@ export const useGame = (
 
       clearInterval(interval);
     } catch (error) {
-      setIsBotThinking(true);
+      setIsBotThinking(false);
       console.error("Error fetching bot's move:", error);
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
 
+  const resetGame = () => {
+    setBoard(initialState.board);
+    setTurn(initialState.turn as Turn);
+    setLastMove(initialState.lastMove);
+    setGameWinner(initialState.gameWinner);
+    setGameOver(initialState.gameOver);
+    setWinningLine(initialState.winningLine);
+    setMoveNumber(initialState.moveNumber);
+    setActiveMiniBoard(null);
+    setWinners(Array.from({ length: 3 }, () => Array(3).fill(null)));
+    setDisabled(Array.from({ length: 3 }, () => Array(3).fill(false)));
+    setIsBotThinking(false);
+    setTimeToMove(0);
+  };
+
   // Restart bot move each game
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (gameMode === "player-vs-bot" && !lastMove) {
+      agentsReset(bot.id);
+
+      // Example: Start an interval or timeout logic here if needed
+      interval = setInterval(() => {
+        console.log("Game reset for bot:", bot.name);
+      }, 1000);
+    }
+
     return () => {
-      if (gameMode === "player-vs-bot" && !lastMove) {
-        agentsReset(bot.id);
-      }
+      // Clean up the interval when the effect is unmounted or dependencies change
+      if (interval) clearInterval(interval);
     };
   }, [gameMode, bot, lastMove]);
 
@@ -236,5 +282,6 @@ export const useGame = (
     gameOver,
     handleCellClick,
     makeMove,
+    resetGame,
   };
 };

@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
-    <div className="fixed top-0 left-0 right-0 m-auto mt-4 flex items-center justify-evenly w-64 h-14 z-10 bg-gray-900 bg-opacity-50 border border-gray-800 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out">
+    <div
+      id="header"
+      className="fixed top-4 left-0 right-0 m-auto flex items-center justify-evenly w-64 h-14 z-10 bg-gray-900 bg-opacity-50 border border-gray-800 backdrop-blur rounded-full transition-all duration-300 ease-in-out"
+    >
       {/* Home Link */}
-      <Link to="/">
-        <div className="w-full h-full flex items-end justify-center gap-2 group">
+      <Link to="/" reloadDocument>
+        <button className="w-full h-full flex items-end justify-center gap-2 group">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -25,12 +28,15 @@ const Header = () => {
           <span className="text-white leading-5 group-hover:underline">
             Home
           </span>
-        </div>
+        </button>
       </Link>
 
       {/* Report Link */}
       <Link to="/contact">
-        <div className="w-full h-full flex items-end justify-center gap-2 group">
+        <button
+          className="w-full h-full flex items-end justify-center gap-2 group cursor-not-allowed"
+          disabled
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -55,7 +61,7 @@ const Header = () => {
           <span className="text-white leading-5 group-hover:underline">
             Report
           </span>
-        </div>
+        </button>
       </Link>
     </div>
   );

@@ -5,28 +5,30 @@ const ContactUs: React.FC = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const generateMailToLink = () => {
-    const subject = encodeURIComponent(`Contact Form Submission from ${name}`);
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-    );
-    return `mailto:your-email@example.com?subject=${subject}&body=${body}`;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle form submission logic here
+    console.log("Form submitted:", { name, email, message });
   };
+
+  // TODO: Temporary disable this component and redirect to home.
+  window.location.href = "/";
+  return null;
 
   return (
     <div className="contact-us min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md p-8 shadow-md bg-gray-800">
-        <h2 className="text-2xl font-semibold mb-2 text-gray-200">
+      <div className="w-full max-w-md p-8 bg-white shadow-md dark:bg-gray-800">
+        <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
           Contact Us
         </h2>
-        <h3 className="text-lg font-medium mb-6 text-gray-400">
+        <h3 className="text-lg font-medium mb-6 text-gray-600 dark:text-gray-400">
           We are here to assist you with any inquiries
         </h3>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Name:
             </label>
@@ -36,13 +38,13 @@ const ContactUs: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Email:
             </label>
@@ -52,13 +54,13 @@ const ContactUs: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="message"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Message:
             </label>
@@ -67,15 +69,15 @@ const ContactUs: React.FC = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
-          <a
-            href={generateMailToLink()}
-            className="block w-full text-center py-2 px-4 text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-indigo-500 hover:bg-indigo-600"
+          <button
+            type="submit"
+            className="w-full py-2 px-4 bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
             Submit
-          </a>
+          </button>
         </form>
       </div>
     </div>
