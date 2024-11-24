@@ -5,7 +5,7 @@ const Header = () => {
   return (
     <div
       id="header"
-      className="fixed top-4 left-0 right-0 m-auto flex items-center justify-evenly w-64 h-14 z-10 bg-gray-900 bg-opacity-50 border border-gray-800 backdrop-blur rounded-full transition-all duration-300 ease-in-out"
+      className="fixed top-4 left-0 right-0 sm:left-4 sm:right-auto m-auto flex items-center justify-evenly w-64 h-14 z-10 bg-gray-900 bg-opacity-50 border border-gray-800 backdrop-blur rounded-full sm:rounded-tl-none transition-all duration-300 ease-in-out"
     >
       {/* Home Link */}
       <Link to="/" reloadDocument>
