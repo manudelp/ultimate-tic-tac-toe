@@ -61,9 +61,9 @@ export const getBotMove = async (
   return response.data.move;
 };
 
-export const agentsReset = async (bot: BotListResponse): Promise<void> => {
+export const agentsReset = async (id: number): Promise<void> => {
   await axios.post(`${API_URL}/agents-reset`, {
-    bot1: bot,
+    id,
   });
 };
 

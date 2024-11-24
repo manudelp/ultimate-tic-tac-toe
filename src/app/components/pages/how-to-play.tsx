@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const HowToPlay: React.FC = () => {
   return (
     <div className="container m-auto max-w-3xl py-8 px-4 text-white">
-      <h1 className="text-3xl font-bold mb-6 text-center">
+      <h1 className="mt-16 text-3xl font-bold mb-6 text-center">
         How to Play Ultimate Tic-Tac-Toe
       </h1>
 

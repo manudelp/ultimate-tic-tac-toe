@@ -4,7 +4,7 @@ import Board from "@/app/components/core/board";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faWhatsapp,
-  faTwitter,
+  faXTwitter,
   faReddit,
 } from "@fortawesome/free-brands-svg-icons";
 
@@ -29,18 +29,22 @@ const Dashboard: React.FC = () => {
   // Core
   const [gameMode, setGameMode] = useState<string | null>(null);
   const [starts, setStarts] = useState<string | null>(null);
-  const [totalGames, setTotalGames] = useState<number | null>(null);
-  const [resetBoard, setResetBoard] = useState<boolean>(false);
 
   // Backend
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+
+  // Online
+  const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
   // Bots
   const [bots, setBots] = useState<BotListResponse[] | null>(null);
   const [bot, setBot] = useState<BotListResponse | null>(null);
 
   // Board visibility
-  const isBoardVisible = gameMode && (gameMode !== "player-vs-bot" || starts);
+  const isBoardVisible =
+    gameMode &&
+    (gameMode !== "player-vs-bot" || starts) &&
+    (gameMode !== "player-vs-player" || isOnline !== null);
 
   // Ref for the typing effect
   const typeRef = useRef<HTMLSpanElement>(null);
@@ -89,21 +93,16 @@ const Dashboard: React.FC = () => {
   // Functions
   const selectMode = (mode: string) => {
     setGameMode(mode);
-    setResetBoard(true);
+    setIsOnline(null);
+    setBot(null);
     setStarts(null);
-    setTotalGames(null);
-  };
-
-  const handleBoardReset = () => {
-    setResetBoard(false);
   };
 
   const handleExitGame = () => {
     setGameMode(null);
-    setResetBoard(true);
-    setStarts(null);
-    setTotalGames(null);
+    setIsOnline(null);
     setBot(null);
+    setStarts(null);
   };
 
   const shareOnWhatsApp = () => {
@@ -208,7 +207,7 @@ const Dashboard: React.FC = () => {
           <>
             {/* Title */}
             {!gameMode ? (
-              <h1 className="text-3xl sm:text-4xl font-bold mb-8">
+              <h1 className="text-3xl sm:text-4xl mb-8 font-bold">
                 <small>Welcome to the</small>
                 <br />
                 Ultimate Tic-Tac-Toe,
@@ -217,8 +216,12 @@ const Dashboard: React.FC = () => {
                   a game of <span id="type" ref={typeRef}></span>.
                 </small>
               </h1>
+            ) : gameMode === "player-vs-player" ? (
+              <h1 className="sm:mt-auto text-2xl sm:text-4xl font-bold">
+                Ready to fight?
+              </h1>
             ) : (
-              <h1 className="text-4xl font-bold mb-8">
+              <h1 className="mt-20 sm:mt-auto text-2xl sm:text-4xl font-bold">
                 So you fighting us, huh?
               </h1>
             )}
@@ -227,7 +230,7 @@ const Dashboard: React.FC = () => {
             {gameMode === null && (
               <div className="flex flex-wrap flex-col sm:flex-row justify-center gap-6">
                 <button
-                  className="sm:w-64 py-4 bg-gray-800 hover:bg-green-700 transition-colors font-medium text-lg"
+                  className="sm:w-64 py-4 bg-gray-800 hover:bg-green-700 transition-colors font-medium text-lg hover:animate-pulse"
                   onClick={() => selectMode("player-vs-player")}
                 >
                   Fight a friend
@@ -237,7 +240,7 @@ const Dashboard: React.FC = () => {
                     isBackendConnected
                       ? "bg-gray-800 hover:bg-red-700"
                       : "bg-gray-500 opacity-70 cursor-not-allowed"
-                  }`}
+                  } hover:animate-pulse`}
                   onClick={() =>
                     isBackendConnected && selectMode("player-vs-bot")
                   }
@@ -248,34 +251,60 @@ const Dashboard: React.FC = () => {
               </div>
             )}
 
+            {/* Local or Online */}
+            {gameMode === "player-vs-player" && (
+              <div className="mt-8 text-center">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-4">How?</h2>
+                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                  <button
+                    className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
+                    onClick={() => setIsOnline(false)}
+                  >
+                    Local
+                  </button>
+                  <button
+                    className="sm:w-64 py-4 px-6 bg-gray-500 opacity-70 cursor-not-allowed transition-colors"
+                    onClick={() => setIsOnline(true)}
+                    disabled
+                  >
+                    Online
+                  </button>
+                </div>
+                <button
+                  className="mt-6 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  onClick={() => handleExitGame()}
+                >
+                  Go Back
+                </button>
+              </div>
+            )}
+
             {/* Choose Bot */}
             {gameMode === "player-vs-bot" && !bot && (
-              <div className="mt-12 text-center">
-                <h2 className="text-2xl font-semibold mb-4">
+              <div className="mt-8 text-center">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                   Choose your opponent
                 </h2>
                 <div className="flex flex-wrap justify-center gap-4">
                   {bots?.map((bot) =>
+                    // Foo Finder
                     bot.id === -1 ? (
                       <button
                         key={bot.id}
-                        className="relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black cursor-not-allowed"
+                        className="relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black"
                         onClick={() => setBot(bot)}
-                        disabled
                       >
-                        {/* Background Image Layer */}
                         <div
                           className="absolute inset-0 bg-cover bg-center opacity-40"
                           style={{ backgroundImage: `url('/fire.gif')` }}
                         ></div>
-
-                        {/* Button Content */}
                         <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
                           {bot.icon}
                         </div>
                         <p className="relative z-10 w-full">{bot.name}</p>
                       </button>
                     ) : (
+                      // All bots
                       <button
                         key={bot.id}
                         className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
@@ -290,7 +319,7 @@ const Dashboard: React.FC = () => {
                   )}
                 </div>
                 <button
-                  className="mt-4 px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
+                  className="mt-4 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
                   onClick={() => handleExitGame()}
                 >
                   Go Back
@@ -300,33 +329,33 @@ const Dashboard: React.FC = () => {
 
             {/* Who Starts */}
             {gameMode === "player-vs-bot" && bot && !starts && (
-              <div className="mt-12 text-center">
+              <div className="mt-8 text-center">
                 <h2 className="text-2xl font-semibold mb-4">Who starts?</h2>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <button
-                    className="px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors"
-                    onClick={() => handleExitGame()}
-                  >
-                    Go Back
-                  </button>
-                  <button
-                    className="px-6 py-3 bg-green-600 hover:bg-green-500 transition-colors"
+                    className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
                     onClick={() => setStarts("player")}
                   >
                     Player Starts
                   </button>
                   <button
-                    className="px-6 py-3 bg-green-600 hover:bg-green-500 transition-colors"
+                    className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
                     onClick={() => setStarts("bot")}
                   >
                     Bot Starts
                   </button>
                 </div>
+                <button
+                  className="mt-6 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  onClick={() => handleExitGame()}
+                >
+                  Go Back
+                </button>
               </div>
             )}
 
             {/* Share with friends */}
-            <div className="mt-12 text-center">
+            <div className="mt-8 text-center">
               <h3 className="mb-2">Share with friends!</h3>
               <div className="flex justify-center gap-6">
                 <button
@@ -337,9 +366,9 @@ const Dashboard: React.FC = () => {
                 </button>
                 <button
                   onClick={shareOnTwitter}
-                  className="text-3xl hover:text-blue-500 transition-colors"
+                  className="text-3xl hover:text-black transition-colors"
                 >
-                  <FontAwesomeIcon icon={faTwitter} />
+                  <FontAwesomeIcon icon={faXTwitter} />
                 </button>
                 <button
                   onClick={shareOnReddit}
@@ -359,9 +388,6 @@ const Dashboard: React.FC = () => {
           gameMode={gameMode}
           bot={bot}
           starts={starts}
-          totalGames={totalGames}
-          resetBoard={resetBoard}
-          onReset={handleBoardReset}
           onExit={handleExitGame}
         />
       )}

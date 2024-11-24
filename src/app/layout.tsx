@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: "/icon.png",
-        width: 800,
-        height: 600,
+        url: "/og_img.jpg",
+        width: 1200,
+        height: 630,
         alt: "Ultimate Tic Tac Toe Logo",
       },
     ],
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: "Ultimate Tic Tac Toe - The Ultimate Strategy Game",
     description:
       "Engage in the ultimate strategy challenge with Ultimate Tic Tac Toe. Test your skills and outsmart your opponents in this advanced version of the classic game.",
-    url: "https://utictactoe.vercel.app",
+    url: "https://utictactoe.online",
   },
 };
 

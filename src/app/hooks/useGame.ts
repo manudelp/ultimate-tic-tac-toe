@@ -21,21 +21,35 @@ export const useGame = (
   type Coords = [number, number, number, number];
   type WinningLine = { type: string; index: number };
   type ActiveMiniBoard = [number, number] | null;
+  type MoveHistory = { turn: Turn; coords: Coords }[];
 
-  // Board information
-  const [board, setBoard] = useState<Board>(
+  // Initial state
+  const initialBoard = Array.from({ length: 3 }, () =>
     Array.from({ length: 3 }, () =>
-      Array.from({ length: 3 }, () =>
-        Array.from({ length: 3 }, () => ["", "", ""])
-      )
+      Array.from({ length: 3 }, () => ["", "", ""])
     )
   );
+
+  const initialState = {
+    board: initialBoard,
+    turn: starts === "player" ? "X" : "O",
+    lastMove: null,
+    gameWinner: null,
+    gameOver: false,
+    winningLine: null,
+    moveNumber: 0,
+    moveHistory: [] as MoveHistory,
+  };
+
+  // Board information
+  const [board, setBoard] = useState<Board>(initialBoard);
   const [turn, setTurn] = useState<Turn>("X");
   const [lastMove, setLastMove] = useState<Coords | null>(null);
   const [gameWinner, setGameWinner] = useState<Winner | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
   const [moveNumber, setMoveNumber] = useState(0);
+  const [moveHistory, setMoveHistory] = useState<MoveHistory>([]);
 
   // Mini-board information
   const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
@@ -98,6 +112,11 @@ export const useGame = (
       if (overallWinner) {
         setGameWinner(overallWinner as "X" | "O" | "Draw");
         setGameOver(true);
+
+        const winnerSound = new Audio("/assets/sounds/winner_xmas.mp3");
+        winnerSound.volume = 0.25;
+        winnerSound.play();
+
         setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
       }
       return prev;
@@ -111,7 +130,7 @@ export const useGame = (
         return;
       }
 
-      const updatedBoard = [...board];
+      const updatedBoard = structuredClone(board);
       updatedBoard[a][b][c][d] = turn;
       setBoard(updatedBoard);
 
@@ -137,10 +156,18 @@ export const useGame = (
       // Verifica si el juego general tiene un ganador
       checkOverallGameWinner();
 
+      // Reproduce el sonido de la jugada
+      const tapSound = new Audio("/assets/sounds/tap.mp3");
+      tapSound.volume = 0.25; // Lower the volume
+      tapSound.play();
+
       // Configura la última jugada y el próximo turno
       setLastMove(coords);
       setTurn((prev) => (prev === "X" ? "O" : "X"));
       setMoveNumber((prev) => prev + 1);
+
+      // Add move to history
+      setMoveHistory((prev) => [...prev, { turn, coords }]);
     },
     [
       gameWinner,
@@ -156,9 +183,13 @@ export const useGame = (
   );
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
+    if (gameOver) {
+      return;
+    }
+
     const coords: Coords = [a, b, c, d];
 
-    if (!isBotThinking && !gameOver) {
+    if (!isBotThinking) {
       makeMove(coords);
     } else if (gameMode === "player-vs-bot") {
       alert("Let " + bot?.name + " cook.");
@@ -195,10 +226,45 @@ export const useGame = (
 
       clearInterval(interval);
     } catch (error) {
-      setIsBotThinking(true);
+      setIsBotThinking(false);
       console.error("Error fetching bot's move:", error);
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
+
+  const resetGame = () => {
+    setBoard(initialState.board);
+    setTurn(initialState.turn as Turn);
+    setLastMove(initialState.lastMove);
+    setGameWinner(initialState.gameWinner);
+    setGameOver(initialState.gameOver);
+    setWinningLine(initialState.winningLine);
+    setMoveNumber(initialState.moveNumber);
+    setActiveMiniBoard(null);
+    setWinners(Array.from({ length: 3 }, () => Array(3).fill(null)));
+    setDisabled(Array.from({ length: 3 }, () => Array(3).fill(false)));
+    setIsBotThinking(false);
+    setTimeToMove(0);
+    setMoveHistory([]);
+  };
+
+  // Restart bot move each game
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (gameMode === "player-vs-bot" && !lastMove) {
+      agentsReset(bot.id);
+
+      // Example: Start an interval or timeout logic here if needed
+      interval = setInterval(() => {
+        console.log("Game reset for bot:", bot.name);
+      }, 1000);
+    }
+
+    return () => {
+      // Clean up the interval when the effect is unmounted or dependencies change
+      if (interval) clearInterval(interval);
+    };
+  }, [gameMode, bot, lastMove]);
 
   // Automatically handle bot move whenever it's the bot's turn
   useEffect(() => {
@@ -206,11 +272,14 @@ export const useGame = (
       gameMode === "player-vs-bot" &&
       ((starts === "player" && turn === "O") ||
         (starts === "bot" && turn === "X")) &&
+      !isBotThinking &&
       !gameOver
     ) {
+      setIsBotThinking(true);
       handleBotMove();
     }
-  }, [turn, starts, gameMode, handleBotMove, gameOver]);
+  }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
+
   return {
     board,
     turn,
@@ -224,7 +293,9 @@ export const useGame = (
     moveNumber,
     timeToMove,
     gameOver,
+    moveHistory,
     handleCellClick,
     makeMove,
+    resetGame,
   };
 };

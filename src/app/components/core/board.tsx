@@ -1,6 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
+import GameOverModal from "../ui/game-over";
 import { useGame } from "../../hooks/useGame";
+import { motion } from "framer-motion";
 
 interface BotListResponse {
   id: number;
@@ -11,20 +13,23 @@ interface BoardProps {
   gameMode: string;
   bot: BotListResponse | null;
   starts: string | null;
-  totalGames: number | null;
-  resetBoard: boolean;
-  onReset: () => void;
   onExit: () => void;
 }
 
-const Board: React.FC<BoardProps> = ({
-  gameMode,
-  bot,
-  starts,
-  onReset,
-  onExit,
-}) => {
+const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
   bot = bot || { id: 0, name: "", icon: "" };
+
+  const [closeModal, setCloseModal] = useState(false);
+  const moveHistoryRef = useRef<HTMLDivElement>(null);
+  const [hoveredMove, setHoveredMove] = useState<
+    [number, number, number, number] | null
+  >(null);
+
+  // Handle hovering over a move in the history
+  const handleMoveHover = (coords: [number, number, number, number] | null) => {
+    setHoveredMove(coords);
+  };
+
   const {
     board,
     turn,
@@ -38,15 +43,25 @@ const Board: React.FC<BoardProps> = ({
     moveNumber,
     timeToMove,
     gameOver,
+    moveHistory,
     handleCellClick,
     makeMove,
+    resetGame,
   } = useGame(gameMode, bot, starts || "player");
 
+  const handlePlayAgain = () => {
+    setCloseModal(true);
+    setTimeout(() => {
+      resetGame();
+      setCloseModal(false);
+    }, 0);
+  };
+
   useEffect(() => {
-    return () => {
-      onReset();
-    };
-  }, [onReset]);
+    if (moveHistoryRef.current) {
+      moveHistoryRef.current.scrollLeft = moveHistoryRef.current.scrollWidth;
+    }
+  }, [moveHistory]);
 
   return (
     <div className="relative w-full sm:w-[600px]">
@@ -54,6 +69,7 @@ const Board: React.FC<BoardProps> = ({
         <div className="flex gap-2 cursor-pointer">
           <div title="Exit Game" onClick={onExit}>
             <svg
+              className={`${gameOver && "stroke-green-300 animate-pulse"}`}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
@@ -70,33 +86,21 @@ const Board: React.FC<BoardProps> = ({
               <path d="M14 7h7m-3 -3l3 3l-3 3"></path>
             </svg>
           </div>
-          {gameMode === "player-vs-bot" && (
-            <div title="Opponent">
-              {bot.icon} {bot.name}
-            </div>
-          )}
+
           <div title="Move number">{moveNumber}</div>
         </div>
-        <div
-          title="Game Mode"
-          className="w-fit absolute inset-x-0 m-auto text-center cursor-default"
-        >
-          {gameMode === "player-vs-player" && (
-            <h2 className="bg-blue-500 px-2 rounded-full text-sm uppercase">
-              Player vs Player
-            </h2>
-          )}
-          {gameMode === "player-vs-bot" && (
-            <h2 className="bg-green-500 px-2 rounded-full text-sm uppercase">
-              Player vs Bot
-            </h2>
-          )}
-        </div>
+        {gameMode === "player-vs-bot" && (
+          <div title={bot?.icon + " " + bot?.name}>
+            You vs{" "}
+            {window.innerWidth > 768 ? bot?.icon + " " + bot?.name : bot?.icon}
+          </div>
+        )}
         <div className="flex gap-2">
           {isBotThinking && (
             <div
               title="Bot's move time"
               style={{
+                // TODO: Remove this before final release
                 color:
                   timeToMove >= 10
                     ? "red"
@@ -113,11 +117,14 @@ const Board: React.FC<BoardProps> = ({
             className="truncate sm:max-w-[150px] text-end overflow-hidden"
           >
             {gameMode === "player-vs-player" && "Player"}
-            {window.innerWidth > 780
-              ? gameMode === "player-vs-bot" &&
-                (turn === "X" ? "You" : bot?.icon + bot?.name)
-              : gameMode === "player-vs-bot" &&
-                (turn === "X" ? "You" : bot?.icon)}
+            {gameMode === "player-vs-bot" &&
+              (turn === "X"
+                ? starts === "player"
+                  ? "You"
+                  : bot?.name
+                : starts === "player"
+                ? bot?.name
+                : "You")}
           </div>
           <div title="Turn">{turn}</div>
         </div>
@@ -136,6 +143,8 @@ const Board: React.FC<BoardProps> = ({
                 disabled={disabled}
                 activeMiniBoard={activeMiniBoard}
                 lastMove={lastMove}
+                gameOver={gameOver}
+                hoveredMove={hoveredMove} // Pass the hovered move to MiniBoard
                 handleCellClick={handleCellClick}
                 makeMove={makeMove}
               />
@@ -153,36 +162,48 @@ const Board: React.FC<BoardProps> = ({
               }}
             >
               {winningLine.type === "row" && (
-                <div
-                  className="absolute w-full h-2 bg-red-500"
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "95%" }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute w-[95%] h-2 bg-red-500 rounded-full"
                   style={{ top: `${(winningLine.index + 0.5) * 33.33}%` }}
                 />
               )}
               {winningLine.type === "col" && (
-                <div
-                  className="absolute h-full w-2 bg-red-500"
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: "95%" }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute h-[95%] w-2 bg-red-500 rounded-full"
                   style={{ left: `${(winningLine.index + 0.5) * 33.33}%` }}
                 />
               )}
               {winningLine.type === "diag" && winningLine.index === 0 && (
-                <div
-                  className="absolute w-full h-2 bg-red-500"
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute w-full h-2 bg-red-500 rounded-full"
                   style={{
                     transform: "rotate(45deg)",
-                    width: "141.42%",
+                    width: "120%",
                     top: "50%",
-                    left: "-20.71%",
+                    left: "0",
                   }}
                 />
               )}
               {winningLine.type === "diag" && winningLine.index === 1 && (
-                <div
-                  className="absolute w-full h-2 bg-red-500"
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute w-full h-2 bg-red-500 rounded-full"
                   style={{
                     transform: "rotate(-45deg)",
-                    width: "141.42%",
+                    width: "120%",
                     top: "50%",
-                    left: "-20.71%",
+                    left: "0",
                   }}
                 />
               )}
@@ -195,42 +216,50 @@ const Board: React.FC<BoardProps> = ({
       <div className="flex items-center justify-between">
         {/* MATCH INFO - PLAYER VS BOT */}
         {gameMode === "player-vs-bot" && starts && !gameOver && !lastMove && (
-          <>
-            <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
+          <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
+        )}
 
-            <div>
-              Playing against{" "}
-              {window.innerWidth > 768 ? bot?.icon + bot?.name : bot?.icon}
+        {/* MOVE HISTORY */}
+        <div
+          title="Move History"
+          ref={moveHistoryRef}
+          className="flex gap-4 max-w-full overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700 cursor-help"
+        >
+          {moveHistory.map((move, index) => (
+            <div
+              key={index}
+              className={`inline-block ${
+                index === moveHistory.length - 1 ? "underline" : ""
+              }`}
+              onMouseEnter={() =>
+                handleMoveHover([
+                  move.coords[0], // localRowIndex
+                  move.coords[1], // localColIndex
+                  move.coords[2], // rowIndex
+                  move.coords[3], // cellIndex
+                ])
+              }
+              onMouseLeave={() => handleMoveHover(null)}
+            >
+              {index + 1}. {move.turn}: ({move.coords.join(", ")})
             </div>
-          </>
-        )}
-
-        {/* GAME WINNER */}
-        {gameWinner && (
-          <>
-            {gameMode === "player-vs-bot" && (
-              <h2>
-                {gameWinner === "X"
-                  ? "You win!"
-                  : gameWinner === "O"
-                  ? bot?.name + " wins! You lose!"
-                  : "Draw!"}
-              </h2>
-            )}
-
-            {/* Show game winner in player vs player */}
-            {gameMode === "player-vs-player" && (
-              <h2>
-                {gameWinner === "X"
-                  ? "Player X wins!"
-                  : gameWinner === "O"
-                  ? "Player O wins!"
-                  : "Draw!"}
-              </h2>
-            )}
-          </>
-        )}
+          ))}
+        </div>
       </div>
+
+      {/* GAME OVER */}
+      {gameOver && (
+        <GameOverModal
+          gameWinner={gameWinner}
+          gameMode={gameMode}
+          bot={bot}
+          starts={starts}
+          closeModal={closeModal}
+          setCloseModal={() => setCloseModal(true)}
+          playAgain={handlePlayAgain}
+          onExit={onExit}
+        />
+      )}
     </div>
   );
 };

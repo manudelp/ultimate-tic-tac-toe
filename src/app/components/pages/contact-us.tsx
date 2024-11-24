@@ -11,6 +11,10 @@ const ContactUs: React.FC = () => {
     console.log("Form submitted:", { name, email, message });
   };
 
+  // TODO: Temporary disable this component and redirect to home.
+  window.location.href = "/";
+  return null;
+
   return (
     <div className="contact-us min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md p-8 bg-white shadow-md dark:bg-gray-800">
