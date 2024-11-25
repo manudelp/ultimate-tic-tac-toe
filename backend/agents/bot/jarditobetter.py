@@ -228,9 +228,9 @@ class BetterJardineritoAgent:
         """
 
         # BCheck Base Case
-        (ev_00, res_00), (ev_01, res_01), (ev_02, res_02) = self.get_board_info(board[0, 0]), self.get_board_info(board[0, 1]), self.get_board_info(board[0, 2])
-        (ev_10, res_10), (ev_11, res_11), (ev_12, res_12) = self.get_board_info(board[1, 0]), self.get_board_info(board[1, 1]), self.get_board_info(board[1, 2])
-        (ev_20, res_20), (ev_21, res_21), (ev_22, res_22) = self.get_board_info(board[2, 0]), self.get_board_info(board[2, 1]), self.get_board_info(board[2, 2])
+        (ev_00, res_00, lead_00, score_00), (ev_01, res_01, lead_01, score_01), (ev_02, res_02, lead_02, score_02) = self.get_board_info(board[0, 0]), self.get_board_info(board[0, 1]), self.get_board_info(board[0, 2])
+        (ev_10, res_10, lead_10, score_10), (ev_11, res_11, lead_11, score_11), (ev_12, res_12, lead_12, score_12) = self.get_board_info(board[1, 0]), self.get_board_info(board[1, 1]), self.get_board_info(board[1, 2])
+        (ev_20, res_20, lead_20, score_20), (ev_21, res_21, lead_21, score_21), (ev_22, res_22, lead_22, score_22) = self.get_board_info(board[2, 0]), self.get_board_info(board[2, 1]), self.get_board_info(board[2, 2])
         results_board = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
         winner = self.get_winning_result_hash(results_board)
         if winner != 0:
