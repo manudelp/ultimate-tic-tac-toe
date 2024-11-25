@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { checkConnection, getBots } from "@/api";
+import { getBots } from "@/api";
 import Board from "@/app/components/core/board";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,13 +25,14 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  isBackendConnected: boolean;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   // Core
   const [gameMode, setGameMode] = useState<string | null>(null);
   const [starts, setStarts] = useState<string | null>(null);
-
-  // Backend
-  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
 
   // Online
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
@@ -133,17 +134,6 @@ const Dashboard: React.FC = () => {
       "_blank"
     );
   };
-
-  // Check backend connection
-  useEffect(() => {
-    const checkBackendConnection = async () => {
-      const isConnected = await checkConnection();
-      setIsBackendConnected(isConnected);
-      console.log("Backend connection:", isConnected);
-    };
-
-    checkBackendConnection();
-  }, []);
 
   // Bot selection
   useEffect(() => {

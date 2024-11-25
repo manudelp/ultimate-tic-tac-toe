@@ -2,7 +2,11 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  isBackendConnected: boolean;
+}
+
+const Footer: React.FC<FooterProps> = ({ isBackendConnected }) => {
   useEffect(() => {
     const year = new Date().getFullYear();
     if (typeof window !== "undefined") {
@@ -73,6 +77,13 @@ const Footer: React.FC = () => {
           </a>
           .
         </p>
+      </div>
+      <div>
+        {isBackendConnected ? (
+          <p>🟢 Server is operational.</p>
+        ) : (
+          <p>🛑 Server is offline.</p>
+        )}
       </div>
     </div>
   );

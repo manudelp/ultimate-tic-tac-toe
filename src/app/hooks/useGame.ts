@@ -249,21 +249,9 @@ export const useGame = (
 
   // Restart bot move each game
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-
     if (gameMode === "player-vs-bot" && !lastMove) {
       agentsReset(bot.id);
-
-      // Example: Start an interval or timeout logic here if needed
-      interval = setInterval(() => {
-        console.log("Game reset for bot:", bot.name);
-      }, 1000);
     }
-
-    return () => {
-      // Clean up the interval when the effect is unmounted or dependencies change
-      if (interval) clearInterval(interval);
-    };
   }, [gameMode, bot, lastMove]);
 
   // Automatically handle bot move whenever it's the bot's turn
