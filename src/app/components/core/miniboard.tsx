@@ -187,8 +187,8 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
             hoveredMove &&
             hoveredMove[0] === localRowIndex &&
             hoveredMove[1] === localColIndex
-              ? "opacity-0"
-              : ""
+              ? "opacity-10"
+              : "opacity-100"
           }`}
         >
           <div className="pointer-events-auto grid place-items-center">
