@@ -228,7 +228,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
           {moveHistory.map((move, index) => (
             <div
               key={index}
-              className={`inline-block ${
+              className={`inline-block hover:text-green-500 ${
                 index === moveHistory.length - 1 ? "underline" : ""
               }`}
               onMouseEnter={() =>
