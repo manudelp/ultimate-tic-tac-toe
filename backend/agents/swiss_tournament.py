@@ -27,7 +27,6 @@ from bot.jarditobetter import BetterJardineritoAgent
 from bot.itterinobetter import BetterItterinoAgent
 
 # Hyperparameters
-ROUNDS = 2  # Number of rounds to play
 ROUNDS_PER_MATCH = 1  # Number of games to play between each pair of agents
 REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 
@@ -203,6 +202,10 @@ class SwissTournament:
 tournament = SwissTournament(AGENTS)
 
 t0 = time.time()
+
+# Rounds is the log base 2 of the number of agents, rounded down, + 1
+agents_number = len(AGENTS)
+ROUNDS = int(np.log2(agents_number)) + 1
 
 tournament.repeat_swiss(
     repeats=REPEAT_SWISS, 
