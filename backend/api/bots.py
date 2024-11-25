@@ -30,7 +30,6 @@ AGENTS = {
     TaylorAgent().id : TaylorAgent(), 
     StraightArrowAgent().id : StraightArrowAgent(), 
     JardineritoAgent().id : JardineritoAgent(),
-    BetterJardineritoAgent().id : BetterJardineritoAgent(), 
     ArthyAgent().id : ArthyAgent(),
     # MonkeyAgent().id : MonkeyAgent(),
     # FooFinderAgent().id : FooFinderAgent(),
