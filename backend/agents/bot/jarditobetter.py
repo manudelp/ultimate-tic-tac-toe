@@ -7,17 +7,15 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-depth = 6/5, plain alpha beta
-Board Balance = Sum of Local Board Balances + Connectivity of Global Board Results
-AB-Pruning Minimax? = True
-Order Moves? = False!
-
+Como Jardito, pero has a better heuristic
+Heuristica mas completa considerando conectividad de los resultados
+Gonna to implement positional scores as well
 """
 
 class BetterJardineritoAgent:
     def __init__(self):
         self.id = 12
-        self.name = "Jaimito"
+        self.name = "Don Jardito"
         self.icon = "🍀"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
