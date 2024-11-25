@@ -9,13 +9,14 @@ from typing import List, Tuple, Dict, Any, Union, Optional
 """
 Como Jardito, pero has a better heuristic
 Heuristica mas completa considerando conectividad de los resultados
+Implementing positional scores as well
 """
 
-class BetterJardineritoAgent:
+class ArthyAgent:
     def __init__(self):
         self.id = 12
-        self.name = "Don Jardito"
-        self.icon = "🍀"
+        self.name = "Arthy"
+        self.icon = "💎"
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
@@ -240,10 +241,15 @@ class BetterJardineritoAgent:
                 raise ValueError(f"Winner was not 1 or -1, it was {winner}")
             return balance, None
         else:
+            # TODO: ISSUE-9403: Faster Draw Hash
+            # Se puede hacer mas rapido, pasando el tablero por el hash que ve 0s, 1s, -1s, 2s, y tener el resultadp
+            # en terminos de 0, 1, -1 o 2. Si el resultado es 1 o -1, es winner, si es 2, es draw
+            # asi no tengo que llamar un winning hash y un draw hash por separado 
+            # simplemente llamo a uno, y despues uso variables
             if self.get_draw_result_hash(results_board):
                 return 0, None
             elif depth == 0:
-                board_balance = self.boardBalance(board=board, 
+                board_balance = self.board_balance(board=board, 
                                                 results_array=results_board, 
                                                 ev_00=ev_00, ev_01=ev_01, ev_02=ev_02, 
                                                 ev_10=ev_10, ev_11=ev_11, ev_12=ev_12, 
@@ -403,11 +409,17 @@ class BetterJardineritoAgent:
                 global_moves.append([int(submove[0]), int(submove[1])])
         return global_moves
 
-    def boardBalance(self, board: np.ndarray,
+    def board_balance(self, board: np.ndarray,
                     results_array: np.ndarray,
                     ev_00: float, ev_01:float, ev_02: float,
                     ev_10: float, ev_11:float, ev_12: float,
-                    ev_20: float, ev_21:float, ev_22: float) -> float:
+                    ev_20: float, ev_21:float, ev_22: float,
+                    lead_00: int, lead_01: float, lead_02: float,
+                    lead_10: int, lead_11: float, lead_12: float,
+                    lead_20: int, lead_21: float, lead_22: float,
+                    score_00: float, score_01: float, score_02: float,
+                    score_10: float, score_11: float, score_12: float,
+                    score_20: float, score_21: float, score_22: float) -> float:
         # NEEDS TIMEIT TESTING 🔔
         ''' Returns the heuristic value of the board 
         For now it's a sum of the local board evaluations plus the connectivity of the global board results 
