@@ -1763,6 +1763,23 @@ def run_board_info_tests(agent):
     print("All Board Information tests passed successfully!")
 
 def run_board_info_commonsense_tests(agent):
+    winning_constant = 4.8
+
+    assert agent.get_eval_hash(board_1) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 1 should have a score of 6.4 since its won"
+    assert agent.get_eval_hash(board_2) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 2 should have a score of 6.4 since its won"
+    assert agent.get_eval_hash(board_3) == 6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 3 should have a score of 6.4 since its won"
+    assert agent.get_eval_hash(board_4) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 4 should have a score of -6.4 since its won"
+    assert agent.get_eval_hash(board_5) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 5 should have a score of -6.4 since its won"
+    assert agent.get_eval_hash(board_6) == -6.4, Style.BRIGHT + Fore.RED + "Test Failed: Board 6 should have a score of -6.4 since its won"
+    assert abs(agent.get_eval_hash(board_7)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_hash(board_7) >= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should not have a negative score"
+    assert abs(agent.get_eval_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 8 should have a score of 0"
+    assert agent.get_eval_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 9 should not have a positive score"
+    assert abs(agent.get_eval_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + "Test Failed: Board 7 should have a low absolute score"
+    assert agent.get_eval_hash(board_10) == -1 * agent.get_eval_hash(board_9), Style.BRIGHT + Fore.RED + "Test Failed: Board 10 score should be inverse of Board 9"
+    assert agent.get_eval_hash(board_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 11 should have a score of 0"
+    assert agent.get_eval_hash(board_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed: Board 12 should have a score of 0"
+
     b1_eval, b1_result, b1_lead, b1_score = agent.get_board_info(board_1)
     b2_eval, b2_result, b2_lead, b2_score = agent.get_board_info(board_2)
     b3_eval, b3_result, b3_lead, b3_score = agent.get_board_info(board_3)
@@ -1786,6 +1803,9 @@ def run_board_info_commonsense_tests(agent):
     bCO, bCO_result, bCO_lead, bCO_score = agent.get_board_info(board_center_only)
     bCOA, bCOA_result, bCOA_lead, bCOA_score = agent.get_board_info(board_center_only_another)
     bCEO, bCEO_result, bCEO_lead, bCEO_score = agent.get_board_info(board_center_enemy_only)
+    
+    # Evaluations!
+    assert b1_eval == winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should have been won by 1, evaluation was {b1_eval}"
     
     print(f"b16 score is {b16_score}, b16 eval is {b16_eval}, best connection coef is {best_connection_coefficient(board_16, player=b16_lead / 3)}")
     print(f"b17 score is {b17_score}, b17 eval is {b17_eval}, best connection coef is {best_connection_coefficient(board_17, player=b17_lead / 3)}")
