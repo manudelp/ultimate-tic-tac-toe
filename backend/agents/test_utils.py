@@ -193,13 +193,13 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
     total_amount_of_moves_ag2 = len(move_times[agent2])
     return winner, avg_move_times, total_amount_of_moves_ag1, total_amount_of_moves_ag2
 
-def play_multiple_games(agent1, agent2, rounds):    
+def play_multiple_games(agent1, agent2, rounds, gamemode="default") -> Tuple[int, int, int, float, float]:    
     agent1_wins, agent2_wins, draws = 0, 0, 0
     total_move_times = {agent1: [], agent2: []}
 
     for round_num in range(rounds):
         # First game where agent1 goes first
-        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True)
+        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True, gamemode=gamemode)
         reset_agents(agent1, agent2)
         avg_times_agent1 = avg_move_times1[agent1] / moves_amount_ag1
         avg_times_agent2 = avg_move_times1[agent2] / moves_amount_ag2
@@ -207,7 +207,7 @@ def play_multiple_games(agent1, agent2, rounds):
         total_move_times[agent2].append(avg_times_agent2)
 
         # Second game where agent2 goes first
-        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
+        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False, gamemode=gamemode)
         reset_agents(agent1, agent2)
         avg_times_agent1 = avg_move_times2[agent1] / moves_amount_ag1
         avg_times_agent2 = avg_move_times2[agent2] / moves_amount_ag2
