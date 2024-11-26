@@ -263,7 +263,6 @@ export const useGame = (
       !isBotThinking &&
       !gameOver
     ) {
-      setIsBotThinking(true);
       handleBotMove();
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);

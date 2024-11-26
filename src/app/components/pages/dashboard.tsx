@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { getBots } from "@/api";
-import Board from "@/app/components/core/board";
+import Loader from "@/app/components/ui/loader";
+const Board = dynamic(() => import("@/app/components/core/board"), {
+  ssr: false,
+  loading: () => <Loader />,
+});
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faWhatsapp,
