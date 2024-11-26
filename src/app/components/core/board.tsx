@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import GameOverModal from "../ui/game-over";
 import { useGame } from "../../hooks/useGame";
-import { motion } from "framer-motion";
 
 interface BotListResponse {
   id: number;
