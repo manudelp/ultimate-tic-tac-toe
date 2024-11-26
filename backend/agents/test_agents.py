@@ -20,12 +20,13 @@ from foofinder import FooFinderAgent
 from bot.jarditonomid import JardineritoAntiMidAgent
 from bot.jarditobetter import BetterJardineritoAgent
 from bot.alterjardito import AlterJardineritoAgent
+from bot.arthy import ArthyAgent
 
 t0 = time.time()
 
 # Initialize agents
 AGENT1 = JardineritoAgent()    # Replace with your chosen agent
-AGENT2 = BetterJardineritoAgent()  # Replace with your chosen agent
+AGENT2 = ArthyAgent()  # Replace with your chosen agent
 ROUNDS = 1
 GAMES = ROUNDS * 2
 BLIZZARD_MODE = False

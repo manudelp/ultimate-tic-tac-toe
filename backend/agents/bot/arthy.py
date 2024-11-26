@@ -253,7 +253,13 @@ class ArthyAgent:
                                                 results_array=results_board, 
                                                 ev_00=ev_00, ev_01=ev_01, ev_02=ev_02, 
                                                 ev_10=ev_10, ev_11=ev_11, ev_12=ev_12, 
-                                                ev_20=ev_20, ev_21=ev_21, ev_22=ev_22)
+                                                ev_20=ev_20, ev_21=ev_21, ev_22=ev_22,
+                                                lead_00=lead_00, lead_01=lead_01, lead_02=lead_02,
+                                                lead_10=lead_10, lead_11=lead_11, lead_12=lead_12,
+                                                lead_20=lead_20, lead_21=lead_21, lead_22=lead_22,
+                                                score_00=score_00, score_01=score_01, score_02=score_02,
+                                                score_10=score_10, score_11=score_11, score_12=score_12,
+                                                score_20=score_20, score_21=score_21, score_22=score_22)
                 return board_balance, None
 
         # No Terminal State Found, keep going and Implement Alpha Beta
