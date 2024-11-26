@@ -134,10 +134,28 @@ load_winning_boards(won_boards_hash_path)
 load_over_boards(over_boards_hash_path)
 
 # Game Simulation Functions
-def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> Tuple[int, dict]:
+def simulate_blizzard(board: np.ndarray):
+    ''' Given a 3x3x3x3 board, fills 12 random cells with a number 2 '''
+    if board.shape != (3, 3, 3, 3):
+        raise ValueError("The board must be a 4d array with shape (3, 3, 3, 3).")
+    
+    # Get all the empty cells
+    empty_cells = np.argwhere(board == 0)
+    np.random.shuffle(empty_cells)
+    for i in range(12):
+        row, col, r, c = empty_cells[i]
+        board[row, col, r, c] = 2
+
+def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="default") -> Tuple[int, dict]:
     """Simulates a single game between two agents, records the average move time per agent, 
     and returns the winner and average move times for each agent."""
     board = np.zeros((3, 3, 3, 3), dtype=int)
+
+    if gamemode == 'blizzard':
+        simulate_blizzard(board)
+    elif gamemode != 'default':
+        raise ValueError("Invalid gamemode. Please choose 'default' or 'blizzard'.")
+
     current_agent = agent1 if first_player_is_agent1 else agent2
     opponent_agent = agent2 if first_player_is_agent1 else agent1
     board_to_play = None
@@ -148,6 +166,9 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> Tuple[int,
     while True:
         agent_marker = 1 if current_agent == agent1 else -1
         current_board = board if agent_marker == 1 else -1 * board
+
+        # Turn all -2 elements in the board to 2
+        current_board[current_board == -2] = 2
 
         # Measure time for the current agent to make a move
         start_time = time.time()
@@ -172,13 +193,13 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool) -> Tuple[int,
     total_amount_of_moves_ag2 = len(move_times[agent2])
     return winner, avg_move_times, total_amount_of_moves_ag1, total_amount_of_moves_ag2
 
-def play_multiple_games(agent1, agent2, rounds):    
+def play_multiple_games(agent1, agent2, rounds, gamemode="default") -> Tuple[int, int, int, float, float]:    
     agent1_wins, agent2_wins, draws = 0, 0, 0
     total_move_times = {agent1: [], agent2: []}
 
     for round_num in range(rounds):
         # First game where agent1 goes first
-        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True)
+        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True, gamemode=gamemode)
         reset_agents(agent1, agent2)
         avg_times_agent1 = avg_move_times1[agent1] / moves_amount_ag1
         avg_times_agent2 = avg_move_times1[agent2] / moves_amount_ag2
@@ -186,7 +207,7 @@ def play_multiple_games(agent1, agent2, rounds):
         total_move_times[agent2].append(avg_times_agent2)
 
         # Second game where agent2 goes first
-        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
+        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False, gamemode=gamemode)
         reset_agents(agent1, agent2)
         avg_times_agent1 = avg_move_times2[agent1] / moves_amount_ag1
         avg_times_agent2 = avg_move_times2[agent2] / moves_amount_ag2

@@ -20,20 +20,27 @@ from foofinder import FooFinderAgent
 from bot.jarditonomid import JardineritoAntiMidAgent
 from bot.jarditobetter import BetterJardineritoAgent
 from bot.alterjardito import AlterJardineritoAgent
+from bot.arthy import ArthyAgent
 
 t0 = time.time()
 
 # Initialize agents
 AGENT1 = JardineritoAgent()    # Replace with your chosen agent
-AGENT2 = AlterJardineritoAgent()  # Replace with your chosen agent
+AGENT2 = ArthyAgent()  # Replace with your chosen agent
 ROUNDS = 1
 GAMES = ROUNDS * 2
+BLIZZARD_MODE = False
 
 agent1_name = str(AGENT1)
 agent2_name = str(AGENT2)
 
 # Run the simulation
-agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
+if BLIZZARD_MODE:
+    print(Style.BRIGHT + Fore.LIGHTCYAN_EX + f"\n ----+---- 🌨️❄️ PLAYING {GAMES} GAMES IN BLIZZARD MODE ❄️🌨️ ----+----")
+    agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS, gamemode="blizzard")
+else:
+    agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
+
 if agent1_wins > agent2_wins:
     final_winner = agent1_name
 elif agent1_wins < agent2_wins:

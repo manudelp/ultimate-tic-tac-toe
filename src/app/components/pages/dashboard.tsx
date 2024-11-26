@@ -367,7 +367,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                 </button>
                 <button
                   onClick={shareOnReddit}
-                  className="text-3xl hover:text-orange-500 transition-colors"
+                  className="text-3xl hover:text-orange-600 transition-colors"
                 >
                   <FontAwesomeIcon icon={faReddit} />
                 </button>

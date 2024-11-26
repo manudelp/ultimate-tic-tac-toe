@@ -52,7 +52,7 @@ class TaylorAgent:
         return self.str
 
     def reset(self):
-        print("Taylor reset")
+        print(f"{str(self)} reset")
         self.moveNumber = 0
         
     def action(self, super_board, board_to_play=None):
@@ -71,7 +71,7 @@ class TaylorAgent:
         # First Move Go Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError("TAYLOR, No one has played, but moveNumber is not 0")
+                raise ValueError(f"According to {str(self)}, No one has played, but moveNumber is not 0")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
@@ -485,5 +485,3 @@ def boardBalance(board):
                 balance += 1.25 * local_balance
 
     return round(balance, 4)
-
-
