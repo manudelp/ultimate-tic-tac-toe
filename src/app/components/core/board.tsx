@@ -162,28 +162,19 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
               }}
             >
               {winningLine.type === "row" && (
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: "95%" }}
-                  transition={{ duration: 0.5 }}
+                <div
                   className="absolute w-[95%] h-2 bg-red-500 rounded-full"
                   style={{ top: `${(winningLine.index + 0.5) * 33.33}%` }}
                 />
               )}
               {winningLine.type === "col" && (
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: "95%" }}
-                  transition={{ duration: 0.5 }}
+                <div
                   className="absolute h-[95%] w-2 bg-red-500 rounded-full"
                   style={{ left: `${(winningLine.index + 0.5) * 33.33}%` }}
                 />
               )}
               {winningLine.type === "diag" && winningLine.index === 0 && (
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 0.5 }}
+                <div
                   className="absolute w-full h-2 bg-red-500 rounded-full"
                   style={{
                     transform: "rotate(45deg)",
@@ -194,10 +185,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
                 />
               )}
               {winningLine.type === "diag" && winningLine.index === 1 && (
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 0.5 }}
+                <div
                   className="absolute w-full h-2 bg-red-500 rounded-full"
                   style={{
                     transform: "rotate(-45deg)",
