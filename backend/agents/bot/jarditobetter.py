@@ -41,7 +41,7 @@ class BetterJardineritoAgent:
         self.centering_early_time = 0
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.name}")
-            return
+            # return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         average_minimax_time = self.total_minimax_time / self.minimax_plays
