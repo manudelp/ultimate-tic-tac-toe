@@ -335,8 +335,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   </button>
                   <button
                     className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
-                    onClick={() => setStarts("player")} // TODO: change setStarts to bot
-                    disabled
+                    onClick={() => setStarts("bot")}
                   >
                     Bot Starts
                   </button>
