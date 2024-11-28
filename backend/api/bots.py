@@ -20,6 +20,7 @@ from agents.bot.maxi import MaximilianoAgent
 from agents.bot.jarditonomid import JardineritoAntiMidAgent
 from agents.bot.jarditobetter import BetterJardineritoAgent
 from agents.bot.arthy import ArthyAgent
+from agents.bot.jardishow import JardiShowAgent
 from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
@@ -27,9 +28,10 @@ bot_routes = Blueprint('bots', __name__)
 # IDs Dictionary, Agent:obj ; ID:int
 AGENTS = {
     RandomAgent().id : RandomAgent(),
-    TaylorAgent().id : TaylorAgent(), 
+    # TaylorAgent().id : TaylorAgent(), 
     StraightArrowAgent().id : StraightArrowAgent(), 
     JardineritoAgent().id : JardineritoAgent(),
+    JardiShowAgent().id : JardiShowAgent(),
     ArthyAgent().id : ArthyAgent(),
     # MonkeyAgent().id : MonkeyAgent(),
     # FooFinderAgent().id : FooFinderAgent(),
