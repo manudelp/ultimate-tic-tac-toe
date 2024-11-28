@@ -410,24 +410,30 @@ def localBoardEval_v3(localBoard):
     # Rows
     row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
     if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
-        player1_threat |= row1_eval > 0
-        player2_threat |= row1_eval < 0
+        if row1_eval > 0:
+            player1_threat = True
+        if row1_eval < 0:
+            player2_threat = True
     if abs(row1_eval) == 1:
         return 6.4 * row1_eval
     score += row1_eval
 
     row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
     if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
-        player1_threat |= row2_eval > 0
-        player2_threat |= row2_eval < 0
+        if row2_eval > 0:
+            player1_threat = True
+        if row2_eval < 0:
+            player2_threat = True
     if abs(row2_eval) == 1:
         return 6.4 * row2_eval
     score += row2_eval
 
     row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
     if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
-        player1_threat |= row3_eval > 0
-        player2_threat |= row3_eval < 0
+        if row3_eval > 0:
+            player1_threat = True
+        if row3_eval < 0:
+            player2_threat = True
     if abs(row3_eval) == 1:
         return 6.4 * row3_eval
     score += row3_eval
@@ -1136,8 +1142,8 @@ def generate_local_boards_info(file_path):
 # generate_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
-# generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-generate_local_boards_info('backend/agents/hashes/hash_boards_information.txt')
+generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+# generate_local_boards_info('backend/agents/hashes/hash_boards_information.txt')
 # generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
