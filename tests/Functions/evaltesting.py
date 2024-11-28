@@ -402,6 +402,7 @@ def better_evaluation(local_board):
     winning_eval = 4.5
     player1_threat, player2_threat = False, False
     p1_threat_spaces, p2_threat_spaces = set(), set()
+    s_r1, s_r2, s_r3, s_c1, s_c2, s_c3, s_d1, s_d2 = False, False, False, False, False, False, False, False
 
 
     # Row1
@@ -441,21 +442,7 @@ def better_evaluation(local_board):
     elif detectSingle(row1):
         if abs(row1_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {row1_eval}")
-        
-        open_A = row1_indeces[row1.index(0)]
-        open_B = row1_indeces[row1.index(0, row1.index(0) + 1)]
-
-        if row1_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += row1_eval
-        
-        elif row1_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += row1_eval
+        s_r1 = True
 
     elif row1_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {row1_eval}")
@@ -498,21 +485,7 @@ def better_evaluation(local_board):
     elif detectSingle(row2):
         if abs(row2_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {row2_eval}")
-        
-        open_A = row2_indeces[row2.index(0)]
-        open_B = row2_indeces[row2.index(0, row2.index(0) + 1)]
-
-        if row2_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += row2_eval
-        
-        elif row2_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += row2_eval
+        s_r2 = True
 
     elif row2_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {row2_eval}")
@@ -555,21 +528,7 @@ def better_evaluation(local_board):
     elif detectSingle(row3):
         if abs(row3_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {row3_eval}")
-        
-        open_A = row3_indeces[row3.index(0)]
-        open_B = row3_indeces[row3.index(0, row3.index(0) + 1)]
-
-        if row3_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += row3_eval
-
-        elif row3_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += row3_eval
+        s_r3 = True
     
     elif row3_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {row3_eval}")
@@ -612,21 +571,7 @@ def better_evaluation(local_board):
     elif detectSingle(col1):
         if abs(col1_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {col1_eval}")
-        
-        open_A = col1_indeces[col1.index(0)]
-        open_B = col1_indeces[col1.index(0, col1.index(0) + 1)]
-
-        if col1_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += col1_eval
-        
-        elif col1_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += col1_eval
+        s_c1 = True
 
     elif col1_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {col1_eval}")
@@ -669,21 +614,7 @@ def better_evaluation(local_board):
     elif detectSingle(col2):
         if abs(col2_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {col2_eval}")
-        
-        open_A = col2_indeces[col2.index(0)]
-        open_B = col2_indeces[col2.index(0, col2.index(0) + 1)]
-
-        if col2_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += col2_eval
-        
-        elif col2_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += col2_eval
+        s_c2 = True
 
     elif col2_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {col2_eval}")
@@ -727,21 +658,7 @@ def better_evaluation(local_board):
     elif detectSingle(col3):
         if abs(col3_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {col3_eval}")
-        
-        open_A = col3_indeces[col3.index(0)]
-        open_B = col3_indeces[col3.index(0, col3.index(0) + 1)]
-
-        if col3_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += col3_eval
-        
-        elif col3_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += col3_eval
+        s_c3 = True
 
     elif col3_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {col3_eval}")
@@ -784,21 +701,7 @@ def better_evaluation(local_board):
     elif detectSingle(diagTB):
         if abs(diagTB_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {diagTB_eval}")
-        
-        open_A = diagTB_indeces[diagTB.index(0)]
-        open_B = diagTB_indeces[diagTB.index(0, diagTB.index(0) + 1)]
-
-        if diagTB_eval > 0:
-            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
-                score += 0
-            else:
-                score += diagTB_eval
-        
-        elif diagTB_eval < 0:
-            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
-                score += 0
-            else:
-                score += diagTB_eval
+        s_d1 = True
 
     elif diagTB_eval != 0:
         raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {diagTB_eval}")
@@ -841,7 +744,144 @@ def better_evaluation(local_board):
     elif detectSingle(diagBT):
         if abs(diagBT_eval) != single_eval:
             raise ValueError(f"Invalid! Detected Single but Eval was {diagBT_eval}")
+        s_d2 = True
+
+    elif diagBT_eval != 0:
+        raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {diagBT_eval}")
+    
+    else:
+        score += diagBT_eval
+
+    # Single Checks now that the lists are completed
+    if detectSingle(row1):
+        if not s_r1:
+            raise ValueError(f"Single Detected R1 but not in Single List, eval: {row1_eval}")
+        open_A = row1_indeces[row1.index(0)]
+        open_B = row1_indeces[row1.index(0, row1.index(0) + 1)]
+
+        if row1_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += row1_eval
         
+        elif row1_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += row1_eval
+
+    if detectSingle(row2):
+        if not s_r2:
+            raise ValueError(f"Single Detected R2 but not in Single List, eval: {row2_eval}")
+        open_A = row2_indeces[row2.index(0)]
+        open_B = row2_indeces[row2.index(0, row2.index(0) + 1)]
+
+        if row2_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += row2_eval
+        
+        elif row2_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += row2_eval
+
+    if detectSingle(row3):
+        if not s_r3:
+            raise ValueError(f"Single Detected R3 but not in Single List, eval: {row3_eval}")
+        open_A = row3_indeces[row3.index(0)]
+        open_B = row3_indeces[row3.index(0, row3.index(0) + 1)]
+
+        if row3_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += row3_eval
+
+        elif row3_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += row3_eval
+
+    if detectSingle(col1):
+        if not s_c1:
+            raise ValueError(f"Single Detected C1 but not in Single List, eval: {col1_eval}")
+        open_A = col1_indeces[col1.index(0)]
+        open_B = col1_indeces[col1.index(0, col1.index(0) + 1)]
+
+        if col1_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += col1_eval
+        
+        elif col1_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += col1_eval
+
+    if detectSingle(col2):
+        if not s_c2:
+            raise ValueError(f"Single Detected C2 but not in Single List, eval: {col2_eval}")
+        open_A = col2_indeces[col2.index(0)]
+        open_B = col2_indeces[col2.index(0, col2.index(0) + 1)]
+
+        if col2_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += col2_eval
+        
+        elif col2_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += col2_eval
+
+    if detectSingle(col3):
+        if not s_c3:
+            raise ValueError(f"Single Detected C3 but not in Single List, eval: {col3_eval}")
+        open_A = col3_indeces[col3.index(0)]
+        open_B = col3_indeces[col3.index(0, col3.index(0) + 1)]
+
+        if col3_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += col3_eval
+        
+        elif col3_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += col3_eval
+
+    if detectSingle(diagTB):
+        if not s_d1:
+            raise ValueError(f"Single Detected D1 but not in Single List, eval: {diagTB_eval}")
+        open_A = diagTB_indeces[diagTB.index(0)]
+        open_B = diagTB_indeces[diagTB.index(0, diagTB.index(0) + 1)]
+
+        if diagTB_eval > 0:
+            if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
+                score += 0
+            else:
+                score += diagTB_eval
+        
+        elif diagTB_eval < 0:
+            if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
+                score += 0
+            else:
+                score += diagTB_eval
+
+    if detectSingle(diagBT):
+        if not s_d2:
+            raise ValueError(f"Single Detected D2 but not in Single List, eval: {diagBT_eval}")
         open_A = diagBT_indeces[diagBT.index(0)]
         open_B = diagBT_indeces[diagBT.index(0, diagBT.index(0) + 1)]
 
@@ -857,18 +897,14 @@ def better_evaluation(local_board):
             else:
                 score += diagBT_eval
 
-    elif diagBT_eval != 0:
-        raise ValueError(f"Found Non-Zero Eval when wasnt Single nor Double, eval: {diagBT_eval}")
-    
-    else:
-        score += diagBT_eval
-
     # Check for conflicting threats, tone down final score
     if player1_threat and player2_threat:
         if empties == 1:
             return 0
         if empties == 2:
             if len(p1_threat_spaces) == 1 and len(p2_threat_spaces) == 1:
+                if score != 0:
+                    print(f"Conflicting Threats with 2 empties but score != 0, score is {score} when the board is:\n{local_board}")
                 return 0
         else:
             final_score = score * 0.75
@@ -876,3 +912,28 @@ def better_evaluation(local_board):
 
     final_score = round(score, 2)
     return final_score
+
+# Test Boards
+board_20 = np.array([[1, 1, 0],
+                    [0, 0, 0],
+                    [-1, 0, 0]]) # Balance = D1 = 0.6
+
+board_21= np.array([[1, 1, 0],
+                    [0, -1, 1],
+                    [0, -1, 1]]) # Balane = D1 = 0.6
+
+board_22 = np.array([[1, 1, 0],
+                    [0, 0, 0],
+                    [0, -1, 0]]) # Balance = D1 + S1 = 0.74
+
+board_22 = np.array([[1, 1, 0],
+                    [0, -1, 0],
+                    [0, -1, 1]]) # Balance = D1 - S1 = 0.46
+
+print(f"Local Eval 20: {local_evaluation(board_20)}")
+print(f"Local Eval 21: {local_evaluation(board_21)}")
+print(f"Local Eval 22: {local_evaluation(board_22)}")
+
+print(f"Better Eval 20: {better_evaluation(board_20)}")
+print(f"Better Eval 21: {better_evaluation(board_21)}")
+print(f"Better Eval 22: {better_evaluation(board_22)}")
