@@ -502,7 +502,9 @@ def local_evaluation(localBoard):
 
     center_only_eval = 0.35
     # If board is all 0s and a 1 in the middle, return center only eval
-    if np.count_nonzero(localBoard) == 1:
+    non_empties = np.count_nonzero(localBoard)
+    empties = 9 - non_empties
+    if non_empties == 1:
         if localBoard[1, 1] == 1:
             if np.array_equal(localBoard, CENTER_ONLY_BOARD):
                 return center_only_eval
@@ -514,6 +516,7 @@ def local_evaluation(localBoard):
             else:
                 raise ValueError("Invalid Center Only Enemy Board")
 
+
     score = 0
     single_eval = 0.14
     double_eval = 0.60
@@ -522,24 +525,29 @@ def local_evaluation(localBoard):
     player2_threat = False
     
     # Rows
-    row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
+    row1 = (localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])
+    row1_eval = lineEval((row1), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat(row1):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
     if abs(row1_eval) == 1:
         return winning_eval * row1_eval
     score += row1_eval
 
-    row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
-        player1_threat |= row2_eval > 0
-        player2_threat |= row2_eval < 0
+    row2 = (localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])
+    row2_eval = lineEval((row2), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((row2)):
+        if row2_eval > 0:
+            player1_threat = True
+        elif row2_eval < 0:
+            player2_threat = True
     if abs(row2_eval) == 1:
         return winning_eval * row2_eval
     score += row2_eval
 
-    row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
+    row3 = (localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])
+    row3_eval = lineEval((row3), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((row3)):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
     if abs(row3_eval) == 1:
@@ -547,24 +555,27 @@ def local_evaluation(localBoard):
     score += row3_eval
 
     # Columns
-    col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
+    col1 = (localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])
+    col1_eval = lineEval((col1), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((col1)):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
     if abs(col1_eval) == 1:
         return winning_eval * col1_eval
     score += col1_eval
 
-    col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
+    col2 = (localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])
+    col2_eval = lineEval((col2), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((col2)):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
     if abs(col2_eval) == 1:
         return winning_eval * col2_eval
     score += col2_eval
 
-    col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
+    col3 = (localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])
+    col3_eval = lineEval((col3), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((col3)):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
     if abs(col3_eval) == 1:
@@ -572,16 +583,18 @@ def local_evaluation(localBoard):
     score += col3_eval
 
     # Diagonals
-    diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
+    diagTB = (localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])
+    diagTB_eval = lineEval((diagTB), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((diagTB)):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
     if abs(diagTB_eval) == 1:
         return winning_eval * diagTB_eval
     score += diagTB_eval
 
-    diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]), single_eval=single_eval, double_eval=double_eval)
-    if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
+    diagBT = (localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])
+    diagBT_eval = lineEval((diagBT), single_eval=single_eval, double_eval=double_eval)
+    if detectThreat((diagBT)):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:
@@ -590,8 +603,11 @@ def local_evaluation(localBoard):
 
     # Check for conflicting threats, tone down final score
     if player1_threat and player2_threat:
-        final_score = score * 0.75
-        return round(final_score, 2)
+        if empties == 1:
+            return 0
+        else:
+            final_score = score * 0.75
+            return round(final_score, 2)
 
     final_score = round(score, 2)
     return final_score
