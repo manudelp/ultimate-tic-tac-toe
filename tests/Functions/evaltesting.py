@@ -926,14 +926,16 @@ board_22 = np.array([[1, 1, 0],
                     [0, 0, 0],
                     [0, -1, 0]]) # Balance = D1 + S1 = 0.74
 
-board_22 = np.array([[1, 1, 0],
+board_23 = np.array([[1, 1, 0],
                     [0, -1, 0],
                     [0, -1, 1]]) # Balance = D1 - S1 = 0.46
 
 print(f"Local Eval 20: {local_evaluation(board_20)}")
 print(f"Local Eval 21: {local_evaluation(board_21)}")
 print(f"Local Eval 22: {local_evaluation(board_22)}")
+print(f"Local Eval 23: {local_evaluation(board_23)}")
 
 print(f"Better Eval 20: {better_evaluation(board_20)}")
 print(f"Better Eval 21: {better_evaluation(board_21)}")
 print(f"Better Eval 22: {better_evaluation(board_22)}")
+print(f"Better Eval 23: {better_evaluation(board_23)}")
