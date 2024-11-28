@@ -534,8 +534,10 @@ def local_evaluation(localBoard):
     row1 = (localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])
     row1_eval = lineEval((row1), single_eval=single_eval, double_eval=double_eval)
     if detectThreat(row1):
-        player1_threat |= row1_eval > 0
-        player2_threat |= row1_eval < 0
+        if row1_eval > 0:
+            player1_threat = True
+        elif row1_eval < 0:
+            player2_threat = True
     if abs(row1_eval) == 1:
         return winning_eval * row1_eval
     score += row1_eval
@@ -554,8 +556,10 @@ def local_evaluation(localBoard):
     row3 = (localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])
     row3_eval = lineEval((row3), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((row3)):
-        player1_threat |= row3_eval > 0
-        player2_threat |= row3_eval < 0
+        if row3_eval > 0:
+            player1_threat = True
+        elif row3_eval < 0:
+            player2_threat = True
     if abs(row3_eval) == 1:
         return winning_eval * row3_eval
     score += row3_eval
@@ -564,8 +568,10 @@ def local_evaluation(localBoard):
     col1 = (localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])
     col1_eval = lineEval((col1), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((col1)):
-        player1_threat |= col1_eval > 0
-        player2_threat |= col1_eval < 0
+        if col1_eval > 0:
+            player1_threat = True
+        elif col1_eval < 0:
+            player2_threat = True
     if abs(col1_eval) == 1:
         return winning_eval * col1_eval
     score += col1_eval
@@ -573,8 +579,10 @@ def local_evaluation(localBoard):
     col2 = (localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])
     col2_eval = lineEval((col2), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((col2)):
-        player1_threat |= col2_eval > 0
-        player2_threat |= col2_eval < 0
+        if col2_eval > 0:
+            player1_threat = True
+        elif col2_eval < 0:
+            player2_threat = True
     if abs(col2_eval) == 1:
         return winning_eval * col2_eval
     score += col2_eval
@@ -582,8 +590,10 @@ def local_evaluation(localBoard):
     col3 = (localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])
     col3_eval = lineEval((col3), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((col3)):
-        player1_threat |= col3_eval > 0
-        player2_threat |= col3_eval < 0
+        if col3_eval > 0:
+            player1_threat = True
+        elif col3_eval < 0:
+            player2_threat = True
     if abs(col3_eval) == 1:
         return winning_eval * col3_eval
     score += col3_eval
@@ -592,8 +602,10 @@ def local_evaluation(localBoard):
     diagTB = (localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])
     diagTB_eval = lineEval((diagTB), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((diagTB)):
-        player1_threat |= diagTB_eval > 0
-        player2_threat |= diagTB_eval < 0
+        if diagTB_eval > 0:
+            player1_threat = True
+        elif diagTB_eval < 0:
+            player2_threat = True
     if abs(diagTB_eval) == 1:
         return winning_eval * diagTB_eval
     score += diagTB_eval
@@ -601,8 +613,10 @@ def local_evaluation(localBoard):
     diagBT = (localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])
     diagBT_eval = lineEval((diagBT), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((diagBT)):
-        player1_threat |= diagBT_eval > 0
-        player2_threat |= diagBT_eval < 0
+        if diagBT_eval > 0:
+            player1_threat = True
+        elif diagBT_eval < 0:
+            player2_threat = True
     if abs(diagBT_eval) == 1:
         return winning_eval * diagBT_eval
     score += diagBT_eval
@@ -1142,8 +1156,8 @@ def generate_local_boards_info(file_path):
 # generate_winning_results_boards('backend/agents/hashes/hash_winning_results_boards.txt')
 # generate_eval_boards('backend/agents/hashes/hash_evaluated_boards.txt')
 # generate_eval_boards_v2('backend/agents/hashes/hash_evaluated_boards_v2.txt')
-generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
-# generate_local_boards_info('backend/agents/hashes/hash_boards_information.txt')
+# generate_eval_boards_v3('backend/agents/hashes/hash_evaluated_boards_v3.txt')
+generate_local_boards_info('backend/agents/hashes/hash_boards_information.txt')
 # generate_results_board_eval('backend/agents/hashes/hash_results_board_eval.txt')
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
