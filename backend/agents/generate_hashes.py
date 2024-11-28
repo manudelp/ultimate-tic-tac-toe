@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from typing import Tuple
 
 CENTER_ONLY_BOARD = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
 CENTER_ONLY_ENEMY_BOARD = np.array([[0, 0, 0], [0, -1, 0], [0, 0, 0]])
@@ -522,16 +523,14 @@ def local_evaluation(localBoard):
             else:
                 raise ValueError("Invalid Center Only Enemy Board")
 
-
     score = 0
     single_eval = 0.14
     double_eval = 0.60
     winning_eval = 4.5
-    player1_threat = False
-    player2_threat = False
-    p1_threat_spaces = set()
-    p2_threat_spaces = set()
-    
+    player1_threat, player2_threat = False, False
+    p1_threat_spaces, p2_threat_spaces = set(), set()
+
+
     # Row1
     row1 = (localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])
     row1_indeces = [(0, 0), (0, 1), (0, 2)]
@@ -561,125 +560,248 @@ def local_evaluation(localBoard):
                 score += row1_eval
                 p2_threat_spaces.add(p2_threat_tile)
         else:
-            raise ValueError("Invalid! Threat Detected but line eval was 0")
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {row1}")
     else:
         score += row1_eval
+
 
     # Row 2
     row2 = (localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])
     row2_indeces = [(1, 0), (1, 1), (1, 2)]
     row2_eval = lineEval((row2), single_eval=single_eval, double_eval=double_eval)
+    
     if abs(row2_eval) == 1:
         return winning_eval * row2_eval
+    
     if detectThreat((row2)):
         if row2_eval > 0:
             player1_threat = True
             p1_threat_tile = row2_indeces[row2.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += row2_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif row2_eval < 0:
             player2_threat = True
             p2_threat_tile = row2_indeces[row2.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += row2_eval
+                p2_threat_spaces.add(p2_threat_tile)
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {row2}")
+    else:
+        score += row2_eval
 
-    score += row2_eval
 
+    # Row 3
     row3 = (localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])
     row3_indeces = [(2, 0), (2, 1), (2, 2)]
     row3_eval = lineEval((row3), single_eval=single_eval, double_eval=double_eval)
+    
+    if abs(row3_eval) == 1:
+        return winning_eval * row3_eval
+    
     if detectThreat((row3)):
         if row3_eval > 0:
             player1_threat = True
             p1_threat_tile = row3_indeces[row3.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += row3_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif row3_eval < 0:
             player2_threat = True
             p2_threat_tile = row3_indeces[row3.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
-    if abs(row3_eval) == 1:
-        return winning_eval * row3_eval
-    score += row3_eval
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += row3_eval
+                p2_threat_spaces.add(p2_threat_tile)
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {row3}")
+    else:
+        score += row3_eval
 
-    # Columns
+
+    # Column 1
     col1 = (localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])
     col1_indeces = [(0, 0), (1, 0), (2, 0)]
     col1_eval = lineEval((col1), single_eval=single_eval, double_eval=double_eval)
+
+    if abs(col1_eval) == 1:
+        return winning_eval * col1_eval
+
     if detectThreat((col1)):
         if col1_eval > 0:
             player1_threat = True
             p1_threat_tile = col1_indeces[col1.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += col1_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif col1_eval < 0:
             player2_threat = True
             p2_threat_tile = col1_indeces[col1.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
-    if abs(col1_eval) == 1:
-        return winning_eval * col1_eval
-    score += col1_eval
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += col1_eval
+                p2_threat_spaces.add(p2_threat_tile)
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {col1}")
+    else:
+        score += col1_eval
 
+
+    # Column 2
     col2 = (localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])
     col2_indeces = [(0, 1), (1, 1), (2, 1)]
     col2_eval = lineEval((col2), single_eval=single_eval, double_eval=double_eval)
+    
+    if abs(col2_eval) == 1:
+        return winning_eval * col2_eval
+    
     if detectThreat((col2)):
         if col2_eval > 0:
             player1_threat = True
             p1_threat_tile = col2_indeces[col2.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += col2_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif col2_eval < 0:
             player2_threat = True
             p2_threat_tile = col2_indeces[col2.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
-    if abs(col2_eval) == 1:
-        return winning_eval * col2_eval
-    score += col2_eval
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += col2_eval
+                p2_threat_spaces.add(p2_threat_tile)
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {col2}")
+    else:
+        score += col2_eval
 
+
+    # Column 3
     col3 = (localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])
     col3_indeces = [(0, 2), (1, 2), (2, 2)]
     col3_eval = lineEval((col3), single_eval=single_eval, double_eval=double_eval)
+
+    if abs(col3_eval) == 1:
+        return winning_eval * col3_eval
+
     if detectThreat((col3)):
         if col3_eval > 0:
             player1_threat = True
             p1_threat_tile = col3_indeces[col3.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += col3_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif col3_eval < 0:
             player2_threat = True
             p2_threat_tile = col3_indeces[col3.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
-    if abs(col3_eval) == 1:
-        return winning_eval * col3_eval
-    score += col3_eval
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += col3_eval
+                p2_threat_spaces.add(p2_threat_tile)
+                
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {col3}")
+    else:
+        score += col3_eval
 
-    # Diagonals
+
+    # Diagonal Top-Bottom
     diagTB = (localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])
     diagTB_indeces = [(0, 0), (1, 1), (2, 2)]
     diagTB_eval = lineEval((diagTB), single_eval=single_eval, double_eval=double_eval)
+    
+    if abs(diagTB_eval) == 1:
+        return winning_eval * diagTB_eval
+    
     if detectThreat((diagTB)):
         if diagTB_eval > 0:
             player1_threat = True
             p1_threat_tile = diagTB_indeces[diagTB.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += diagTB_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif diagTB_eval < 0:
             player2_threat = True
             p2_threat_tile = diagTB_indeces[diagTB.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
-    if abs(diagTB_eval) == 1:
-        return winning_eval * diagTB_eval
-    score += diagTB_eval
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += diagTB_eval
+                p2_threat_spaces.add(p2_threat_tile)
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {diagTB}")
+    else:
+        score += diagTB_eval
 
+
+    # Diagonal Bottom-Top
     diagBT = (localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])
     diagBT_indeces = [(2, 0), (1, 1), (0, 2)]
     diagBT_eval = lineEval((diagBT), single_eval=single_eval, double_eval=double_eval)
+    
+    if abs(diagBT_eval) == 1:
+        return winning_eval * diagBT_eval
+    
     if detectThreat((diagBT)):
         if diagBT_eval > 0:
             player1_threat = True
             p1_threat_tile = diagBT_indeces[diagBT.index(0)]
-            p1_threat_spaces.add(p1_threat_tile)
+            
+            if p1_threat_tile in p1_threat_spaces:
+                score += 0
+            else:
+                score += diagBT_eval
+                p1_threat_spaces.add(p1_threat_tile)
+                
         elif diagBT_eval < 0:
             player2_threat = True
             p2_threat_tile = diagBT_indeces[diagBT.index(0)]
-            p2_threat_spaces.add(p2_threat_tile)
-    if abs(diagBT_eval) == 1:
-        return winning_eval * diagBT_eval
-    score += diagBT_eval
+            
+            if p2_threat_tile in p2_threat_spaces:
+                score += 0
+            else:
+                score += diagBT_eval
+                p2_threat_spaces.add(p2_threat_tile)
+        else:
+            raise ValueError(f"Invalid! Threat Detected but line eval was 0, line was {diagBT}")
+    else:
+        score += diagBT_eval
 
     # Check for conflicting threats, tone down final score
     if player1_threat and player2_threat:
