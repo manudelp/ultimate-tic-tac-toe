@@ -529,94 +529,136 @@ def local_evaluation(localBoard):
     winning_eval = 4.5
     player1_threat = False
     player2_threat = False
+    p1_threat_tiles = set()
+    p2_threat_tiles = set()
     
     # Rows
     row1 = (localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])
+    row1_indeces = [(0, 0), (0, 1), (0, 2)]
     row1_eval = lineEval((row1), single_eval=single_eval, double_eval=double_eval)
     if detectThreat(row1):
         if row1_eval > 0:
             player1_threat = True
+            p1_threat_tile = row1_indeces[row1.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif row1_eval < 0:
             player2_threat = True
+            p2_threat_tile = row1_indeces[row1.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(row1_eval) == 1:
         return winning_eval * row1_eval
     score += row1_eval
 
     row2 = (localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])
+    row2_indeces = [(1, 0), (1, 1), (1, 2)]
     row2_eval = lineEval((row2), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((row2)):
         if row2_eval > 0:
             player1_threat = True
+            p1_threat_tile = row2_indeces[row2.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif row2_eval < 0:
             player2_threat = True
+            p2_threat_tile = row2_indeces[row2.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(row2_eval) == 1:
         return winning_eval * row2_eval
     score += row2_eval
 
     row3 = (localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])
+    row3_indeces = [(2, 0), (2, 1), (2, 2)]
     row3_eval = lineEval((row3), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((row3)):
         if row3_eval > 0:
             player1_threat = True
+            p1_threat_tile = row3_indeces[row3.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif row3_eval < 0:
             player2_threat = True
+            p2_threat_tile = row3_indeces[row3.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(row3_eval) == 1:
         return winning_eval * row3_eval
     score += row3_eval
 
     # Columns
     col1 = (localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])
+    col1_indeces = [(0, 0), (1, 0), (2, 0)]
     col1_eval = lineEval((col1), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((col1)):
         if col1_eval > 0:
             player1_threat = True
+            p1_threat_tile = col1_indeces[col1.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif col1_eval < 0:
             player2_threat = True
+            p2_threat_tile = col1_indeces[col1.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(col1_eval) == 1:
         return winning_eval * col1_eval
     score += col1_eval
 
     col2 = (localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])
+    col2_indeces = [(0, 1), (1, 1), (2, 1)]
     col2_eval = lineEval((col2), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((col2)):
         if col2_eval > 0:
             player1_threat = True
+            p1_threat_tile = col2_indeces[col2.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif col2_eval < 0:
             player2_threat = True
+            p2_threat_tile = col2_indeces[col2.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(col2_eval) == 1:
         return winning_eval * col2_eval
     score += col2_eval
 
     col3 = (localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])
+    col3_indeces = [(0, 2), (1, 2), (2, 2)]
     col3_eval = lineEval((col3), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((col3)):
         if col3_eval > 0:
             player1_threat = True
+            p1_threat_tile = col3_indeces[col3.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif col3_eval < 0:
             player2_threat = True
+            p2_threat_tile = col3_indeces[col3.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(col3_eval) == 1:
         return winning_eval * col3_eval
     score += col3_eval
 
     # Diagonals
     diagTB = (localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])
+    diagTB_indeces = [(0, 0), (1, 1), (2, 2)]
     diagTB_eval = lineEval((diagTB), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((diagTB)):
         if diagTB_eval > 0:
             player1_threat = True
+            p1_threat_tile = diagTB_indeces[diagTB.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif diagTB_eval < 0:
             player2_threat = True
+            p2_threat_tile = diagTB_indeces[diagTB.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(diagTB_eval) == 1:
         return winning_eval * diagTB_eval
     score += diagTB_eval
 
     diagBT = (localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])
+    diagBT_indeces = [(2, 0), (1, 1), (0, 2)]
     diagBT_eval = lineEval((diagBT), single_eval=single_eval, double_eval=double_eval)
     if detectThreat((diagBT)):
         if diagBT_eval > 0:
             player1_threat = True
+            p1_threat_tile = diagBT_indeces[diagBT.index(0)]
+            p1_threat_tiles.add(p1_threat_tile)
         elif diagBT_eval < 0:
             player2_threat = True
+            p2_threat_tile = diagBT_indeces[diagBT.index(0)]
+            p2_threat_tiles.add(p2_threat_tile)
     if abs(diagBT_eval) == 1:
         return winning_eval * diagBT_eval
     score += diagBT_eval
@@ -625,6 +667,9 @@ def local_evaluation(localBoard):
     if player1_threat and player2_threat:
         if empties == 1:
             return 0
+        if empties == 2:
+            if len(p1_threat_tiles) == 1 and len(p2_threat_tiles) == 1:
+                return 0
         else:
             final_score = score * 0.75
             return round(final_score, 2)
