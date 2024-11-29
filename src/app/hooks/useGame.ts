@@ -209,8 +209,6 @@ export const useGame = (
         setTimeToMove(elapsedTime);
       }, 10);
 
-      setIsBotThinking(true);
-
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
 
       const coords: Coords = await getBotMove(
@@ -263,6 +261,7 @@ export const useGame = (
       !isBotThinking &&
       !gameOver
     ) {
+      setIsBotThinking(true);
       handleBotMove();
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
