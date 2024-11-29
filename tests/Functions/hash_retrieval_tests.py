@@ -2245,8 +2245,7 @@ def run_board_info_commonsense_tests(agent):
     assert agent.get_eval_hash(board_4) == -winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should have an evaluation of {winning_constant} since its won"
     assert agent.get_eval_hash(board_5) == -winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should have an evaluation of {winning_constant} since its won"
     assert agent.get_eval_hash(board_6) == -winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should have an evaluation of {winning_constant} since its won"
-    assert abs(agent.get_eval_hash(board_7)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should have a low absolute evaluation"
-    assert agent.get_eval_hash(board_7) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should not have a negative evaluation" # EL CAPRICHOSO
+    assert agent.get_eval_hash(board_7) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should be 0, eval was {agent.get_eval_hash(board_7)}" # EL CAPRICHOSO
     assert abs(agent.get_eval_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 should have an evaluation of 0"
     assert agent.get_eval_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should not have a positive evaluation"
     assert abs(agent.get_eval_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should have a low absolute evaluation"
