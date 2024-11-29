@@ -2235,28 +2235,9 @@ def run_board_info_tests(agent):
 def run_board_info_commonsense_tests(agent):
     single_eval = 0.14
     double_eval = 0.6
-    winning_constant = 3.6
+    winning_eval = 3.6
     winning_pos_score = 4.5 # creo?
     b9ev = agent.get_eval_hash(board_9)
-
-    assert agent.get_eval_hash(board_1) == winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should have an evaluation of {winning_constant} since its won"
-    assert agent.get_eval_hash(board_2) == winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 should have an evaluation of {winning_constant} since its won"
-    assert agent.get_eval_hash(board_3) == winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 should have an evaluation of {winning_constant} since its won"
-    assert agent.get_eval_hash(board_4) == -winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should have an evaluation of {winning_constant} since its won"
-    assert agent.get_eval_hash(board_5) == -winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should have an evaluation of {winning_constant} since its won"
-    assert agent.get_eval_hash(board_6) == -winning_constant, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should have an evaluation of {winning_constant} since its won"
-    assert agent.get_eval_hash(board_7) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should be 0, eval was {agent.get_eval_hash(board_7)}" # EL CAPRICHOSO
-    assert abs(agent.get_eval_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 should have an evaluation of 0"
-    assert agent.get_eval_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should not have a positive evaluation"
-    assert abs(agent.get_eval_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should have a low absolute evaluation"
-    assert agent.get_eval_hash(board_10) == -1 * b9ev, Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 evaluation should be inverse of Board 9"
-    assert agent.get_eval_hash(board_11) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 should have an evaluation of 0"
-    assert agent.get_eval_hash(board_12) == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 should have an evaluation of 0"
-    
-    assert agent.get_eval_hash(board_20) == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 20 should have an evaluation of 0.6, eval was {agent.get_eval_hash(board_20)}"
-    assert agent.get_eval_hash(board_21) == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 21 should have an evaluation of 0.6, eval was {agent.get_eval_hash(board_21)}"
-    assert agent.get_eval_hash(board_22) == double_eval + single_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 22 should have an evaluation of 0.6, eval was {agent.get_eval_hash(board_22)}"
-    assert agent.get_eval_hash(board_23) == double_eval - single_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 23 should have an evaluation of 0.6, eval was {agent.get_eval_hash(board_23)}"
 
     b1_eval, b1_result, b1_lead, b1_score = agent.get_board_info(board_1)
     b2_eval, b2_result, b2_lead, b2_score = agent.get_board_info(board_2)
@@ -2277,25 +2258,44 @@ def run_board_info_commonsense_tests(agent):
     b17_eval, b17_result, b17_lead, b17_score = agent.get_board_info(board_17)
     b18_eval, b18_result, b18_lead, b18_score = agent.get_board_info(board_18)
     b19_eval, b19_result, b19_lead, b19_score = agent.get_board_info(board_19)
+    b20_eval, b20_result, b20_lead, b20_score = agent.get_board_info(board_20)
+    b21_eval, b21_result, b21_lead, b21_score = agent.get_board_info(board_21)
+    b22_eval, b22_result, b22_lead, b22_score = agent.get_board_info(board_22)
+    b23_eval, b23_result, b23_lead, b23_score = agent.get_board_info(board_23)
 
     bCO, bCO_result, bCO_lead, bCO_score = agent.get_board_info(board_center_only)
     bCOA, bCOA_result, bCOA_lead, bCOA_score = agent.get_board_info(board_center_only_another)
     bCEO, bCEO_result, bCEO_lead, bCEO_score = agent.get_board_info(board_center_enemy_only)
     
+    # old tests! replace them in the evaluations new tests
+    assert abs(agent.get_eval_hash(board_8)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 8 should have an evaluation of 0"
+    assert agent.get_eval_hash(board_9) <= 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should not have a positive evaluation"
+    assert abs(agent.get_eval_hash(board_9)) < 1, Style.BRIGHT + Fore.RED + f"Test Failed: Board 9 should have a low absolute evaluation"
+    assert agent.get_eval_hash(board_10) == -1 * b9ev, Style.BRIGHT + Fore.RED + f"Test Failed: Board 10 evaluation should be inverse of Board 9"
+    
+    
     # Evaluations!
-    assert b1_eval == winning_pos_score, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should have been won by 1, score was {b1_eval}"
-    assert b2_eval == winning_pos_score, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 should have been won by 1, score was {b2_eval}"
-    assert b3_eval == winning_pos_score, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 should have been won by 1, score was {b3_eval}"
-    assert b4_eval == -winning_pos_score, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should have been won by -1, score was {b4_eval}"
-    assert b5_eval == -winning_pos_score, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should have been won by -1, score was {b5_eval}"
-    assert b6_eval == -winning_pos_score, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should have been won by -1, score was {b6_eval}"
-    # assert b7_eval == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should have been the same for both, score was {b7_eval}" # EL MALEDUCADO
+    assert b1_eval == winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 1 should have been won by 1! eval was {b1_eval}"
+    assert b2_eval == winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 2 should have been won by 1! eval was {b2_eval}"
+    assert b3_eval == winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 3 should have been won by 1! eval was {b3_eval}"
+    assert b4_eval == -winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 4 should have been won by -1! eval was {b4_eval}"
+    assert b5_eval == -winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 5 should have been won by -1! eval was {b5_eval}"
+    assert b6_eval == -winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 6 should have been won by -1! eval was {b6_eval}"
+    assert b7_eval == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 7 should be 0! eval was {b7_eval}"
     
+    assert b11_eval == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 11 should be 0 for Draw! Eval was {b11_eval}"
+    assert b12_eval == 0, Style.BRIGHT + Fore.RED + f"Test Failed: Board 12 should be 0 for Draw! Eval was {b12_eval}"
     
+    assert b20_eval == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 20 should have an evaluation of 0.6! eval was {b20_eval}"
+    assert b21_eval == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 21 should have an evaluation of 0.6! eval was {b21_eval}"
+    assert b22_eval == double_eval + single_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 22 should have an evaluation of 0.6! eval was {b22_eval}"
+    assert b23_eval == double_eval - single_eval, Style.BRIGHT + Fore.RED + f"Test Failed: Board 23 should have an evaluation of 0.6! eval was {b23_eval}"
+
+
+    # debug
     print(f"b16 score is {b16_score}, b16 eval is {b16_eval}, best connection coef is {best_connection_coefficient(board_16, player=b16_lead / 3)}")
     print(f"b17 score is {b17_score}, b17 eval is {b17_eval}, best connection coef is {best_connection_coefficient(board_17, player=b17_lead / 3)}")
     print(f"b18 score is {b18_score}, b18 eval is {b18_eval}, best connection coef is {best_connection_coefficient(board_18, player=b18_lead / 3)}")
-
 
 
 def run_eval_results_tests(agent):
