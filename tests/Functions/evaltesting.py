@@ -60,6 +60,7 @@ def local_evaluation(local_board):
     posibles amenazas con esa Tile desde otras lineas '''
 
     center_only_eval = 0.35
+    center_need_reducer = 0.95
     # If board is all 0s and a 1 in the middle, return center only eval
     non_empties = np.count_nonzero(local_board)
     empties = 9 - non_empties
