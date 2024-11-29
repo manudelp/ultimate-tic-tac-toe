@@ -78,7 +78,7 @@ def local_evaluation(local_board):
     score = 0
     single_eval = 0.14
     double_eval = 0.60
-    winning_eval = 4.5
+    winning_eval = 3.6
     player1_threat, player2_threat = False, False
     p1_threat_spaces, p2_threat_spaces = set(), set()
     s_r1, s_r2, s_r3, s_c1, s_c2, s_c3, s_d1, s_d2 = False, False, False, False, False, False, False, False
