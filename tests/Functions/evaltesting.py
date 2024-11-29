@@ -583,11 +583,11 @@ def local_evaluation(local_board):
         if empties == 2:
             if len(p1_threat_spaces) == 1 and len(p2_threat_spaces) == 1:
                 if score != 0:
-                    print(f"Conflicting Threats with 2 empties but score != 0, score is {score} when the board is:\n{local_board}")
+                    raise ValueError(f"Conflicting Threats with 2 empties but score != 0, score is {score} when the board is:\n{local_board}")
                 return 0
-        else:
-            final_score = score * 0.75
-            return round(final_score, 2)
+        # else:
+        #     final_score = score * 0.75
+        #     return round(final_score, 2)
 
     final_score = round(score, 2)
     return final_score
