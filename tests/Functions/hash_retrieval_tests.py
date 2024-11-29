@@ -1942,16 +1942,28 @@ board_38 = np.array([[0, 1, 0],
                     [0, 0, 0]]) # better than single but lower than 37
 
 board_39 = np.array([[0, 0, 0],
-                    [0, 0, 0],
-                    [1, 0, 1]]) # double, for being only two pieces its high
-
-board_40 = np.array([[0, 0, 1],
-                    [0, 0, 0],
-                    [1, 0, 0]]) # double, equal to 40
-
-board_41 = np.array([[0, 0, 0],
                     [1, 0, 1],
-                    [0, 0, 0]]) 
+                    [0, 0, 0]]) # double < eval < 2*double, 2 singles but center-need (L1)
+
+board_40 = np.array([[0, -1, 0],
+                    [0, 0, 0],
+                    [0, -1, 0]]) # == -b39 (L1)
+
+board_42 = np.array([[0, 0, 1],
+                    [0, 0, 0],
+                    [1, 0, 0]]) # double < eval < 2*double, 4 singles but center-need double (L2)
+
+board_43 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [1, 0, 1]]) # double < eval < 2*double, 4 singles no center-need double! (L3)
+
+board_44 = np.array([[0, 0, 0],
+                    [1, 1, 0],
+                    [0, 0, 0]]) # double < eval < 2*double, 4 singles got the center! (L4)
+
+board_45 = np.array([[0, 0, 0],
+                    [0, 1, 0],
+                    [1, 0, 0]]) # double < eval < 2*double, 5 singles got the center! (L5)
 
 # Results Boards (contain 2s)
 results_1 = np.array([[2, 1, 1],
@@ -2382,7 +2394,6 @@ def run_board_info_commonsense_tests(agent):
     assert 0.06 < b16_eval < double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 16 should have an evaluation between 0.06 and 0.6, but eval was {b16_eval}"
     assert 0.06 < b17_eval < double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 17 should have an evaluation between 0.06 and 0.6, but eval was {b17_eval}"
     assert 0.06 < b18_eval < double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 18 should have an evaluation between 0.06 and 0.6, but eval was {b18_eval}"
-    
     assert b19_eval == 0, Style.BRIGHT + Fore.RED + f"Test Failed! Board 19 should have an evaluation of 0, but eval was {b19_eval}"
     assert b20_eval == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 20 should have an evaluation of 0.6, but eval was {b20_eval}"
     assert b21_eval == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 21 should have an evaluation of 0.6, but eval was {b21_eval}"
