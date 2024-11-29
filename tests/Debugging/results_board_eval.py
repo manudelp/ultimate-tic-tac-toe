@@ -91,7 +91,7 @@ def advanced_line_eval(line, player=1):
         return 0
     return lineEval(line, player)
 
-def detectThreat(line):
+def detectDouble(line):
     if (line.count(0) == 1 and (line.count(1) == 2 or line.count(-1) == 2)):
         if line.count(2) > 0:
             raise ValueError("Invalid Line with Blocked Tiles")
@@ -160,7 +160,7 @@ def localBoardEval_v2(localBoard):
     
     # Rows
     row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
-    if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
+    if detectDouble((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
     if abs(row1_eval) == 1:
@@ -168,7 +168,7 @@ def localBoardEval_v2(localBoard):
     score += row1_eval
 
     row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
-    if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
+    if detectDouble((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
     if abs(row2_eval) == 1:
@@ -176,7 +176,7 @@ def localBoardEval_v2(localBoard):
     score += row2_eval
 
     row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
-    if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
+    if detectDouble((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
     if abs(row3_eval) == 1:
@@ -185,7 +185,7 @@ def localBoardEval_v2(localBoard):
 
     # Columns
     col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
-    if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
+    if detectDouble((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
     if abs(col1_eval) == 1:
@@ -193,7 +193,7 @@ def localBoardEval_v2(localBoard):
     score += col1_eval
 
     col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
-    if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
+    if detectDouble((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
     if abs(col2_eval) == 1:
@@ -201,7 +201,7 @@ def localBoardEval_v2(localBoard):
     score += col2_eval
 
     col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
-    if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
+    if detectDouble((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
     if abs(col3_eval) == 1:
@@ -210,7 +210,7 @@ def localBoardEval_v2(localBoard):
 
     # Diagonals
     diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
-    if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
+    if detectDouble((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
     if abs(diagTB_eval) == 1:
@@ -218,7 +218,7 @@ def localBoardEval_v2(localBoard):
     score += diagTB_eval
 
     diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
-    if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
+    if detectDouble((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:
@@ -245,7 +245,7 @@ def localBoardEval_v3(localBoard):
     
     # Rows
     row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
-    if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
+    if detectDouble((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
     if abs(row1_eval) == 1:
@@ -253,7 +253,7 @@ def localBoardEval_v3(localBoard):
     score += row1_eval
 
     row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
-    if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
+    if detectDouble((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
     if abs(row2_eval) == 1:
@@ -261,7 +261,7 @@ def localBoardEval_v3(localBoard):
     score += row2_eval
 
     row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
-    if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
+    if detectDouble((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
     if abs(row3_eval) == 1:
@@ -270,7 +270,7 @@ def localBoardEval_v3(localBoard):
 
     # Columns
     col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
-    if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
+    if detectDouble((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
     if abs(col1_eval) == 1:
@@ -278,7 +278,7 @@ def localBoardEval_v3(localBoard):
     score += col1_eval
 
     col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
-    if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
+    if detectDouble((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
     if abs(col2_eval) == 1:
@@ -286,7 +286,7 @@ def localBoardEval_v3(localBoard):
     score += col2_eval
 
     col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
-    if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
+    if detectDouble((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
     if abs(col3_eval) == 1:
@@ -295,7 +295,7 @@ def localBoardEval_v3(localBoard):
 
     # Diagonals
     diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
-    if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
+    if detectDouble((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
     if abs(diagTB_eval) == 1:
@@ -303,7 +303,7 @@ def localBoardEval_v3(localBoard):
     score += diagTB_eval
 
     diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
-    if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
+    if detectDouble((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:
@@ -340,7 +340,7 @@ def local_evaluation(localBoard):
     
     # Rows
     row1_eval = lineEval((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2]))
-    if detectThreat((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
+    if detectDouble((localBoard[0, 0], localBoard[0, 1], localBoard[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
     if abs(row1_eval) == 1:
@@ -348,7 +348,7 @@ def local_evaluation(localBoard):
     score += row1_eval
 
     row2_eval = lineEval((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2]))
-    if detectThreat((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
+    if detectDouble((localBoard[1, 0], localBoard[1, 1], localBoard[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
     if abs(row2_eval) == 1:
@@ -356,7 +356,7 @@ def local_evaluation(localBoard):
     score += row2_eval
 
     row3_eval = lineEval((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2]))
-    if detectThreat((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
+    if detectDouble((localBoard[2, 0], localBoard[2, 1], localBoard[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
     if abs(row3_eval) == 1:
@@ -365,7 +365,7 @@ def local_evaluation(localBoard):
 
     # Columns
     col1_eval = lineEval((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0]))
-    if detectThreat((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
+    if detectDouble((localBoard[0, 0], localBoard[1, 0], localBoard[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
     if abs(col1_eval) == 1:
@@ -373,7 +373,7 @@ def local_evaluation(localBoard):
     score += col1_eval
 
     col2_eval = lineEval((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1]))
-    if detectThreat((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
+    if detectDouble((localBoard[0, 1], localBoard[1, 1], localBoard[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
     if abs(col2_eval) == 1:
@@ -381,7 +381,7 @@ def local_evaluation(localBoard):
     score += col2_eval
 
     col3_eval = lineEval((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2]))
-    if detectThreat((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
+    if detectDouble((localBoard[0, 2], localBoard[1, 2], localBoard[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
     if abs(col3_eval) == 1:
@@ -390,7 +390,7 @@ def local_evaluation(localBoard):
 
     # Diagonals
     diagTB_eval = lineEval((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2]))
-    if detectThreat((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
+    if detectDouble((localBoard[0, 0], localBoard[1, 1], localBoard[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
     if abs(diagTB_eval) == 1:
@@ -398,7 +398,7 @@ def local_evaluation(localBoard):
     score += diagTB_eval
 
     diagBT_eval = lineEval((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2]))
-    if detectThreat((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
+    if detectDouble((localBoard[2, 0], localBoard[1, 1], localBoard[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:
@@ -424,7 +424,7 @@ def results_board_eval(local_board):
 
     # Rows
     row1_eval = advanced_line_eval((local_board[0, 0], local_board[0, 1], local_board[0, 2]))
-    if detectThreat((local_board[0, 0], local_board[0, 1], local_board[0, 2])):
+    if detectDouble((local_board[0, 0], local_board[0, 1], local_board[0, 2])):
         player1_threat |= row1_eval > 0
         player2_threat |= row1_eval < 0
     if abs(row1_eval) == 1:
@@ -432,7 +432,7 @@ def results_board_eval(local_board):
     score += row1_eval
 
     row2_eval = advanced_line_eval((local_board[1, 0], local_board[1, 1], local_board[1, 2]))
-    if detectThreat((local_board[1, 0], local_board[1, 1], local_board[1, 2])):
+    if detectDouble((local_board[1, 0], local_board[1, 1], local_board[1, 2])):
         player1_threat |= row2_eval > 0
         player2_threat |= row2_eval < 0
     if abs(row2_eval) == 1:
@@ -440,7 +440,7 @@ def results_board_eval(local_board):
     score += row2_eval
 
     row3_eval = advanced_line_eval((local_board[2, 0], local_board[2, 1], local_board[2, 2]))
-    if detectThreat((local_board[2, 0], local_board[2, 1], local_board[2, 2])):
+    if detectDouble((local_board[2, 0], local_board[2, 1], local_board[2, 2])):
         player1_threat |= row3_eval > 0
         player2_threat |= row3_eval < 0
     if abs(row3_eval) == 1:
@@ -449,7 +449,7 @@ def results_board_eval(local_board):
 
     # Columns
     col1_eval = advanced_line_eval((local_board[0, 0], local_board[1, 0], local_board[2, 0]))
-    if detectThreat((local_board[0, 0], local_board[1, 0], local_board[2, 0])):
+    if detectDouble((local_board[0, 0], local_board[1, 0], local_board[2, 0])):
         player1_threat |= col1_eval > 0
         player2_threat |= col1_eval < 0
     if abs(col1_eval) == 1:
@@ -457,7 +457,7 @@ def results_board_eval(local_board):
     score += col1_eval
 
     col2_eval = advanced_line_eval((local_board[0, 1], local_board[1, 1], local_board[2, 1]))
-    if detectThreat((local_board[0, 1], local_board[1, 1], local_board[2, 1])):
+    if detectDouble((local_board[0, 1], local_board[1, 1], local_board[2, 1])):
         player1_threat |= col2_eval > 0
         player2_threat |= col2_eval < 0
     if abs(col2_eval) == 1:
@@ -465,7 +465,7 @@ def results_board_eval(local_board):
     score += col2_eval
 
     col3_eval = advanced_line_eval((local_board[0, 2], local_board[1, 2], local_board[2, 2]))
-    if detectThreat((local_board[0, 2], local_board[1, 2], local_board[2, 2])):
+    if detectDouble((local_board[0, 2], local_board[1, 2], local_board[2, 2])):
         player1_threat |= col3_eval > 0
         player2_threat |= col3_eval < 0
     if abs(col3_eval) == 1:
@@ -474,7 +474,7 @@ def results_board_eval(local_board):
 
     # Diagonals
     diagTB_eval = advanced_line_eval((local_board[0, 0], local_board[1, 1], local_board[2, 2]))
-    if detectThreat((local_board[0, 0], local_board[1, 1], local_board[2, 2])):
+    if detectDouble((local_board[0, 0], local_board[1, 1], local_board[2, 2])):
         player1_threat |= diagTB_eval > 0
         player2_threat |= diagTB_eval < 0
     if abs(diagTB_eval) == 1:
@@ -482,7 +482,7 @@ def results_board_eval(local_board):
     score += diagTB_eval
 
     diagBT_eval = advanced_line_eval((local_board[2, 0], local_board[1, 1], local_board[0, 2]))
-    if detectThreat((local_board[2, 0], local_board[1, 1], local_board[0, 2])):
+    if detectDouble((local_board[2, 0], local_board[1, 1], local_board[0, 2])):
         player1_threat |= diagBT_eval > 0
         player2_threat |= diagBT_eval < 0
     if abs(diagBT_eval) == 1:

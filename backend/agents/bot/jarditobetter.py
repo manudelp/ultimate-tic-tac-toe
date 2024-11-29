@@ -15,10 +15,10 @@ class BetterJardineritoAgent:
     def __init__(self):
         self.id = 12
         self.name = "Don Jardito"
-        self.icon = "🍀"
+        self.icon = "🚀"
         self.moveNumber = 0
-        self.depth_local = 8 # when btp is not None
-        self.depth_global = 7 # when btp is None
+        self.depth_local = 6 # when btp is not None
+        self.depth_global = 5 # when btp is None
         self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
