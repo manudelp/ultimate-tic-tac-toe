@@ -1792,6 +1792,10 @@ board_2 = np.array([[0, -1, 1],
                     [0, 1, -1],
                     [1, 0, -1]])  # Player 1 wins on the diagonal
 
+board_2b = np.array([[-1, -1, 1],
+                    [-1, 1, -1],
+                    [1, -1, -1]])  # Player 1 wins on the diagonal
+
 board_3 = np.array([[-1, -1, 0],
                     [1, 1, 1],
                     [0, -1, 0]])  # Player 1 wins on the middle row
@@ -1865,7 +1869,7 @@ board_20 = np.array([[1, 1, 0],
                     [0, 0, 0],
                     [-1, 0, 0]]) # Balance = D1 = 0.6
 
-board_21= np.array([[1, 1, 0],
+board_21 = np.array([[1, 1, 0],
                     [0, -1, 1],
                     [0, -1, 1]]) # Balane = D1 = 0.6
 
@@ -1876,6 +1880,50 @@ board_22 = np.array([[1, 1, 0],
 board_23 = np.array([[1, 1, 0],
                     [0, -1, 0],
                     [0, -1, 1]]) # Balance = D1 - S1 = 0.46
+
+board_24 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]])
+
+board_25 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]])
+
+board_26 = np.array([[0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]])
+
+board_27 = np.array([[1, 1, 0],
+                    [1, 1, 0],
+                    [0, 0, 0]]) # highest balance!, should be equal to 29, 5 doubles = 3
+
+board_28 = np.array([[-1, -1, 0],
+                    [-1, -1, 0],
+                    [0, 0, 0]]) # lowest balance!, should be opposite of 27, 5 doubles = -3
+
+board_29 = np.array([[1, 0, 1],
+                    [0, 0, 0],
+                    [1, 0, 1]]) # highest balance!, should be equal to 27, 5 doubles = 3
+
+board_30 = np.array([[-1, 0, -1],
+                    [0, 0, 0],
+                    [-1, 0, -1]]) # lowest balance!, should be opposite of 29, 5 doubles = -3
+
+board_31 = np.array([[1, 0, 1],
+                    [1, 0, 1],
+                    [0, 0, 0]]) # high but not highest, should be 4 doubles
+
+board_32 = np.array([[-1, 0, -1],
+                    [-1, 0, -1],
+                    [0, 0, 0]]), # low but not lowest, should be 4 neg doubles
+
+board_33 = np.array([[1, -1, 1],
+                    [-1, 0, -1],
+                    [1, -1, 1]]) # should be 0
+
+board_34 = np.array([[-1, 1, -1],
+                    [1, 0, 1],
+                    [-1, 1, -1]]) # should be 0
 
 # Results Boards (contain 2s)
 results_1 = np.array([[2, 1, 1],
@@ -2244,6 +2292,7 @@ def run_board_info_commonsense_tests(agent):
 
     b1_eval, b1_result, b1_lead, b1_score = agent.get_board_info(board_1)
     b2_eval, b2_result, b2_lead, b2_score = agent.get_board_info(board_2)
+    b2b_eval, b2b_result, b2b_lead, b2b_score = agent.get_board_info(board_2b)
     b3_eval, b3_result, b3_lead, b3_score = agent.get_board_info(board_3)
     b4_eval, b4_result, b4_lead, b4_score = agent.get_board_info(board_4)
     b5_eval, b5_result, b5_lead, b5_score = agent.get_board_info(board_5)
@@ -2265,14 +2314,30 @@ def run_board_info_commonsense_tests(agent):
     b21_eval, b21_result, b21_lead, b21_score = agent.get_board_info(board_21)
     b22_eval, b22_result, b22_lead, b22_score = agent.get_board_info(board_22)
     b23_eval, b23_result, b23_lead, b23_score = agent.get_board_info(board_23)
+    b24_eval, b24_result, b24_lead, b24_score = agent.get_board_info(board_24)
+    b25_eval, b25_result, b25_lead, b25_score = agent.get_board_info(board_25)
+    b26_eval, b26_result, b26_lead, b26_score = agent.get_board_info(board_26)
+    b27_eval, b27_result, b27_lead, b27_score = agent.get_board_info(board_27)
+    b28_eval, b28_result, b28_lead, b28_score = agent.get_board_info(board_28)
+    b29_eval, b29_result, b29_lead, b29_score = agent.get_board_info(board_29)
+    b30_eval, b30_result, b30_lead, b30_score = agent.get_board_info(board_30)
+    b31_eval, b31_result, b31_lead, b31_score = agent.get_board_info(board_31)
+    b32_eval, b32_result, b32_lead, b32_score = agent.get_board_info(board_32)
+    b33_eval, b33_result, b33_lead, b33_score = agent.get_board_info(board_33)
+    b34_eval, b34_result, b34_lead, b34_score = agent.get_board_info(board_34)
 
     bEMP, bEMP_result, bEMP_lead, bEMP_score = agent.get_board_info(board_empty)
     bCO, bCO_result, bCO_lead, bCO_score = agent.get_board_info(board_center_only)
     bCEO, bCEO_result, bCEO_lead, bCEO_score = agent.get_board_info(board_center_enemy_only)
 
+    non_won_list = (b7_eval, b8_eval, b9_eval, b10_eval, b11_eval, b12_eval, b20_eval, b21_eval, b22_eval, b23_eval, b27_eval, b28_eval, b29_eval, b30_eval)
+    max_eval = max(non_won_list)
+    min_eval = min(non_won_list)
+
     # Evaluations!
     assert b1_eval == winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 1 should have been won by 1, but eval was {b1_eval}"
     assert b2_eval == winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 2 should have been won by 1, but eval was {b2_eval}"
+    assert b2b_eval == b2_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 2b should have been won by 1, but eval was {b2b_eval}"
     assert b3_eval == winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 3 should have been won by 1, but eval was {b3_eval}"
     assert b4_eval == -winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 4 should have been won by -1, but eval was {b4_eval}"
     assert b5_eval == -winning_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 5 should have been won by -1, but eval was {b5_eval}"
@@ -2288,6 +2353,14 @@ def run_board_info_commonsense_tests(agent):
     assert b21_eval == double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 21 should have an evaluation of 0.6, but eval was {b21_eval}"
     assert b22_eval == double_eval + single_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 22 should have an evaluation of 0.6, but eval was {b22_eval}"
     assert b23_eval == double_eval - single_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 23 should have an evaluation of 0.6, but eval was {b23_eval}"
+    
+    assert b27_eval == 5 * double_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 27 should have an evaluation of 3.0, but eval was {b27_eval}"
+    assert b27_eval == max_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 27 should have an evaluation of 3.0, but eval was {b27_eval}"
+    assert b28_eval == -b27_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 28 should have an evaluation of -3.0, but eval was {b28_eval}"
+    assert b28_eval == min_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 28 should have an evaluation of -3.0, but eval was {b28_eval}"
+    assert b29_eval == b27_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 29 should have an evaluation of 3.0, but eval was {b29_eval}"
+    assert b30_eval == -b29_eval, Style.BRIGHT + Fore.RED + f"Test Failed! Board 30 should have an evaluation of -3.0, but eval was {b30_eval}"
+
     assert bEMP == 0, Style.BRIGHT + Fore.RED + f"Test Failed! Board Empty should have an evaluation of 0, but eval was {bEMP}"
     assert bCO == CENTER_ONLY_EVAL, Style.BRIGHT + Fore.RED + f"Test Failed! Board Center Only should have an evaluation of 0.421, but eval was {bCO}"
     assert bCEO == -CENTER_ONLY_EVAL, Style.BRIGHT + Fore.RED + f"Test Failed! Board Center Enemy Only should have an evaluation of -0.421, but eval was {bCEO}"
