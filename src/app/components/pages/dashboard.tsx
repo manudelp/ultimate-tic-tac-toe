@@ -2,16 +2,18 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { getBots } from "@/api";
 import Loader from "@/app/components/ui/loader";
-const Board = dynamic(() => import("@/app/components/core/board"), {
-  ssr: false,
-  loading: () => <Loader />,
-});
+import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faWhatsapp,
   faXTwitter,
   faReddit,
 } from "@fortawesome/free-brands-svg-icons";
+
+const Board = dynamic(() => import("@/app/components/core/board"), {
+  ssr: false,
+  loading: () => <Loader />,
+});
 
 // Types
 type BotListResponse = {
@@ -237,9 +239,17 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                       : "bg-gray-500 opacity-70 cursor-not-allowed"
                   } hover:animate-pulse`}
                   onClick={() =>
-                    isBackendConnected && selectMode("player-vs-bot")
+                    isBackendConnected
+                      ? selectMode("player-vs-bot")
+                      : toast.warning("Backend is not connected", {
+                          description:
+                            "It may take up to 50 seconds to connect.",
+                          action: {
+                            label: "Reload",
+                            onClick: () => window.location.reload(),
+                          },
+                        })
                   }
-                  disabled={!isBackendConnected}
                 >
                   Fight us
                 </button>
@@ -259,8 +269,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   </button>
                   <button
                     className="sm:w-64 py-4 px-6 bg-gray-500 opacity-70 cursor-not-allowed transition-colors"
-                    onClick={() => setIsOnline(true)}
-                    disabled
+                    onClick={() => toast.info("Coming soon!")}
                   >
                     Online
                   </button>
@@ -354,19 +363,28 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <h3 className="mb-2">Share with friends!</h3>
               <div className="flex justify-center gap-6">
                 <button
-                  onClick={shareOnWhatsApp}
+                  onClick={() => {
+                    shareOnWhatsApp();
+                    toast.success("Thank you for sharing on WhatsApp!");
+                  }}
                   className="text-3xl hover:text-green-500 transition-colors"
                 >
                   <FontAwesomeIcon icon={faWhatsapp} />
                 </button>
                 <button
-                  onClick={shareOnTwitter}
+                  onClick={() => {
+                    shareOnTwitter();
+                    toast.success("Thank you for sharing on Twitter!");
+                  }}
                   className="text-3xl hover:text-black transition-colors"
                 >
                   <FontAwesomeIcon icon={faXTwitter} />
                 </button>
                 <button
-                  onClick={shareOnReddit}
+                  onClick={() => {
+                    shareOnReddit();
+                    toast.success("Thank you for sharing on Reddit!");
+                  }}
                   className="text-3xl hover:text-orange-600 transition-colors"
                 >
                   <FontAwesomeIcon icon={faReddit} />

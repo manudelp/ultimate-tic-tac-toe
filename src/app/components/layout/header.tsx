@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 const Header = () => {
@@ -32,10 +33,12 @@ const Header = () => {
       </Link>
 
       {/* Report Link */}
-      <Link to="/contact">
+      <Link to="/">
         <button
           className="w-full h-full flex items-end justify-center gap-2 group cursor-not-allowed"
-          disabled
+          onClick={() =>
+            toast.info("Reporting functionality will be available soon.")
+          }
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
