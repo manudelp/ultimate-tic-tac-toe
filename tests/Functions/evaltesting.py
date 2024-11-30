@@ -60,7 +60,7 @@ def local_evaluation(local_board):
     posibles amenazas con esa Tile desde otras lineas '''
 
     center_only_eval = 0.35
-    center_need_reducer = 0.95
+    center_need_reducer = 0.92
     # If board is all 0s and a 1 in the middle, return center only eval
     non_empties = np.count_nonzero(local_board)
     empties = 9 - non_empties
@@ -716,6 +716,19 @@ board_45 = np.array([[0, 0, 0],
                     [0, 1, 0],
                     [1, 0, 0]]) # double < eval < 2*double, 5 singles got the center! (L5)
 
+# board 46 has two doubles but low value
+board_46 = np.array([[-1, 1, -1],
+                    [0, 0, 0],
+                    [0, 1, 1]]) # two doubles
+
+board_47 = np.array([[0, 0, -1],
+                    [1, 0, 1],
+                    [0, 0, 0]]) # bad double
+
+board_48 = np.array([[0, 1, 0],
+                    [1, 0, 0],
+                    [0, 0, 1]]) # great singles
+
 
 print(f"Local Eval 20: {local_evaluation(board_20)}")
 print(f"Local Eval 21: {local_evaluation(board_21)}")
@@ -727,3 +740,6 @@ print(f"Local Eval 42: {local_evaluation(board_42)}")
 print(f"Local Eval 43: {local_evaluation(board_43)}")
 print(f"Local Eval 44: {local_evaluation(board_44)}")
 print(f"Local Eval 45: {local_evaluation(board_45)}")
+print(f"Local Eval 46: {local_evaluation(board_46)}")
+print(f"Local Eval 47: {local_evaluation(board_47)}")
+print(f"Local Eval 48: {local_evaluation(board_48)}")
