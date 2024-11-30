@@ -198,7 +198,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   }, [shuffledWords, shuffledColors]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 text-white">
+    <div className="flex flex-col items-center justify-center min-h-dvh p-4 sm:p-8 text-white">
       <div className="text-center">
         {!isBoardVisible && (
           <>
