@@ -41,13 +41,7 @@ next-env.d.ts
 
 # cache
 .cache
-backend/__pycache__/*
-backend/api/__pycache__/*
-backend/agents/__pycache__/*
-backend/agents/bot/__pycache__/*
-backend/__pycache__/*.pyc
-backend/api/__pycache__/*.pyc
-backend/agents/__pycache__/*.pyc
-backend/agents/bot/__pycache__/*.pyc
+.pytest_cache
+backend/**/__pycache__/
 __pycache__/
 *.pyc
