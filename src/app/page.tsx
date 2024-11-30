@@ -31,7 +31,7 @@ export default function Home() {
   if (!isClient) return null;
   return (
     <Router>
-      <div className="min-h-dvh bg-gray-900 text-white">
+      <div className="min-h-svh bg-gray-900 text-white">
         <Header />
         <Routes>
           <Route
