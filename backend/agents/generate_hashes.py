@@ -511,6 +511,7 @@ def local_evaluation(local_board):
     posibles amenazas con esa Tile desde otras lineas '''
 
     center_only_eval = 0.35
+    center_need_reducer = 0.92
     # If board is all 0s and a 1 in the middle, return center only eval
     non_empties = np.count_nonzero(local_board)
     empties = 9 - non_empties
@@ -553,6 +554,9 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row1, board was {local_board}")
+                score += (row1_eval * center_need_reducer)
             else:
                 score += row1_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -563,6 +567,9 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row1, board was {local_board}")
+                score += (row1_eval * center_need_reducer)
             else:
                 score += row1_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -596,6 +603,8 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                score += (row2_eval * center_need_reducer)
             else:
                 score += row2_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -606,6 +615,8 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                score += (row2_eval * center_need_reducer)
             else:
                 score += row2_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -639,6 +650,9 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row3, board was {local_board}")
+                score += (row3_eval * center_need_reducer)
             else:
                 score += row3_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -649,6 +663,9 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row3, board was {local_board}")
+                score += (row3_eval * center_need_reducer)
             else:
                 score += row3_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -682,6 +699,9 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col1, board was {local_board}")
+                score += (col1_eval * center_need_reducer)
             else:
                 score += col1_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -692,6 +712,9 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col1, board was {local_board}")
+                score += (col1_eval * center_need_reducer)
             else:
                 score += col1_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -725,6 +748,8 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                score += (col2_eval * center_need_reducer)
             else:
                 score += col2_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -735,6 +760,8 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                score += (col2_eval * center_need_reducer)
             else:
                 score += col2_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -768,6 +795,9 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col3, board was {local_board}")
+                score += (col3_eval * center_need_reducer)
             else:
                 score += col3_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -778,6 +808,9 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col3, board was {local_board}")
+                score += (col3_eval * center_need_reducer)
             else:
                 score += col3_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -812,6 +845,8 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                score += (diagTB_eval * center_need_reducer)
             else:
                 score += diagTB_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -822,6 +857,8 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                score += (diagTB_eval * center_need_reducer)
             else:
                 score += diagTB_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -855,6 +892,8 @@ def local_evaluation(local_board):
             
             if p1_threat_tile in p1_threat_spaces:
                 score += 0
+            elif p1_threat_tile == (1, 1):
+                score += (diagBT_eval * center_need_reducer)
             else:
                 score += diagBT_eval
                 p1_threat_spaces.add(p1_threat_tile)
@@ -865,6 +904,8 @@ def local_evaluation(local_board):
             
             if p2_threat_tile in p2_threat_spaces:
                 score += 0
+            elif p2_threat_tile == (1, 1):
+                score += (diagBT_eval * center_need_reducer)
             else:
                 score += diagBT_eval
                 p2_threat_spaces.add(p2_threat_tile)
@@ -882,6 +923,8 @@ def local_evaluation(local_board):
     else:
         score += diagBT_eval
 
+
+
     # Single Checks now that the lists are completed
     if detectSingle(row1):
         if not s_r1:
@@ -892,12 +935,18 @@ def local_evaluation(local_board):
         if row1_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row1, board was {local_board}")
+                score += (row1_eval * center_need_reducer)
             else:
                 score += row1_eval
         
         elif row1_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row1, board was {local_board}")
+                score += (row1_eval * center_need_reducer)
             else:
                 score += row1_eval
 
@@ -910,12 +959,16 @@ def local_evaluation(local_board):
         if row2_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (row2_eval * center_need_reducer)
             else:
                 score += row2_eval
         
         elif row2_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (row2_eval * center_need_reducer)
             else:
                 score += row2_eval
 
@@ -928,12 +981,18 @@ def local_evaluation(local_board):
         if row3_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row3, board was {local_board}")
+                score += (row3_eval * center_need_reducer)
             else:
                 score += row3_eval
 
         elif row3_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Row3, board was {local_board}")
+                score += (row3_eval * center_need_reducer)
             else:
                 score += row3_eval
 
@@ -946,12 +1005,18 @@ def local_evaluation(local_board):
         if col1_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col1, board was {local_board}")
+                score += (col1_eval * center_need_reducer)
             else:
                 score += col1_eval
         
         elif col1_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col1, board was {local_board}")
+                score += (col1_eval * center_need_reducer)
             else:
                 score += col1_eval
 
@@ -964,12 +1029,16 @@ def local_evaluation(local_board):
         if col2_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (col2_eval * center_need_reducer)
             else:
                 score += col2_eval
         
         elif col2_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (col2_eval * center_need_reducer)
             else:
                 score += col2_eval
 
@@ -982,12 +1051,18 @@ def local_evaluation(local_board):
         if col3_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col3, board was {local_board}")
+                score += (col3_eval * center_need_reducer)
             else:
                 score += col3_eval
         
         elif col3_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                raise ValueError(f"Center Tile Detected in a None-Center Line, Col3, board was {local_board}")
+                score += (col3_eval * center_need_reducer)
             else:
                 score += col3_eval
 
@@ -1000,12 +1075,16 @@ def local_evaluation(local_board):
         if diagTB_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (diagTB_eval * center_need_reducer)
             else:
                 score += diagTB_eval
         
         elif diagTB_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (diagTB_eval * center_need_reducer)
             else:
                 score += diagTB_eval
 
@@ -1018,12 +1097,16 @@ def local_evaluation(local_board):
         if diagBT_eval > 0:
             if open_A in p1_threat_spaces or open_B in p1_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (diagBT_eval * center_need_reducer)
             else:
                 score += diagBT_eval
         
         elif diagBT_eval < 0:
             if open_A in p2_threat_spaces or open_B in p2_threat_spaces:
                 score += 0
+            elif open_A == (1, 1) or open_B == (1, 1):
+                score += (diagBT_eval * center_need_reducer)
             else:
                 score += diagBT_eval
 
