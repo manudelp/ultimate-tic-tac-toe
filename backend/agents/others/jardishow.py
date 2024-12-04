@@ -16,6 +16,7 @@ Order Moves? = False!
 
 class JardiShowAgent:
     def __init__(self):
+        self.id = 3
         self.name = "Jardinero"
         self.icon = "🍀"
         self.moveNumber = 0

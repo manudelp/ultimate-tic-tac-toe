@@ -16,7 +16,7 @@ AB-Pruning Minimax? = True
 
 class MonkeyAgent:
     def __init__(self):
-        self.id = 4
+        self.id = 5
         self.name = "Monkey"
         self.icon = "🙈"
         self.moveNumber = 0

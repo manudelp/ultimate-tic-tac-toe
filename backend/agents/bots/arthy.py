@@ -14,7 +14,7 @@ Implementing positional scores as well
 
 class ArthyAgent:
     def __init__(self):
-        self.id = 3
+        self.id = 4
         self.name = "Arthy"
         self.icon = "💎"
         self.moveNumber = 0
