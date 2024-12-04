@@ -197,6 +197,103 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
     return () => cancelAnimationFrame(animationFrame);
   }, [shuffledWords, shuffledColors]);
 
+
+
+
+// SNOWING EFFECT LOGIC BELOW
+
+class Snowflake {
+  x: number;
+  y: number;
+  radius: number;
+  speedX: number;
+  speedY: number;
+  opacity: number;
+
+
+  constructor(width: number, height: number) {
+      const isBackground = Math.random() > 0.5; // 50% chance of being a background snowflake
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.radius = Math.random() * 4 + 3; // Small radius for a snowflake
+      this.speedX = Math.random() * 0.16 + (-0.25 + Math.random() * 2)*0.15; // Horizontal drift
+      this.speedY = Math.random() * 0.16 + 0.25; // Falling speed
+      this.opacity = isBackground ? Math.random() * 0.3 + 0.2 : Math.random() * 0.5 + 0.5;
+  }
+
+  update(width: number, height: number) {
+      this.x += this.speedX;
+      this.y += this.speedY;
+
+      // Respawn snowflake at the top if it goes out of bounds
+      if (this.y > height) {
+          this.y = 0;
+          this.x = Math.random() * width;
+      }
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+      ctx.globalAlpha = this.opacity;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+          this.x + this.radius * Math.cos((i * Math.PI) / 3),
+          this.y + this.radius * Math.sin((i * Math.PI) / 3)
+        );
+      }
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+  }
+}
+
+function snowingEffect() {
+  const canvas = document.getElementById("snowCanvas") as HTMLCanvasElement;
+  const ctx = canvas?.getContext("2d");
+  if (!ctx) return;
+
+  const snowflakes: Snowflake[] = [];
+  const maxSnowflakes = 270;
+
+  function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+  }
+
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
+
+  // Create initial snowflakes
+  for (let i = 0; i < maxSnowflakes; i++) {
+      snowflakes.push(new Snowflake(canvas.width, canvas.height));
+  }
+
+  function animate() {
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const snowflake of snowflakes) {
+          snowflake.update(canvas.width, canvas.height);
+          if (ctx) {
+            snowflake.draw(ctx);
+          }
+      }
+
+      requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+snowingEffect();
+
+
+
+
+// SNOWING EFFECT LOGIC ABOVE 
+
+
   return (
     <div className="flex flex-col items-center justify-center min-h-svh p-4 sm:p-8 text-white">
       <div className="text-center">
@@ -404,6 +501,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
           onExit={handleExitGame}
         />
       )}
+
+      {/* SNOWING EFFECT */}
+      <canvas id="snowCanvas" className="fixed inset-0 w-full h-full pointer-events-none z-50"></canvas>
+      
     </div>
   );
 };
