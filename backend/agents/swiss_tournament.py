@@ -8,23 +8,23 @@ import sys
 import time
 from contextlib import redirect_stdout
 
-from bot.randy import RandomAgent
-from bot.monkey import MonkeyAgent
-from bot.jardy import GardenerAgent
-from bot.jardito import JardineritoAgent
-from bot.maxi import MaximilianoAgent
-from bot.taylor import TaylorAgent
-from bot.straightArrow import StraightArrowAgent
-from bot.iterold import IteroldAgent
-from bot.itterino import ItterinoAgent
-from bot.ordy import TidyPodatorAgent
-from bot.twinny import TwinPrunerAgent
+from bots.randy import RandomAgent
+from bots.monkey import MonkeyAgent
+from bots.jardy import GardenerAgent
+from bots.jardito import JardineritoAgent
+from bots.maxi import MaximilianoAgent
+from bots.taylor import TaylorAgent
+from bots.straightArrow import StraightArrowAgent
+from bots.iterold import IteroldAgent
+from bots.itterino import ItterinoAgent
+from bots.ordy import TidyPodatorAgent
+from bots.twinny import TwinPrunerAgent
 from foofinder import FooFinderAgent
-from bot.gardentranspositor import GardenTranspositorAgent
-from bot.itervanbytes import IterVanBytesAgent
-from bot.jarditonomid import JardineritoAntiMidAgent
-from bot.jarditobetter import BetterJardineritoAgent
-from bot.itterinobetter import BetterItterinoAgent
+from bots.gardentranspositor import GardenTranspositorAgent
+from bots.itervanbytes import IterVanBytesAgent
+from bots.jarditonomid import JardineritoAntiMidAgent
+from bots.jarditobetter import BetterJardineritoAgent
+from bots.itterinobetter import BetterItterinoAgent
 
 # Hyperparameters
 ROUNDS_PER_MATCH = 1  # Number of games to play between each pair of agents

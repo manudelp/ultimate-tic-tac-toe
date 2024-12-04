@@ -3,24 +3,24 @@ import test_utils as utils
 import time
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
-from bot.randy import RandomAgent
-from bot.monkey import MonkeyAgent
-from bot.jardy import GardenerAgent
-from bot.jardito import JardineritoAgent
-from bot.taylor import TaylorAgent
-from bot.straightArrow import StraightArrowAgent
-from bot.iterold import IteroldAgent
-from bot.itterino import ItterinoAgent
-from bot.ordy import TidyPodatorAgent
-from bot.twinny import TwinPrunerAgent
-from bot.maxi import MaximilianoAgent
-from bot.gardentranspositor import GardenTranspositorAgent
-from bot.itervanbytes import IterVanBytesAgent
+from bots.randy import RandomAgent
+from bots.monkey import MonkeyAgent
+from bots.jardy import GardenerAgent
+from bots.jardito import JardineritoAgent
+from bots.taylor import TaylorAgent
+from bots.straightArrow import StraightArrowAgent
+from bots.iterold import IteroldAgent
+from bots.itterino import ItterinoAgent
+from bots.ordy import TidyPodatorAgent
+from bots.twinny import TwinPrunerAgent
+from bots.maxi import MaximilianoAgent
+from bots.gardentranspositor import GardenTranspositorAgent
+from bots.itervanbytes import IterVanBytesAgent
 from foofinder import FooFinderAgent
-from bot.jarditonomid import JardineritoAntiMidAgent
-from bot.jarditobetter import BetterJardineritoAgent
-from bot.alterjardito import AlterJardineritoAgent
-from bot.arthy import ArthyAgent
+from bots.jarditonomid import JardineritoAntiMidAgent
+from bots.jarditobetter import BetterJardineritoAgent
+from bots.alterjardito import AlterJardineritoAgent
+from bots.arthy import ArthyAgent
 
 t0 = time.time()
 

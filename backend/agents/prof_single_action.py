@@ -3,15 +3,15 @@ import time
 import timeit
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
-from bot.iterold import IteroldAgent
-from bot.itterino import ItterinoAgent
-from bot.jardy import GardenerAgent
-from bot.monkey import MonkeyAgent
-from bot.ordy import TidyPodatorAgent
-from bot.straightArrow import StraightArrowAgent
-from bot.twinny import TwinPrunerAgent
-from bot.taylor import TaylorAgent
-from bot.randy import RandomAgent
+from bots.iterold import IteroldAgent
+from bots.itterino import ItterinoAgent
+from bots.jardy import GardenerAgent
+from bots.monkey import MonkeyAgent
+from bots.ordy import TidyPodatorAgent
+from bots.straightArrow import StraightArrowAgent
+from bots.twinny import TwinPrunerAgent
+from bots.taylor import TaylorAgent
+from bots.randy import RandomAgent
 from foofinder import FooFinderAgent
 
 # Agents
