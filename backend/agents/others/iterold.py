@@ -15,7 +15,6 @@ AB-Pruning Minimax? = True
 
 class IteroldAgent:
     def __init__(self):
-        self.id = 14
         self.name = "Mike Coxlong"
         self.icon = "🪶"
         self.moveNumber = 0

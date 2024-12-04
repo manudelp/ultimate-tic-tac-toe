@@ -16,7 +16,6 @@ Order Moves? = False!
 
 class AlterJardineritoAgent:
     def __init__(self):
-        self.id = 18
         self.name = "Alter-Jardinero"
         self.icon = "🌿"
         self.moveNumber = 0

@@ -15,7 +15,6 @@ AB-Pruning Minimax? = True
 
 class HashmasterAgent:
     def __init__(self):
-        self.id = 7
         self.name = "Hashmaster"
         self.icon = "📖"
         self.moveNumber = 0

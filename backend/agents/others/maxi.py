@@ -16,7 +16,6 @@ Order Moves? = False!
 
 class MaximilianoAgent:
     def __init__(self):
-        self.id = 2
         self.name = "Maximiliano"
         self.icon = "💯"
         self.moveNumber = 0

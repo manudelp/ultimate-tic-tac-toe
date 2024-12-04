@@ -16,7 +16,6 @@ Uses Transposition Table!* (see if FIXME comment)
 
 class IterVanBytesAgent:
     def __init__(self):
-        self.id = 16
         self.name = "Iter Van Bytes"
         self.icon = "📼"
         self.transposition_table = {}

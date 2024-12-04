@@ -16,7 +16,6 @@ Order Moves Before AlphaBeta? = TRUE
 
 class TidyPodatorAgent:
     def __init__(self):
-        self.id = 10
         self.name = "Tidy Podator"
         self.icon = "🌱"
         self.moveNumber = 0

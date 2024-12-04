@@ -13,7 +13,6 @@ Heuristica mas completa considerando conectividad de los resultados
 
 class BetterJardineritoAgent:
     def __init__(self):
-        self.id = 12
         self.name = "Don Jardito"
         self.icon = "🚀"
         self.moveNumber = 0
