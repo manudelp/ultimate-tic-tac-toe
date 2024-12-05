@@ -134,15 +134,15 @@ load_winning_boards(won_boards_hash_path)
 load_over_boards(over_boards_hash_path)
 
 # Game Simulation Functions
-def simulate_blizzard(board: np.ndarray):
-    ''' Given a 3x3x3x3 board, fills 12 random cells with a number 2 '''
+def simulate_blizzard(board: np.ndarray, blizzards: int) -> None:
+    ''' Given a 3x3x3x3 board, fills n random cells with a number 2 '''
     if board.shape != (3, 3, 3, 3):
         raise ValueError("The board must be a 4d array with shape (3, 3, 3, 3).")
     
     # Get all the empty cells
     empty_cells = np.argwhere(board == 0)
     np.random.shuffle(empty_cells)
-    for i in range(12):
+    for i in range(blizzards):
         row, col, r, c = empty_cells[i]
         board[row, col, r, c] = 2
 
@@ -152,7 +152,7 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
     board = np.zeros((3, 3, 3, 3), dtype=int)
 
     if gamemode == 'blizzard':
-        simulate_blizzard(board)
+        simulate_blizzard(board, 12)
     elif gamemode != 'default':
         raise ValueError("Invalid gamemode. Please choose 'default' or 'blizzard'.")
 
