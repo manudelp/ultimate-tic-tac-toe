@@ -14,7 +14,7 @@ Order Moves? = False!
 
 """
 
-class GardenerAgent:
+class OriginalAgent:
     def __init__(self):
         self.name = "OG Jardy"
         self.icon = "🎯"

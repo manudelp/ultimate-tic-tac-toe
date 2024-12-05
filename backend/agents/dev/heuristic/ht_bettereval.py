@@ -14,7 +14,7 @@ Order Moves? = False!
 
 """
 
-class GardenerAgent:
+class BetterEvalAgent:
     def __init__(self):
         self.name = "Jaime Veterebal"
         self.icon = "🧪"
