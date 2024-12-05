@@ -34,7 +34,7 @@ interface VerifyTokenResponse {
   };
 }
 
-// Conection
+// Connection
 export const checkConnection = async (): Promise<boolean> => {
   try {
     const response = await axios.get(`${API_URL}/health`);
@@ -72,22 +72,22 @@ export const getBotMove = async (
 };
 
 export const agentsReset = async (id: number): Promise<void> => {
-  await axios.post(`${API_URL}/agents-reset`, {
-    id,
-  });
+  await axios.post(`${API_URL}/agents-reset`, { id });
 };
 
 // Register user
 export const registerUser = async (
   name: string,
   email: string,
-  password: string
+  password: string,
+  recaptchaToken: string
 ): Promise<RegisterResponse> => {
   try {
     const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
       name,
       email,
       password,
+      recaptchaToken,
     });
     return response.data;
   } catch (error) {
@@ -101,12 +101,14 @@ export const registerUser = async (
 // Login user
 export const loginUser = async (
   email: string,
-  password: string
+  password: string,
+  recaptchaToken: string
 ): Promise<LoginResponse> => {
   try {
     const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
       email,
       password,
+      recaptchaToken,
     });
     const { access_token, name } = response.data;
 

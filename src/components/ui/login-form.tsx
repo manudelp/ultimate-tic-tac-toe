@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,9 @@ export function LoginForm() {
     password: "",
     confirmPassword: "",
   });
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -22,39 +26,47 @@ export function LoginForm() {
     });
   };
 
+  const handleCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!captchaToken) {
+      toast.error("Please complete the reCAPTCHA.");
+      return;
+    }
+
     try {
       if (isLogin) {
-        // Iniciar sesión
+        // Login
         const { access_token, name } = await loginUser(
           formData.email,
-          formData.password
+          formData.password,
+          captchaToken
         );
-        window.location.reload(); // Recargar la página tras login
+        window.location.reload();
         toast.success(`Welcome back, ${name}!`);
 
-        // Guardar el nombre del usuario en localStorage
         localStorage.setItem("name", name);
         localStorage.setItem("token", access_token);
       } else {
-        // Validar contraseñas coinciden en el registro
+        // Register
         if (formData.password !== formData.confirmPassword) {
           toast.error("Passwords do not match!");
           return;
         }
 
-        // Registrar usuario
         const response = await registerUser(
           formData.username,
           formData.email,
-          formData.password
+          formData.password,
+          captchaToken
         );
         toast.success(response.message);
-        setIsLogin(true); // Cambiar al formulario de login tras registro
+        setIsLogin(true);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Something went wrong!"
@@ -121,7 +133,13 @@ export function LoginForm() {
               />
             </div>
           )}
-          <Button type="submit" className="w-full bg-gray-700 text-white">
+
+          {/* reCAPTCHA v2 */}
+          <div className="flex justify-center">
+            <ReCAPTCHA sitekey={SITE_KEY} onChange={handleCaptchaChange} />
+          </div>
+
+          <Button type="submit" className="w-full bg-gray-700 text-white mt-4">
             {isLogin ? "Login" : "Sign Up"}
           </Button>
         </form>
@@ -133,7 +151,7 @@ export function LoginForm() {
           <div className="w-1/4 h-px bg-gray-600"></div>
         </div>
 
-        {/* Botón de Google Sign-In */}
+        {/* Google Sign-In */}
         <Button
           className="w-full bg-white text-black flex items-center justify-center gap-2 p-2 rounded-md shadow-md hover:bg-gray-700 hover:text-white transition"
           onClick={() => toast.info("Google Sign-In is coming soon!")}

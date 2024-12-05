@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 import os
 import json
+import requests
 
 auth_routes = Blueprint('auth', __name__)
 
@@ -107,3 +108,27 @@ def verify_token():
         return jsonify({"message": "Token has expired."}), 401
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid token."}), 401
+    
+    
+RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
+
+@auth_routes.route('/verify-recaptcha', methods=['POST'])
+def verify_recaptcha():
+    data = request.json
+    token = data.get("captchaToken")
+
+    if not token:
+        return jsonify({"success": False, "message": "Missing captcha token"}), 400
+
+    # Verificar el token con la API de Google
+    url = "https://www.google.com/recaptcha/api/siteverify"
+    response = requests.post(url, data={
+        "secret": RECAPTCHA_SECRET_KEY,
+        "response": token
+    })
+
+    result = response.json()
+    if result.get("success"):
+        return jsonify({"success": True}), 200
+    else:
+        return jsonify({"success": False, "message": "Invalid reCAPTCHA"}), 400
