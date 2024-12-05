@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { getBots } from "@/api";
+import Image from "next/image";
 import Loader from "@/app/components/ui/loader";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -197,102 +198,124 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
     return () => cancelAnimationFrame(animationFrame);
   }, [shuffledWords, shuffledColors]);
 
+  // SNOWING EFFECT LOGIC BELOW
 
+  useEffect(() => {
+    class Snowflake {
+      x: number;
+      y: number;
+      radius: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
 
+      constructor(width: number, height: number) {
+        const isBackground = Math.random() > 0.5; // 50% chance of being a background snowflake
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.radius = Math.random() * 4 + 3; // Small radius for a snowflake
+        this.speedX = Math.random() * 0.16 + (-0.25 + Math.random() * 2) * 0.15; // Horizontal drift
+        this.speedY = Math.random() * 0.16 + 0.25; // Falling speed
+        this.opacity = isBackground
+          ? Math.random() * 0.3 + 0.2
+          : Math.random() * 0.5 + 0.5;
+      }
 
-// SNOWING EFFECT LOGIC BELOW
+      update(width: number, height: number) {
+        this.x += this.speedX;
+        this.y += this.speedY;
 
-class Snowflake {
-  x: number;
-  y: number;
-  radius: number;
-  speedX: number;
-  speedY: number;
-  opacity: number;
-
-
-  constructor(width: number, height: number) {
-      const isBackground = Math.random() > 0.5; // 50% chance of being a background snowflake
-      this.x = Math.random() * width;
-      this.y = Math.random() * height;
-      this.radius = Math.random() * 4 + 3; // Small radius for a snowflake
-      this.speedX = Math.random() * 0.16 + (-0.25 + Math.random() * 2)*0.15; // Horizontal drift
-      this.speedY = Math.random() * 0.16 + 0.25; // Falling speed
-      this.opacity = isBackground ? Math.random() * 0.3 + 0.2 : Math.random() * 0.5 + 0.5;
-  }
-
-  update(width: number, height: number) {
-      this.x += this.speedX;
-      this.y += this.speedY;
-
-      // Respawn snowflake at the top if it goes out of bounds
-      if (this.y > height) {
+        // Respawn snowflake at the top if it goes out of bounds
+        if (this.y > height) {
           this.y = 0;
           this.x = Math.random() * width;
+        }
       }
-  }
 
-  draw(ctx: CanvasRenderingContext2D) {
-      ctx.globalAlpha = this.opacity;
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(
-          this.x + this.radius * Math.cos((i * Math.PI) / 3),
-          this.y + this.radius * Math.sin((i * Math.PI) / 3)
-        );
+      draw(ctx: CanvasRenderingContext2D) {
+        ctx.globalAlpha = this.opacity;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(
+            this.x + this.radius * Math.cos((i * Math.PI) / 3),
+            this.y + this.radius * Math.sin((i * Math.PI) / 3)
+          );
+        }
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
       }
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-  }
-}
+    }
 
-function snowingEffect() {
-  const canvas = document.getElementById("snowCanvas") as HTMLCanvasElement;
-  const ctx = canvas?.getContext("2d");
-  if (!ctx) return;
+    function snowingEffect() {
+      const canvas = document.getElementById("snowCanvas") as HTMLCanvasElement;
+      const ctx = canvas?.getContext("2d");
+      if (!ctx) return;
 
-  const snowflakes: Snowflake[] = [];
-  const maxSnowflakes = 270;
+      const snowflakes: Snowflake[] = [];
+      const maxSnowflakes = 270;
 
-  function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-  }
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
 
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
 
-  // Create initial snowflakes
-  for (let i = 0; i < maxSnowflakes; i++) {
-      snowflakes.push(new Snowflake(canvas.width, canvas.height));
-  }
+      // Create initial snowflakes
+      for (let i = 0; i < maxSnowflakes; i++) {
+        snowflakes.push(new Snowflake(canvas.width, canvas.height));
+      }
 
-  function animate() {
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+      function animate() {
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
 
-      for (const snowflake of snowflakes) {
+        for (const snowflake of snowflakes) {
           snowflake.update(canvas.width, canvas.height);
           if (ctx) {
             snowflake.draw(ctx);
           }
+        }
+
+        requestAnimationFrame(animate);
       }
 
-      requestAnimationFrame(animate);
-  }
+      animate();
+    }
 
-  animate();
-}
+    snowingEffect();
 
-snowingEffect();
+    return () => {
+      window.removeEventListener("resize", () => {});
+    };
+  }, [handleExitGame]);
 
+  useEffect(() => {
+    const audio = new Audio("/assets/sounds/bg_xmas.mp3");
+    audio.loop = true;
+    audio.volume = 0.1;
 
+    const playAudio = () => {
+      audio
+        .play()
+        .then(() => console.log("Audio iniciado"))
+        .catch((err) => console.error("Error al reproducir audio:", err));
+    };
 
+    // Añade el evento solo tras la interacción del usuario
+    document.addEventListener("click", playAudio, { once: true });
 
-// SNOWING EFFECT LOGIC ABOVE 
+    return () => {
+      document.removeEventListener("click", playAudio);
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
 
+  // SNOWING EFFECT LOGIC ABOVE
 
   return (
     <div className="flex flex-col items-center justify-center min-h-svh p-4 sm:p-8 text-white">
@@ -304,7 +327,16 @@ snowingEffect();
               <h1 className="text-3xl sm:text-4xl mb-8 font-bold">
                 <small>Welcome to the</small>
                 <br />
-                Ultimate Tic-Tac-Toe,
+                <span className="relative">
+                  Ultimate Tic-Tac-Toe,{" "}
+                  <Image
+                    className="absolute -top-0 -left-3 transform -scale-x-100"
+                    src="/assets/img/santa.png"
+                    alt="Hat"
+                    width={25}
+                    height={25}
+                  />
+                </span>
                 <br />
                 <small>
                   a game of <span id="type" ref={typeRef}></span>.
@@ -503,8 +535,12 @@ snowingEffect();
       )}
 
       {/* SNOWING EFFECT */}
-      <canvas id="snowCanvas" className="fixed inset-0 w-full h-full pointer-events-none z-50"></canvas>
-      
+      {!isBoardVisible && (
+        <canvas
+          id="snowCanvas"
+          className="fixed inset-0 w-full h-full pointer-events-none z-50"
+        ></canvas>
+      )}
     </div>
   );
 };
