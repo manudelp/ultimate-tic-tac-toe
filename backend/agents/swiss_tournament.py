@@ -31,6 +31,12 @@ from others.jarditonomid import JardineritoAntiMidAgent
 from others.jarditobetter import BetterJardineritoAgent
 from others.alterjardito import AlterJardineritoAgent
 
+# Heuristic Testing Bots
+from dev.heuristic.ht_bettereval import BetterEvalAgent
+from dev.heuristic.ht_fullinfo import FullInfoAgent
+from dev.heuristic.ht_original import OriginalAgent
+
+
 # Hyperparameters
 ROUNDS_PER_MATCH = 1  # Number of games to play between each pair of agents
 REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
