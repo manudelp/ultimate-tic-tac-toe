@@ -7,22 +7,21 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-depth = 6/5, plain alpha beta
+depth = 8/7, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 Order Moves? = False!
 
 """
 
-class JardineritoAgent:
+class BetterEvalAgent:
     def __init__(self):
-        self.id = 8
-        self.name = "Jardinerito"
-        self.icon = "☘️"
+        self.name = "Jaime Veterebal"
+        self.icon = "🧪"
         self.moveNumber = 0
-        self.depth_local = 5 # when btp is not None
-        self.depth_global = 4 # when btp is None
-        self.time_limit = 10 # in seconds
+        self.depth_local = 8 # when btp is not None
+        self.depth_global = 7 # when btp is None
+        self.time_limit = 12 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -79,13 +78,13 @@ class JardineritoAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"Jardy, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"{self.name} is thinking with alpha beta... btp is None")
+            # print(f"Jardy is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -97,7 +96,7 @@ class JardineritoAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"{self.name} chose alpha beta move: {minimax_move}")
+                # print(f"Jardy chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -106,14 +105,15 @@ class JardineritoAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("Jardy failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
         subboard = super_board[a, b]
 
+        # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"{self.name} is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"Jardy is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -126,7 +126,7 @@ class JardineritoAgent:
             a, b, r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-
+         
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
@@ -204,18 +204,13 @@ class JardineritoAgent:
         # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
         winner = checkBoardWinner(board)
         if winner != 0:
-            if winner == 1:
-                return 100_000, None
-            elif winner == -1:
-                # print(Fore.BLUE + f"{self.name} found a loss in recursion!" + Style.RESET_ALL)
-                balance = -100_000 - depth # to prioritize the slowest loss
-                return balance, None
+            return winner * 100000, None
         else:
             if depth == 0:
                 return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"{self.name} found over board (drawn) in recursion!")
+                # print(f"Jardy found over board (drawn) in recursion!")
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -298,7 +293,7 @@ class JardineritoAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"Jardy is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -324,7 +319,7 @@ class JardineritoAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"Jardy is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -876,5 +871,20 @@ def localBoardEval(localBoard):
 
     return score
 
+# agent = GardenerAgent()
 
+# board_test = np.zeros((3, 3, 3, 3), dtype=int)
+# balance_at_0 = agent.boardBalance(board_test)
 
+# board_test[1, 1][2, 2] = -1
+# balance_at_1 = agent.boardBalance(board_test)
+
+# # board_test[2, 2][1, 1] = 1
+# # balance_at_2 = agent.boardBalance(board_test)
+
+# board_test[2, 2][0, 2] = 1
+# balance_at_2 = agent.boardBalance(board_test)
+
+# print(f"Balance at 0: {balance_at_0}")
+# print(f"Balance at 1: {balance_at_1}")
+# print(f"Balance at 2: {balance_at_2}")

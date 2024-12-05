@@ -7,23 +7,24 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-Como Jardito, pero has a better heuristic
-Heuristica mas completa considerando conectividad de los resultados
+depth = 8/7, plain alpha beta
+Board Balance = Sum of Local Board Balances
+AB-Pruning Minimax? = True
+Order Moves? = False!
+
 """
 
-class BetterJardineritoAgent:
+class AlterJardineritoAgent:
     def __init__(self):
-        self.id = 12
-        self.name = "Don Jardito"
-        self.icon = "🚀"
+        self.name = "Alter-Jardinero"
+        self.icon = "🌿"
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
-        self.time_limit = 10 # in seconds
+        self.depth_local = 5 # when btp is not None
+        self.depth_global = 4 # when btp is None
+        self.time_limit = 12 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
-        self.centering_early_time = 0
-
+        
         # Hash Up
         self.hash_loading()
 
@@ -37,8 +38,6 @@ class BetterJardineritoAgent:
         return self.str
 
     def reset(self):
-        print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"{self.name} took centering early time of {self.centering_early_time} seconds" + Style.RESET_ALL)
-        self.centering_early_time = 0
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.name}")
             # return
@@ -67,13 +66,13 @@ class BetterJardineritoAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"alterjardito, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"{self.name} is thinking with alpha beta... btp is None")
+            # print(f"alterjardito is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.alphaBetaModel(
@@ -85,7 +84,7 @@ class BetterJardineritoAgent:
             maximizingPlayer=True)
 
             if minimax_move is not None:
-                # prnt(f"{self.name} chose alpha beta move: {minimax_move}")
+                # print(f"alterjardito chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -94,7 +93,7 @@ class BetterJardineritoAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("alterjardito failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -102,7 +101,7 @@ class BetterJardineritoAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"{self.name} is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"alterjardito is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
@@ -115,7 +114,7 @@ class BetterJardineritoAgent:
             a, b, r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-         
+
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
@@ -145,7 +144,7 @@ class BetterJardineritoAgent:
         winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
         draw_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_boards.txt')
         over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
-        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        evaluated_boards_v2_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards_v2.txt')
         board_info_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_boards_information.txt')
         results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_board_eval.txt')
         winning_results_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_results_boards.txt')
@@ -155,12 +154,11 @@ class BetterJardineritoAgent:
         self.load_winning_boards(winning_boards_path)
         self.load_drawn_boards(draw_boards_path)
         self.load_over_boards(over_boards_path)
-        self.load_evaluated_boards(evaluated_boards_path)
+        self.load_evaluated_boards(evaluated_boards_v2_path)
         self.load_boards_info(board_info_path)
         self.load_results_board_eval(results_eval_path)
         self.load_winning_results_boards(winning_results_path)
         self.load_draw_results_boards(draw_results_path)
-
 
     def randomMove(self, board):
         empty_cells = np.flatnonzero(board == 0)
@@ -224,33 +222,22 @@ class BetterJardineritoAgent:
             float: The best value for the maximizing player
         """
 
-        # BCheck Base Case
-        (ev_00, res_00, lead_00, score_00), (ev_01, res_01, lead_01, score_01), (ev_02, res_02, lead_02, score_02) = self.get_board_info(board[0, 0]), self.get_board_info(board[0, 1]), self.get_board_info(board[0, 2])
-        (ev_10, res_10, lead_10, score_10), (ev_11, res_11, lead_11, score_11), (ev_12, res_12, lead_12, score_12) = self.get_board_info(board[1, 0]), self.get_board_info(board[1, 1]), self.get_board_info(board[1, 2])
-        (ev_20, res_20, lead_20, score_20), (ev_21, res_21, lead_21, score_21), (ev_22, res_22, lead_22, score_22) = self.get_board_info(board[2, 0]), self.get_board_info(board[2, 1]), self.get_board_info(board[2, 2])
-        results_board = np.array([[res_00, res_01, res_02], [res_10, res_11, res_12], [res_20, res_21, res_22]])
-        winner = self.get_winning_result_hash(results_board)
-        if winner != 0:
-            # TODO: When optimizing for real, make it just return immediately to slightly save more time
-            if winner == 1:
-                balance = 100_000 + depth # to prioritize the fastest win
-            elif winner == -1:
-                balance = -100_000 - depth # to prioritize the slowest loss
-            else:
-                raise ValueError(f"Winner was not 1 or -1, it was {winner}")
-            return balance, None
-        else:
-            if self.get_draw_result_hash(results_board):
-                return 0, None
-            elif depth == 0:
-                board_balance = self.boardBalance(board=board, 
-                                                results_array=results_board, 
-                                                ev_00=ev_00, ev_01=ev_01, ev_02=ev_02, 
-                                                ev_10=ev_10, ev_11=ev_11, ev_12=ev_12, 
-                                                ev_20=ev_20, ev_21=ev_21, ev_22=ev_22)
-                return board_balance, None
+        # if depth == self.depth:
+        #     print(f"Monke! My depth equality check does work")
 
-        # No Terminal State Found, keep going and Implement Alpha Beta
+        # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
+        winner = checkBoardWinner(board)
+        if winner != 0:
+            return winner * 100000, None
+        else:
+            if depth == 0:
+                return self.boardBalance(board), None
+            # if boars isOver, but winner == 0, then it must be full, thus balance=0
+            elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
+                # print(f"alterjardito found over board (drawn) in recursion!")
+                return 0, None
+        # Si winner == 0, board is not over, and depth != 0, then we keep going
+
         best_move = None
 
         # Generate moves based on the current state
@@ -258,26 +245,8 @@ class BetterJardineritoAgent:
             row, col = board_to_play
             local_to_play = board[row, col]
             local_moves = np.argwhere(local_to_play == 0)
-
             if local_moves.size == 0:
-                    raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, move number = {self.moveNumber}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
-
-            # TODO: Uncomment me! I remove center moves
-            before_centering_time = time.time()
-            if ((self.moveNumber + depth < 12) and (local_moves.size > 1)):
-                # Remove the element [1, 1] from the local_moves
-                # First, turn 2d array into a list
-                local_moves = local_moves.tolist()
-                # Then, remove the [1, 1] element
-                if [1, 1] in local_moves:
-                    local_moves.remove([1, 1])
-                # Finally, turn it back into a numpy array
-                local_moves = np.array(local_moves)
-            time_spent_centering = time.time() - before_centering_time
-            self.centering_early_time += time_spent_centering
-            
-            if local_moves.size == 0:
-                    raise ValueError(f"AFTER CENTERING! Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, move number = {self.moveNumber}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
+                    raise ValueError(f"Local Moves was Empty! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}. The local board was {(row, col)} and looked like: {local_to_play}\n Current global board was:\n {board} ")
 
             if maximizingPlayer:
                 max_eval = float('-inf')
@@ -348,7 +317,7 @@ class BetterJardineritoAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"alterjardito is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -374,7 +343,7 @@ class BetterJardineritoAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"alterjardito is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
@@ -393,7 +362,7 @@ class BetterJardineritoAgent:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
 
-    def generate_global_moves(self, board: np.array):
+    def generate_global_moves(self, board):
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
         global_moves = []
@@ -403,44 +372,27 @@ class BetterJardineritoAgent:
                 global_moves.append([int(submove[0]), int(submove[1])])
         return global_moves
 
-    def boardBalance(self, board: np.ndarray,
-                    results_array: np.ndarray,
-                    ev_00: float, ev_01:float, ev_02: float,
-                    ev_10: float, ev_11:float, ev_12: float,
-                    ev_20: float, ev_21:float, ev_22: float) -> float:
-        # NEEDS TIMEIT TESTING 🔔
+    def boardBalance(self, board):
         ''' Returns the heuristic value of the board 
-        For now it's a sum of the local board evaluations plus the connectivity of the global board results 
-        Calculated using the local eval of the results array '''
-        CORNER_MULT = 1.25
-        CENTER_MULT = 1.5
-        RESULTS_EVAL_MULT = 3
+        For now it's a sum of the local board evaluations '''
+        rows, cols, *_ = board.shape
+        balance = 0
 
-        balance = (CORNER_MULT*ev_00 + ev_01 + CORNER_MULT*ev_02 + ev_10 + CENTER_MULT*ev_11 + ev_12 + CORNER_MULT*ev_20 + ev_21 + CORNER_MULT*ev_22)
-
-        # DELETEME: DEBUG COMPARISON TO ENSURE THE RESULTS ARE BEING PROPERLY CALCULATED
-        results_list_compare = []
-        for i in range(3):
-            for j in range(3):
-                if self.get_draw_hash(board[i, j]):
-                    results_list_compare.append(2)
+        # Auxiliar For Now!
+        for r in range(rows):
+            for c in range(cols):
+                localBoard = board[r, c]
+                local_balance = self.get_eval_hash(localBoard)
+                # Based on which board it is
+                if isEdge(r, c):
+                    balance += local_balance
+                elif (r, c) == (1, 1):
+                    balance += 1.5 * local_balance
                 else:
-                    winner = self.get_winner_hash(board[i, j])
-                    results_list_compare.append(winner)
-        results_list = results_array.flatten().tolist()
-        if results_list_compare != results_list:
-            raise ValueError(f"Results List Compare and Results Array are different! list is {results_list_compare} vs array is {results_list}. While board was:\n{board}. For the board 1,1, list would be winner={results_list_compare[4]} and array would be winner={self.get_winner_hash(board[i, j])}")
-        # DELME ABOVE
-        
-        res_score = self.get_results_board_eval(results_array)
-        result_coef = res_score * RESULTS_EVAL_MULT
-        # FIXME! Currently losing! Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
-        # have the same massive disproportionality with the results balance weight
+                    balance += 1.25 * local_balance
 
-        balance += result_coef
-        
-        return balance
-        # return round(balance, 4)
+        return round(balance, 4)
+
 
     # region Hashing Functions
 
@@ -1482,5 +1434,20 @@ def localBoardEval(localBoard):
 
     return score
 
+# agent = GardenerAgent()
 
+# board_test = np.zeros((3, 3, 3, 3), dtype=int)
+# balance_at_0 = agent.boardBalance(board_test)
 
+# board_test[1, 1][2, 2] = -1
+# balance_at_1 = agent.boardBalance(board_test)
+
+# # board_test[2, 2][1, 1] = 1
+# # balance_at_2 = agent.boardBalance(board_test)
+
+# board_test[2, 2][0, 2] = 1
+# balance_at_2 = agent.boardBalance(board_test)
+
+# print(f"Balance at 0: {balance_at_0}")
+# print(f"Balance at 1: {balance_at_1}")
+# print(f"Balance at 2: {balance_at_2}")

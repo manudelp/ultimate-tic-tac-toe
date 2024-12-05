@@ -9,18 +9,15 @@ from typing import List, Tuple, Dict, Any, Union, Optional
 """
 depth = iterative_deepening with move re-order, global depth=7, local depth=8, max time to start a new depth is 30 seconds
 Board Balance = Sum of Local Board Balances
-AB-Pruning Minimax? = True 
-Uses Transposition Table!* (see if FIXME comment)
+AB-Pruning Minimax? = True
 
 """
 
-class IterVanBytesAgent:
+class BetterItterinoAgent:
     def __init__(self):
-        self.id = 16
-        self.name = "Iter Van Bytes"
-        self.icon = "📼"
+        self.name = "Dr. Deepsdale"
+        self.icon = "🔨"
         self.transposition_table = {}
-        self.transpo_hits = 0
         self.moveNumber = 0
         self.depth_local = 6 # when btp is not None
         self.depth_global = 5 # when btp is None
@@ -54,8 +51,6 @@ class IterVanBytesAgent:
 
     def reset(self):
         self.transposition_table = {}
-        print(f"There were {self.transpo_hits} Transposition Table Uses!")
-        self.transpo_hits = 0
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
             print(f"First Game, pointless Reset for {self.name}")
             # return
@@ -84,13 +79,13 @@ class IterVanBytesAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"IterVanBytes, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
         
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"IterVanBytes is thinking with alpha beta... btp is None")
+            # print(f"{self.name} is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
             minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_global)
@@ -104,7 +99,7 @@ class IterVanBytesAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("IterVanBytes failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -112,7 +107,7 @@ class IterVanBytesAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"IterVanBytes is thinking with alpha beta, not iterative btp is ({a}, {b})")
+        # print(f"{self.name} is thinking with alpha beta, not iterative btp is ({a}, {b})")
         t0 = time.time()
         minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_local)
         
@@ -120,14 +115,13 @@ class IterVanBytesAgent:
             r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-
+         
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
-
 
 
     def randomMove(self, board):
@@ -179,13 +173,12 @@ class IterVanBytesAgent:
         # time_before_tramites = time.time()
 
         for depth in range(2, max_depth + 1):
-            # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
+            # print(f"{self.name} about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
             this_depth_start = time.time()
             # time_tramites = time.time() - time_before_tramites
             # print(f"El time que le tomo a {self.name} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
-            print(Style.BRIGHT + Fore.LIGHTRED_EX + f"At depth {depth}, move number {self.moveNumber}, length of transposition table is {len(self.transposition_table)}" + Style.RESET_ALL)
             try:
-                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try, recu_call=False)
+                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
             except TimeoutError:
                 print(f"Time Limit Exceeded in Iterative Deepening! Had to break the alpha beta at depth {depth}")
                 break
@@ -215,14 +208,14 @@ class IterVanBytesAgent:
                     moves_to_try = np.array(moves_to_try)
                 else:
                     raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
-            # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
+            # print(f"Repositioning best move to first place took {self.name} {time.time() - t_before_reposition:.4f} seconds")   
             
-            print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
+            # UNCOMMENT TO SEE TIME PER DEPTH
+            # print(f"{self.name} Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
  
         return best_eval, best_move
 
-    # FIXME! Esta mal usada la transposition table aca
-    def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try, recu_call=True):
+    def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns the board evaluation along with the best_move that leads to it '''
         
@@ -230,28 +223,13 @@ class IterVanBytesAgent:
         if time.time() - start_time > (self.time_limit):
             raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at start")
         
-        board_hash = board.tobytes()
-
-        # Check the transposition table for an existing evaluation of this board state
-        # TODO This will not be necessary in implementations with initialAlphaBeta and a separate recursiveAlphaBeta such as TwinPruner
-        # In those implementations, never check transposition table in initialAlphaBeta, always check in recursiveAlphaBeta
-        if recu_call:
-            if board_hash in self.transposition_table:
-                self.transpo_hits += 1
-                return self.transposition_table[board_hash], None
-
-        # Base case: Check for terminal or maximum depth state
+        # Check Terminal States
         winner = checkBoardWinner(board)
         if winner != 0:
-            eval_value = winner * 100000
-            self.transposition_table[board_hash] = eval_value  # Store the result in the transposition table
-            return eval_value, None
+            return winner * 100000, None
         elif depth == 0:
-            eval_value = self.boardBalance(board)
-            self.transposition_table[board_hash] = eval_value  # Store the result in the transposition table
-            return eval_value, None
-        elif (self.countPlayableBoards(board) == 0) or isFull(board):
-            self.transposition_table[board_hash] = 0  # Draw state
+            return self.boardBalance(board), None
+        elif self.countPlayableBoards(board) == 0 or isFull(board):
             return 0, None
         
         # If board_to_play is not None (specific local board)
@@ -292,7 +270,6 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                # self.transposition_table[board_hash] = max_eval  # Store the result in the transposition table
                 return max_eval, best_move
             
             else:
@@ -329,7 +306,6 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                # self.transposition_table[board_hash] = min_eval  # Store the result in the transposition table
                 return min_eval, best_move
             
         # If board_to_play is None (whole global board)
@@ -368,7 +344,6 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                # self.transposition_table[board_hash] = max_eval  # Store the result in the transposition table
                 return max_eval, best_move
 
             else:
@@ -405,7 +380,6 @@ class IterVanBytesAgent:
                     if beta <= alpha:
                         break
 
-                # self.transposition_table[board_hash] = min_eval  # Store the result in the transposition table
                 return min_eval, best_move
 
     def new_parameters(self, board, row, col, loc_row, loc_col):
@@ -451,23 +425,39 @@ class IterVanBytesAgent:
         return global_moves
 
     def boardBalance(self, board):
+        # NEEDS TIMEIT TESTING 🔔
         ''' Returns the heuristic value of the board 
-        For now it's a sum of the local board evaluations '''
+        For now it's a sum of the local board evaluations plus the connectivity of the global board results 
+        Calculated using the local eval of the results array '''
         rows, cols, *_ = board.shape
         balance = 0
 
-        # Auxiliar For Now!
-        for r in range(rows):
-            for c in range(cols):
-                localBoard = board[r, c]
-                local_balance = self.get_local_eval(localBoard)
-                # Based on which board it is
-                if isEdge(r, c):
-                    balance += local_balance
-                elif (r, c) == (1, 1):
-                    balance += 1.5 * local_balance
-                else:
-                    balance += 1.25 * local_balance
+        lb00_ev, lb01_ev, lb02_ev = self.get_local_eval(board[0, 0]), self.get_local_eval(board[0, 1]), self.get_local_eval(board[0, 2])
+        lb10_ev, lb11_ev, lb12_ev = self.get_local_eval(board[1, 0]), self.get_local_eval(board[1, 1]), self.get_local_eval(board[1, 2])
+        lb20_ev, lb21_ev, lb22_ev = self.get_local_eval(board[2, 0]), self.get_local_eval(board[2, 1]), self.get_local_eval(board[2, 2])
+        
+        # FIXME! Yeah this is stupid, its inefficientfor no reason, lo mejor es lo comentado abajo pero bue
+        balance += 1.25 * lb00_ev
+        balance += lb01_ev
+        balance += 1.25 * lb02_ev
+        balance += lb10_ev
+        balance += 1.5 * lb11_ev
+        balance += lb12_ev
+        balance += 1.25 * lb20_ev
+        balance += lb21_ev
+        balance += 1.25 * lb22_ev
+        # balance += (1.25*lb00_ev + lb01_ev + 1.25*lb02_ev + lb10_ev + 1.5*lb11_ev + lb12_ev + 1.25*lb20_ev + lb21_ev + 1.25*lb22_ev)
+
+        # FIXME: Replace this by using the get_full_eval_hash to return the tuple (eval, result) from the txt eval hashes, and then use eval above and result down here
+
+        results_array = np.array([[int(lb00_ev/6), int(lb01_ev/6), int(lb02_ev/6)], [int(lb10_ev/6), int(lb11_ev/6), int(lb12_ev/6)], [int(lb20_ev/6), int(lb21_ev/6), int(lb22_ev/6)]])
+        results_balance = self.get_local_eval(results_array)
+        result_coef = results_balance * ((1 + abs(results_balance))**2.5) * 1.85
+        # FIXME! This might put TOO MUCH emphasis on having a won local board... (maybe)
+        # Another idea is to reduce the evals of won locals, 6.4 might be too too big, reduce it significantly or else youre forcing to 
+        # have the same massive disproportionality with the results balance weight
+        
+        balance += result_coef
 
         return round(balance, 4)
 

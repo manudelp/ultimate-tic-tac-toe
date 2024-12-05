@@ -5,8 +5,8 @@ from typing import Tuple
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
-from bot.taylor import TaylorAgent
-from bot.straightArrow import StraightArrowAgent
+from others.taylor import TaylorAgent
+from bots.straightArrow import StraightArrowAgent
 
 # Board Printer
 def fancyBoardPrinter(board):
