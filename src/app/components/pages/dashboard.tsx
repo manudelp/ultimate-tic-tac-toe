@@ -291,17 +291,22 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
     return () => {
       window.removeEventListener("resize", () => {});
     };
-  }, [handleExitGame]);
+  }, [isBoardVisible]);
+
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
 
   useEffect(() => {
-    const audio = new Audio("/assets/sounds/bg_xmas.mp3");
-    audio.loop = true;
-    audio.volume = 0.1;
+    const bgMusic = new Audio("/assets/sounds/bg_xmas.mp3");
+    bgMusic.loop = true;
+    bgMusic.volume = 0.1;
 
     const playAudio = () => {
-      audio
+      bgMusic
         .play()
-        .then(() => console.log("Audio iniciado"))
+        .then(() => {
+          console.log("Audio iniciado");
+          setIsMusicPlaying(true);
+        })
         .catch((err) => console.error("Error al reproducir audio:", err));
     };
 
@@ -310,8 +315,9 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
     return () => {
       document.removeEventListener("click", playAudio);
-      audio.pause();
-      audio.currentTime = 0;
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      setIsMusicPlaying(false);
     };
   }, []);
 
@@ -330,7 +336,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                 <span className="relative">
                   Ultimate Tic-Tac-Toe,{" "}
                   <Image
-                    className="absolute -top-0 -left-3 transform -scale-x-100"
+                    className="absolute -top-0 -left-3 hover:animate-bounce"
                     src="/assets/img/santa.png"
                     alt="Hat"
                     width={25}
@@ -534,12 +540,18 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
         />
       )}
 
-      {/* SNOWING EFFECT */}
       {!isBoardVisible && (
-        <canvas
-          id="snowCanvas"
-          className="fixed inset-0 w-full h-full pointer-events-none z-50"
-        ></canvas>
+        <>
+          <canvas
+            id="snowCanvas"
+            className="fixed inset-0 w-full h-full pointer-events-none z-10"
+          ></canvas>
+          {!isMusicPlaying && (
+            <div className="absolute bottom-2 py-2 px-4 text-center rounded-xl bg-black bg-opacity-25 backdrop-blur z-[100] pointer-events-none">
+              🎧 Click anywhere to start the music! 👆
+            </div>
+          )}
+        </>
       )}
     </div>
   );

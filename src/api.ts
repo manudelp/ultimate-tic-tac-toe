@@ -15,13 +15,23 @@ interface BotMoveResponse {
   move: [number, number, number, number];
 }
 
+interface LoginResponse {
+  access_token: string;
+  name: string;
+}
+
 interface RegisterResponse {
   message: string;
 }
 
-interface LoginResponse {
-  access_token: string;
-  name: string;
+interface VerifyTokenResponse {
+  valid: boolean;
+  data?: {
+    id: number;
+    name: string;
+    email: string;
+    exp: number;
+  };
 }
 
 // Conection
@@ -67,7 +77,7 @@ export const agentsReset = async (id: number): Promise<void> => {
   });
 };
 
-// User Registration
+// Register user
 export const registerUser = async (
   name: string,
   email: string,
@@ -80,46 +90,87 @@ export const registerUser = async (
       password,
     });
     return response.data;
-  } catch (error: unknown) {
+  } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Registration failed");
-    } else {
-      throw new Error("Registration failed");
     }
+    throw new Error("Registration failed");
   }
 };
 
-// User Login
+// Login user
 export const loginUser = async (
   email: string,
   password: string
-): Promise<{ token: string; name: string }> => {
+): Promise<LoginResponse> => {
   try {
     const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
       email,
       password,
     });
     const { access_token, name } = response.data;
+
+    // Save token in localStorage
     localStorage.setItem("token", access_token);
-    return { token: access_token, name };
-  } catch (error: unknown) {
+
+    return { access_token, name };
+  } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Login failed");
-    } else {
-      throw new Error("Login failed");
     }
+    throw new Error("Login failed");
   }
 };
 
-// Function to fetch data with JWT token
+// Logout user
+export const logoutUser = (): void => {
+  localStorage.removeItem("token");
+};
+
+// Verify token
+export const verifyToken = async (): Promise<VerifyTokenResponse> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await axios.post<VerifyTokenResponse>(
+      `${API_URL}/verify-token`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Token verification failed"
+      );
+    }
+    throw new Error("Token verification failed");
+  }
+};
+
+// Example protected route call
 export const fetchProtectedData = async (
   endpoint: string
 ): Promise<unknown> => {
-  const token = localStorage.getItem("token");
-  const response = await axios.get(`${API_URL}/${endpoint}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await axios.get(`${API_URL}/${endpoint}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Request failed");
+    }
+    throw new Error("Request failed");
+  }
 };

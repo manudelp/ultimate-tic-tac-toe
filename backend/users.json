@@ -1,1 +1,1 @@
-[{"name": "Prueba", "email": "prueba@gmail.com", "password": "$2b$12$b6P5.WbW8VmLlLmzNeWcvumvutP/qdfyn8SdwMSwunHD8RdKAijWu"}, {"name": "manu", "email": "manu@manu.com", "password": "$2b$12$8GRB2Sw.iMYnLoXgU6N7yehG5EWOJZG/nXcYyaW34Yv6CQHv1oMSS"}]
+[{"id": 1, "name": "Manu", "email": "manu@manu.com", "password": "$2b$12$MoW9aA6miSLRBmYtuHRnqeqilQICL7XJvRtSNB2Sm8zia9/4Ht9B."}, {"id": 2, "name": "Prueba", "email": "prueba@prueba.com", "password": "$2b$12$Aibjl2LWZbe/E5soxj12.eg92yatr99L1R8c7KBePai9HZ4TTnNOu"}]
