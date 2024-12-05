@@ -33,7 +33,6 @@ Strategy: greedy checks, or gooning (edging (playing on edge tiles)), or heurist
 class TaylorAgent:
     # Gameplay Essentials 🎯📍 (⚠️ WARNING: DO NOT EDIT FUNCTION NAMES NOR ARGUMENTS ⚠️)
     def __init__(self):
-        self.id = 4
         self.name = "Taylor"
         self.icon = "🦋"
         self.moveNumber = 0

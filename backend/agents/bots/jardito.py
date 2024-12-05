@@ -7,23 +7,22 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-depth = 6, plain alpha beta
+depth = 6/5, plain alpha beta
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
-Order Moves? = TRUE
-Special Power: Calls two different Alpha Beta Functions, one that takes moves_to_try at first, then the traditional one for recursive calls
+Order Moves? = False!
 
 """
 
-class TwinPrunerAgent:
+class JardineritoAgent:
     def __init__(self):
-        self.id = 17
-        self.name = "Twin Pruner"
-        self.icon = "🍃"
+        self.id = 2
+        self.name = "Jardinerito"
+        self.icon = "☘️"
         self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
-        self.time_limit = 20 # in seconds
+        self.depth_local = 5 # when btp is not None
+        self.depth_global = 4 # when btp is None
+        self.time_limit = 10 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -80,28 +79,25 @@ class TwinPrunerAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"Twinny, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"{self.name}, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
 
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"Twinny is thinking with alpha beta... btp is None")
+            # print(f"{self.name} is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
-            moves_to_ord = self.generate_global_moves(super_board)
-            order_moves = self.order_moves(super_board, board_to_play=None, moves_to_try=moves_to_ord)
-            minimax_eval, minimax_move = self.initialAlphaBeta(
+            minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
             board_to_play=None, 
             depth=self.depth_global, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True,
-            moves_to_try=order_moves)
+            maximizingPlayer=True)
 
             if minimax_move is not None:
-                # print(f"Twinny chose alpha beta move: {minimax_move}")
+                # print(f"{self.name} chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -110,38 +106,34 @@ class TwinPrunerAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("Twinny failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("{self.name} failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
         subboard = super_board[a, b]
 
-        # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"Twinny is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"{self.name} is thinking with alpha beta,  btp is ({a}, {b})")
         t0 = time.time()
-        moves_to_ord = self.generate_local_moves(subboard)
-        order_moves = self.order_moves(super_board, board_to_play=(a, b), moves_to_try=moves_to_ord)
-        # print(f"Board to play is ({a, b})")
-        minimax_eval, minimax_move = self.initialAlphaBeta(
+        minimax_eval, minimax_move = self.alphaBetaModel(
             board=global_board_copy, 
             board_to_play=(a, b), 
             depth=self.depth_local, 
             alpha=float('-inf'), 
             beta=float('inf'), 
-            maximizingPlayer=True,
-            moves_to_try=order_moves)
+            maximizingPlayer=True)
         if minimax_move is not None:
-            r_l, c_l = minimax_move
+            a, b, r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-         
+
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
+
 
 
     def randomMove(self, board):
@@ -184,108 +176,8 @@ class TwinPrunerAgent:
 
         return None
 
-    def initialAlphaBeta(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, moves_to_try):
-        ''' Uses Alpha Beta Pruning with a given ordered list for the first move simulation
-        Calls the recursiveAlphaBeta recursive function for the rest of its calls, without the moves list '''
-        winner = checkBoardWinner(board)
-        if winner != 0:
-            return winner * 100000, None
-        else:
-            if depth == 0:
-                return self.boardBalance(board), None
-            # if boars isOver, but winner == 0, then it must be full, thus balance=0
-            elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"Jardy found over board (drawn) in recursion!")
-                return 0, None
-            
-        best_move = None
-        
-        # Generate moves based on the current state
-        if board_to_play is not None:
-            row, col = board_to_play
-            local_to_play = board[row, col]
-
-            if maximizingPlayer:
-                max_eval = float('-inf')
-                for move in moves_to_try:
-                    loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
-                    board[row, col][loc_row, loc_col] = 0 # Undo my move
-
-                    if eval > max_eval:
-                        max_eval = eval
-                        best_move = move
-                    alpha = max(alpha, eval)
-                    if beta <= alpha:
-                        break  # Beta cutoff
-
-                if best_move is None:
-                    raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, max_eval was {max_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {moves_to_try}\n Current global board was:\n {board} ")
-                return max_eval, best_move
-            
-            else:
-                # Minimizer
-                min_eval = float('inf')
-                for move in moves_to_try:
-                    loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0 # Undo rival move
-                    
-                    if eval < min_eval:
-                        min_eval = eval
-                        best_move = move
-                    beta = min(beta, eval)
-                    if beta <= alpha:
-                        break  # Alpha cutoff
-
-                if best_move is None:
-                    raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, min_eval was {min_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {moves_to_try}\n Current global board was:\n {board} ")
-                return min_eval, best_move
-
-        else:
-            if maximizingPlayer:
-                max_eval = float('-inf')
-                for move in moves_to_try:
-                    row, col, loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = 1 # Simulate my move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
-                    board[row, col][loc_row, loc_col] = 0 # Undo my move
-
-                    if eval > max_eval:
-                        max_eval = eval
-                        best_move = move
-                    alpha = max(alpha, eval)
-                    if beta <= alpha:
-                        break
-                return max_eval, best_move
-            
-            else:
-                min_eval = float('inf')
-                for move in moves_to_try:
-                    row, col, loc_row, loc_col = move
-
-                    board[row, col][loc_row, loc_col] = -1 # Simulate rival move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0 # Undo rival move
-
-                    if eval < min_eval:
-                        min_eval = eval
-                        best_move = move
-                    beta = min(beta, eval)
-                    if beta <= alpha:
-                        break
-                return min_eval, best_move
-
-    def recursiveAlphaBeta(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
+    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer):
+        # TODO: This is a draft
         """ Applies Alpha Beta Pruning techniques to Minimax to explore the game tree and find the best move to play in advanced depth"
 
         Args:
@@ -306,16 +198,24 @@ class TwinPrunerAgent:
             float: The best value for the maximizing player
         """
 
+        # if depth == self.depth:
+        #     print(f"Monke! My depth equality check does work")
+
         # Base case: If we've reached the maximum depth or the game state is terminal (win/loss/draw)
         winner = checkBoardWinner(board)
         if winner != 0:
-            return winner * 100000, None
+            if winner == 1:
+                return 100_000, None
+            elif winner == -1:
+                # print(Fore.BLUE + f"{self.name} found a loss in recursion!" + Style.RESET_ALL)
+                balance = -100_000 - depth # to prioritize the slowest loss
+                return balance, None
         else:
             if depth == 0:
                 return self.boardBalance(board), None
             # if boars isOver, but winner == 0, then it must be full, thus balance=0
             elif ((self.countPlayableBoards(board) == 0) or (isFull(board))):
-                # print(f"Jardy found over board (drawn) in recursion!")
+                # print(f"{self.name} found over board (drawn) in recursion!")
                 return 0, None
         # Si winner == 0, board is not over, and depth != 0, then we keep going
 
@@ -336,7 +236,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
                     new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
                     if eval > max_eval:
@@ -348,7 +248,8 @@ class TwinPrunerAgent:
 
                 if best_move is None:
                     raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, max_eval was {max_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {local_moves}\n Current global board was:\n {board} ")
-                return max_eval, best_move
+                final_best_move = [row, col, best_move[0], best_move[1]]
+                return max_eval, final_best_move
             
             else:
                 # Minimizer
@@ -358,7 +259,7 @@ class TwinPrunerAgent:
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
                     new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
                     
                     if eval < min_eval:
@@ -370,7 +271,8 @@ class TwinPrunerAgent:
 
                 if best_move is None:
                     raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}, min_eval was {min_eval}. \nThe local board was {(row, col)} and it looked like\n: {local_to_play}. \nIts local moves were\n {local_moves}\n Current global board was:\n {board} ")
-                return min_eval, best_move
+                final_best_move = [row, col, best_move[0], best_move[1]]
+                return min_eval, final_best_move
 
         else:
             global_moves = []
@@ -396,13 +298,13 @@ class TwinPrunerAgent:
                     
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"Jardy is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = 1 # Simulate my move
                     new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, False)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
                     board[row, col][loc_row, loc_col] = 0 # Undo my move
 
                     if eval > max_eval:
@@ -422,13 +324,13 @@ class TwinPrunerAgent:
 
                     # if depth == self.depth:
                     #     if not self.isTrulyPlayable(board, move[0], move[1], move[2], move[3]):
-                    #         raise ValueError(f"Jardy is at call number 0, considering invalid move: {move}")
+                    #         raise ValueError(f"{self.name} is at call number 0, considering invalid move: {move}")
 
                     row, col, loc_row, loc_col = move
 
                     board[row, col][loc_row, loc_col] = -1 # Simulate rival move
                     new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.recursiveAlphaBeta(board, new_board_to_play, depth - 1, alpha, beta, True)
+                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
                     board[row, col][loc_row, loc_col] = 0 # Undo rival move
 
                     if eval < min_eval:
@@ -441,76 +343,14 @@ class TwinPrunerAgent:
                     # raise ValueError(f"Move was None! Conditions were: maxi={maximizingPlayer}, depth={depth}, a={alpha}, b={beta}")
                 return min_eval, best_move
 
-    def new_parameters(self, board, loc_row, loc_col):
-        ''' Given the local coords of a move to play, returns the new board_to_play and moves_to_try '''
-        if self.get_over_hash(board[loc_row, loc_col]):
-            board_to_play = None
-            moves_to_try = self.generate_global_moves(board)
-        else:
-            board_to_play = (loc_row, loc_col)
-            moves_to_try = np.argwhere(board[loc_row, loc_col] == 0)
-        
-        return board_to_play, moves_to_try
-
-    def order_moves(self, board, board_to_play, moves_to_try):
-        ''' Orders the moves on depth-0. Returns a list of the ordered moves, with the same coords length as received '''
-        ordered_moves = []
-
-        if board_to_play is None:
-            # Each move has 4 coords
-            for move in moves_to_try:
-                ordered_moves.append((move, self.moveQuality(board, move, player=1)))
-            ordered_moves.sort(key=lambda x: x[1], reverse=True)
-            ordered_moves_array = np.array([move[0] for move in ordered_moves])
-            return ordered_moves_array
-        
-        else:
-            row, col = board_to_play
-            for short_move in moves_to_try:
-                loc_row, loc_col = short_move
-                move = (row, col, loc_row, loc_col)
-                ordered_moves.append((short_move, self.moveQuality(board, move, player=1)))
-            ordered_moves.sort(key=lambda x: x[1], reverse=True)
-            ordered_moves_array = np.array([move[0] for move in ordered_moves])
-            return ordered_moves_array
-
-    def moveQuality(self, board, move, player=1):
-        ''' Given a 4-coord move, returns the quality of the move by simulating it and retrieving balance '''
-        board_copy = board.copy()
-        original_balance = self.boardBalance(board_copy)
-        r, c, r_l, c_l = move
-        board_copy[r, c][r_l, c_l] = player
-        new_balance = self.boardBalance(board_copy)
-        return new_balance - original_balance
-
-    def generate_moves(self, board, board_to_play):
-        ''' Generates the moves to try given the board and the board_to_play '''
-        if board_to_play is None:
-            moves_to_try = self.generate_global_moves(board)
-        else:
-            row, col = board_to_play
-            moves_to_try = self.generate_local_moves(board[row, col])
-        
-        return moves_to_try
-
-    def generate_local_moves(self, board):
-        # TIMEIT ACCEPTED ☑️ (Solo se usa por fuera del Minimax, asi que aceptable enough)
-        ''' Given a local board, generates a list of all playable moves '''
-        local_moves = np.argwhere(board == 0)
-        
-        # Turn 2D Array into List of Arrays
-        list_moves = [local_moves[i] for i in range(len(local_moves))]
-
-        return list_moves
-
     def generate_global_moves(self, board):
-        # TIMEIT APPROVED ✅
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
         global_moves = []
         for (row, col) in self.genPlayableBoards(board):
-            for submove in np.argwhere(board[row, col] == 0):
-                global_moves.append(np.array([row, col, submove[0], submove[1]]))
+            local_board = board[row, col]
+            for submove in np.argwhere(local_board == 0):
+                global_moves.append([int(submove[0]), int(submove[1])])
         return global_moves
 
     def boardBalance(self, board):
@@ -567,10 +407,11 @@ class TwinPrunerAgent:
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    board_hex, board_info_str = line.strip().split(':')
-                    board_info_tuple = ast.literal_eval(board_info_str)
-                    heuristic_value, result, positional_lead, positional_score = board_info_tuple
-                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result), int(positional_lead), float(positional_score))
+                    board_hex, heuristic_value = line.strip().split(':')
+                    if heuristic_value == "Draw":
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = heuristic_value
+                    else:
+                        self.hash_eval_glob_boards[bytes.fromhex(board_hex)] = float(heuristic_value)
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
@@ -594,8 +435,36 @@ class TwinPrunerAgent:
         board_key = board.tobytes()
         local_eval, _ = self.hash_eval_boards.get(board_key, None)
         if local_eval is None:
-            raise ValueError(f"Board {board} not found in evaluated boards.\nWhile Board is:\n{board}")
+            raise ValueError(f"Board {board} not found in evaluated boards.")
         return local_eval
+
+    def get_board_info(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        score, result, positional_lead, positional_score = self.hash_boards_information.get(board_key, None)
+        if score is None or result is None or positional_lead is None or positional_score is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards. Info was {score}, {result}, {positional_lead}, {positional_score}")
+        return score, result, positional_lead, positional_score
+
+    def get_global_results_eval(self, board):
+        ''' Retrieve the heuristic value of a board from the preloaded dictionary of evaluated boards '''
+        board_key = board.tobytes()
+        results_eval = self.hash_global_results_evals.get(board_key, None)
+        if results_eval is None:
+            raise ValueError(f"Board {board} not found in evaluated global boards")
+        return results_eval
+
+    def load_boards_info(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result, positional_lead, positional_score = board_info_tuple
+                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result), int(positional_lead), float(positional_score))
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
     def updateOverBoards(self, board):
         if self.get_over_hash(board[0, 0]):
@@ -1006,24 +875,6 @@ def localBoardEval(localBoard):
     score += diagBT_eval
 
     return score
-
-# Hash Test
-# agent = TwinPrunerAgent()
-# board = np.random.randint(-1, 2, (3, 3, 3, 3))
-# move = agent.action(super_board=board, board_to_play=(0, 1))
-# print(f"Move is {move}")
-
-
-# board_test = np.array([[1, -1, 1],
-#                     [0, -1, -1],
-#                     [1, 1, 0]])  # Not Won (winnable by 1 in (1, 0), (2, 2) and by -1 in (1, 0))
-
-# example_eval = agent.get_local_eval(board_test)
-# print(f"Hash eval is {example_eval}")
-
-# og_eval = localBoardEval(board_test)
-# print(f"Original eval is {og_eval}")
-
 
 
 

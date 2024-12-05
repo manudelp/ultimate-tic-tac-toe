@@ -7,23 +7,21 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-depth = 8/7, plain alpha beta
-Uses Transposition Table!
+depth = iterative_deepening with move re-order, global depth=7, local depth=8, max time to start a new depth is 30 seconds
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
-Order Moves? = False!
+
 """
 
-class GardenTranspositorAgent:
+class ItterinoAgent:
     def __init__(self):
-        self.id = 11
-        self.name = "G-Transpositor"
-        self.icon = "🧺"
+        self.name = "Mr. Itterino"
+        self.icon = "⛏️"
         self.transposition_table = {}
         self.moveNumber = 0
-        self.depth_local = 8 # when btp is not None
-        self.depth_global = 7 # when btp is None
-        self.time_limit = 12 # in seconds
+        self.depth_local = 6 # when btp is not None
+        self.depth_global = 5 # when btp is None
+        self.time_limit = 30 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -66,7 +64,7 @@ class GardenTranspositorAgent:
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()
-        # print(f"{self.name} begins action, at move number {self.moveNumber}")
+        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.name} move number is {self.moveNumber})")
 
         super_board = np.array(super_board, dtype=int)
         rows, cols, *_ = super_board.shape
@@ -81,26 +79,18 @@ class GardenTranspositorAgent:
         # If No One has Played, We Play Center-Center
         if np.count_nonzero(super_board) == 0:
             if self.moveNumber != 0:
-                raise ValueError(f"Jardy, No one has played, but move number is not 0, move number is {self.moveNumber}")
+                raise ValueError(f"Itterino, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
-
+        
         if board_to_play is None:
             # Minimax Move, with Iterative Deepening
-            # print(f"Jardy is thinking with alpha beta... btp is None")
+            # print(f"Itterino is thinking with alpha beta... btp is None")
             # minimax with alphabeta pruning
             t0 = time.time()
-            minimax_eval, minimax_move = self.alphaBetaModel(
-            board=global_board_copy, 
-            board_to_play=None, 
-            depth=self.depth_global, 
-            alpha=float('-inf'), 
-            beta=float('inf'), 
-            maximizingPlayer=True,
-            recu_call=False)
+            minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_global)
 
             if minimax_move is not None:
-                # print(f"Jardy chose alpha beta move: {minimax_move}")
                 r, c, r_l, c_l = minimax_move
                 self.moveNumber += 1
                 minimax_time = time.time() - self.true_time_start
@@ -109,7 +99,7 @@ class GardenTranspositorAgent:
                 self.total_minimax_time += minimax_time
                 return r, c, r_l, c_l
             else:
-                raise ValueError("Jardy failed to play with alpha beta, playing randomly... (inital btp was None)")
+                raise ValueError("Itterino failed to play with alpha beta, playing randomly... (inital btp was None)")
             
         else:   
             a, b = board_to_play
@@ -117,27 +107,22 @@ class GardenTranspositorAgent:
 
         # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
         # minimax with alphabeta pruning
-        # print(f"Jardy is thinking with alpha beta,  btp is ({a}, {b})")
+        # print(f"Itterino is thinking with alpha beta, not iterative btp is ({a}, {b})")
         t0 = time.time()
-        minimax_eval, minimax_move = self.alphaBetaModel(
-            board=global_board_copy, 
-            board_to_play=(a, b), 
-            depth=self.depth_local, 
-            alpha=float('-inf'), 
-            beta=float('inf'), 
-            maximizingPlayer=True,
-            recu_call=False)
+        minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_local)
+        
         if minimax_move is not None:
-            a, b, r_l, c_l = minimax_move
+            r_l, c_l = minimax_move
         else:
             raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
-
+         
         self.moveNumber += 1
         minimax_time = time.time() - self.true_time_start
         print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
         return a, b, r_l, c_l
+
 
     def randomMove(self, board):
         empty_cells = np.flatnonzero(board == 0)
@@ -179,153 +164,264 @@ class GardenTranspositorAgent:
 
         return None
 
-    def store_in_transposition_table(self, state_key, value, depth, alpha, beta):
-        # Determine the type of bound to store based on alpha-beta values
-        if value <= alpha:
-            flag = "UPPERBOUND"
-        elif value >= beta:
-            flag = "LOWERBOUND"
-        else:
-            flag = "EXACT"
+    def iterative_deepening(self, board, board_to_play, max_depth):
+        ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
+        start_time = time.time()
+        moves_to_try = self.generate_moves(board, board_to_play)
+        # Turn Back to array
+        moves_to_try = np.array(moves_to_try)
+        # time_before_tramites = time.time()
 
-        # Store information in the transposition table
-        self.transposition_table[state_key] = {
-            "value": value,
-            "depth": depth,
-            "flag": flag
-        }
+        for depth in range(2, max_depth + 1):
+            # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
+            this_depth_start = time.time()
+            # time_tramites = time.time() - time_before_tramites
+            # print(f"El time que le tomo a {self.name} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
+            try:
+                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
+            except TimeoutError:
+                print(f"Time Limit Exceeded in Iterative Deepening! Had to break the alpha beta at depth {depth}")
+                break
 
-    def alphaBetaModel(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, recu_call=True):
-        """ Applies Alpha Beta Pruning techniques with Transposition Table to Minimax"""
+            # time_before_tramites = time.time()
+            
+            if minimax_move is None:
+                raise ValueError(f"Minimax Move was None at depth {depth}")
+            
+            best_eval = minimax_eval
+            best_move = minimax_move
+            
+            if time.time() - start_time >= (self.time_limit - 2):
+                print(f"Had to stop iterative deepening, could not start depth {depth} due to time limit")
+                break
 
-        # Generate a unique hash for the current board state
-        state_key = hash(board.tobytes())  # Using .tobytes() to hash the board state
+            # Reposition the best_move at the top of the list
+            t_before_reposition = time.time()
+            if depth != max_depth:
+                # Turn Into a List
+                moves_to_try = [move for move in moves_to_try]
+                index_to_remove = next((i for i, arr in enumerate(moves_to_try) if np.array_equal(arr, best_move)), None)
+                if index_to_remove is not None:
+                    del moves_to_try[index_to_remove]
+                    moves_to_try.insert(0, best_move)
+                    # Turn back into array
+                    moves_to_try = np.array(moves_to_try)
+                else:
+                    raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
+            # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
+            
+            # UNCOMMENT TO SEE TIME PER DEPTH
+            # print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
+ 
+        return best_eval, best_move
 
-        if recu_call:
-            # Check if the current board state is in the transposition table
-            if state_key in self.transposition_table:
-                entry = self.transposition_table[state_key]
-
-                # Use the stored value if entry depth is equal or greater
-                if entry["depth"] >= depth:
-                    if entry["flag"] == "EXACT":
-                        return entry["value"], None
-                    elif entry["flag"] == "LOWERBOUND" and entry["value"] > alpha:
-                        alpha = entry["value"]
-                    elif entry["flag"] == "UPPERBOUND" and entry["value"] < beta:
-                        beta = entry["value"]
-
-                    if alpha >= beta:
-                        return entry["value"], None
-
-        # Base case: If we've reached the maximum depth or the game state is terminal
+    def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
+        ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
+        Returns the board evaluation along with the best_move that leads to it '''
+        
+        # Time Check
+        if time.time() - start_time > (self.time_limit):
+            raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at start")
+        
+        # Check Terminal States
         winner = checkBoardWinner(board)
         if winner != 0:
             return winner * 100000, None
         elif depth == 0:
             return self.boardBalance(board), None
-        elif (self.countPlayableBoards(board) == 0) or isFull(board):
+        elif self.countPlayableBoards(board) == 0 or isFull(board):
             return 0, None
-
-        best_move = None
-
-        # Generate moves based on the current state
+        
+        # If board_to_play is not None (specific local board)
         if board_to_play is not None:
             row, col = board_to_play
-            local_moves = np.argwhere(board[row, col] == 0)
 
             if maximizingPlayer:
                 max_eval = float('-inf')
-                for move in local_moves:
-                    loc_row, loc_col = move
-                    board[row, col][loc_row, loc_col] = 1  # Simulate move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
-                    board[row, col][loc_row, loc_col] = 0  # Undo move
+                best_move = None
+                for move in moves_to_try:
 
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
+                    # Simulate Move
+                    loc_row, loc_col = move
+                    local_to_play = board[row, col]
+                    local_to_play[loc_row, loc_col] = 1
+
+                    # Evaluate Move
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    eval, _ = self.alpha_beta_move(
+                        board, new_board_to_play, depth - 1, alpha, beta,
+                        maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
+                    )
+
+                    # Undo move
+                    local_to_play[loc_row, loc_col] = 0
+
+                    # Update max_eval and best_move
                     if eval > max_eval:
                         max_eval = eval
                         best_move = move
-                    alpha = max(alpha, eval)
-                    if beta <= alpha:
-                        break  # Beta cutoff
 
-                self.store_in_transposition_table(state_key, max_eval, depth, alpha, beta)
-                return max_eval, [row, col, best_move[0], best_move[1]]
-            
-            else:
-                min_eval = float('inf')
-                for move in local_moves:
-                    loc_row, loc_col = move
-                    board[row, col][loc_row, loc_col] = -1  # Simulate rival move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0  # Undo rival move
-
-                    if eval < min_eval:
-                        min_eval = eval
-                        best_move = move
-                    beta = min(beta, eval)
-                    if beta <= alpha:
-                        break  # Alpha cutoff
-
-                self.store_in_transposition_table(state_key, min_eval, depth, alpha, beta)
-                return min_eval, [row, col, best_move[0], best_move[1]]
-        
-        else:
-            global_moves = []
-            playable_boards = self.genPlayableBoards(board)
-            for (row, col) in playable_boards:
-                empty_indices = np.argwhere(board[row, col] == 0)
-                for submove in empty_indices:
-                    global_moves.append([row, col, submove[0], submove[1]])
-
-            if maximizingPlayer:
-                max_eval = float('-inf')
-                for move in global_moves:
-                    row, col, loc_row, loc_col = move
-                    board[row, col][loc_row, loc_col] = 1  # Simulate move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, False)
-                    board[row, col][loc_row, loc_col] = 0  # Undo move
-
-                    if eval > max_eval:
-                        max_eval = eval
-                        best_move = move
+                    # Update alpha and check for pruning
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break
 
-                self.store_in_transposition_table(state_key, max_eval, depth, alpha, beta)
                 return max_eval, best_move
             
             else:
                 min_eval = float('inf')
-                for move in global_moves:
-                    row, col, loc_row, loc_col = move
-                    board[row, col][loc_row, loc_col] = -1  # Simulate rival move
-                    new_board_to_play = None if self.get_over_hash(board[loc_row, loc_col]) else (loc_row, loc_col)
-                    eval, _ = self.alphaBetaModel(board, new_board_to_play, depth - 1, alpha, beta, True)
-                    board[row, col][loc_row, loc_col] = 0  # Undo rival move
+                best_move = None
+                for move in moves_to_try:
 
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
+                    # Simulate Move
+                    loc_row, loc_col = move
+                    local_to_play = board[row, col]
+                    local_to_play[loc_row, loc_col] = -1
+
+                    # Evaluate Move
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    eval, _ = self.alpha_beta_move(
+                        board, new_board_to_play, depth - 1, alpha, beta,
+                        maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
+                    )
+
+                    # Undo move
+                    local_to_play[loc_row, loc_col] = 0
+
+                    # Update min_eval and best_move
                     if eval < min_eval:
                         min_eval = eval
                         best_move = move
+
+                    # Update beta and check for pruning
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break
 
-                self.store_in_transposition_table(state_key, min_eval, depth, alpha, beta)
                 return min_eval, best_move
-    
+            
+        # If board_to_play is None (whole global board)
+        else:
+            if maximizingPlayer:
+                max_eval = float('-inf')
+                best_move = None
+                for move in moves_to_try:
+
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
+                    # Simulate Move
+                    row, col, loc_row, loc_col = move
+                    local_to_play = board[row, col]
+                    local_to_play[loc_row, loc_col] = 1
+
+                    # Evaluate Move
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    eval, _ = self.alpha_beta_move(
+                        board, new_board_to_play, depth - 1, alpha, beta,
+                        maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
+                    )
+
+                    # Undo move
+                    local_to_play[loc_row, loc_col] = 0
+
+                    # Update max_eval and best_move
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_move = move
+
+                    # Update alpha and check for pruning
+                    alpha = max(alpha, eval)
+                    if beta <= alpha:
+                        break
+
+                return max_eval, best_move
+
+            else:
+                min_eval = float('inf')
+                best_move = None
+                for move in moves_to_try:
+
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
+                    # Simulate Move
+                    row, col, loc_row, loc_col = move
+                    local_to_play = board[row, col]
+                    local_to_play[loc_row, loc_col] = -1
+
+                    # Evaluate Move
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
+                    eval, _ = self.alpha_beta_move(
+                        board, new_board_to_play, depth - 1, alpha, beta,
+                        maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
+                    )
+
+                    # Undo move
+                    local_to_play[loc_row, loc_col] = 0
+
+                    # Update min_eval and best_move
+                    if eval < min_eval:
+                        min_eval = eval
+                        best_move = move
+
+                    # Update beta and check for pruning
+                    beta = min(beta, eval)
+                    if beta <= alpha:
+                        break
+
+                return min_eval, best_move
+
+    def new_parameters(self, board, row, col, loc_row, loc_col):
+        ''' Simulates a move on the board, given the 4d move and the player
+        Returns the new_board_to_play and the new_moves_to_try '''
+        if self.get_over_hash(board[loc_row, loc_col]):
+            board_to_play = None
+            moves_to_try = self.generate_global_moves(board)
+        else:
+            board_to_play = (loc_row, loc_col)
+            moves_to_try = np.argwhere(board[loc_row, loc_col] == 0)
+        
+        return board_to_play, moves_to_try
+
+    def generate_moves(self, board, board_to_play):
+        ''' Generates the moves to try given the board and the board_to_play '''
+        if board_to_play is None:
+            moves_to_try = self.generate_global_moves(board)
+        else:
+            row, col = board_to_play
+            moves_to_try = self.generate_local_moves(board[row, col])
+        
+        return moves_to_try
+
+    def generate_local_moves(self, board):
+        # TIMEIT ACCEPTED ☑️ (Solo se usa por fuera del Minimax, asi que aceptable enough)
+        ''' Given a local board, generates a list of all playable moves '''
+        local_moves = np.argwhere(board == 0)
+        
+        # Turn 2D Array into List of Arrays
+        list_moves = [local_moves[i] for i in range(len(local_moves))]
+
+        return list_moves
+
     def generate_global_moves(self, board):
+        # TIMEIT APPROVED ✅
         ''' Given a global board, generates a list of all playable moves 
         in the playable local boards '''
         global_moves = []
         for (row, col) in self.genPlayableBoards(board):
-            local_board = board[row, col]
-            for submove in np.argwhere(local_board == 0):
-                global_moves.append([int(submove[0]), int(submove[1])])
+            for submove in np.argwhere(board[row, col] == 0):
+                global_moves.append(np.array([row, col, submove[0], submove[1]]))
         return global_moves
 
     def boardBalance(self, board):
@@ -605,6 +701,28 @@ def isPlayable(subboard):
     ''' Returns True if the board is not full and not won, False otherwise '''
     return not isFull(subboard) and (isWon(subboard) is None)
 
+def isCorner(coord: tuple) -> bool:
+    # TIMEIT APPROVED ✅
+    ''' 
+    TIME RESULTS SHOWED THAT, AFTER 2billion+ ITERATIONS
+    isCorner took 230 seconds
+    isEdge took 185 seconds
+    coord==(1, 1) took 150 seconds (is center)
+    '''
+     
+    return coord in [(0, 0), (0, 2), (2, 0), (2, 2)]
+
+def isEdge(x: int, y: int) -> bool:
+    # TIMEIT APPROVED ✅
+    ''' 
+    TIME RESULTS SHOWED THAT, AFTER 2billion+ ITERATIONS
+    isCorner took 230 seconds
+    isEdge took 185 seconds
+    coord==(1, 1) took 150 seconds (is center)
+    '''
+     
+    return (x+y) % 2 == 1
+
 def isWon(subboard):
     # TIMEIT APPROVED ✅
     ''' Returns None if the board is not won, 1 if player 1 won, -1 if player -1 won '''
@@ -650,28 +768,6 @@ def isWon(subboard):
         return sb_00
     
     return 0
-
-def isCorner(coord: tuple) -> bool:
-    # TIMEIT APPROVED ✅
-    ''' 
-    TIME RESULTS SHOWED THAT, AFTER 2billion+ ITERATIONS
-    isCorner took 230 seconds
-    isEdge took 185 seconds
-    coord==(1, 1) took 150 seconds (is center)
-    '''
-     
-    return coord in [(0, 0), (0, 2), (2, 0), (2, 2)]
-
-def isEdge(x: int, y: int) -> bool:
-    # TIMEIT APPROVED ✅
-    ''' 
-    TIME RESULTS SHOWED THAT, AFTER 2billion+ ITERATIONS
-    isCorner took 230 seconds
-    isEdge took 185 seconds
-    coord==(1, 1) took 150 seconds (is center)
-    '''
-     
-    return (x+y) % 2 == 1
 
 def checkBoardWinner(board):
     # TIMEIT ACCEPTED ☑️ (Replaced by hashing, but for its purposes it's 100% optimized)
@@ -850,8 +946,6 @@ def localBoardEval(localBoard):
     score += diagBT_eval
 
     return score
-
-
 
 
 

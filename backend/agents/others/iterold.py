@@ -3,25 +3,24 @@ import random
 import os
 import time
 import ast
-from typing import Union, Tuple
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 """
-depth = iterative_deepening
+depth = iterative_deepening with move re-order and CUTOFFS, global depth=7, local depth=8, max time to start a new depth is 30 seconds
 Board Balance = Sum of Local Board Balances
 AB-Pruning Minimax? = True
 
 """
 
-class MonkeyAgent:
+class IteroldAgent:
     def __init__(self):
-        self.id = 6
-        self.name = "Monkey"
-        self.icon = "🙈"
+        self.name = "Mike Coxlong"
+        self.icon = "🪶"
         self.moveNumber = 0
-        # self.depth = 6
-        self.time_limit = 20 # in seconds
+        self.depth_local = 6 # when btp is not None
+        self.depth_global = 5 # when btp is None
+        self.time_limit = 30 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.hash_over_boards = {}
@@ -44,14 +43,15 @@ class MonkeyAgent:
         self.model_over_boards_set = set()
         self.playable_boards_set = set()
         self.model_playable_boards_set = set() 
-
+    
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
         return self.str
 
     def reset(self):
+        self.transposition_table = {}
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            print(f"First Game, pointless Reset for {self.name}")
+            print(f"First Game, pointless Reset for {self.name}") 
             # return
         if self.minimax_plays == 0:
             raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
@@ -61,71 +61,67 @@ class MonkeyAgent:
         self.minimax_plays = 0
         self.total_minimax_time = 0
 
-    def action(self, board, board_to_play=None):
-        self.start_time = time.time()
-        print(f"{self.name} begins action, move number to play: {self.moveNumber}")
+    def action(self, super_board, board_to_play=None):
+        self.true_time_start = time.time()
+        # print(f"The Architect and the Builder, they arrive calmly from their escalator with a sense of purpose! ({self.name} move number is {self.moveNumber})")
 
-        board = np.array(board, dtype=int)
-        rows, cols, *_ = board.shape
-        global_board_copy = board.copy()
+        super_board = np.array(super_board, dtype=int)
+        rows, cols, *_ = super_board.shape
+        global_board_copy = super_board.copy()
 
-        self.updateOverBoards(board)
-        self.updatePlayableBoards(board)
+        self.updateOverBoards(super_board)
+        self.updatePlayableBoards(super_board)
 
         self.model_over_boards_set = self.over_boards_set.copy()
         self.model_playable_boards_set = self.playable_boards_set.copy()
 
-        # Play Center if first move
-        if isEmpty(board):
+        # If No One has Played, We Play Center-Center
+        if np.count_nonzero(super_board) == 0:
+            if self.moveNumber != 0:
+                raise ValueError(f"Itterino, No one has played, but move number is not 0, move number is {self.moveNumber}")
             self.moveNumber += 1
             return 1, 1, 1, 1
-
-        # Minimax
-
+        
         if board_to_play is None:
-            moves_to_try = self.generate_global_moves(board)
+            # Minimax Move, with Iterative Deepening
+            # print(f"Itterino is thinking with alpha beta... btp is None")
+            # minimax with alphabeta pruning
+            t0 = time.time()
+            minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_global)
 
-            t_before_order = time.time()
-            # TODO: Order Moves in action, test if Phase 1 time gets better or worse
-            # unordered_moves = self.generate_global_moves(board)
-            # moves_to_try = self.order_moves(board, unordered_moves)
-            print(f"Ordering moves for Monkey when btp was None took {time.time() - t_before_order:.4f} seconds")
-
-            # Call Iterative Deepening
-            best_move = self.iterative_deepening(board, board_to_play, moves_to_try)
-
-            if best_move is None:
-                raise ValueError("Iterative Deepening Failed! Board to play was None!")
+            if minimax_move is not None:
+                r, c, r_l, c_l = minimax_move
+                self.moveNumber += 1
+                minimax_time = time.time() - self.true_time_start
+                print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was None" + Style.RESET_ALL)
+                self.minimax_plays += 1
+                self.total_minimax_time += minimax_time
+                return r, c, r_l, c_l
+            else:
+                raise ValueError("Itterino failed to play with alpha beta, playing randomly... (inital btp was None)")
             
-            global_row, global_col, local_row, local_col = best_move
+        else:   
+            a, b = board_to_play
+        subboard = super_board[a, b]
 
+        # region HERE IS ALPHA BETA PRUNING WITHOUT ITERATIVE DEEPENING
+        # minimax with alphabeta pruning
+        # print(f"Itterino is thinking with alpha beta, not iterative btp is ({a}, {b})")
+        t0 = time.time()
+        minimax_eval, minimax_move = self.iterative_deepening(global_board_copy, board_to_play, self.depth_local)
+        
+        if minimax_move is not None:
+            r_l, c_l = minimax_move
         else:
-            global_row, global_col = board_to_play
-            moves_to_try = self.generate_local_moves(board[global_row, global_col])
-
-            t_before_order = time.time()
-            # TODO: Order moves in Action, test if Phase 1 time gets better or worse
-            # unordered_moves = self.generate_local_moves(board[global_row, global_col])
-            # moves_to_try = self.order_moves(board[global_row, global_col], unordered_moves)
-            print(f"Ordering moves for Monkey when btp was not None took {time.time() - t_before_order:.4f} seconds")
-
-            # Call Iterative Deepening
-            best_move = self.iterative_deepening(board, board_to_play, moves_to_try)
-
-            if best_move is None:
-                raise ValueError("Iterative Deepening Failed! Board to play was not None!")
-            
-            local_row, local_col = best_move
-
-        if global_row is None or global_col is None or local_row is None or local_col is None:
-            raise ValueError("Best Move was None! This is being printed at the end of action, after running the minimax...")
-
+            raise ValueError(f"{self.name} failed to play with alpha beta, playing randomly... initial btp was ({a}, {b})")
+         
         self.moveNumber += 1
-        minimax_time = time.time() - self.start_time
-        print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_global}, btp was {board_to_play}" + Style.RESET_ALL)
+        minimax_time = time.time() - self.true_time_start
+        print(Style.BRIGHT + Fore.CYAN + f"{self.name} took {minimax_time:.4f} seconds to play alpha beta with depth {self.depth_local}, btp was ({a}, {b})" + Style.RESET_ALL)
         self.minimax_plays += 1
         self.total_minimax_time += minimax_time
-        return global_row, global_col, local_row, local_col
+        return a, b, r_l, c_l
+
 
     def randomMove(self, board):
         empty_cells = np.flatnonzero(board == 0)
@@ -167,323 +163,67 @@ class MonkeyAgent:
 
         return None
 
-    def iterative_deepening(self, board: np.ndarray, board_to_play: Union[Tuple[int, int], None], moves_to_try: list, 
-        initial_depth_start=3, initial_depth_end=5, iterative_depth_start=7, quiescence_depth=9, 
-        list_cutoff_regular=0.2, list_cutoff_long=0.24, list_cutoff_longest=0.28, 
-        quiescence_remaining_time=2, quiescence_moves=4):
-        # TIME DEVELOPING ⚙️
-        if board_to_play is not None:
-            board_to_play = (int(board_to_play[0]), int(board_to_play[1]))
-
-        """ Runs multiple iterations of the minimax Alpha Beta Pruning algorithm with increasing depth until the time limit is reached.
-        To decide what the best move for the player will be. 
-        Starts out running trials with low depths to re-sort and downsize the moves_to_try list
-        Then runs traditional iterative deepening with the reduced ordered list, re-assigning the first position to the best_move found in each iteration, and pushing all other moves 1 index to the right to pass on for the next alpha-beta call
-        Finally, when remaining time is low, runs a quiescense search-like iteration on a much higher depth with the first few moves of the final list, to determine which of the top candidates is best.
-        Returns the best move found in the last iteration after this entire process.
-
-        Args:
-            board (np.ndarray): Current state of the board, comprised of a 3x3 grid of 3x3 local tic tac toe boards, as a 4D Numpy Array (3x3x3x3)
-            board_to_play (Union[Tuple[int, int], None]): None if the next board to play can be arbitrarily chosen, otherwise a tuple with the 2D global coordinates of the local board to play in
-
-            moves_to_try (list): A list of the possible moves to be evaluated as the next move, a list of move arrays.
-            The individual moves inside the list can be given as size-4 arrays if the board_to_play is None, or size-2 arrays if the board_to_play is specified, since the first 2 coordinates are already defined by board_to_play
-            (The Alpha Beta Functions are already designed to perfectly deal with this, if they receive board_to_play as None they are ready for size-4 arrays, if they receive board_to_play=(a, b) they are ready to deal with size-2 arrays)
-            There is no need to do anything differently when moves_to_try has size-4 elements or size-2 elements. The process of this function only consists on sorting and downsizing the list, regardless of the size of the arrays inside it
-
-            initial_depth_start (int, optional): The first depth level to start iterating the 'for' loops in the moves_to_try sorting & downsizing process. 
-            Defaults to 2 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-            
-            initial_depth_end (int, optional): The highest depth that will be reached in the moves_to_try sorting & downsizing process, before moving on to the traditional iterative deepening. 
-                                               Defaults to 5 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-            
-            iterative_depth_start (int, optional): First depth for the iterative deepening process, the one which returns the best_move and relocates it to the first index of the list. 
-                                                   Defaults to 7 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-            
-            quiescence_depth (int, optional): The high depth that will be used for the quiescence search with the few top candidates, after remaining time is low. 
-                                              Defaults to 10 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-
-            list_cutoff_regular (float, optional): The percentage of the bottom elements of the newly sorted list to be cut-off after each initial-phase low-depth 'for' loop with the new move evals.
-                                                   Applicable when length of the list is between 0 and 40. Defaults to 0.2 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-            
-            list_cutoff_long (float, optional): The percentage of the bottom elements of the newly sorted list to be cut-off after each initial-phase low-depth 'for' loop with the new move evals.
-                                                Applicable when length of the list is between 41 and 50. Defaults to 0.24 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-            
-            list_cutoff_longest (float, optional): The percentage of the bottom elements of the newly sorted list to be cut-off after each initial-phase low-depth 'for' loop with the new move evals.
-                                                   Applicable when length of the list is higher than 50. Defaults to 0.28 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-
-            quiescence_remaining_time (float, optional): The amount of remaining time for iteration after which Quiescence Search is activated, when remaining time (calculated with self.time_limit - (time.time() - self.start_time)) is lower than quiescence_remaining_time. 
-                                                         Defaults to 2 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-            
-            quiescence_moves (int, optional): The amount of top candidates that will be picked from the last version of the moves_to_try list when quiescense search mode is activated, 
-                                              By doing moves_to_try[:quiescense_moves]. Defaults to 4 (because for now, that's the example values I'm trying out, I will adjust them through trial & error later).
-
-        Returns:
-            best_move (np.array or tuple): The best_move. Tuple of length 4 with global coords if btp=None, otherwise length 2 with the local coords only.
-        """
-
-        # Timer
+    def iterative_deepening(self, board, board_to_play, max_depth, cutoff_factor=0.27):
+        ''' Basic iterative deepening, repositions top move found to index[0] before next call '''
         start_time = time.time()
+        moves_to_try = self.generate_moves(board, board_to_play)
+        # Turn Back to array
+        moves_to_try = np.array(moves_to_try)
+        # time_before_tramites = time.time()
 
-        print(f"Initial length of moves_to_try: {len(moves_to_try)}, moves are: {moves_to_try}")
+        for depth in range(2, max_depth + 1):
+            # print(f"Itterino about to do alpha_beta on depth {depth}, top 2 moves are {moves_to_try[:2]}")
+            this_depth_start = time.time()
+            # time_tramites = time.time() - time_before_tramites
+            # print(f"El time que le tomo a {self.name} hacer los tramites mas alla del alpha beta fue {time_tramites:.4f} seconds")
+            try:
+                minimax_eval, minimax_move = self.alpha_beta_move(board, board_to_play, depth, float('-inf'), float('inf'), maximizingPlayer=True, start_time=time.time(), moves_to_try=moves_to_try)
+            except TimeoutError:
+                print(f"Time Limit Exceeded in Iterative Deepening! Had to break the alpha beta at depth {depth}")
+                break
 
-        # Phase 1: Initial sorting and downsizing
-        for depth in range(initial_depth_start, initial_depth_end + 1):
-            move_evals = []
+            # time_before_tramites = time.time()
             
-            # Evaluate moves
-            for move in moves_to_try:
-                move_copy = move.copy()
-                eval = self.alpha_beta_eval(board, board_to_play, depth, float('-inf'), float('inf'), True, start_time, [move_copy])
-                # TODO: Si esto tarda mucho, replace it con codigo que instead haga el for, simule cada jugada, 
-                # y llame alpha_beta_eval directo con minimizing player, depth-1 y reply_moves (generada en base a la move hecha con self.generate_moves)
-                move_evals.append((move, eval))
+            if minimax_move is None:
+                raise ValueError(f"Minimax Move was None at depth {depth}")
             
-            # Sort moves by evaluation (highest to lowest)
-            move_evals.sort(key=lambda x: x[1], reverse=True)
+            best_eval = minimax_eval
+            best_move = minimax_move
             
-            # Determine cutoff percentage
-            if len(moves_to_try) > 50:
-                cutoff_percentage = list_cutoff_longest
-            elif len(moves_to_try) > 40:
-                cutoff_percentage = list_cutoff_long
-            else:
-                cutoff_percentage = list_cutoff_regular
-            
-            # Calculate moves_to_try based on cutoff
-            moves_ordered = [move for move, _ in move_evals]
-            num_to_delete = int(cutoff_percentage * len(moves_ordered))  # Round down
-            num_to_keep = len(moves_ordered) - num_to_delete
-            moves_to_try = moves_ordered[:num_to_keep]
+            if time.time() - start_time >= (self.time_limit - 2):
+                print(f"Had to stop iterative deepening, could not start depth {depth} due to time limit")
+                break
 
-        # Inter-Phase Check! If there is already a winning move, no need to keep iterating
-        best_move, best_eval = move_evals[0]
-        if best_eval > 90_000:
-            print(f"Already found a winning move in Phase 1: {best_move} with evaluation: {best_eval}")
-            return best_move
-
-        print(f"Finishing Phase 1 for Monkey took: {time.time() - start_time:.4f} seconds")
-        print(f"After Phase 1, moves_to_try has length: {len(moves_to_try)}, moves are: {moves_to_try}")
-
-        # Phase 2: Iterative Deepening with Best Move Reindexing
-        depth = iterative_depth_start
-        t0 = time.time()
-
-        while depth < quiescence_depth:
-            t_this_depth = time.time()
-            # Check remaining time
-            remaining_time = self.time_limit - (time.time() - start_time)
-            if remaining_time <= quiescence_remaining_time:
-                # FIXME Improve this based on how long quiescence search can take, foofinder will consider btp scenarios differently
-                break  # Transition to quiescence search if time is low
-
-            print(f"Monkey calling alpha_beta_move on phase 2 with depth-{depth} with the moves: {moves_to_try}")
-            
-            # Step 1: Run alpha_beta_move with the current depth
-            current_eval, current_best_move = self.alpha_beta_move(
-                board, board_to_play, depth, float('-inf'), float('inf'), True, start_time, moves_to_try
-            )
-            
-            # Step 2: Update best move and evaluation from current depth
-            if current_best_move is not None:
-                best_move = current_best_move
-                best_eval = current_eval
-
-                # Step 3: Reorder moves_to_try, placing the best move at index 0
-                index_to_remove = next((i for i, arr in enumerate(moves_to_try) if np.array_equal(arr, current_best_move)), None)
+            # Reposition the best_move at the top of the list
+            t_before_reposition = time.time()
+            if depth != max_depth:
+                # Turn Into a List
+                moves_to_try = [move for move in moves_to_try]
+                index_to_remove = next((i for i, arr in enumerate(moves_to_try) if np.array_equal(arr, best_move)), None)
                 if index_to_remove is not None:
                     del moves_to_try[index_to_remove]
-                    moves_to_try.insert(0, current_best_move)
+                    moves_to_try.insert(0, best_move)
+                    # Cut off the list, removing the worst 20% of moves
+                    moves_to_try = self.list_cutoffs(moves_to_try, cutoff_factor)
+                    # Turn back into array
+                    moves_to_try = np.array(moves_to_try)
                 else:
-                    raise ValueError(f"Best Move {current_best_move} not found in moves_to_try!")
-            else:
-                raise ValueError(f"Alpha Beta Move returned None! At depth: {depth} where moves_to_try was: {moves_to_try}")
-
-            print(f"Monkey Running Iter Deep at depth {depth} took {time.time() - t_this_depth:.4f} seconds, board_to_play: {board_to_play}")
-
-            if best_eval > 90_000:
-                print(f"Already found a winning move inside Phase 2: {best_move} with evaluation: {best_eval}")
-                return best_move
-
-            # Move to next depth
-            depth += 1
-
-        print(f"Phase2 Iterative Deepening took a total time of {time.time() - t0:.4f} seconds. Maximum Depth Reached: {depth - 1}")
-
-        # Inter-Phase Check! If there is already a winning move, no need to keep iterating
-        if best_eval > 90_000:
-            print(Style.BRIGHT + Fore.RED + f"THIS SHOULDN'T GET PRINTED!!" + Style.RESET_ALL + f" Already found a winning move after Phase 2: {best_move} with evaluation: {best_eval}")
-            return best_move
-        
-        print(f"Entering Quiessence Search with remaining time: {remaining_time:.4f} seconds")
-        t2 = time.time()
-
-
-        # Phase 3: Quiescence Search for Final Move Refinement
-        # remaining_time = self.time_limit - (time.time() - start_time)
-        # if remaining_time <= quiescence_remaining_time:
-
-        # Limit moves_to_try to the top few candidates for quiescence search
-        moves_to_try = moves_to_try[:quiescence_moves]
-        print(f"Monkey gonna quiescense search the moves: {moves_to_try}")
-        
-        # Run alpha_beta_move at quiescence depth on the top candidates
-        quiescence_eval, quiescence_move = self.alpha_beta_move(
-            board, board_to_play, quiescence_depth, float('-inf'), float('inf'), True, start_time, moves_to_try
-        )
-
-        if quiescence_move is not None:
-            print(f"Quiescence search reached depth {quiescence_depth} and found a move!")
-            best_move = quiescence_move
-            best_eval = quiescence_eval
-        else:
-            raise ValueError("Quiescence Search returned None")
-
-        print(f"Quiescense Search took a total time of: {time.time() - t2:.4f} seconds")
-
-        # Return the final best move after all phases
-        print(f"After Iterative Deepening, best move found was: {best_move} with evaluation: {best_eval}")
-        return best_move
-
-    def alpha_beta_eval(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
-        ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
-        Returns only the evaluation of the board '''
-
-        # Check Terminal States
-        winner = checkBoardWinner(board)
-        if winner != 0:
-            return winner * 100000
-        elif depth == 0:
-            return self.boardBalance(board)
-        elif self.countPlayableBoards(board) == 0 or isFull(board):
-            return 0
-
-        # If board_to_play is not None (specific local board)
-        if board_to_play is not None:
-            row, col = board_to_play
-
-            if maximizingPlayer:
-                max_eval = float('-inf')
-                for move in moves_to_try:
-
-                    # Simulate Move
-                    loc_row, loc_col = move
-                    local_to_play = board[row, col]
-                    local_to_play[loc_row, loc_col] = 1
-
-                    # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
-                    eval = self.alpha_beta_eval(
-                        board, new_board_to_play, depth - 1, alpha, beta,
-                        maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
-                    )
-
-                    # Undo move
-                    local_to_play[loc_row, loc_col] = 0
-
-                    # Update max_eval and best_move
-                    max_eval = max(max_eval, eval)
-                    alpha = max(alpha, eval)
-
-                    # Update alpha and check for pruning
-                    if beta <= alpha:
-                        break
-
-                return max_eval
-
-            else:
-                min_eval = float('inf')
-                for move in moves_to_try:
-
-                    # Simulate Move
-                    loc_row, loc_col = move
-                    local_to_play = board[row, col]
-                    local_to_play[loc_row, loc_col] = -1
-
-                    # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
-                    eval = self.alpha_beta_eval(
-                        board, new_board_to_play, depth - 1, alpha, beta,
-                        maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
-                    )
-
-                    # Undo move
-                    local_to_play[loc_row, loc_col] = 0 
-
-                    # Update min_eval and best_move
-                    min_eval = min(min_eval, eval)
-                    beta = min(beta, eval)
-
-                    # Update beta and check for pruning
-                    if beta <= alpha:
-                        break
-
-                return min_eval
-
-        # If board_to_play is None (whole global board)
-        else:
-            if maximizingPlayer:
-                max_eval = float('-inf')
-                for move in moves_to_try:
-
-                    # Simulate Move
-                    row, col, loc_row, loc_col = move
-                    local_to_play = board[row, col]
-                    local_to_play[loc_row, loc_col] = 1
-
-                    # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
-                    eval = self.alpha_beta_eval(
-                        board, new_board_to_play, depth - 1, alpha, beta,
-                        maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
-                    )
-
-                    # Undo move
-                    local_to_play[loc_row, loc_col] = 0
-
-                    # Update max_eval and best_move
-                    max_eval = max(max_eval, eval)
-                    alpha = max(alpha, eval)
-
-                    # Update alpha and check for pruning
-                    if beta <= alpha:
-                        break
-
-                return max_eval
-
-            else:
-                min_eval = float('inf')
-                for move in moves_to_try:
-
-                    # Simulate Move
-                    row, col, loc_row, loc_col = move
-                    local_to_play = board[row, col]
-                    local_to_play[loc_row, loc_col] = -1
-
-                    # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
-                    eval = self.alpha_beta_eval(
-                        board, new_board_to_play, depth - 1, alpha, beta,
-                        maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
-                    )
-
-                    # Undo move
-                    local_to_play[loc_row, loc_col] = 0
-
-                    # Update min_eval and best_move
-                    min_eval = min(min_eval, eval)
-                    beta = min(beta, eval)
-
-                    # Update beta and check for pruning
-                    if beta <= alpha:
-                        break
-
-                return min_eval
+                    raise ValueError(f"Best Move {best_move} not found in moves_to_try!")
+            # print(f"Repositioning best move to first place took Itterino {time.time() - t_before_reposition:.4f} seconds")   
+            
+            # UNCOMMENT TO SEE TIME PER DEPTH
+            # print(f"Itterino Running Depth {depth} took {time.time() - this_depth_start:.4f} seconds, board_to_play: {board_to_play}")
+ 
+        return best_eval, best_move
 
     def alpha_beta_move(self, board, board_to_play, depth, alpha, beta, maximizingPlayer, start_time, moves_to_try):
         ''' Executes Minimax with Alpha-Beta Pruning on the board, with recursion depth limited to 'depth' 
         Returns the board evaluation along with the best_move that leads to it '''
-         
+        
+        # Time Check
+        if time.time() - start_time > (self.time_limit):
+            raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at start")
+        
         # Check Terminal States
         winner = checkBoardWinner(board)
         if winner != 0:
@@ -502,13 +242,17 @@ class MonkeyAgent:
                 best_move = None
                 for move in moves_to_try:
 
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
                     # Simulate Move
                     loc_row, loc_col = move
                     local_to_play = board[row, col]
                     local_to_play[loc_row, loc_col] = 1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
@@ -534,13 +278,17 @@ class MonkeyAgent:
                 best_move = None
                 for move in moves_to_try:
 
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
                     # Simulate Move
                     loc_row, loc_col = move
                     local_to_play = board[row, col]
                     local_to_play[loc_row, loc_col] = -1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
@@ -568,13 +316,17 @@ class MonkeyAgent:
                 best_move = None
                 for move in moves_to_try:
 
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
                     # Simulate Move
                     row, col, loc_row, loc_col = move
                     local_to_play = board[row, col]
                     local_to_play[loc_row, loc_col] = 1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=False, start_time=start_time, moves_to_try=new_moves_to_try
@@ -600,13 +352,17 @@ class MonkeyAgent:
                 best_move = None
                 for move in moves_to_try:
 
+                    # Time Check
+                    if time.time() - start_time > (self.time_limit):
+                        raise TimeoutError(f"Time Limit Exceeded in AlphaBetaMove! Board to play was {board_to_play}, depth was {depth}, at recucall")
+
                     # Simulate Move
                     row, col, loc_row, loc_col = move
                     local_to_play = board[row, col]
                     local_to_play[loc_row, loc_col] = -1
 
                     # Evaluate Move
-                    new_board_to_play, new_moves_to_try = self.new_parameters(board, loc_row, loc_col)
+                    new_board_to_play, new_moves_to_try = self.new_parameters(board, row, col, loc_row, loc_col)
                     eval, _ = self.alpha_beta_move(
                         board, new_board_to_play, depth - 1, alpha, beta,
                         maximizingPlayer=True, start_time=start_time, moves_to_try=new_moves_to_try
@@ -627,8 +383,17 @@ class MonkeyAgent:
 
                 return min_eval, best_move
 
-    def new_parameters(self, board, loc_row, loc_col):
-        ''' Given the local coords of a move to play, returns the new board_to_play and moves_to_try '''
+    def list_cutoffs(self, ordered_list, cut_percentage) -> list:
+        ''' Given an ordered list, cuts off the last/bottom 'cut_percentage' items of the list 
+        and returns the new list with the remaining first elements '''
+        length = len(ordered_list)
+        moves_to_delete = int(length * cut_percentage)
+        moves_to_keep = length - moves_to_delete
+        return ordered_list[:moves_to_keep]
+
+    def new_parameters(self, board, row, col, loc_row, loc_col):
+        ''' Simulates a move on the board, given the 4d move and the player
+        Returns the new_board_to_play and the new_moves_to_try '''
         if self.get_over_hash(board[loc_row, loc_col]):
             board_to_play = None
             moves_to_try = self.generate_global_moves(board)
@@ -637,24 +402,6 @@ class MonkeyAgent:
             moves_to_try = np.argwhere(board[loc_row, loc_col] == 0)
         
         return board_to_play, moves_to_try
-
-    def order_moves(self, board, moves_to_try):
-        ''' Orders the moves on depth-0 '''
-        # TODO: Complete this function to order moves, use moself.moveQuality
-        # check that ordy.py uses it
-        # then call it in Action to see if it's quicker or not
-        # MAKE MONKEY PRINT HOW MUCH TIME IT TAKES TO RUN IT IN THE ACTION TO SEE IF ITS WORTH IT
-        None
-
-    def moveQuality(self, board, move, player=1):
-        # FIXME This is not efficient, I think (idk)
-        ''' Given a 4-coord move, returns the quality of the move by simulating it and retrieving balance '''
-        board_copy = board.copy()
-        original_balance = self.boardBalance(board_copy)
-        r, c, r_l, c_l = move
-        board_copy[r, c][r_l, c_l] = player
-        new_balance = self.boardBalance(board_copy)
-        return new_balance - original_balance
 
     def generate_moves(self, board, board_to_play):
         ''' Generates the moves to try given the board and the board_to_play '''
@@ -935,9 +682,6 @@ class MonkeyAgent:
 def canPlay(board, i, j):
     return board[i, j] == 0
 
-def isEmpty(board):
-    return np.count_nonzero(board) == 0
-
 def isFull(board):
     ''' Returns True if the board is full, False otherwise '''
     return np.count_nonzero(board == 0) == 0
@@ -1211,3 +955,4 @@ def localBoardEval(localBoard):
     score += diagBT_eval
 
     return score
+
