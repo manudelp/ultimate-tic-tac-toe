@@ -12,6 +12,7 @@ from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
 
 from others.jardy import GardenerAgent
+from others.itterinobetter import BetterItterinoAgent
 from others.taylor import TaylorAgent
 from others.iterold import IteroldAgent
 from others.itterino import ItterinoAgent

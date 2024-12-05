@@ -10,21 +10,24 @@ from colorama import Style, Fore
 
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
-from bots.jardy import GardenerAgent
-from bots.jardito import JardineritoAgent
-from bots.maxi import MaximilianoAgent
-from bots.taylor import TaylorAgent
 from bots.straightArrow import StraightArrowAgent
-from bots.iterold import IteroldAgent
-from bots.itterino import ItterinoAgent
-from bots.ordy import TidyPodatorAgent
-from bots.twinny import TwinPrunerAgent
+from bots.jardito import JardineritoAgent
+from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
-from bots.gardentranspositor import GardenTranspositorAgent
-from bots.itervanbytes import IterVanBytesAgent
-from bots.jarditonomid import JardineritoAntiMidAgent
-from bots.jarditobetter import BetterJardineritoAgent
-from bots.itterinobetter import BetterItterinoAgent
+
+from others.jardy import GardenerAgent
+from others.itterinobetter import BetterItterinoAgent
+from others.taylor import TaylorAgent
+from others.iterold import IteroldAgent
+from others.itterino import ItterinoAgent
+from others.ordy import TidyPodatorAgent
+from others.twinny import TwinPrunerAgent
+from others.maxi import MaximilianoAgent
+from others.gardentranspositor import GardenTranspositorAgent
+from others.itervanbytes import IterVanBytesAgent
+from others.jarditonomid import JardineritoAntiMidAgent
+from others.jarditobetter import BetterJardineritoAgent
+from others.alterjardito import AlterJardineritoAgent
 
 # Agents Initializations
 RandomAgent = RandomAgent()
