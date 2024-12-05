@@ -11,7 +11,7 @@ from bots.twinny import TwinPrunerAgent
 from bots.maxi import MaximilianoAgent
 from bots.jarditonomid import JardineritoAntiMidAgent
 from bots.jarditobetter import BetterJardineritoAgent
-from foofinder import FooFinderAgent
+from bots.foofinder import FooFinderAgent
 
 import time
 

@@ -19,7 +19,7 @@ from bots.iterold import IteroldAgent
 from bots.itterino import ItterinoAgent
 from bots.ordy import TidyPodatorAgent
 from bots.twinny import TwinPrunerAgent
-from foofinder import FooFinderAgent
+from bots.foofinder import FooFinderAgent
 from bots.gardentranspositor import GardenTranspositorAgent
 from bots.itervanbytes import IterVanBytesAgent
 from bots.jarditonomid import JardineritoAntiMidAgent

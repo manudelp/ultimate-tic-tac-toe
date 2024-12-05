@@ -12,7 +12,7 @@ from bots.straightArrow import StraightArrowAgent
 from bots.twinny import TwinPrunerAgent
 from bots.taylor import TaylorAgent
 from bots.randy import RandomAgent
-from foofinder import FooFinderAgent
+from bots.foofinder import FooFinderAgent
 
 # Agents
 randy = RandomAgent()
