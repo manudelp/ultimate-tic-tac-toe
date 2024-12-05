@@ -77,13 +77,13 @@ class FooFinderAgent:
         root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         # Load both winning boards and evaluated boards during initialization
-        winning_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_winning_boards.txt')
-        evaluated_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_evaluated_boards.txt')
-        drawn_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_draw_boards.txt')
-        # move_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_move_boards.txt')
-        over_boards_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_over_boards.txt')
-        winnable_boards_one_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_winnable_boards_by_one.txt')
-        winnable_boards_minus_one_path = os.path.join(root_dir, 'backend', 'agents', 'hashes', 'hash_winnable_boards_by_minus_one.txt')
+        winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
+        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        drawn_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_boards.txt')
+        # move_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_move_boards.txt')
+        over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
+        winnable_boards_one_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winnable_boards_by_one.txt')
+        winnable_boards_minus_one_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winnable_boards_by_minus_one.txt')
         
         self.load_winning_boards(winning_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
