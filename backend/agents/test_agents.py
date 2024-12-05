@@ -4,6 +4,7 @@ import time
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
+# Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
 from bots.straightArrow import StraightArrowAgent
@@ -11,6 +12,7 @@ from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
 
+# Other Dev Bots
 from others.jardy import GardenerAgent
 from others.itterinobetter import BetterItterinoAgent
 from others.taylor import TaylorAgent
@@ -24,6 +26,9 @@ from others.itervanbytes import IterVanBytesAgent
 from others.jarditonomid import JardineritoAntiMidAgent
 from others.jarditobetter import BetterJardineritoAgent
 from others.alterjardito import AlterJardineritoAgent
+
+# Heuristic Testing Bots
+
 
 
 t0 = time.time()

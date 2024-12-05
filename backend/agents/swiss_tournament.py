@@ -8,6 +8,7 @@ import sys
 import time
 from contextlib import redirect_stdout
 
+# Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
 from bots.straightArrow import StraightArrowAgent
@@ -15,6 +16,7 @@ from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
 
+# Other Dev Bots
 from others.jardy import GardenerAgent
 from others.itterinobetter import BetterItterinoAgent
 from others.taylor import TaylorAgent
