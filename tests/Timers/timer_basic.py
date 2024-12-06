@@ -29,51 +29,63 @@ def lineEval(line, player=1):
         else:
             return 0
 
-def A(coord):
-    return coord in [(0, 0), (0, 2), (2, 0), (2, 2)]
+def A(lista, coefs):
+    a0, a1, a2, a3, a4, a5, a6, a7, a8 = lista
+    b0, b1, b2, b3, b4, b5, b6, b7, b8 = coefs
+    result = a0*b0 + a1*b1 + a2*b2 + a3*b3 + a4*b4 + a5*b5 + a6*b6 + a7*b7 + a8*b8
+    return result
 
-def B(x, y):
-    return (x+y) % 2 == 1
+def B(lista, coefs):
+    a_arr = np.array(lista)
+    b_arr = np.array(coefs)
+    result = np.dot(a_arr, b_arr)
+    return result
 
-def C(coord):
-    ''' Center '''
-    return coord == (1, 1)
+# def C(lista, coefs):
+#     a_list = lista
+#     b_list = coefs
+#     result = sum([a*b for a,b in zip(a_list, b_list)])
+#     return result
+
+# def D(lista, coefs):
+#     a_list = lista
+#     b_list = coefs
+#     result = a_list @ b_list
+#     return result
 
 # Timeit tests with direct lambda calls
-iters = 750_000
-samples = 2750
+iters = 10_000
+samples = 1200
 total_iters = iters * samples # 2_062_500_000
 total_time_A = 0
 total_time_B = 0
 total_time_C = 0
+total_time_D = 0
 
 for i in range(samples):
-    coord = random.randint(0, 2), random.randint(0, 2)
-    x, y = coord
+    a_list_rnd = random.sample(range(1, 100), 9)
+    b_list_rnd = random.sample(range(1, 100), 9)
+    
+    time_A = timeit.timeit(lambda: A(a_list_rnd, b_list_rnd), number=iters)
+    time_B = timeit.timeit(lambda: B(a_list_rnd, b_list_rnd), number=iters)
+    # time_C = timeit.timeit(lambda: C(a_list_rnd, b_list_rnd), number=iters)
+    # time_D = timeit.timeit(lambda: D(a_list_rnd, b_list_rnd), number=iters)
 
-    if i % 250 == 0:
-        if A(coord):
-            state = "a corner"
-        elif B(x, y):
-            state = "an edge"
-        elif C(coord):
-            state = "a center"
-        print(f"At Iteration {i}, {coord} is {state} position")
-
-    time_A = timeit.timeit(lambda: A(coord), number=iters)
-    time_B = timeit.timeit(lambda: B(x, y), number=iters)
-    time_C = timeit.timeit(lambda: C(coord), number=iters)
-
-    if A(coord) == B(x, y) == C(coord):
-        raise ValueError(f"They were equal! Their values are: A({A(coord)}), B({B(x, y)}), C({C(coord)})! Coord was {coord}")
+    # if not (A(a_list_rnd, b_list_rnd) == B(a_list_rnd, b_list_rnd) == C(a_list_rnd, b_list_rnd) == D(a_list_rnd, b_list_rnd)):
+    #     raise ValueError(f"Results are not the same! Results are {A(a_list_rnd, b_list_rnd)}, {B(a_list_rnd, b_list_rnd)}, {C(a_list_rnd, b_list_rnd)}, {D(a_list_rnd, b_list_rnd)} for parameters {a_list_rnd, b_list_rnd}")
+    
+    if i%200 == 0:
+        percentage_completed = (i/samples) * 100
+        print(f"Completed {percentage_completed:.2f}% of the total samples...")
 
     total_time_A += time_A
     total_time_B += time_B
-    total_time_C += time_C
+    # total_time_C += time_C
+    # total_time_D += time_D
 
 # Print the time results
 print(f"Below are the Time Results after {total_iters} total iterations")
 print(f"Time for Option A: {total_time_A:.4f} seconds")
 print(f"Time for Option B: {total_time_B:.4f} seconds")
-print(f"Time for Option C: {total_time_C:.4f} seconds")
-
+# print(f"Time for Option C: {total_time_C:.4f} seconds")
+# print(f"Time for Option D: {total_time_D:.4f} seconds")

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 interface FooterProps {
   isBackendConnected: boolean;
@@ -68,10 +69,10 @@ const Footer: React.FC<FooterProps> = ({ isBackendConnected }) => {
         <p>
           Stay connected with us on{" "}
           <a
-            href="https://www.instagram.com"
-            target="_blank"
+            href="#"
             className="text-blue-400 hover:underline"
             rel="noopener noreferrer"
+            onClick={() => toast.info("We dont have an Instagram account yet!")}
           >
             Instagram
           </a>

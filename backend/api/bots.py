@@ -6,13 +6,12 @@ import time
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 from flask import Blueprint, jsonify, request
-from agents.bot.randy import RandomAgent
-# from agents.bot.monkey import MonkeyAgent
-# from agents.bot.taylor import TaylorAgent
-from agents.bot.jardito import JardineritoAgent
-from agents.bot.straightArrow import StraightArrowAgent
-from agents.bot.arthy import ArthyAgent
-from agents.bot.jardishow import JardiShowAgent
+from agents.bots.randy import RandomAgent
+# from agents.bots.monkey import MonkeyAgent
+from agents.bots.jardito import JardineritoAgent
+from agents.bots.straightArrow import StraightArrowAgent
+from agents.bots.arthy import ArthyAgent
+from agents.others.jardishow import JardiShowAgent
 # from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)

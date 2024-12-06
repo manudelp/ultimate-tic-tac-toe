@@ -1,5 +1,3 @@
-# backend/app.py
-
 import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify
@@ -9,29 +7,47 @@ from config import DevelopmentConfig
 from api.bots import bot_routes
 from api.auth import auth_routes
 
-load_dotenv()  # Load environment variables from .env
-users = []  # List to store user data
+# Cargar variables de entorno desde .env
+load_dotenv()
 
-# Initialize Flask app with configuration
+# Inicializar la aplicación Flask con configuración
 app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)  # Load configuration
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+app.config.from_object(DevelopmentConfig)  # Cargar configuración
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')  # Clave JWT
 
 # Configurar CORS
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://www.utictactoe.online/", "https://utictactoe.online/"]}})
 
-# Initialize JWT
+# Inicializar JWT
 jwt = JWTManager(app)
 
-# Register routes
+# Manejadores de errores de JWT
+@jwt.unauthorized_loader
+def unauthorized_response(callback):
+    return jsonify({"message": "Missing or invalid token."}), 401
+
+@jwt.expired_token_loader
+def expired_token_response(jwt_header, jwt_payload):
+    return jsonify({"message": "Token has expired."}), 401
+
+# Registrar blueprints
 app.register_blueprint(bot_routes)
 app.register_blueprint(auth_routes)
 
-# Health check route
+# Ruta de verificación de estado
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify(status="healthy"), 200
 
-# Run the Flask app
+# Manejo global de errores no controlados
+@app.errorhandler(Exception)
+def handle_exception(e):
+    response = {
+        "message": "An unexpected error occurred.",
+        "details": str(e)
+    }
+    return jsonify(response), 500
+
+# Iniciar la aplicación Flask
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)  # Run the app	
+    app.run(host='0.0.0.0', port=5000, debug=True)  # Ejecutar la app
