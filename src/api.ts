@@ -80,14 +80,14 @@ export const registerUser = async (
   name: string,
   email: string,
   password: string,
-  recaptchaToken: string
+  captchaToken: string
 ): Promise<RegisterResponse> => {
   try {
     const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
       name,
       email,
       password,
-      recaptchaToken,
+      captchaToken,
     });
     return response.data;
   } catch (error) {
@@ -102,13 +102,13 @@ export const registerUser = async (
 export const loginUser = async (
   email: string,
   password: string,
-  recaptchaToken: string
+  captchaToken: string
 ): Promise<LoginResponse> => {
   try {
     const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
       email,
       password,
-      recaptchaToken,
+      captchaToken,
     });
     const { access_token, name } = response.data;
 

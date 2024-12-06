@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <Router>
       <div className="min-h-svh bg-gray-900 text-white">
-        <Header />
+        <Header isBackendConnected={isBackendConnected} />
         <Routes>
           <Route
             path="/"

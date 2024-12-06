@@ -2,8 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Modal } from "@/app/components/ui/modal";
 import { LoginForm } from "@/components/ui/login-form";
+import { toast } from "sonner";
 
-const Header = () => {
+interface HeaderProps {
+  isBackendConnected: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ isBackendConnected }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
 
@@ -78,7 +83,17 @@ const Header = () => {
         ) : (
           <button
             className="flex items-center gap-2 p-4 rounded-full hover:bg-white hover:text-black transition group"
-            onClick={() => setModalOpen(true)}
+            onClick={() =>
+              isBackendConnected
+                ? setModalOpen(true)
+                : toast.error("Can't login if server is offline.", {
+                    description: "Wait a few seconds and try again.",
+                    action: {
+                      label: "Reload",
+                      onClick: () => window.location.reload(),
+                    },
+                  })
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

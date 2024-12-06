@@ -376,7 +376,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   onClick={() =>
                     isBackendConnected
                       ? selectMode("player-vs-bot")
-                      : toast.warning("Backend is not connected", {
+                      : toast.warning("Server is offline", {
                           description:
                             "It may take up to 50 seconds to connect.",
                           action: {
