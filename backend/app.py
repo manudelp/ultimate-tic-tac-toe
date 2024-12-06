@@ -16,7 +16,7 @@ app.config.from_object(DevelopmentConfig)  # Cargar configuración
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')  # Clave JWT
 
 # Configurar CORS
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://www.utictactoe.online/", "https://utictactoe.online/"]}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://www.utictactoe.online", "https://utictactoe.online"]}})
 
 # Inicializar JWT
 jwt = JWTManager(app)
