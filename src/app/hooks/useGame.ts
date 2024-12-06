@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getBotMove, agentsReset } from "@/api";
 import { MiniBoardWinner, GameWinner, convertBoardToNumeric } from "../utils";
+import { toast } from "sonner";
 
 interface BotListResponse {
   id: number;
@@ -192,9 +193,9 @@ export const useGame = (
     if (!isBotThinking) {
       makeMove(coords);
     } else if (gameMode === "player-vs-bot") {
-      alert("Let " + bot?.name + " cook.");
+      toast.error("Let " + bot?.name + " " + bot?.icon + " cook.");
     } else {
-      alert("Wait for your turn.");
+      toast.warning("Wait for your turn.");
     }
   };
 

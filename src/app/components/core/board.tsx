@@ -89,9 +89,9 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
           <div title="Move number">{moveNumber}</div>
         </div>
         {gameMode === "player-vs-bot" && (
-          <div title={bot?.icon + " " + bot?.name}>
+          <div title={bot?.name + " " + bot?.icon}>
             You vs{" "}
-            {window.innerWidth > 768 ? bot?.icon + " " + bot?.name : bot?.icon}
+            {window.innerWidth > 768 ? bot?.name + " " + bot?.icon : bot?.icon}
           </div>
         )}
         <div className="flex gap-2">
