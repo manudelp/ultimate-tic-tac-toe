@@ -304,7 +304,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
       bgMusic
         .play()
         .then(() => {
-          console.log("Audio iniciado");
           setIsMusicPlaying(true);
         })
         .catch((err) => console.error("Error al reproducir audio:", err));
