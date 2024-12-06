@@ -37,54 +37,78 @@ def generate_token(user):
     }
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-# Rutas
+# REGISTER
 @auth_routes.route('/register', methods=['POST'])
 def register():
     """Registro de usuarios."""
     data = request.json
 
-    # Validar los datos recibidos
+    # Validar captchaToken antes de continuar
+    captcha_token = data.get("captchaToken")
+    if not captcha_token:
+        return jsonify({"message": "Captcha token is missing"}), 400
+
+    # Verificar el token con la API de Google
+    captcha_response = requests.post("https://www.google.com/recaptcha/api/siteverify", data={
+        "secret": RECAPTCHA_SECRET_KEY,
+        "response": captcha_token
+    }).json()
+
+    if not captcha_response.get("success"):
+        return jsonify({"message": "Invalid reCAPTCHA"}), 400
+
+    # Continuar con la lógica de registro
     if not data.get("name") or not data.get("email") or not data.get("password"):
         return jsonify({"message": "Missing required fields."}), 400
 
     users = load_users()
 
-    # Verificar si el usuario ya existe
     for user in users:
         if user['email'] == data['email']:
             return jsonify({"message": "User already exists."}), 400
 
-    # Hashear la contraseña
     hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-
-    # Añadir el nuevo usuario
     new_user = {
-        "id": len(users) + 1,  # Genera un ID único basado en la longitud actual
+        "id": len(users) + 1,
         "name": data['name'],
         "email": data['email'],
-        "password": hashed_password.decode('utf-8'),  # Guardar como string
+        "password": hashed_password.decode('utf-8'),
     }
     users.append(new_user)
     save_users(users)
 
     return jsonify({"message": "User registered successfully!"}), 201
 
+# LOGIN
 @auth_routes.route('/login', methods=['POST'])
 def login():
     """Inicio de sesión."""
     data = request.json
 
-    # Validar los datos recibidos
+    # Validar captchaToken antes de continuar
+    captcha_token = data.get("captchaToken")
+    if not captcha_token:
+        return jsonify({"message": "Captcha token is missing"}), 400
+
+    # Verificar el token con la API de Google
+    captcha_response = requests.post("https://www.google.com/recaptcha/api/siteverify", data={
+        "secret": RECAPTCHA_SECRET_KEY,
+        "response": captcha_token
+    }).json()
+
+    if not captcha_response.get("success"):
+        return jsonify({"message": "Invalid reCAPTCHA"}), 400
+
+    # Continuar con la lógica de inicio de sesión
     if not data.get("email") or not data.get("password"):
         return jsonify({"message": "Missing email or password."}), 400
 
     users = load_users()
 
-    # Verificar el email y la contraseña
     for user in users:
         if user['email'] == data['email']:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
-                token = generate_token(user)  # Generar token JWT
+                token = generate_token(user)
                 return jsonify({
                     "access_token": token,
                     "name": user['name']
@@ -92,6 +116,7 @@ def login():
 
     return jsonify({"message": "Invalid credentials."}), 401
 
+# VERIFY TOKEN
 @auth_routes.route('/verify-token', methods=['POST'])
 def verify_token():
     """Verificar la validez del token JWT."""
@@ -109,7 +134,9 @@ def verify_token():
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid token."}), 401
     
-    
+
+
+# VERIFY RECAPTCHA    
 RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
 
 @auth_routes.route('/verify-recaptcha', methods=['POST'])

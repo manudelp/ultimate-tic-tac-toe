@@ -68,9 +68,11 @@ export function LoginForm() {
         setIsLogin(true);
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Something went wrong!"
-      );
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Something went wrong!");
+      }
     }
   };
 
