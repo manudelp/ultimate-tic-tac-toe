@@ -9,6 +9,7 @@ import { loginUser, registerUser } from "@/api";
 
 export function LoginForm() {
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -109,30 +110,48 @@ export function LoginForm() {
               onChange={handleChange}
             />
           </div>
-          <div>
+          <div className="relative">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              required
-              className="bg-gray-700 text-white"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
-          {!isLogin && (
-            <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
               <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
                 required
                 className="bg-gray-700 text-white"
-                value={formData.confirmPassword}
+                value={formData.password}
                 onChange={handleChange}
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙉" : "🙈"}
+              </button>
+            </div>
+          </div>
+          {!isLogin && (
+            <div className="relative">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
+                  required
+                  className="bg-gray-700 text-white"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "🙉" : "🙈"}
+                </button>
+              </div>
             </div>
           )}
 
