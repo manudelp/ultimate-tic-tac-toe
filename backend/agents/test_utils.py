@@ -25,6 +25,7 @@ def fancyBoardPrinter(board):
 # Hashes
 hash_winning_boards = {}
 hash_over_boards = {}
+hash_blizzard_over_boards = {}
 
 # Hashing Functions
 def load_winning_boards(file_path):
@@ -55,6 +56,19 @@ def load_over_boards(file_path):
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")    
 
+def load_blizzard_over_boards(file_path):
+    # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
+    ''' Loads the over boards from a file and stores them in a dictionary 
+    Each board's state is stored as a key (using its byte representation)
+    '''
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                board_hex = line.strip()
+                hash_blizzard_over_boards[bytes.fromhex(board_hex)] = True
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")
+
 # Local Board Functions
 def get_winner(board):
     # TIMEIT APPROVED ✅
@@ -74,15 +88,31 @@ def get_over_hash(board) -> bool:
     board_key = board.tobytes()
     return hash_over_boards.get(board_key, False)
 
+def get_over_blizzard_hash(board) -> bool:
+    # TIMEIT APPROVED ✅
+    ''' Returns whether the board is over'''
+    board_key = board.tobytes()
+    return hash_blizzard_over_boards.get(board_key, False)
+
 def get_isOpen(board) -> bool:
     # TIMEIT APPROVED ✅
     ''' Returns whether the board is open'''
     return not get_over_hash(board)
 
-def is_board_open(board, r, c):
+def get_isOpenBlizzard(board) -> bool:
+    # TIMEIT APPROVED ✅
+    ''' Returns whether the board is open'''
+    return not get_over_blizzard_hash(board)
+
+def is_board_open(board, r, c, gamemode="default"):
     # TIMEIT APPROVED ✅
     ''' Returns True if the board is open, False otherwise '''
-    return get_isOpen(board[r, c])
+    if gamemode == 'default':
+        return get_isOpen(board[r, c])
+    elif gamemode == 'blizzard':
+        return get_isOpenBlizzard(board[r, c])
+    else:
+        raise ValueError("Invalid gamemode. Please choose 'default' or 'blizzard'.")
 
 def get_isFull(board):
     # TIMEIT APPROVED ✅
@@ -129,9 +159,11 @@ def reset_agents(agent1, agent2):
 # Hash Loading
 won_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
 over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_over_boards.txt')
+blizzard_over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_blizzard_over_boards.txt')
 
 load_winning_boards(won_boards_hash_path)
 load_over_boards(over_boards_hash_path)
+load_blizzard_over_boards(blizzard_over_boards_hash_path)
 
 # Game Simulation Functions
 def simulate_blizzard(board: np.ndarray, blizzards: int) -> None:
@@ -184,7 +216,8 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
         if winner != 0 or is_game_over(board):
             break
 
-        board_to_play = (local_row, local_col) if is_board_open(board, local_row, local_col) else None
+        board_to_play = (local_row, local_col, gamemode) if is_board_open(board, local_row, local_col) else None
+        
         current_agent, opponent_agent = opponent_agent, current_agent
         turn += 1
 
