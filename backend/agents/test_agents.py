@@ -65,7 +65,7 @@ ag1_percentage = agent1_wins / GAMES * 100
 ag2_percentage = agent2_wins / GAMES * 100
 draw_percentage = draws / GAMES * 100
 
-print(Style.BRIGHT + f"\n ----+---- FINAL RESULTS ----+----")
+print(Style.BRIGHT + f"\n----+---- FINAL RESULTS ----+----")
 
 if final_winner == agent1_name:
     print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
