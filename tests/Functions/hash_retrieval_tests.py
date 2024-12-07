@@ -1558,7 +1558,7 @@ class RetrievalAgent:
         board_key = board.tobytes()
         return self.hash_blizzard_over_boards.get(board_key, False)
     
-    def get_blizzard_winning_hash(self, board):
+    def get_blizzard_winner_hash(self, board):
         ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
         board_key = board.tobytes()
         return self.hash_blizzard_winning_boards.get(board_key, 0)
@@ -2853,11 +2853,12 @@ def run_all_agent_tests(agent):
     run_won_tests(agent)
     run_won_results_tests(agent)
     run_blizzard_over_board_tests(agent)
+    run_blizzard_winners_tests(agent)
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
     run_eval_tests_v3(agent)
     run_board_info_tests(agent)
-    # run_board_info_commonsense_tests(agent)
+    run_board_info_commonsense_tests(agent)
     run_eval_results_tests(agent)
     run_draw_tests(agent)
     run_draw_results_tests(agent)
