@@ -36,11 +36,11 @@ from dev.heuristic.ht_original import OriginalAgent
 t0 = time.time()
 
 # Initialize agents
-AGENT1 = GardenerAgent()    # Replace with your chosen agent
-AGENT2 = ArthyAgent()  # Replace with your chosen agent
-ROUNDS = 1
+AGENT1 = RandomAgent()    # Replace with your chosen agent
+AGENT2 = StraightArrowAgent()  # Replace with your chosen agent
+ROUNDS = 500
 GAMES = ROUNDS * 2
-BLIZZARD_MODE = False
+BLIZZARD_MODE = True
 
 agent1_name = str(AGENT1)
 agent2_name = str(AGENT2)

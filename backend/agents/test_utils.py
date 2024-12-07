@@ -25,6 +25,8 @@ def fancyBoardPrinter(board):
 # Hashes
 hash_winning_boards = {}
 hash_over_boards = {}
+hash_blizzard_over_boards = {}
+hash_blizzard_winning_boards = {}
 
 # Hashing Functions
 def load_winning_boards(file_path):
@@ -55,8 +57,34 @@ def load_over_boards(file_path):
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")    
 
+def load_blizzard_over_boards(file_path):
+    # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
+    ''' Loads the over boards from a file and stores them in a dictionary 
+    Each board's state is stored as a key (using its byte representation)
+    '''
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                board_hex = line.strip()
+                hash_blizzard_over_boards[bytes.fromhex(board_hex)] = True
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")
+
+def load_blizzard_winning_boards(file_path):
+    # TIMEIT ACCEPTED ☑️ (not relevant enough to be time-improved, it's just called once in the __init__)
+    ''' Loads the winning boards from a file and stores them in a dictionary 
+    Each board's state is stored as a key (using its byte representation)
+    '''
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                board_hex, winner = line.strip().split(':')
+                hash_blizzard_winning_boards[bytes.fromhex(board_hex)] = int(winner)
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
+
 # Local Board Functions
-def get_winner(board):
+def get_winner(board, gamemode="default"):
     # TIMEIT APPROVED ✅
     """
     Retrieve the winner of a board from the preloaded dictionary of winning boards.
@@ -64,9 +92,12 @@ def get_winner(board):
     """
     if board.shape != (3, 3):
         raise ValueError("The board must be a 2d array with shape (3, 3).")
-    
     board_key = board.tobytes()
-    return hash_winning_boards.get(board_key, 0)
+    
+    if gamemode == "default":
+        return hash_winning_boards.get(board_key, 0)
+    elif gamemode == "blizzard":
+        return hash_blizzard_winning_boards.get(board_key, 0)
 
 def get_over_hash(board) -> bool:
     # TIMEIT APPROVED ✅
@@ -74,52 +105,77 @@ def get_over_hash(board) -> bool:
     board_key = board.tobytes()
     return hash_over_boards.get(board_key, False)
 
-def get_isOpen(board) -> bool:
+def get_over_blizzard_hash(board) -> bool:
+    # TIMEIT APPROVED ✅
+    ''' Returns whether the board is over'''
+    board_key = board.tobytes()
+    return hash_blizzard_over_boards.get(board_key, False)
+
+def get_isOpen(board, gamemode="default") -> bool:
     # TIMEIT APPROVED ✅
     ''' Returns whether the board is open'''
-    return not get_over_hash(board)
+    if gamemode == "default":
+        return not get_over_hash(board)
+    elif gamemode == "blizzard":
+        return not get_over_blizzard_hash(board)
 
-def is_board_open(board, r, c):
+def get_isOpenBlizzard(board) -> bool:
+    # TIMEIT APPROVED ✅
+    ''' Returns whether the board is open'''
+    return not get_over_blizzard_hash(board)
+
+def is_board_open(board, r, c, gamemode="default"):
     # TIMEIT APPROVED ✅
     ''' Returns True if the board is open, False otherwise '''
-    return get_isOpen(board[r, c])
+    if gamemode == 'default':
+        return get_isOpen(board[r, c])
+    elif gamemode == 'blizzard':
+        return get_isOpenBlizzard(board[r, c])
+    else:
+        raise ValueError("Invalid gamemode. Please choose 'default' or 'blizzard'.")
 
 def get_isFull(board):
     # TIMEIT APPROVED ✅
     ''' Returns True if the board is over, False otherwise 
     Since it is always called after checking for a win, it is taken as being a draw '''
-    return (np.count_nonzero(board) == 9)
+    return (np.count_nonzero(board == 0) == 0)
 
 # Global Board Functions
-def get_board_results(board):
+def get_board_results(board, gamemode="default"):
     ''' Creates a 3x3 representation of the 3x3x3x3 board, with the results of the local boars '''
     if board.shape != (3, 3, 3, 3):
         raise ValueError("The board must be a 4d array with shape (3, 3, 3, 3).")
     
     board_results = np.zeros((3, 3), dtype=int)
 
-    board_results[0, 0], board_results[0, 1], board_results[0, 2] = get_winner(board[0, 0]), get_winner(board[0, 1]), get_winner(board[0, 2])
-    board_results[1, 0], board_results[1, 1], board_results[1, 2] = get_winner(board[1, 0]), get_winner(board[1, 1]), get_winner(board[1, 2])
-    board_results[2, 0], board_results[2, 1], board_results[2, 2] = get_winner(board[2, 0]), get_winner(board[2, 1]), get_winner(board[2, 2])
+    board_results[0, 0], board_results[0, 1], board_results[0, 2] = get_winner(board[0, 0], gamemode), get_winner(board[0, 1], gamemode), get_winner(board[0, 2], gamemode)
+    board_results[1, 0], board_results[1, 1], board_results[1, 2] = get_winner(board[1, 0], gamemode), get_winner(board[1, 1], gamemode), get_winner(board[1, 2], gamemode)
+    board_results[2, 0], board_results[2, 1], board_results[2, 2] = get_winner(board[2, 0], gamemode), get_winner(board[2, 1], gamemode), get_winner(board[2, 2], gamemode)
 
     return board_results
 
-def is_game_over(board):
+def is_game_over(board, gamemode="default"):
     # TIMEIT APPROVED ✅
     ''' Returns True if the global board is over, False otherwise '''
     not_over_locals = []
-    for i in range(3):
-        for j in range(3):
-            if not get_over_hash(board[i, j]):
-                not_over_locals.append((i, j))
+    if gamemode == 'default':
+        for i in range(3):
+            for j in range(3):
+                if not get_over_hash(board[i, j]):
+                    not_over_locals.append((i, j))
+    elif gamemode == 'blizzard':
+        for i in range(3):
+            for j in range(3):
+                if not get_over_blizzard_hash(board[i, j]):
+                    not_over_locals.append((i, j))
     if len(not_over_locals) == 0:
         return True
     return False
 
-def get_globalWinner(board):
+def get_globalWinner(board, gamemode):
     # TIMEIT APPROVED ✅
     ''' Returns the winner of the global board '''
-    board_results = get_board_results(board)
+    board_results = get_board_results(board, gamemode)
     return get_winner(board_results)
 
 def reset_agents(agent1, agent2):
@@ -129,9 +185,13 @@ def reset_agents(agent1, agent2):
 # Hash Loading
 won_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
 over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_over_boards.txt')
+blizzard_over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_blizzard_over_boards.txt')
+blizzard_winning_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_blizzard_winning_boards.txt')
 
 load_winning_boards(won_boards_hash_path)
 load_over_boards(over_boards_hash_path)
+load_blizzard_over_boards(blizzard_over_boards_hash_path)
+load_blizzard_winning_boards(blizzard_winning_boards_hash_path)
 
 # Game Simulation Functions
 def simulate_blizzard(board: np.ndarray, blizzards: int) -> None:
@@ -180,11 +240,12 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
         global_row, global_col, local_row, local_col = move
         board[global_row, global_col, local_row, local_col] = agent_marker
 
-        winner = get_globalWinner(board)
-        if winner != 0 or is_game_over(board):
+        winner = get_globalWinner(board, gamemode)
+        if winner != 0 or is_game_over(board, gamemode):
             break
 
-        board_to_play = (local_row, local_col) if is_board_open(board, local_row, local_col) else None
+        board_to_play = (local_row, local_col) if is_board_open(board, local_row, local_col, gamemode) else None
+        
         current_agent, opponent_agent = opponent_agent, current_agent
         turn += 1
 
