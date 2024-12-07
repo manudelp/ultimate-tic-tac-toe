@@ -40,7 +40,7 @@ AGENT1 = GardenerAgent()    # Replace with your chosen agent
 AGENT2 = ArthyAgent()  # Replace with your chosen agent
 ROUNDS = 1
 GAMES = ROUNDS * 2
-BLIZZARD_MODE = True
+BLIZZARD_MODE = False
 
 agent1_name = str(AGENT1)
 agent2_name = str(AGENT2)
