@@ -2285,7 +2285,22 @@ def run_blizzard_over_board_tests(agent):
     
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Blizzard Over Board tests passed successfully!")
 
+def run_blizzard_winners_tests(agent):
+    assert agent.get_blizzard_winner_hash(results_1) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_1"
+    assert agent.get_blizzard_winner_hash(results_2) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_2"
+    assert agent.get_blizzard_winner_hash(results_3) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_3"
+    assert agent.get_blizzard_winner_hash(results_4) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_4"
+    assert agent.get_blizzard_winner_hash(results_5) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_5"
+    assert agent.get_blizzard_winner_hash(results_6) == 1, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should have a winner for results_6"
+    assert agent.get_blizzard_winner_hash(results_7) == -1, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should have a winner for results_7"
+    assert agent.get_blizzard_winner_hash(results_8) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_8"
+    assert agent.get_blizzard_winner_hash(results_9) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_9"
+    assert agent.get_blizzard_winner_hash(results_10) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_10"
+    assert agent.get_blizzard_winner_hash(results_11) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_11"
+    assert agent.get_blizzard_winner_hash(results_12) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_12"
+    assert agent.get_blizzard_winner_hash(results_13) == 0, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not have a winner for results_13"
 
+    assert agent.get_blizzard_winner
 
 def run_won_tests(agent):
     # Boards won by player 1
