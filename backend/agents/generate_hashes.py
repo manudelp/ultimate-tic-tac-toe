@@ -1417,6 +1417,28 @@ def generate_winning_results_boards(file_path):
         for board_key, winner in winning_boards.items():
             f.write(f"{board_key.hex()}:{winner}\n")
 
+def generate_blizzard_winning_boards(file_path):
+    """ 
+    Generate all possible 3x3 Tic-Tac-Toe board states where exactly one player has won
+    And save them to winning_boards.txt in the format hex representation of the board : winner. 
+    """
+    blizzard_winning_boards = {}
+    for state in range(4**9):  # Enumerate all possible board states
+        board = np.array([(state // 4**i) % 4 - 1 for i in range(9)]).reshape(3, 3)
+        won_by_one = isWonByOne(board)
+        won_by_minus_one = isWonByMinusOne(board)
+        
+        # Only include boards where exactly one player has won using XOR
+        if won_by_one ^ won_by_minus_one:  # XOR condition: one wins and the other doesn't
+            board_key = board.tobytes()  # Convert the board to a byte representation
+            winner = 1 if won_by_one else -1
+            blizzard_winning_boards[board_key] = winner
+
+    # Save the winning boards to a file for later use
+    with open(file_path, 'w') as f:
+        for board_key, winner in blizzard_winning_boards.items():
+            f.write(f"{board_key.hex()}:{winner}\n")
+
 # Different Eval Boards (try them!)
 def generate_eval_boards(file_path):
     """
@@ -1669,7 +1691,8 @@ def generate_local_boards_info(file_path):
 # generate_draw_boards('backend/agents/hashes/hash_draw_boards.txt')
 # generate_draw_results_boards('backend/agents/hashes/hash_draw_results_boards.txt')
 # generate_over_boards('backend/agents/hashes/hash_over_boards.txt')
-generate_blizzard_over_boards('backend/agents/hashes/hash_blizzard_over_boards.txt')
+# generate_blizzard_over_boards('backend/agents/hashes/hash_blizzard_over_boards.txt')
+generate_blizzard_winning_boards('backend/agents/hashes/hash_blizzard_winning_boards.txt')
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt', -1)
@@ -1677,5 +1700,3 @@ generate_blizzard_over_boards('backend/agents/hashes/hash_blizzard_over_boards.t
 results_12 = np.array([[1, 0, -1],
                         [-1, 2, 1],
                         [-1, 1, -1]]) # draw
-
-blizzard_over_r12 = get_isO

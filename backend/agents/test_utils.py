@@ -186,10 +186,12 @@ def reset_agents(agent1, agent2):
 won_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
 over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_over_boards.txt')
 blizzard_over_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_blizzard_over_boards.txt')
+blizzard_winning_boards_hash_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_blizzard_winning_boards.txt')
 
 load_winning_boards(won_boards_hash_path)
 load_over_boards(over_boards_hash_path)
 load_blizzard_over_boards(blizzard_over_boards_hash_path)
+load_blizzard_winning_boards(blizzard_winning_boards_hash_path)
 
 # Game Simulation Functions
 def simulate_blizzard(board: np.ndarray, blizzards: int) -> None:
