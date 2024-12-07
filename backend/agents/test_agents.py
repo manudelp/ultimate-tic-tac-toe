@@ -38,7 +38,7 @@ t0 = time.time()
 # Initialize agents
 AGENT1 = RandomAgent()    # Replace with your chosen agent
 AGENT2 = StraightArrowAgent()  # Replace with your chosen agent
-ROUNDS = 1
+ROUNDS = 500
 GAMES = ROUNDS * 2
 BLIZZARD_MODE = True
 

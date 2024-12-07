@@ -241,7 +241,7 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
         board[global_row, global_col, local_row, local_col] = agent_marker
 
         winner = get_globalWinner(board, gamemode)
-        if winner != 0 or is_game_over(board):
+        if winner != 0 or is_game_over(board, gamemode):
             break
 
         board_to_play = (local_row, local_col) if is_board_open(board, local_row, local_col, gamemode) else None
