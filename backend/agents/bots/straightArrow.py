@@ -233,17 +233,17 @@ def isWon(subboard):
     # Check columns
     for i in range(cols):
         c1, c2, c3 = subboard[0, i], subboard[1, i], subboard[2, i]
-        if c1 == c2 == c3 and c1 != 0 and r1 != 2:
+        if c1 == c2 == c3 and c1 != 0 and c1 != 2:
             return c1
     
     # Check Diagonals Descendent
     dd1, dd2, dd3 = subboard[0, 0], subboard[1, 1], subboard[2, 2]
-    if dd1 == dd2 == dd3 and dd1 != 0 and r1 != 2:
+    if dd1 == dd2 == dd3 and dd1 != 0 and dd1 != 2:
         return dd1
     
     # Check Diagonals Ascendent
     da1, da2, da3 = subboard[0, 2], subboard[1, 1], subboard[2, 0]
-    if da1 == da2 == da3 and da1 != 0 and r1 != 2:
+    if da1 == da2 == da3 and da1 != 0 and da1 != 2:
         return da1
     
     return 0
