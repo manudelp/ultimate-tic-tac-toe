@@ -1207,6 +1207,7 @@ class RetrievalAgent:
         self.hash_draw_results_boards = {}
         
         self.hash_blizzard_over_boards = {}
+        self.hash_blizzard_winning_boards = {}
         self.hash_blizzards_eval_boards = {}
 
         # Load both winning boards and evaluated boards during initialization
@@ -1222,6 +1223,7 @@ class RetrievalAgent:
         # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
         self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
         self.load_blizzard_over_boards('backend/agents/hashes/hash_blizzard_over_boards.txt')
+        self.load_blizzard_winning_boards('backend/agents/hashes/hash_blizzard_winning_boards.txt')
         self.load_winnable_boards_one('backend/agents/hashes/hash_winnable_boards_by_one.txt')
         self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
@@ -1412,8 +1414,16 @@ class RetrievalAgent:
                     self.hash_blizzard_over_boards[bytes.fromhex(board_hex)] = True
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")
-            
-            
+
+    def load_blizzard_winning_boards(self, file_path):
+        ''' Loads the winning boards from a file and stores them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, winner = line.strip().split(':')
+                    self.hash_blizzard_winning_boards[bytes.fromhex(board_hex)] = int(winner)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Winning boards will not be loaded.")
 
     # Winner Getters
     def get_winner_hash(self, board):
@@ -1547,6 +1557,11 @@ class RetrievalAgent:
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
         return self.hash_blizzard_over_boards.get(board_key, False)
+    
+    def get_blizzard_winning_hash(self, board):
+        ''' Retrieve the winner of a board from the preloaded dictionary of winning boards '''
+        board_key = board.tobytes()
+        return self.hash_blizzard_winning_boards.get(board_key, 0)
 
     def get_playable_hash(self, board):
         ''' Returns True if the board is playable, False otherwise '''
@@ -2269,6 +2284,8 @@ def run_blizzard_over_board_tests(agent):
     assert agent.get_blizzard_over_hash(board_13) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for board_8"
     
     print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Blizzard Over Board tests passed successfully!")
+
+
 
 def run_won_tests(agent):
     # Boards won by player 1
