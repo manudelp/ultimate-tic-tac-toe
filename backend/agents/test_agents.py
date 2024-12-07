@@ -40,14 +40,14 @@ AGENT1 = GardenerAgent()    # Replace with your chosen agent
 AGENT2 = ArthyAgent()  # Replace with your chosen agent
 ROUNDS = 1
 GAMES = ROUNDS * 2
-BLIZZARD_MODE = False
+BLIZZARD_MODE = True
 
 agent1_name = str(AGENT1)
 agent2_name = str(AGENT2)
 
 # Run the simulation
 if BLIZZARD_MODE:
-    print(Style.BRIGHT + Fore.LIGHTCYAN_EX + f"\n ----+---- 🌨️❄️ PLAYING {GAMES} GAMES IN BLIZZARD MODE ❄️🌨️ ----+----")
+    print(Style.BRIGHT + Fore.LIGHTCYAN_EX + f"\n ---+--- 🌨️ ❄️ PLAYING {GAMES} GAMES IN BLIZZARD MODE ❄️ 🌨️ ---+---")
     agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS, gamemode="blizzard")
 else:
     agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)

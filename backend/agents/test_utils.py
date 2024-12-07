@@ -166,6 +166,7 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
     while True:
         agent_marker = 1 if current_agent == agent1 else -1
         current_board = board if agent_marker == 1 else -1 * board
+        # print(f"Current board is {current_board}")
 
         # Turn all -2 elements in the board to 2
         current_board[current_board == -2] = 2
