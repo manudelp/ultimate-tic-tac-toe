@@ -1207,6 +1207,7 @@ class RetrievalAgent:
         self.hash_draw_results_boards = {}
         
         self.hash_blizzard_over_boards = {}
+        self.hash_blizzards_eval_boards = {}
 
         # Load both winning boards and evaluated boards during initialization
         self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
@@ -1411,6 +1412,8 @@ class RetrievalAgent:
                     self.hash_blizzard_over_boards[bytes.fromhex(board_hex)] = True
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")
+            
+            
 
     # Winner Getters
     def get_winner_hash(self, board):
