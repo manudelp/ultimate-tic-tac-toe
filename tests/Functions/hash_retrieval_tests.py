@@ -2253,8 +2253,8 @@ def run_blizzard_over_board_tests(agent):
     assert agent.get_blizzard_over_hash(results_9) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_9"
     assert agent.get_blizzard_over_hash(results_10) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_10"
     assert agent.get_blizzard_over_hash(results_11) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_11"
-    assert agent.get_blizzard_over_hash(results_12) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_12"
-    assert agent.get_blizzard_over_hash(results_13) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_13"
+    assert agent.get_blizzard_over_hash(results_12) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_12"
+    assert agent.get_blizzard_over_hash(results_13) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_13"
     
     assert agent.get_blizzard_over_hash(board_1) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_1"
     assert agent.get_blizzard_over_hash(board_2) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_2"

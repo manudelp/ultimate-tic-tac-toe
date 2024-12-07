@@ -1673,3 +1673,9 @@ generate_blizzard_over_boards('backend/agents/hashes/hash_blizzard_over_boards.t
 # generate_move_boards('backend/agents/hashes/hash_move_boards.txt')
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_one.txt', 1)
 # generate_winnable_boards('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt', -1)
+
+results_12 = np.array([[1, 0, -1],
+                        [-1, 2, 1],
+                        [-1, 1, -1]]) # draw
+
+blizzard_over_r12 = get_isO
