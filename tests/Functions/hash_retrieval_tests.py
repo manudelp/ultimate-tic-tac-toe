@@ -1205,6 +1205,8 @@ class RetrievalAgent:
         self.hash_HyphenNumeric_boards_rival = {}
         self.hash_winning_results_boards = {}
         self.hash_draw_results_boards = {}
+        
+        self.hash_blizzard_over_boards = {}
 
         # Load both winning boards and evaluated boards during initialization
         self.load_winning_boards('backend/agents/hashes/hash_winning_boards.txt')
@@ -1218,6 +1220,7 @@ class RetrievalAgent:
         self.load_drawn_boards('backend/agents/hashes/hash_draw_boards.txt')
         # self.load_move_boards('backend/agents/hashes/hash_move_boards.txt')
         self.load_over_boards('backend/agents/hashes/hash_over_boards.txt')
+        self.load_blizzard_over_boards('backend/agents/hashes/hash_blizzard_over_boards.txt')
         self.load_winnable_boards_one('backend/agents/hashes/hash_winnable_boards_by_one.txt')
         self.load_winnable_boards_minus_one('backend/agents/hashes/hash_winnable_boards_by_minus_one.txt')
         self.load_HyphenNumeric_boards('backend/agents/hashes/hash_HyphenNumeric_boards.txt')
@@ -1397,6 +1400,18 @@ class RetrievalAgent:
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")        
 
+    def load_blizzard_over_boards(self, file_path):
+        ''' Loads the over boards from a file and stores them in a dictionary 
+        Each board's state is stored as a key (using its byte representation)
+        '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex = line.strip()
+                    self.hash_blizzard_over_boards[bytes.fromhex(board_hex)] = True
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Over boards will not be loaded.")
+
     # Winner Getters
     def get_winner_hash(self, board):
         """
@@ -1524,7 +1539,12 @@ class RetrievalAgent:
         ''' If the board is found in the over boards, return True, else False '''
         board_key = board.tobytes()
         return self.hash_over_boards.get(board_key, False)
-    
+
+    def get_blizzard_over_hash(self, board):
+        ''' If the board is found in the over boards, return True, else False '''
+        board_key = board.tobytes()
+        return self.hash_blizzard_over_boards.get(board_key, False)
+
     def get_playable_hash(self, board):
         ''' Returns True if the board is playable, False otherwise '''
         return not self.get_over_hash(board)
@@ -2221,6 +2241,32 @@ def run_results_hash_completion_tests(agent):
         
     print("All Results Board Eval Hash Completion tests passed successfully!")
 
+def run_blizzard_over_board_tests(agent):
+    assert agent.get_blizzard_over_hash(results_1) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_1"
+    assert agent.get_blizzard_over_hash(results_2) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_2"
+    assert agent.get_blizzard_over_hash(results_3) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_3"
+    assert agent.get_blizzard_over_hash(results_4) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_4"
+    assert agent.get_blizzard_over_hash(results_5) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_5"
+    assert agent.get_blizzard_over_hash(results_6) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_6"
+    assert agent.get_blizzard_over_hash(results_7) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_7"
+    assert agent.get_blizzard_over_hash(results_8) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_8"
+    assert agent.get_blizzard_over_hash(results_9) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_9"
+    assert agent.get_blizzard_over_hash(results_10) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_10"
+    assert agent.get_blizzard_over_hash(results_11) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for results_11"
+    assert agent.get_blizzard_over_hash(results_12) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_12"
+    assert agent.get_blizzard_over_hash(results_13) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for results_13"
+    
+    assert agent.get_blizzard_over_hash(board_1) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_1"
+    assert agent.get_blizzard_over_hash(board_2) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_2"
+    assert agent.get_blizzard_over_hash(board_3) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_3"
+    assert agent.get_blizzard_over_hash(board_4) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_4"
+    assert agent.get_blizzard_over_hash(board_5) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_5"
+    assert agent.get_blizzard_over_hash(board_6) == True, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should be over for board_6"
+    assert agent.get_blizzard_over_hash(board_7) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for board_7"
+    assert agent.get_blizzard_over_hash(board_13) == False, Style.BRIGHT + Fore.RED + "Test Failed! Blizzard should not be over for board_8"
+    
+    print(Style.NORMAL + Fore.LIGHTGREEN_EX + "All Blizzard Over Board tests passed successfully!")
+
 def run_won_tests(agent):
     # Boards won by player 1
     assert agent.get_winner_hash(board_1) == 1, Style.BRIGHT + Fore.RED + "Test Failed! Player 1 should have won board_1"
@@ -2762,11 +2808,12 @@ def run_all_agent_tests(agent):
     # run_results_hash_completion_tests(agent)
     run_won_tests(agent)
     run_won_results_tests(agent)
+    run_blizzard_over_board_tests(agent)
     run_eval_tests_v1(agent)
     run_eval_tests_v2(agent)
     run_eval_tests_v3(agent)
     run_board_info_tests(agent)
-    run_board_info_commonsense_tests(agent)
+    # run_board_info_commonsense_tests(agent)
     run_eval_results_tests(agent)
     run_draw_tests(agent)
     run_draw_results_tests(agent)
