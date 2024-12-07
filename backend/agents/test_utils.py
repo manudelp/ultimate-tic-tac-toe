@@ -200,19 +200,22 @@ def simulate_blizzard(board: np.ndarray, blizzards: int) -> None:
         raise ValueError("The board must be a 4d array with shape (3, 3, 3, 3).")
     
     # Get all the empty cells
+    if type(blizzards) != int:
+        raise ValueError(f"Blizzards Simulation is being called but blizzards constant is not an integer. Blizzards is: {blizzards}")
+    
     empty_cells = np.argwhere(board == 0)
     np.random.shuffle(empty_cells)
     for i in range(blizzards):
         row, col, r, c = empty_cells[i]
         board[row, col, r, c] = 2
 
-def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="default") -> Tuple[int, dict]:
+def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="default", blizzards=None) -> Tuple[int, dict]:
     """Simulates a single game between two agents, records the average move time per agent, 
     and returns the winner and average move times for each agent."""
     board = np.zeros((3, 3, 3, 3), dtype=int)
 
     if gamemode == 'blizzard':
-        simulate_blizzard(board, 12)
+        simulate_blizzard(board, blizzards)
     elif gamemode != 'default':
         raise ValueError("Invalid gamemode. Please choose 'default' or 'blizzard'.")
 
@@ -255,13 +258,13 @@ def play_single_game(agent1, agent2, first_player_is_agent1: bool, gamemode="def
     total_amount_of_moves_ag2 = len(move_times[agent2])
     return winner, avg_move_times, total_amount_of_moves_ag1, total_amount_of_moves_ag2
 
-def play_multiple_games(agent1, agent2, rounds, gamemode="default") -> Tuple[int, int, int, float, float]:    
+def play_multiple_games(agent1, agent2, rounds, gamemode="default", blizzards=None) -> Tuple[int, int, int, float, float]:    
     agent1_wins, agent2_wins, draws = 0, 0, 0
     total_move_times = {agent1: [], agent2: []}
 
     for round_num in range(rounds):
         # First game where agent1 goes first
-        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True, gamemode=gamemode)
+        result1, avg_move_times1, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=True, gamemode=gamemode, blizzards=blizzards)
         reset_agents(agent1, agent2)
         avg_times_agent1 = avg_move_times1[agent1] / moves_amount_ag1
         avg_times_agent2 = avg_move_times1[agent2] / moves_amount_ag2
@@ -269,7 +272,7 @@ def play_multiple_games(agent1, agent2, rounds, gamemode="default") -> Tuple[int
         total_move_times[agent2].append(avg_times_agent2)
 
         # Second game where agent2 goes first
-        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False, gamemode=gamemode)
+        result2, avg_move_times2, moves_amount_ag1, moves_amount_ag2 = play_single_game(agent1, agent2, first_player_is_agent1=False, gamemode=gamemode, blizzards=blizzards)
         reset_agents(agent1, agent2)
         avg_times_agent1 = avg_move_times2[agent1] / moves_amount_ag1
         avg_times_agent2 = avg_move_times2[agent2] / moves_amount_ag2
@@ -290,28 +293,3 @@ def play_multiple_games(agent1, agent2, rounds, gamemode="default") -> Tuple[int
     avg_agent2_times = avg_move_times[agent2]
     
     return agent1_wins, agent2_wins, draws, avg_agent1_times, avg_agent2_times
-
-
-# # Run multiple games and alternate starting agent
-# def play_multiple_games(agent1, agent2, rounds):    
-#     agent1_wins, agent2_wins, draws = 0, 0, 0
-#     for round_num in range(rounds):
-#         # Alternate starting turns
-#         result1 = play_single_game(agent1, agent2, first_player_is_agent1=True)
-#         reset_agents(agent1, agent2)
-#         result2 = play_single_game(agent1, agent2, first_player_is_agent1=False)
-#         reset_agents(agent1, agent2)
-        
-#         # Collect results for both games in each round
-#         agent1_wins += (result1 == 1) + (result2 == 1)
-#         agent2_wins += (result1 == -1) + (result2 == -1)
-#         draws += (result1 == 0) + (result2 == 0)
-        
-#     return agent1_wins, agent2_wins, draws
-
-
-# Quick Test
-# AGENT1 = TaylorAgent()
-# AGENT2 = StraightArrowAgent()
-
-# play_multiple_games(AGENT1, AGENT2, 2)

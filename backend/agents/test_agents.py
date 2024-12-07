@@ -38,9 +38,10 @@ t0 = time.time()
 # Initialize agents
 AGENT1 = RandomAgent()    # Replace with your chosen agent
 AGENT2 = StraightArrowAgent()  # Replace with your chosen agent
-ROUNDS = 500
+ROUNDS = 2500
 GAMES = ROUNDS * 2
-BLIZZARD_MODE = True
+BLIZZARD_MODE = False
+BLIZZARDS_AMOUNT = 12
 
 agent1_name = str(AGENT1)
 agent2_name = str(AGENT2)
@@ -48,7 +49,7 @@ agent2_name = str(AGENT2)
 # Run the simulation
 if BLIZZARD_MODE:
     print(Style.BRIGHT + Fore.LIGHTCYAN_EX + f"\n ---+--- 🌨️ ❄️ PLAYING {GAMES} GAMES IN BLIZZARD MODE ❄️ 🌨️ ---+---")
-    agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS, gamemode="blizzard")
+    agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS, gamemode="blizzard", blizzards=BLIZZARDS_AMOUNT)
 else:
     agent1_wins, agent2_wins, draws, agent1_time, agent2_time = utils.play_multiple_games(AGENT1, AGENT2, ROUNDS)
 
@@ -69,8 +70,8 @@ if final_winner == agent1_name:
     print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
     print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
 elif final_winner == agent2_name:
-    print(Fore.RED + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
-    print(Fore.GREEN + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.GREEN + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
 else:
     print(Fore.YELLOW + Style.BRIGHT + f"{agent1_name} Won  {agent1_wins} games ({ag1_percentage:.2f}%)" + Style.RESET_ALL)
     print(Fore.YELLOW + Style.BRIGHT + f"{agent2_name} Won  {agent2_wins} games ({ag2_percentage:.2f}%)" + Style.RESET_ALL)
