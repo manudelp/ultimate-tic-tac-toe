@@ -65,8 +65,9 @@ class RandomAgent:
             return self.global_row, self.global_col, local_row, local_col
         else:   
             self.global_row, self.global_col = board_to_play
-            if not isPlayable(board[self.global_row, self.global_col]):
-                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is \n{board[self.global_row, self.global_col]}" + Style.RESET_ALL)
+            local_board = board[self.global_row, self.global_col]
+            if not isPlayable(local_board):
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Randy Board to play is not playable! Board is \n{local_board}\nIs Board Full? {isFull(local_board)}\nIs Board Won? {isWon(local_board)}" + Style.RESET_ALL)
 
         if self.global_row is None or self.global_col is None:
             raise ValueError(f"global_row or global_col is None! Board to play was {board_to_play}")
@@ -119,17 +120,17 @@ def isWon(subboard):
     # Check columns
     for i in range(cols):
         c1, c2, c3 = subboard[0, i], subboard[1, i], subboard[2, i]
-        if c1 == c2 == c3 and c1 != 0 and r1 != 2:
+        if c1 == c2 == c3 and c1 != 0 and c1 != 2:
             return c1
     
     # Check Diagonals Descendent
     dd1, dd2, dd3 = subboard[0, 0], subboard[1, 1], subboard[2, 2]
-    if dd1 == dd2 == dd3 and dd1 != 0 and r1 != 2:
+    if dd1 == dd2 == dd3 and dd1 != 0 and dd1 != 2:
         return dd1
     
     # Check Diagonals Ascendent
     da1, da2, da3 = subboard[0, 2], subboard[1, 1], subboard[2, 0]
-    if da1 == da2 == da3 and da1 != 0 and r1 != 2:
+    if da1 == da2 == da3 and da1 != 0 and da1 != 2:
         return da1
     
     return 0
