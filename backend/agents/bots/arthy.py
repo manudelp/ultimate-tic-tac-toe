@@ -33,6 +33,7 @@ class ArthyAgent:
         
         # Game Track
         self.moveNumber = 0
+        self.total_minimax_time = 0
         self.minimax_plays = 0
         self.centering_early_time = 0
                 
@@ -40,7 +41,6 @@ class ArthyAgent:
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
         self.time_limit = 10 # in seconds
-        self.total_minimax_time = 0
         
         # Class Hashes
         self.hash_loading()
