@@ -24,9 +24,7 @@ class ArthyAgent:
         self.total_minimax_time = 0
         self.minimax_plays = 0
         self.centering_early_time = 0
-
-        # Hash Up
-        self.hash_loading()
+        self.loaded_up = False
 
         self.over_boards_set = set()
         self.model_over_boards_set = set()
@@ -36,6 +34,12 @@ class ArthyAgent:
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
         return self.str
+
+    def load(self):
+        ''' Loads all the class elements and hashes for the agent to be ready for a game or set of games 
+        To be called at most at the start of every game, ideally at the start of every set of games so as to not waste much time '''
+        self.hash_loading()
+        self.loaded_up = True
 
     def reset(self):
         print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"{self.name} took centering early time of {self.centering_early_time} seconds" + Style.RESET_ALL)
