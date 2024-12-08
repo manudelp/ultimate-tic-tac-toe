@@ -17,7 +17,6 @@ class ArthyAgent:
         self.id = 4
         self.name = "Arthy"
         self.icon = "💎"
-        self.centering_early_time = 0
         self.loaded_up = False
         
         # Load Agent 
@@ -35,7 +34,8 @@ class ArthyAgent:
         # Game Track
         self.moveNumber = 0
         self.minimax_plays = 0
-        
+        self.centering_early_time = 0
+                
         # Minimax Parameters
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
@@ -51,6 +51,7 @@ class ArthyAgent:
         self.playable_boards_set = set()
         self.model_playable_boards_set = set() 
 
+        # Register the Load
         self.loaded_up = True
 
     def reset(self):
