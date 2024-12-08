@@ -17,19 +17,12 @@ class ArthyAgent:
         self.id = 4
         self.name = "Arthy"
         self.icon = "💎"
-        self.moveNumber = 0
-        self.depth_local = 8 # when btp is not None
-        self.depth_global = 7 # when btp is None
-        self.time_limit = 10 # in seconds
-        self.total_minimax_time = 0
-        self.minimax_plays = 0
         self.centering_early_time = 0
         self.loaded_up = False
-
-        self.over_boards_set = set()
-        self.model_over_boards_set = set()
-        self.playable_boards_set = set()
-        self.model_playable_boards_set = set() 
+        
+        # Load Agent 
+        # FIXME: DELETE THIS, THIS IS TEMPORARY FOR NOW SO IT DOESNT BREAK THE GAME BEFORE WE ACTUALLY MAKE THE AGENTS LOAD FUNCTION WORKA
+        self.load()
     
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
@@ -38,7 +31,26 @@ class ArthyAgent:
     def load(self):
         ''' Loads all the class elements and hashes for the agent to be ready for a game or set of games 
         To be called at most at the start of every game, ideally at the start of every set of games so as to not waste much time '''
+        
+        # Game Track
+        self.moveNumber = 0
+        self.minimax_plays = 0
+        
+        # Minimax Parameters
+        self.depth_local = 8 # when btp is not None
+        self.depth_global = 7 # when btp is None
+        self.time_limit = 10 # in seconds
+        self.total_minimax_time = 0
+        
+        # Class Hashes
         self.hash_loading()
+        
+        # Class sets
+        self.over_boards_set = set()
+        self.model_over_boards_set = set()
+        self.playable_boards_set = set()
+        self.model_playable_boards_set = set() 
+
         self.loaded_up = True
 
     def reset(self):
