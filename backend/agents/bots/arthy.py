@@ -179,7 +179,7 @@ class ArthyAgent:
         self.load_winning_results_boards(winning_results_path)
         self.load_draw_results_boards(draw_results_path)
 
-
+    # Game Logic
     def randomMove(self, board):
         empty_cells = np.flatnonzero(board == 0)
         print(f"Empty cells: {empty_cells}")

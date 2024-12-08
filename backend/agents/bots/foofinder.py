@@ -37,14 +37,22 @@ class FooFinderAgent:
         self.id = -1
         self.name = "Foo Finder"
         self.icon = "👑"
-        
-        # Counts
+        self.loaded_up = False
+
+    def __str__(self):
+        self.str = f"{self.name}{self.icon}"
+        return self.str
+
+    def load(self):
+        ''' Loads all the class elements and hashes for the agent to be ready for a game or set of games 
+        To be called at most at the start of every game, ideally at the start of every set of games so as to not waste much time '''
+        # Game Track
         self.moveNumber = 0
         self.foo_pieces = 0
         self.rival_pieces = 0
         self.empty_pieces = 0
         
-        # Sets
+        # Class Sets
         self.over_boards_set = set()
         self.model_over_boards_set = set()
         self.playable_boards_set = set()
@@ -64,38 +72,12 @@ class FooFinderAgent:
         self.ENDGAME_EMPTIES = 3 #TODO: Adjust Endgame Empties Value!
         self.total_minimax_time = 0
         self.minimax_plays = 0
-
-        # Initiate Hashes
-        self.hash_winning_boards = {}
-        self.hash_eval_boards = {}
-        self.hash_draw_boards = {}
-        self.hash_move_boards = {}
-        self.hash_over_boards = {}
-        self.hash_winnable_boards_by_one = {}
-        self.hash_winnable_boards_by_minus_one = {}
         
-        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-        # Load both winning boards and evaluated boards during initialization
-        winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
-        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
-        drawn_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_boards.txt')
-        # move_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_move_boards.txt')
-        over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
-        winnable_boards_one_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winnable_boards_by_one.txt')
-        winnable_boards_minus_one_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winnable_boards_by_minus_one.txt')
+        # Hash Up
+        self.hash_loading()
         
-        self.load_winning_boards(winning_boards_path)
-        self.load_evaluated_boards(evaluated_boards_path)
-        self.load_drawn_boards(drawn_boards_path)
-        # self.load_move_boards(move_boards_path)
-        self.load_over_boards(over_boards_path)
-        self.load_winnable_boards_one(winnable_boards_one_path)
-        self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
-        
-    def __str__(self):
-        self.str = f"{self.name}{self.icon}"
-        return self.str
+        # Register Load
+        self.loaded_up = True
 
     def reset(self):
         if self.minimax_plays == 0:
@@ -265,6 +247,49 @@ class FooFinderAgent:
         if minimax_move is None:
             raise ValueError(f"Minimax Failed to Find a Move! Board to play was {board_to_play}")
 
+    def hash_loading(self):
+        self.hash_winning_boards = {}
+        self.hash_eval_boards = {}
+        self.hash_eval_v2_boards = {}
+        self.hash_eval_v3_boards = {}
+        self.hash_boards_information = {}
+        self.hash_results_boards = {}
+        self.hash_draw_boards = {}
+        self.hash_over_boards = {}
+        self.hash_winnable_boards_by_one = {}
+        self.hash_winnable_boards_by_minus_one = {}
+        self.hash_HyphenNumeric_boards = {}
+        self.hash_HyphenNumeric_boards_rival = {}
+        self.hash_winning_results_boards = {}
+        self.hash_draw_results_boards = {}
+
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+        # Construct the absolute paths to the files
+        winning_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_boards.txt')
+        draw_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_boards.txt')
+        over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
+        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
+        board_info_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_boards_information.txt')
+        results_eval_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_results_board_eval.txt')
+        winning_results_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winning_results_boards.txt')
+        draw_results_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_draw_results_boards.txt')
+        winnable_boards_one_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winnable_boards_by_one.txt')
+        winnable_boards_minus_one_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_winnable_boards_by_minus_one.txt')
+
+        # Load the boards using the absolute paths
+        self.load_winning_boards(winning_boards_path)
+        self.load_drawn_boards(draw_boards_path)
+        self.load_over_boards(over_boards_path)
+        self.load_evaluated_boards(evaluated_boards_path)
+        self.load_boards_info(board_info_path)
+        self.load_results_board_eval(results_eval_path)
+        self.load_winning_results_boards(winning_results_path)
+        self.load_draw_results_boards(draw_results_path)
+        self.load_winnable_boards_one(winnable_boards_one_path)
+        self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
+
+    # GAYMING LOGIC BELOW
 
     # Minimax General Auxiliaries 🌲🧠
     # TODO REPLACE ME CON LAS DE MONKEY Y JARDITOBETTER Y TODAS LAS MEJORES
