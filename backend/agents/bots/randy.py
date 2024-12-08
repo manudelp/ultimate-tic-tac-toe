@@ -34,6 +34,9 @@ class RandomAgent:
         self.name = "Randy"
         self.icon = "🎲"
         self.moveNumber = 0
+        
+        # Temporary to not break
+        self.load()
 
     def __str__(self):
         self.str = f"{self.name}{self.icon}"

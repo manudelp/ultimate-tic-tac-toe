@@ -16,6 +16,9 @@ class StraightArrowAgent:
         self.name = "Straighty"
         self.icon = "🏹"
         self.loaded_up = False
+        
+        # Temporary to not break
+        self.load()
     
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
