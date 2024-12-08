@@ -129,3 +129,22 @@ def agents_reset():
 
         # Return an internal server error response
         return jsonify({'error': 'Internal Server Error'}), 500
+
+# Initialize Agent Load
+@bot_routes.route('/agents-load', methods=['POST'])
+def agents_load():
+    try:
+        # Identify the agent to load
+        id = request.json.get('id')
+        bot = AGENTS.get(id)
+        
+        # Load the agents
+        bot.load()
+
+        # Return a success response
+        return jsonify({'message': 'Agent loaded successfully'})
+    except Exception as e:
+        print(f"\nError: {e}\n")
+
+        # Return an internal server error response
+        return jsonify({'error': 'Internal Server Error'}), 500
