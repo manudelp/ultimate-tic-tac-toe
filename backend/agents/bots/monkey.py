@@ -28,31 +28,27 @@ class MonkeyAgent:
     def load(self):
         ''' Loads all the class elements and hashes for the agent to be ready for a game or set of games 
         To be called at most at the start of every game, ideally at the start of every set of games so as to not waste much time '''
+        
+        # Game Track
         self.moveNumber = 0
-        # self.depth = 6
-        self.time_limit = 20 # in seconds
         self.total_minimax_time = 0
         self.minimax_plays = 0
-        self.hash_over_boards = {}
-        self.hash_eval_boards = {}
-        self.hash_boards_information = {}
+        
+        # Parameters
+        self.time_limit = 20 # in seconds
+        # self.depth = 6
 
-        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-        # Construct the absolute paths to the files
-        over_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_over_boards.txt')
-        evaluated_boards_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_evaluated_boards.txt')
-        board_info_path = os.path.join(root_dir, 'agents', 'hashes', 'hash_boards_information.txt')
-
-        # Load the boards using the absolute paths
-        self.load_over_boards(over_boards_path)
-        self.load_evaluated_boards(evaluated_boards_path)
-        self.load_boards_info(board_info_path)
-
+        # Class Sets
         self.over_boards_set = set()
         self.model_over_boards_set = set()
         self.playable_boards_set = set()
         self.model_playable_boards_set = set() 
+        
+        # Hash Up
+        self.hash_loading()
+        
+        # Register Load
+        self.loaded_up = True
 
     def reset(self):
         if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
