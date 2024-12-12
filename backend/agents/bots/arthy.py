@@ -21,7 +21,7 @@ class ArthyAgent:
         
         # Load Agent 
         # FIXME: DELETE THIS, THIS IS TEMPORARY FOR NOW SO IT DOESNT BREAK THE GAME BEFORE WE ACTUALLY MAKE THE AGENTS LOAD FUNCTION WORKA
-        self.load()
+        # self.load()
     
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
@@ -30,7 +30,9 @@ class ArthyAgent:
     def load(self):
         ''' Loads all the class elements and hashes for the agent to be ready for a game or set of games 
         To be called at most at the start of every game, ideally at the start of every set of games so as to not waste much time '''
-        
+
+        print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"Loading {self.name}..." + Style.RESET_ALL)
+                
         # Game Track
         self.moveNumber = 0
         self.total_minimax_time = 0

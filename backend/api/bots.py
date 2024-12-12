@@ -11,7 +11,7 @@ from agents.bots.randy import RandomAgent
 from agents.bots.jardito import JardineritoAgent
 from agents.bots.straightArrow import StraightArrowAgent
 from agents.bots.arthy import ArthyAgent
-from agents.others.jardishow import JardiShowAgent
+from agents.bots.jardishow import JardiShowAgent
 # from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
@@ -131,8 +131,8 @@ def agents_reset():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 # Initialize Agent Load
-@bot_routes.route('/agents-load', methods=['POST'])
-def agents_load():
+@bot_routes.route('/agent-load', methods=['POST'])
+def agent_load():
     try:
         # Identify the agent to load
         id = request.json.get('id')
@@ -141,8 +141,11 @@ def agents_load():
         # Load the agents
         bot.load()
 
+        # Print the agent name for debugging
+        print(Fore.GREEN + Style.BRIGHT + f"\n{bot.name} loaded successfully\n" + Style.RESET_ALL)
+
         # Return a success response
-        return jsonify({'message': 'Agent loaded successfully'})
+        return jsonify({'message': bot.name + ' loaded successfully'})
     except Exception as e:
         print(f"\nError: {e}\n")
 

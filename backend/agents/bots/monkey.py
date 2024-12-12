@@ -22,7 +22,7 @@ class MonkeyAgent:
         self.loaded_up = False
         
         # Temporary to not break
-        self.load()
+        # self.load()
 
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
@@ -31,6 +31,8 @@ class MonkeyAgent:
     def load(self):
         ''' Loads all the class elements and hashes for the agent to be ready for a game or set of games 
         To be called at most at the start of every game, ideally at the start of every set of games so as to not waste much time '''
+
+        print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"Loading {self.name}..." + Style.RESET_ALL)
         
         # Game Track
         self.moveNumber = 0

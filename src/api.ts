@@ -53,6 +53,10 @@ export const getBots = async (): Promise<BotListResponse[]> => {
   return response.data;
 };
 
+export const loadBot = async (id: number): Promise<void> => {
+  await axios.post(`${API_URL}/agent-load`, { id });
+};
+
 export const getBotMove = async (
   bot: number,
   board: number[][][][],

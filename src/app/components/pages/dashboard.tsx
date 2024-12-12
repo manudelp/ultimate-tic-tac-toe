@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { getBots } from "@/api";
+import { getBots, loadBot } from "@/api";
 import Image from "next/image";
 import Loader from "@/app/components/ui/loader";
 import { toast } from "sonner";
@@ -48,6 +48,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   // Bots
   const [bots, setBots] = useState<BotListResponse[] | null>(null);
   const [bot, setBot] = useState<BotListResponse | null>(null);
+  const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
 
   // Board visibility
   const isBoardVisible =
@@ -114,6 +115,14 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
     setStarts(null);
   };
 
+  const updateBotsLoaded = (id: number) => {
+    setBotsLoaded((prev) => {
+      const updated = [...prev];
+      updated[id] = true;
+      return updated;
+    });
+  };
+
   const shareOnWhatsApp = () => {
     const link = window.location.href;
     const message = `Think you're the ultimate strategist? Prove it! 🕹️ Play Ultimate Tic Tac Toe with me: ${link}`;
@@ -149,6 +158,16 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
       getBots().then((bots) => setBots(bots));
     }
   }, [gameMode, bots]);
+
+  useEffect(() => {
+    if (bots) {
+      bots.forEach((bot) => {
+        loadBot(bot.id).then(() => {
+          updateBotsLoaded(bot.id);
+        });
+      });
+    }
+  }, [bot, bots]);
 
   // Words effect
   useEffect(() => {
@@ -429,29 +448,52 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                     bot.id === -1 ? (
                       <button
                         key={bot.id}
-                        className="relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black"
+                        className={`relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black ${
+                          botsLoaded[bot.id]
+                            ? "hover:bg-gray-700"
+                            : "opacity-50"
+                        } transition-colors`}
+                        disabled={!botsLoaded[bot.id]}
                         onClick={() => setBot(bot)}
                       >
                         <div
                           className="absolute inset-0 bg-cover bg-center opacity-40"
                           style={{ backgroundImage: `url('/fire.gif')` }}
                         ></div>
-                        <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                          {bot.icon}
-                        </div>
-                        <p className="relative z-10 w-full">{bot.name}</p>
+
+                        {botsLoaded[bot.id] ? (
+                          <>
+                            <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                              {bot.icon}
+                            </div>
+                            <p className="relative z-10 w-full">{bot.name}</p>
+                          </>
+                        ) : (
+                          <Loader />
+                        )}
                       </button>
                     ) : (
                       // All bots
                       <button
                         key={bot.id}
-                        className="w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 hover:bg-gray-700 transition-colors"
+                        className={`w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 ${
+                          botsLoaded[bot.id]
+                            ? "hover:bg-gray-700"
+                            : "opacity-50"
+                        } transition-colors`}
+                        disabled={!botsLoaded[bot.id]}
                         onClick={() => setBot(bot)}
                       >
-                        <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                          {bot.icon}
-                        </div>
-                        <p className="w-full">{bot.name}</p>
+                        {botsLoaded[bot.id] ? (
+                          <>
+                            <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
+                              {bot.icon}
+                            </div>
+                            <p className="w-full">{bot.name}</p>
+                          </>
+                        ) : (
+                          <Loader />
+                        )}
                       </button>
                     )
                   )}

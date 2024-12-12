@@ -208,7 +208,7 @@ export const useGame = (
       interval = setInterval(() => {
         const elapsedTime = (performance.now() - startTime) / 1000;
         setTimeToMove(elapsedTime);
-      }, 10);
+      }, 39);
 
       const numericBoard: number[][][][] = convertBoardToNumeric(board);
 
@@ -221,9 +221,9 @@ export const useGame = (
 
       makeMove(coords);
 
-      setIsBotThinking(false);
-
       clearInterval(interval);
+
+      setIsBotThinking(false);
     } catch (error) {
       setIsBotThinking(false);
       console.error("Error fetching bot's move:", error);
