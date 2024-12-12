@@ -147,7 +147,9 @@ def agent_load():
         # Return a success response
         return jsonify({'message': bot.name + ' loaded successfully'})
     except Exception as e:
-        print(f"\nCatastrophic failure: {e}\n")
+        print(Fore.RED + Style.BRIGHT + f"\nCATASTROPHIC FAILURE: {e}\n" + Style.RESET_ALL)
+        print(Fore.RED + Style.BRIGHT + "THE SYSTEM HAS ENCOUNTERED AN UNFATHOMABLE ERROR. ALL HOPE IS LOST. ABANDON SHIP!\n" + Style.RESET_ALL)
+        print(Fore.RED + Style.BRIGHT + "IF YOU SEE THIS MESSAGE, KNOW THAT THE VERY FABRIC OF REALITY IS TEARING APART. RUN WHILE YOU STILL CAN!\n" + Style.RESET_ALL)
 
         # Return an internal server error response
-        return jsonify({'error': 'Something went horribly wrong on our end'}), 500
+        return jsonify({'error': 'A catastrophic error has occurred. The universe is imploding. Seek shelter immediately!'}), 500
