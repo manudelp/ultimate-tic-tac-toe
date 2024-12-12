@@ -50,11 +50,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   const [bot, setBot] = useState<BotListResponse | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
 
+  // Blizzard Mode 
+  const [blizzardMode, setBlizzardMode] = useState<string | null>(null);
+
   // Board visibility
   const isBoardVisible =
     gameMode &&
     (gameMode !== "player-vs-bot" || starts) &&
-    (gameMode !== "player-vs-player" || isOnline !== null);
+    (gameMode !== "player-vs-player" || isOnline !== null) &&
+    (gameMode !== "blizzard" || blizzardMode);
 
   // Ref for the typing effect
   const typeRef = useRef<HTMLSpanElement>(null);
@@ -218,7 +222,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   }, [shuffledWords, shuffledColors]);
 
   // SNOWING EFFECT LOGIC BELOW
-
   useEffect(() => {
     class Snowflake {
       x: number;
@@ -370,9 +373,13 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <h1 className="sm:mt-auto text-2xl sm:text-4xl font-bold">
                 Ready to fight?
               </h1>
-            ) : (
+            ) : gameMode === "player-vs-bot" ? (
               <h1 className="mt-20 sm:mt-auto text-2xl sm:text-4xl font-bold">
-                So you fighting us, huh?
+                Face us, if you dare...
+              </h1>
+            ) : (
+              <h1 className="sm:mt-auto text-2xl sm:text-4xl font-bold">
+                Ultimate Blizzards Challenge
               </h1>
             )}
 
@@ -396,7 +403,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                       ? selectMode("player-vs-bot")
                       : toast.warning("Server is offline", {
                           description:
-                            "It may take up to 50 seconds to connect.",
+                            "It may take up around 1 minute to connect.",
                           action: {
                             label: "Reload",
                             onClick: () => window.location.reload(),
@@ -405,6 +412,14 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   }
                 >
                   Fight us
+                </button>
+                <button
+                  className={`${(Date.now() < new Date("2022-01-07T23:59:59.999Z").getTime()) ? "hidden" : ""} sm:w-64 py-4 bg-gray-800 hover:bg-blue-300 transition-colors font-medium text-lg hover:animate-pulse relative`}
+                  onClick={() => selectMode("blizzard")}
+                  disabled={Date.now() < new Date("2022-01-07T23:59:59.999Z").getTime()}
+                  >
+                  Christmas Challenge
+                  <div className="absolute top-0 -right-14 rounded bg-red text-sm bg-red-500 rotate-[20deg] shadow-sm">🎄UNTIL JANUARY 7th!🎅</div>
                 </button>
               </div>
             )}
@@ -472,7 +487,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                           <Loader />
                         )}
                       </button>
-                    ) : (
+                    ) : bot.id === 112 ? "" : (
                       // All bots
                       <button
                         key={bot.id}
@@ -534,6 +549,73 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               </div>
             )}
 
+            {/* Blizzard Mode */}
+            {gameMode === "blizzard" && (
+              <>
+              <div className="mt-8 flex flex-wrap flex-col sm:flex-row justify-center gap-6">
+                  <button
+                    className="sm:w-64 py-4 bg-gray-800 hover:bg-green-700 transition-colors font-medium text-lg hover:animate-pulse"
+                    onClick={() => setBlizzardMode("player-vs-player")}
+                  >
+                    Fight a friend
+                  </button>
+                  <button
+                    className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
+                      isBackendConnected
+                        ? "bg-gray-800 hover:bg-red-700"
+                        : "bg-gray-500 opacity-70 cursor-not-allowed"
+                    } hover:animate-pulse`}
+                    onClick={() =>
+                      isBackendConnected
+                        ? () => {setBlizzardMode("player-vs-bot"); setBot(bots[5])}
+                        : toast.warning("Server is offline", {
+                            description:
+                              "It may take up around 1 minute to connect.",
+                            action: {
+                              label: "Reload",
+                              onClick: () => window.location.reload(),
+                            },
+                          })
+                    }
+                  >
+                    Fight Santa
+                  </button>
+              </div>
+              <button
+                  className="mt-6 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  onClick={() => handleExitGame()}
+                >
+                  Go Back
+                </button>
+              </>
+            )}
+
+            {blizzardMode === "player-vs-bot" && !starts && (
+             <div className="mt-8 text-center">
+             <h2 className="text-2xl font-semibold mb-4">Who starts?</h2>
+             <div className="flex flex-col sm:flex-row gap-6 justify-center">
+               <button
+                 className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
+                 onClick={() => setStarts("player")}
+               >
+                 Player Starts
+               </button>
+               <button
+                 className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
+                 onClick={() => setStarts("bot")}
+               >
+                 Bot Starts
+               </button>
+             </div>
+             <button
+               className="mt-6 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+               onClick={() => handleExitGame()}
+             >
+               Go Back
+             </button>
+           </div>
+            )}
+
             {/* Share with friends */}
             <div className="mt-8 text-center">
               <h3 className="mb-2">Share with friends!</h3>
@@ -578,6 +660,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
           bot={bot}
           starts={starts}
           onExit={handleExitGame}
+          blizzardMode={blizzardMode}
         />
       )}
 

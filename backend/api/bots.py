@@ -12,6 +12,7 @@ from agents.bots.jardito import JardineritoAgent
 from agents.bots.straightArrow import StraightArrowAgent
 from agents.bots.arthy import ArthyAgent
 from agents.bots.jardishow import JardiShowAgent
+from agents.bots.santa import SantaAgent
 # from agents.foofinder import FooFinderAgent
 
 bot_routes = Blueprint('bots', __name__)
@@ -26,6 +27,7 @@ AGENTS = {
     ArthyAgent().id : ArthyAgent(),
     # MonkeyAgent().id : MonkeyAgent(),
     # FooFinderAgent().id : FooFinderAgent(),
+    SantaAgent().id : SantaAgent()
 }
 
 @bot_routes.route('/get-bot-list', methods=['GET'])
