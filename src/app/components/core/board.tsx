@@ -13,10 +13,9 @@ interface BoardProps {
   bot: BotListResponse | null;
   starts: string | null;
   onExit: () => void;
-  blizzardMode: string | null;
 }
 
-const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit, blizzardMode }) => {
+const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
   bot = bot || { id: 0, name: "", icon: "" };
 
   const [closeModal, setCloseModal] = useState(false);
