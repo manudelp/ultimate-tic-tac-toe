@@ -267,6 +267,28 @@ export const useGame = (
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
 
+  // Restart bot move each game
+  useEffect(() => {
+    if (gameMode === "blizzard" && !lastMove) {
+      agentsReset(bot.id);
+    }
+  }, [gameMode, bot, lastMove]);
+
+  // Automatically handle bot move whenever it's the bot's turn
+  useEffect(() => {
+    if (
+      gameMode === "player-vs-bot" &&
+      ((starts === "player" && turn === "O") ||
+        (starts === "bot" && turn === "X")) &&
+      !isBotThinking &&
+      !gameOver
+    ) {
+      setIsBotThinking(true);
+      handleBotMove();
+    }
+  }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
+
+
   return {
     board,
     turn,
