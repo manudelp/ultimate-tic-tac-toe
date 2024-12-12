@@ -147,7 +147,7 @@ def agent_load():
         # Return a success response
         return jsonify({'message': bot.name + ' loaded successfully'})
     except Exception as e:
-        print(f"\nError: {e}\n")
+        print(f"\nCatastrophic failure: {e}\n")
 
         # Return an internal server error response
-        return jsonify({'error': 'Internal Server Error'}), 500
+        return jsonify({'error': 'Something went horribly wrong on our end'}), 500
