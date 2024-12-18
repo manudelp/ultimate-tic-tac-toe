@@ -36,6 +36,8 @@ class GardenerAgent:
         self.total_minimax_time = 0
 
     def load(self):
+        print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"Loading {self.name}..." + Style.RESET_ALL)
+        
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None

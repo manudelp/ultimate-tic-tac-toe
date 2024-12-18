@@ -46,6 +46,8 @@ class TaylorAgent:
         self.moveNumber = 0
     
     def load(self):
+        print(Style.BRIGHT + Fore.LIGHTBLUE_EX + f"Loading {self.name}..." + Style.RESET_ALL)
+        
         self.moveNumber = 0
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
