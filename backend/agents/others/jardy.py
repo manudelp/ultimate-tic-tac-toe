@@ -18,6 +18,24 @@ class GardenerAgent:
     def __init__(self):
         self.name = "El Jardinero"
         self.icon = "✂️"
+    
+    def __str__(self):
+        self.str = f"{self.name}{self.icon}"
+        return self.str
+
+    def reset(self):
+        if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
+            print(f"First Game, pointless Reset for {self.name}")
+            # return
+        if self.minimax_plays == 0:
+            raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
+        average_minimax_time = self.total_minimax_time / self.minimax_plays
+        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        self.moveNumber = 0
+        self.minimax_plays = 0
+        self.total_minimax_time = 0
+
+    def load(self):
         self.moveNumber = 0
         self.depth_local = 8 # when btp is not None
         self.depth_global = 7 # when btp is None
@@ -43,23 +61,7 @@ class GardenerAgent:
         self.over_boards_set = set()
         self.model_over_boards_set = set()
         self.playable_boards_set = set()
-        self.model_playable_boards_set = set() 
-    
-    def __str__(self):
-        self.str = f"{self.name}{self.icon}"
-        return self.str
-
-    def reset(self):
-        if self.moveNumber == 0 and self.minimax_plays == 0 and self.total_minimax_time == 0:
-            print(f"First Game, pointless Reset for {self.name}")
-            # return
-        if self.minimax_plays == 0:
-            raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
-        average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
-        self.moveNumber = 0
-        self.minimax_plays = 0
-        self.total_minimax_time = 0
+        self.model_playable_boards_set = set()
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()

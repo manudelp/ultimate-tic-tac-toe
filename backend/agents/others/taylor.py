@@ -35,6 +35,17 @@ class TaylorAgent:
     def __init__(self):
         self.name = "Taylor"
         self.icon = "🦋"
+
+
+    def __str__(self):
+        self.str = f"{self.name}{self.icon}"
+        return self.str
+
+    def reset(self):
+        print(f"{str(self)} reset")
+        self.moveNumber = 0
+    
+    def load(self):
         self.moveNumber = 0
         self.hash_winnable_boards_by_one = {}
         self.hash_winnable_boards_by_minus_one = {}
@@ -45,14 +56,6 @@ class TaylorAgent:
         
         self.load_winnable_boards_one(winnable_by_one_file)
         self.load_winnable_boards_minus_one(winnable_by_minus_one_file)
-
-    def __str__(self):
-        self.str = f"{self.name}{self.icon}"
-        return self.str
-
-    def reset(self):
-        print(f"{str(self)} reset")
-        self.moveNumber = 0
         
     def action(self, super_board, board_to_play=None):
         super_board = np.array(super_board, dtype=int)

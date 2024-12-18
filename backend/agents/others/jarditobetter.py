@@ -15,21 +15,6 @@ class BetterJardineritoAgent:
     def __init__(self):
         self.name = "Don Jardito"
         self.icon = "🚀"
-        self.moveNumber = 0
-        self.depth_local = 6 # when btp is not None
-        self.depth_global = 5 # when btp is None
-        self.time_limit = 10 # in seconds
-        self.total_minimax_time = 0
-        self.minimax_plays = 0
-        self.centering_early_time = 0
-
-        # Hash Up
-        self.hash_loading()
-
-        self.over_boards_set = set()
-        self.model_over_boards_set = set()
-        self.playable_boards_set = set()
-        self.model_playable_boards_set = set() 
     
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
@@ -48,6 +33,23 @@ class BetterJardineritoAgent:
         self.moveNumber = 0
         self.minimax_plays = 0
         self.total_minimax_time = 0
+
+    def load(self):
+        self.moveNumber = 0
+        self.depth_local = 6 # when btp is not None
+        self.depth_global = 5 # when btp is None
+        self.time_limit = 10 # in seconds
+        self.total_minimax_time = 0
+        self.minimax_plays = 0
+        self.centering_early_time = 0
+
+        # Hash Up
+        self.hash_loading()
+
+        self.over_boards_set = set()
+        self.model_over_boards_set = set()
+        self.playable_boards_set = set()
+        self.model_playable_boards_set = set() 
 
     def action(self, super_board, board_to_play=None):
         self.true_time_start = time.time()

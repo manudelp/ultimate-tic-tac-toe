@@ -14,7 +14,7 @@ from bots.monkey import MonkeyAgent
 from bots.straightArrow import StraightArrowAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
-from bots.foofinder import FooFinderAgent
+# from bots.foofinder import FooFinderAgent
 
 # Other Dev Bots
 from others.jardy import GardenerAgent
@@ -47,11 +47,12 @@ AGENTS = [
     RandomAgent(),
     StraightArrowAgent(),
     TaylorAgent(),
-    # JardineritoAgent(),
+    JardineritoAgent(),
     # MaximilianoAgent(),
     # JardineritoAntiMidAgent(),
-    # BetterJardineritoAgent(),
-    # GardenerAgent(),
+    BetterJardineritoAgent(),
+    GardenerAgent(),
+    ArthyAgent(),
     # MonkeyAgent(),
     # IteroldAgent(),
     # ItterinoAgent(),
@@ -67,10 +68,11 @@ def suppress_agent_prints():
     """Suppress prints from agents only, while allowing others."""
     return open(os.devnull, 'w', encoding='utf-8')
 
-
 class SwissTournament:
     def __init__(self, agents):
         self.agents = agents
+        for agent_bot in agents:
+            agent_bot.load()
         self.scores = {agent: 0 for agent in agents}  # Initialize scores to zero
         self.matches = defaultdict(list)  # Track who has played against whom
         self.trueskill_env = trueskill.TrueSkill()  # Initialize TrueSkill environment

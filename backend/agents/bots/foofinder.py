@@ -40,7 +40,7 @@ class FooFinderAgent:
         self.loaded_up = False
         
         # Temporary to not break
-        # self.load()
+        self.load()
 
     def __str__(self):
         self.str = f"{self.name}{self.icon}"
