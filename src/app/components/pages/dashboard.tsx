@@ -20,6 +20,8 @@ type BotListResponse = {
   id: number;
   name: string;
   icon: string;
+  description: string;
+  difficulty: number;
 };
 
 // Utility function to shuffle an array
@@ -46,6 +48,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
   // Bots
   const [bots, setBots] = useState<BotListResponse[] | null>(null);
+  const [selectedBot, setSelectedBot] = useState<BotListResponse | null>(null);
   const [bot, setBot] = useState<BotListResponse | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
 
@@ -154,7 +157,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   // Bot selection
   useEffect(() => {
     if (gameMode === "player-vs-bot" && !bots) {
-      getBots().then((bots) => setBots(bots));
+      getBots().then((bots) => {
+        console.log(bots); // Debugging
+        setBots(
+          bots.map((bot: BotListResponse) => ({
+            ...bot,
+            description: bot.description || "",
+          }))
+        );
+      });
     }
   }, [gameMode, bots]);
 
@@ -226,9 +237,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <h1 className="text-3xl sm:text-4xl mb-8 font-bold">
                 <small>Welcome to the</small>
                 <br />
-                <span className="relative">
-                  Ultimate Tic-Tac-Toe,
-                </span>
+                <span className="relative">Ultimate Tic-Tac-Toe,</span>
                 <br />
                 <small>
                   a game of <span id="type" ref={typeRef}></span>.
@@ -240,7 +249,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               </h1>
             ) : (
               <h1 className="mt-20 sm:mt-auto text-2xl sm:text-4xl font-bold">
-                Face us, if you dare...
+                So you dare to face us...
               </h1>
             )}
 
@@ -306,66 +315,90 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
             {/* Choose Bot */}
             {gameMode === "player-vs-bot" && !bot && (
-              <div className="mt-8 text-center">
+              <div className="max-w-3xl mx-auto mt-8 px-4 text-center">
                 <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                   Choose your opponent
                 </h2>
-                <div className="flex flex-wrap justify-center gap-4">
-                  {bots?.map((bot) =>
-                    bot.id === -1 ? (
-                      <button
-                        key={bot.id}
-                        className={`relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black ${
-                          botsLoaded[bot.id]
-                            ? "hover:bg-gray-700"
-                            : "opacity-50"
-                        } transition-colors`}
-                        disabled={!botsLoaded[bot.id]}
-                        onClick={() => setBot(bot)}
-                      >
-                        <div
-                          className="absolute inset-0 bg-cover bg-center opacity-40"
-                          style={{ backgroundImage: `url('/fire.gif')` }}
-                        ></div>
 
-                        {botsLoaded[bot.id] ? (
-                          <>
-                            <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                              {bot.icon}
-                            </div>
-                            <p className="relative z-10 w-full">{bot.name}</p>
-                          </>
-                        ) : (
-                          <Loader />
-                        )}
-                      </button>
-                    ) : bot.id === 112 ? "" : (
+                <div
+                  className={`${
+                    selectedBot
+                      ? "flex flex-col sm:flex-row sm:items-start gap-4"
+                      : "grid place-items-center"
+                  }`}
+                >
+                  {/* Bot list */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                    {bots?.map((botOption) => (
                       <button
-                        key={bot.id}
-                        className={`w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 ${
-                          botsLoaded[bot.id]
+                        key={botOption.id}
+                        className={`relative flex flex-col items-center gap-2 p-4 font-bold overflow-hidden bg-gray-800 rounded-md ${
+                          botsLoaded[botOption.id]
                             ? "hover:bg-gray-700"
-                            : "opacity-50"
-                        } transition-colors`}
-                        disabled={!botsLoaded[bot.id]}
-                        onClick={() => setBot(bot)}
+                            : "opacity-50 cursor-not-allowed"
+                        } transition-colors ${
+                          selectedBot?.id === botOption.id
+                            ? "ring-4 ring-red-500"
+                            : ""
+                        }`}
+                        disabled={!botsLoaded[botOption.id]}
+                        onClick={() => setSelectedBot(botOption)}
                       >
-                        {botsLoaded[bot.id] ? (
+                        {botsLoaded[botOption.id] ? (
                           <>
-                            <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                              {bot.icon}
+                            <div
+                              className={`relative z-10 rounded-md text-4xl w-16 h-16 grid place-items-center ${
+                                botOption.id === -1 ? "bg-black" : "bg-gray-700"
+                              }`}
+                              style={
+                                botOption.id === -1
+                                  ? { backgroundImage: `url('/fire.gif')` }
+                                  : undefined
+                              }
+                            >
+                              {botOption.icon}
                             </div>
-                            <p className="w-full">{bot.name}</p>
+                            <p className="relative z-10 text-center">
+                              {botOption.name}
+                            </p>
                           </>
                         ) : (
                           <Loader />
                         )}
                       </button>
-                    )
+                    ))}
+                  </div>
+
+                  {/* Bot description */}
+                  {selectedBot && (
+                    <div className="mt-4 sm:mt-0 sm:w-80 bg-gray-800 p-4 rounded-md flex flex-col items-center justify-between">
+                      <div className="text-lg font-semibold mb-4 flex flex-col items-center">
+                        <div className="bg-gray-700 rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2">
+                          {selectedBot.icon}
+                        </div>
+                        <h3 className="text-center">{selectedBot.name}</h3>
+                      </div>
+                      <p className="text-sm text-gray-400 text-center">
+                        {selectedBot.description || "No description available."}
+                      </p>
+                      <div className="mt-2">
+                        <h3>How cooked are you? 😅</h3>
+                        <p className="text-sm text-gray-400 text-center">
+                          {Array(selectedBot.difficulty).fill("🔥").join(" ")}
+                        </p>
+                      </div>
+                      <button
+                        className="mt-6 w-full py-4 px-6 bg-green-500 hover:bg-green-400 transition-colors"
+                        onClick={() => setBot(selectedBot)}
+                      >
+                        Play
+                      </button>
+                    </div>
                   )}
                 </div>
+
                 <button
-                  className="mt-4 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  className="mt-4 w-full sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
                   onClick={() => handleExitGame()}
                 >
                   Go Back

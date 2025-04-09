@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ isBackendConnected }) => {
       >
         {/* Home Link */}
         <Link to="/" reloadDocument>
-          <button className="flex items-center gap-2 p-4 rounded-full hover:bg-white hover:text-black transition group">
+          <button className="flex items-center gap-2 p-4 rounded-full sm:rounded-tl-none hover:bg-white hover:text-black transition group">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -55,9 +55,24 @@ const Header: React.FC<HeaderProps> = ({ isBackendConnected }) => {
         </Link>
 
         {/* Condicional: Mostrar nombre del usuario o botón de Login */}
-        {userName ? (
+        {/* {userName ? (
           <div className="flex items-center gap-2 p-4 rounded-full">
-            <span>Welcome, {userName}.</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="24"
+              height="24"
+              strokeWidth="1.5"
+            >
+              <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+              <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+              <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+            </svg>
+            <span>{userName}</span>
             <button
               title="Logout"
               className="ml-4 text-white hover:text-red-600 transition"
@@ -113,13 +128,13 @@ const Header: React.FC<HeaderProps> = ({ isBackendConnected }) => {
               Login / Register
             </span>
           </button>
-        )}
+        )} */}
       </div>
 
       {/* Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
+      {/* <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
         <LoginForm />
-      </Modal>
+      </Modal> */}
     </>
   );
 };

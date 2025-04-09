@@ -200,11 +200,10 @@ export const useGame = (
   };
 
   const handleBotMove = useCallback(async () => {
+    let interval: NodeJS.Timeout | null = null;
     try {
       const startTime = performance.now();
-      let interval: NodeJS.Timeout;
 
-      // eslint-disable-next-line prefer-const
       interval = setInterval(() => {
         const elapsedTime = (performance.now() - startTime) / 1000;
         setTimeToMove(elapsedTime);
@@ -220,13 +219,11 @@ export const useGame = (
       );
 
       makeMove(coords);
-
-      clearInterval(interval);
-
-      setIsBotThinking(false);
     } catch (error) {
-      setIsBotThinking(false);
       console.error("Error fetching bot's move:", error);
+    } finally {
+      if (interval) clearInterval(interval);
+      setIsBotThinking(false);
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
 

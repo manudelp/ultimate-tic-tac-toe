@@ -63,20 +63,25 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
   }, [moveHistory]);
 
   return (
-    <div className="relative w-full sm:w-[600px]">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2 cursor-pointer">
-          <div title="Exit Game" onClick={onExit}>
+    <div className="relative w-full px-4 sm:px-0 sm:w-[600px]">
+      <div className="flex items-center justify-between py-2 px-4 bg-gray-800 rounded-md shadow-md">
+        {/* Exit and Move Number */}
+        <div className="flex items-center gap-4 cursor-pointer">
+          <div
+            title="Exit Game"
+            onClick={onExit}
+            className="flex items-center justify-center rounded-full transition-colors"
+          >
             <svg
-              className={`${gameOver && "stroke-green-300 animate-pulse"}`}
+              className={`w-5 h-5 text-white ${
+                gameOver && "stroke-green-300 animate-pulse"
+              }`}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeLinecap="round"
               strokeLinejoin="round"
-              width="24"
-              height="24"
               strokeWidth="2"
             >
               <path d="M13 12v.01"></path>
@@ -85,52 +90,56 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
               <path d="M14 7h7m-3 -3l3 3l-3 3"></path>
             </svg>
           </div>
-
-          <div title="Move number">{moveNumber}</div>
+          <div
+            title="Move Number"
+            className="text-sm font-medium text-gray-300"
+          >
+            Move: {moveNumber}
+          </div>
         </div>
+
+        {/* Game Mode Info */}
         {gameMode === "player-vs-bot" && (
-          <div title={bot?.name + " " + bot?.icon}>
-            You vs{" "}
-            {window.innerWidth > 768 ? bot?.name + " " + bot?.icon : bot?.icon}
+          <div
+            title={bot?.name + " " + bot?.icon}
+            className="text-sm font-medium text-gray-300 truncate"
+          >
+            You vs {bot?.name} {bot?.icon}
           </div>
         )}
-        <div className="flex gap-2">
+
+        {/* Player Info and Turn */}
+        <div className="flex items-center gap-4">
           {isBotThinking && (
             <div
+              className="text-sm font-medium text-yellow-400"
               title="Bot's move time"
-              style={{
-                // TODO: Remove this before final release
-                color:
-                  timeToMove >= 10
-                    ? "red"
-                    : timeToMove >= 5
-                    ? "yellow"
-                    : "inherit",
-              }}
             >
               {timeToMove.toFixed(2)}s
             </div>
           )}
           <div
             title="Player"
-            className="truncate sm:max-w-[150px] text-end overflow-hidden"
+            className="text-sm font-medium text-gray-300 truncate sm:max-w-[150px] text-end overflow-hidden"
           >
             {gameMode === "player-vs-player" && "Player"}
             {gameMode === "player-vs-bot" &&
               (turn === "X"
                 ? starts === "player"
                   ? "You"
-                  : bot?.name
+                  : bot?.icon + " " + bot?.name
                 : starts === "player"
-                ? bot?.name
+                ? bot?.icon + " " + bot?.name
                 : "You")}
           </div>
-          <div title="Turn">{turn}</div>
+          <div title="Turn" className="text-sm font-bold text-green-400">
+            {turn}
+          </div>
         </div>
       </div>
-      <div className="flex flex-wrap gap-4 text-white">
+      <div className="flex flex-wrap gap-4 text-white mt-4">
         {/* BOARD */}
-        <div className="w-full sm:w-[600px] h-full sm:h-[600px] aspect-square flex flex-wrap relative">
+        <div className="w-full aspect-square flex flex-wrap relative">
           {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
             miniBoardRow.map((miniBoard: string[][], localColIndex) => (
               <MiniBoard
@@ -143,54 +152,53 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
                 activeMiniBoard={activeMiniBoard}
                 lastMove={lastMove}
                 gameOver={gameOver}
-                hoveredMove={hoveredMove} // Pass the hovered move to MiniBoard
+                hoveredMove={hoveredMove}
                 handleCellClick={handleCellClick}
                 makeMove={makeMove}
               />
             ))
           )}
           {winningLine && (
-            <div
-              className="absolute w-full h-full pointer-events-none"
-              style={{
-                top: 0,
-                left: 0,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <div className="absolute inset-0 pointer-events-none">
               {winningLine.type === "row" && (
                 <div
-                  className="absolute w-[95%] h-2 bg-red-500 rounded-full"
-                  style={{ top: `${(winningLine.index + 0.5) * 33.33}%` }}
+                  className="absolute h-2 bg-red-500 rounded-full left-0 right-0"
+                  style={{
+                    top: `${(winningLine.index + 0.5) * (100 / 3)}%`,
+                    transform: "translateY(-50%)",
+                  }}
                 />
               )}
               {winningLine.type === "col" && (
                 <div
-                  className="absolute h-[95%] w-2 bg-red-500 rounded-full"
-                  style={{ left: `${(winningLine.index + 0.5) * 33.33}%` }}
+                  className="absolute w-2 bg-red-500 rounded-full top-0 bottom-0"
+                  style={{
+                    left: `${(winningLine.index + 0.5) * (100 / 3)}%`,
+                    transform: "translateX(-50%)",
+                  }}
                 />
               )}
               {winningLine.type === "diag" && winningLine.index === 0 && (
                 <div
-                  className="absolute w-full h-2 bg-red-500 rounded-full"
+                  className="absolute h-2 bg-red-500 rounded-full"
                   style={{
-                    transform: "rotate(45deg)",
-                    width: "120%",
+                    width: "140%",
                     top: "50%",
-                    left: "0",
+                    left: "-20%",
+                    transform: "rotate(45deg) translateY(-50%)",
+                    transformOrigin: "center",
                   }}
                 />
               )}
               {winningLine.type === "diag" && winningLine.index === 1 && (
                 <div
-                  className="absolute w-full h-2 bg-red-500 rounded-full"
+                  className="absolute h-2 bg-red-500 rounded-full"
                   style={{
-                    transform: "rotate(-45deg)",
-                    width: "120%",
+                    width: "140%",
                     top: "50%",
-                    left: "0",
+                    left: "-20%",
+                    transform: "rotate(-45deg) translateY(-50%)",
+                    transformOrigin: "center",
                   }}
                 />
               )}
@@ -198,39 +206,42 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
           )}
         </div>
       </div>
-
       {/* GAME INFO */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 gap-2">
         {/* MATCH INFO - PLAYER VS BOT */}
         {gameMode === "player-vs-bot" && starts && !gameOver && !lastMove && (
           <h2>{starts === "player" ? "You start" : bot?.name + " starts"}</h2>
         )}
+      </div>
 
-        {/* MOVE HISTORY */}
+      {/* MOVE HISTORY */}
+      <div className="mt-6 w-full">
+        <h3 className="text-sm text-gray-400 mb-2 px-2">Move History</h3>
         <div
-          title="Move History"
           ref={moveHistoryRef}
-          className="flex gap-4 max-w-full overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700 cursor-help"
+          className="w-full max-w-full overflow-x-auto whitespace-nowrap px-2 py-2 bg-gray-800 rounded-md scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700 text-sm"
         >
-          {moveHistory.map((move, index) => (
-            <div
-              key={index}
-              className={`inline-block hover:text-green-500 ${
-                index === moveHistory.length - 1 ? "underline" : ""
-              }`}
-              onMouseEnter={() =>
-                handleMoveHover([
-                  move.coords[0], // localRowIndex
-                  move.coords[1], // localColIndex
-                  move.coords[2], // rowIndex
-                  move.coords[3], // cellIndex
-                ])
-              }
-              onMouseLeave={() => handleMoveHover(null)}
-            >
-              {index + 1}. {move.turn}: ({move.coords.join(", ")})
-            </div>
-          ))}
+          <div className="inline-flex gap-4">
+            {moveHistory.map((move, index) => (
+              <div
+                key={index}
+                className={`hover:text-green-400 cursor-pointer ${
+                  index === moveHistory.length - 1 ? "underline" : ""
+                }`}
+                onMouseEnter={() =>
+                  handleMoveHover([
+                    move.coords[0],
+                    move.coords[1],
+                    move.coords[2],
+                    move.coords[3],
+                  ])
+                }
+                onMouseLeave={() => handleMoveHover(null)}
+              >
+                {index + 1}. {move.turn}: ({move.coords.join(", ")})
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

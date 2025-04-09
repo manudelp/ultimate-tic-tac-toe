@@ -33,6 +33,8 @@ class RandomAgent:
         self.id = 0
         self.name = "Randy"
         self.icon = "🎲"
+        self.description = "Randy is a random agent that plays randomly. He is not very smart, but he is fun to play with!"
+        self.difficulty = 1
         
         # Temporary to not break
         # self.load()
