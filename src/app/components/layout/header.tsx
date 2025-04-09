@@ -4,11 +4,7 @@ import { Link } from "react-router-dom";
 // import { LoginForm } from "@/components/ui/login-form";
 // import { toast } from "sonner";
 
-interface HeaderProps {
-  isBackendConnected: boolean;
-}
-
-const Header: React.FC<HeaderProps> = ({ isBackendConnected }) => {
+const Header = () => {
   // const [isModalOpen, setModalOpen] = useState(false);
   // const [userName, setUserName] = useState<string | null>(null);
 
