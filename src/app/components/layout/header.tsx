@@ -1,30 +1,30 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Modal } from "@/app/components/ui/modal";
-import { LoginForm } from "@/components/ui/login-form";
-import { toast } from "sonner";
+// import { Modal } from "@/app/components/ui/modal";
+// import { LoginForm } from "@/components/ui/login-form";
+// import { toast } from "sonner";
 
 interface HeaderProps {
   isBackendConnected: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ isBackendConnected }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
+  // const [isModalOpen, setModalOpen] = useState(false);
+  // const [userName, setUserName] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedName = localStorage.getItem("name");
-    if (storedName) {
-      setUserName(storedName);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedName = localStorage.getItem("name");
+  //   if (storedName) {
+  //     setUserName(storedName);
+  //   }
+  // }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("name");
-    setUserName(null);
-    window.location.reload();
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("name");
+  //   setUserName(null);
+  //   window.location.reload();
+  // };
 
   return (
     <>
