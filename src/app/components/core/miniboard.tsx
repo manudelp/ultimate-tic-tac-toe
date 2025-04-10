@@ -103,12 +103,6 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
         borderBottom: localRowIndex === 1 ? `2px solid white` : "none",
         borderLeft: localColIndex === 1 ? `2px solid white` : "none",
         borderRight: localColIndex === 1 ? `2px solid white` : "none",
-        ...(window.innerWidth < 768 && {
-          borderTop: localRowIndex === 1 ? `3px solid white` : "none",
-          borderBottom: localRowIndex === 1 ? `3px solid white` : "none",
-          borderLeft: localColIndex === 1 ? `3px solid white` : "none",
-          borderRight: localColIndex === 1 ? `3px solid white` : "none",
-        }),
         ...(lastMove &&
         !(
           disabled?.[localRowIndex]?.[localColIndex] ||

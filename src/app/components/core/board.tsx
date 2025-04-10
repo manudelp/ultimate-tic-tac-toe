@@ -63,7 +63,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
   }, [moveHistory]);
 
   return (
-    <div className="relative w-full px-4 sm:px-0 sm:w-[600px]">
+    <div className="relative w-full sm:w-[600px]">
       <div className="flex items-center justify-between py-2 px-4 bg-gray-800 rounded-md shadow-md">
         {/* Exit and Move Number */}
         <div className="flex items-center gap-4 cursor-pointer">
@@ -94,7 +94,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
             title="Move Number"
             className="text-sm font-medium text-gray-300"
           >
-            Move: {moveNumber}
+            {moveNumber}
           </div>
         </div>
 
@@ -104,17 +104,17 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
             title={bot?.name + " " + bot?.icon}
             className="text-sm font-medium text-gray-300 truncate"
           >
-            You vs {bot?.name} {bot?.icon}
+            {!isBotThinking &&
+              (window.innerWidth < 768
+                ? bot?.name + " " + bot?.icon
+                : `You vs ${bot?.name} ${bot?.icon}`)}
           </div>
         )}
 
         {/* Player Info and Turn */}
         <div className="flex items-center gap-4">
           {isBotThinking && (
-            <div
-              className="text-sm font-medium text-yellow-400"
-              title="Bot's move time"
-            >
+            <div className="text-sm font-medium" title="Bot's move time">
               {timeToMove.toFixed(2)}s
             </div>
           )}

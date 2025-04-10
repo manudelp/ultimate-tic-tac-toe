@@ -328,11 +328,11 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   }`}
                 >
                   {/* Bot list */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                  <div className="grid grid-cols-2 items-center justify-items-center gap-4 flex-1">
                     {bots?.map((botOption) => (
                       <button
                         key={botOption.id}
-                        className={`relative flex flex-col items-center gap-2 p-4 font-bold overflow-hidden bg-gray-800 rounded-md ${
+                        className={`w-28 h-32 relative flex flex-col items-center gap-2 p-4 font-bold overflow-hidden bg-gray-800 rounded-md ${
                           botsLoaded[botOption.id]
                             ? "hover:bg-gray-700"
                             : "opacity-50 cursor-not-allowed"
@@ -371,7 +371,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
                   {/* Bot description */}
                   {selectedBot && (
-                    <div className="mt-4 sm:mt-0 sm:w-80 bg-gray-800 p-4 rounded-md flex flex-col items-center justify-between">
+                    <div className="mt-4 sm:mt-0 sm:w-80 h-full bg-gray-800 p-4 rounded-md flex flex-col items-center justify-between">
                       <div className="text-lg font-semibold mb-4 flex flex-col items-center">
                         <div className="bg-gray-700 rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2">
                           {selectedBot.icon}
