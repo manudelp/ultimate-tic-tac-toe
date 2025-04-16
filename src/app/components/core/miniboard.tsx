@@ -144,6 +144,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                     cellIndex
                   )
                 }
+                id={`cell-${localRowIndex}-${localColIndex}-${rowIndex}-${cellIndex}`}
                 key={cellIndex}
                 className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-red-500 ${
                   isHovered
