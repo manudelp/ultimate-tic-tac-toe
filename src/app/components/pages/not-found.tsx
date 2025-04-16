@@ -17,7 +17,7 @@ const NotFound: React.FC = () => {
             </div>
             <h1 className="text-5xl font-extrabold text-red-400">404 - Page Not Found</h1>
             <p className="mt-4 text-lg text-gray-300 text-center">
-                The page you're looking for doesn't exist.
+                The page you&#39;re looking for doesn&#39;t exist.
             </p>
             <Link
                 to="/"
