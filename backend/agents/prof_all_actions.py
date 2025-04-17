@@ -7,7 +7,7 @@ from typing import List, Tuple, Dict, Any, Union, Optional
 # Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
-from bots.straightArrow import StraightArrowAgent
+from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
@@ -32,7 +32,7 @@ randy = RandomAgent()
 monkey = MonkeyAgent()
 gardener = GardenerAgent()
 taylor = TaylorAgent()
-straight = StraightArrowAgent()
+straight = GreedyAgent()
 iterold = IteroldAgent()
 itterino = ItterinoAgent()
 ordy = TidyPodatorAgent()

@@ -1,7 +1,7 @@
 # Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
-from bots.straightArrow import StraightArrowAgent
+from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
@@ -31,7 +31,7 @@ AGENTS = {
     GardenerAgent().id : GardenerAgent(), 
     TaylorAgent().id : TaylorAgent(), 
     JardineritoAgent().id : JardineritoAgent(), 
-    StraightArrowAgent().id : StraightArrowAgent(), 
+    GreedyAgent().id : GreedyAgent(), 
     IteroldAgent().id : IteroldAgent(), 
     ItterinoAgent().id : ItterinoAgent(), 
     TidyPodatorAgent().id : TidyPodatorAgent(),

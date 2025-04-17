@@ -10,10 +10,10 @@ If it can make a subboard win, it plays it.
 Otherwise plays randy
 """
 
-class StraightArrowAgent:
+class GreedyAgent:
     def __init__(self):
         self.id = 1
-        self.name = "Straighty"
+        self.name = "Greedy"
         self.icon = "🏹"
         self.loaded_up = False
         
@@ -25,7 +25,7 @@ class StraightArrowAgent:
         return self.str
 
     def reset(self):
-        # print("Resetting StraightArrowAgent")
+        # print("Resetting GreedyAgent")
         self.moveNumber = 0
 
     def load(self):
@@ -61,7 +61,7 @@ class StraightArrowAgent:
                 if isOver(super_board[i, j]):
                     over_boards.append((i, j))
 
-        # print(Style.BRIGHT + f"STRAIGHTY LISTS THE OVERBOARDS BEFORE PLANNING HIS MOVE:, THEY ARE AS FOLLOWS: {over_boards}" + Style.RESET_ALL)
+        # print(Style.BRIGHT + f"Greedy LISTS THE OVERBOARDS BEFORE PLANNING HIS MOVE:, THEY ARE AS FOLLOWS: {over_boards}" + Style.RESET_ALL)
 
         # First Move Go Center
         if np.count_nonzero(super_board) == 0:
@@ -83,7 +83,7 @@ class StraightArrowAgent:
                         if (i, j) in global_winner:
                             local_winnable = self.get_winnableByOne(super_board[i, j])
                             if isPlayable(super_board[i, j]) and local_winnable:
-                                # print(f"Straighty found a GLOBAL BOARD WIN, in the board {i, j}, looks like this:\n {super_board[i, j]}")
+                                # print(f"Greedy found a GLOBAL BOARD WIN, in the board {i, j}, looks like this:\n {super_board[i, j]}")
                                 local_row, local_col = safeSetExtractor(super_board, local_winnable)
                                 self.moveNumber += 1
                                 return i, j, local_row, local_col
@@ -94,7 +94,7 @@ class StraightArrowAgent:
                     if isPlayable(super_board[i, j]):
                         local_winner = self.get_winnableByOne(super_board[i, j])
                         if local_winner:
-                            # print(f"Straighty found a local board to win, in the board {i, j}, looks like this:\n {super_board[i, j]}")
+                            # print(f"Greedy found a local board to win, in the board {i, j}, looks like this:\n {super_board[i, j]}")
                             local_row, local_col = safeSetExtractor(super_board, local_winner)
                             self.moveNumber += 1
                             return i, j, local_row, local_col
@@ -105,14 +105,14 @@ class StraightArrowAgent:
                     if isPlayable(super_board[i, j]):
                         local_blocker = self.get_winnableByMinusOne(super_board[i, j])
                         if local_blocker:
-                            # print(f"Straighty found a local board to block, in the board {i, j}, looks like this:\n {super_board[i, j]}")
+                            # print(f"Greedy found a local board to block, in the board {i, j}, looks like this:\n {super_board[i, j]}")
                             local_row, local_col = safeSetExtractor(super_board, local_blocker)
                             self.moveNumber += 1
                             return i, j, local_row, local_col
 
             # Otherwise, Center Move
             if isPlayable(super_board[1, 1]):
-                # print("Straighty could play center, center looks like this:\n ", super_board[1, 1])
+                # print("Greedy could play center, center looks like this:\n ", super_board[1, 1])
                 row, col = 1, 1
                 local_row, local_col = self.randomMove(super_board[row, col])
                 self.moveNumber += 1
@@ -122,18 +122,18 @@ class StraightArrowAgent:
             for i in range(rows):
                 for j in range(cols):
                     if isPlayable(super_board[i, j]):
-                        # print(f"Straighty found a random playable board, the board is {i, j} and looks like this:\n {super_board[i, j]}, will attempt randomMove on it")
+                        # print(f"Greedy found a random playable board, the board is {i, j} and looks like this:\n {super_board[i, j]}, will attempt randomMove on it")
                         local_row, local_col = self.randomMove(super_board[i, j])
                         self.moveNumber += 1
                         return i, j, local_row, local_col
             
-            raise ValueError(Style.BRIGHT + Fore.RED + f"Straighty couldn't find a playable board! Global Board is \n{super_board}" + Style.RESET_ALL)
+            raise ValueError(Style.BRIGHT + Fore.RED + f"Greedy couldn't find a playable board! Global Board is \n{super_board}" + Style.RESET_ALL)
             
         else:
             a, b = board_to_play
             subboard = super_board[a, b]
             if not isPlayable(subboard):
-                raise ValueError(Style.BRIGHT + Fore.RED + f"Straighty Board to play is not playable! Board is \n{subboard}" + Style.RESET_ALL)
+                raise ValueError(Style.BRIGHT + Fore.RED + f"Greedy Board to play is not playable! Board is \n{subboard}" + Style.RESET_ALL)
 
         # Greedy Action
         local_winner = self.get_winnableByOne(subboard)
@@ -143,11 +143,11 @@ class StraightArrowAgent:
  
         # Win
         if local_winner:
-            # print("Straighty can win the given local board!")
+            # print("Greedy can win the given local board!")
             local_row, local_col = safeSetExtractor(super_board, local_winner)
         # Block
         elif local_blocker:
-            # print("Straighty can block the given local board!")
+            # print("Greedy can block the given local board!")
             local_row, local_col = safeSetExtractor(super_board, local_blocker)
         # Straight Arrow
         elif canPlay(subboard, a, b):
@@ -939,6 +939,6 @@ def local_evaluation(local_board):
 
 
 # board_ex = np.zeros((3, 3, 3, 3), dtype=int)
-# agent = StraightArrowAgent()
+# agent = GreedyAgent()
 
 # move = agent.action(board_ex, board_to_play=None)

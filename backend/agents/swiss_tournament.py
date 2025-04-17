@@ -11,7 +11,7 @@ from contextlib import redirect_stdout
 # Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
-from bots.straightArrow import StraightArrowAgent
+from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 # from bots.foofinder import FooFinderAgent
@@ -45,7 +45,7 @@ REPEAT_SWISS = 16  # Number of times to repeat the Swiss tournament
 # Initialize agents
 AGENTS = [
     RandomAgent(),
-    StraightArrowAgent(),
+    GreedyAgent(),
     TaylorAgent(),
     JardineritoAgent(),
     # MaximilianoAgent(),

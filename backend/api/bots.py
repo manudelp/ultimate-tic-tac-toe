@@ -9,7 +9,7 @@ from flask import Blueprint, jsonify, request
 from agents.bots.randy import RandomAgent
 # from agents.bots.monkey import MonkeyAgent
 from agents.bots.jardito import JardineritoAgent
-from agents.bots.straightArrow import StraightArrowAgent
+from agents.bots.greedy import GreedyAgent
 from agents.bots.arthy import ArthyAgent
 from agents.bots.jardishow import JardiShowAgent
 from agents.bots.santa import SantaAgent
@@ -21,7 +21,7 @@ bot_routes = Blueprint('bots', __name__)
 AGENTS = {
     RandomAgent().id : RandomAgent(),
     # TaylorAgent().id : TaylorAgent(), 
-    StraightArrowAgent().id : StraightArrowAgent(), 
+    GreedyAgent().id : GreedyAgent(), 
     JardineritoAgent().id : JardineritoAgent(),
     JardiShowAgent().id : JardiShowAgent(),
     ArthyAgent().id : ArthyAgent(),

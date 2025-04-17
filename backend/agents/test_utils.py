@@ -6,7 +6,7 @@ from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
 
 from others.taylor import TaylorAgent
-from bots.straightArrow import StraightArrowAgent
+from bots.greedy import GreedyAgent
 
 # Board Printer
 def fancyBoardPrinter(board):

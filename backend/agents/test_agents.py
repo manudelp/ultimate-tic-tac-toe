@@ -7,7 +7,7 @@ from typing import List, Tuple, Dict, Any, Union, Optional
 # Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
-from bots.straightArrow import StraightArrowAgent
+from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
@@ -37,7 +37,7 @@ t0 = time.time()
 
 # Initialize agents
 AGENT1 = RandomAgent()    # Replace with your chosen agent
-AGENT2 = StraightArrowAgent()  # Replace with your chosen agent
+AGENT2 = GreedyAgent()  # Replace with your chosen agent
 ROUNDS = 2
 GAMES = ROUNDS * 2
 BLIZZARD_MODE = True

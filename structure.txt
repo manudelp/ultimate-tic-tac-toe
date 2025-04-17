@@ -294,7 +294,7 @@
                 jardy.py
                 monkey.py
                 randy.py
-                straightArrow.py
+                greedy.py
                 taylor.py
             hashes/
                 hash_draw_boards.txt

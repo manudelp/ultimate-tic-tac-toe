@@ -156,7 +156,7 @@ class TaylorAgent:
         #     local_row, local_col = safeSetExtractor(super_board, local_winner)
         # # Block
         # elif local_blocker:
-        #     # print("Straighty can block the given local board!")
+        #     # print("Taylor can block the given local board!")
         #     local_row, local_col = safeSetExtractor(super_board, local_blocker)
         # Winning Strat
         if best_move is not None:

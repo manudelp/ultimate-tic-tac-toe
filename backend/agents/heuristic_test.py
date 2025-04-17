@@ -11,7 +11,7 @@ from colorama import Style, Fore
 # Main Bots
 from bots.randy import RandomAgent
 from bots.monkey import MonkeyAgent
-from bots.straightArrow import StraightArrowAgent
+from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
 from bots.foofinder import FooFinderAgent
@@ -38,7 +38,7 @@ GardenerAgent = GardenerAgent()
 JardineritoAgent = JardineritoAgent()
 MaximilianoAgent = MaximilianoAgent()
 TaylorAgent = TaylorAgent()
-StraightArrowAgent = StraightArrowAgent()
+GreedyAgent = GreedyAgent()
 IteroldAgent = IteroldAgent()
 ItterinoAgent = ItterinoAgent()
 TidyPodatorAgent = TidyPodatorAgent()
