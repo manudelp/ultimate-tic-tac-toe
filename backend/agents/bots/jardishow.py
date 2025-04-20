@@ -19,6 +19,8 @@ class JardiShowAgent:
         self.id = 3
         self.name = "Jardinero"
         self.icon = "🍀"
+        self.description = "Jardinero is a Minimax agent that uses Alpha Beta Pruning to play. He is very smart and will try to win at all costs!"
+        self.difficulty = 4
         self.loaded_up = False
     
     def __str__(self):

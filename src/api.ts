@@ -9,6 +9,8 @@ interface BotListResponse {
   id: number;
   name: string;
   icon: string;
+  description: string;
+  difficulty: number;
 }
 
 interface BotMoveResponse {

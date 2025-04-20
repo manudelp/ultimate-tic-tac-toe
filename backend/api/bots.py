@@ -27,14 +27,26 @@ AGENTS = {
     ArthyAgent().id : ArthyAgent(),
     # MonkeyAgent().id : MonkeyAgent(),
     # FooFinderAgent().id : FooFinderAgent(),
-    SantaAgent().id : SantaAgent()
+    # SantaAgent().id : SantaAgent()
 }
 
 @bot_routes.route('/get-bot-list', methods=['GET'])
 def get_bot_list():
-    # Extract id, name and icon from each agent
-    bot_list = [{'id': agent.id, 'name': agent.name, 'icon': agent.icon} for agent in AGENTS.values()]
-    return jsonify(bot_list)
+    try:
+        bot_list = []
+        for agent in AGENTS.values():
+            print(f"Processing agent: {agent.name}")  # Debugging
+            bot_list.append({
+                'id': agent.id,
+                'name': agent.name,
+                'icon': agent.icon,
+                'description': agent.description,
+                'difficulty': agent.difficulty
+            })
+        return jsonify(bot_list)
+    except Exception as e:
+        print(f"Error in /get-bot-list: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
     
 
 @bot_routes.route('/get-bot-move', methods=['POST'])

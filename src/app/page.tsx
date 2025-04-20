@@ -9,6 +9,7 @@ import TermsOfService from "./components/pages/terms-of-service";
 import Footer from "./components/layout/footer";
 import Header from "./components/layout/header";
 import ContactUs from "./components/pages/contact-us";
+import NotFound from "./components/pages/not-found";
 
 export default function Home() {
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
@@ -32,7 +33,7 @@ export default function Home() {
   return (
     <Router>
       <div className="min-h-svh bg-gray-900 text-white">
-        <Header isBackendConnected={isBackendConnected} />
+        <Header />
         <Routes>
           <Route
             path="/"
@@ -42,7 +43,7 @@ export default function Home() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="*" element={<h1>Not Found</h1>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer isBackendConnected={isBackendConnected} />
       </div>

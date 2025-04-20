@@ -17,6 +17,8 @@ class ArthyAgent:
         self.id = 4
         self.name = "Arthy"
         self.icon = "💎"
+        self.description = "Arthy is a bot that uses a heuristic evaluation function to play the game. It is designed to be a strong opponent."
+        self.difficulty = 4
         self.loaded_up = False
         
         # Load Agent 

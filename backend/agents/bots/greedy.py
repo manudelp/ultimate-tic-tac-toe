@@ -15,6 +15,8 @@ class GreedyAgent:
         self.id = 1
         self.name = "Greedy"
         self.icon = "🏹"
+        self.description = "Straighty is a greedy agent that plays the best move available. He is not very smart, but he is fun to play with!"
+        self.difficulty = 2
         self.loaded_up = False
         
         # Temporary to not break

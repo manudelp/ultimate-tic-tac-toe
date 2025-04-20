@@ -183,6 +183,21 @@ export const useGame = (
     ]
   );
 
+  const wrongTurnCell = useCallback(
+    (a: number, b: number, c: number, d: number) => {
+      const cell = document.querySelector(
+        `#cell-${a}-${b}-${c}-${d}`
+      ) as HTMLDivElement;
+      if (cell) {
+        cell.classList.add("wrong-turn");
+        setTimeout(() => {
+          cell.classList.remove("wrong-turn");
+        }, 1000);
+      }
+    },
+    []
+  );
+
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     if (gameOver) {
       return;
@@ -193,6 +208,9 @@ export const useGame = (
     if (!isBotThinking) {
       makeMove(coords);
     } else if (gameMode === "player-vs-bot") {
+      // add animation to the cell when isnt players turn
+      wrongTurnCell(a, b, c, d);
+
       toast.error("Let " + bot?.name + " " + bot?.icon + " cook.");
     } else {
       toast.warning("Wait for your turn.");
@@ -200,11 +218,10 @@ export const useGame = (
   };
 
   const handleBotMove = useCallback(async () => {
+    let interval: NodeJS.Timeout | null = null;
     try {
       const startTime = performance.now();
-      let interval: NodeJS.Timeout;
 
-      // eslint-disable-next-line prefer-const
       interval = setInterval(() => {
         const elapsedTime = (performance.now() - startTime) / 1000;
         setTimeToMove(elapsedTime);
@@ -220,13 +237,11 @@ export const useGame = (
       );
 
       makeMove(coords);
-
-      clearInterval(interval);
-
-      setIsBotThinking(false);
     } catch (error) {
-      setIsBotThinking(false);
       console.error("Error fetching bot's move:", error);
+    } finally {
+      if (interval) clearInterval(interval);
+      setIsBotThinking(false);
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
 

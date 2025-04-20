@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { getBots, loadBot } from "@/api";
-import Image from "next/image";
 import Loader from "@/app/components/ui/loader";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,6 +20,8 @@ type BotListResponse = {
   id: number;
   name: string;
   icon: string;
+  description: string;
+  difficulty: number;
 };
 
 // Utility function to shuffle an array
@@ -47,6 +48,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
   // Bots
   const [bots, setBots] = useState<BotListResponse[] | null>(null);
+  const [selectedBot, setSelectedBot] = useState<BotListResponse | null>(null);
   const [bot, setBot] = useState<BotListResponse | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
 
@@ -155,7 +157,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   // Bot selection
   useEffect(() => {
     if (gameMode === "player-vs-bot" && !bots) {
-      getBots().then((bots) => setBots(bots));
+      getBots().then((bots) => {
+        console.log(bots); // Debugging
+        setBots(
+          bots.map((bot: BotListResponse) => ({
+            ...bot,
+            description: bot.description || "",
+          }))
+        );
+      });
     }
   }, [gameMode, bots]);
 
@@ -217,128 +227,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
     return () => cancelAnimationFrame(animationFrame);
   }, [shuffledWords, shuffledColors]);
 
-  // SNOWING EFFECT LOGIC BELOW
-  useEffect(() => {
-    class Snowflake {
-      x: number;
-      y: number;
-      radius: number;
-      speedX: number;
-      speedY: number;
-      opacity: number;
-
-      constructor(width: number, height: number) {
-        const isBackground = Math.random() > 0.5; 
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.radius = Math.random() * 4 + 3; 
-        this.speedX = Math.random() * 0.16 + (-0.25 + Math.random() * 2) * 0.15;
-        this.speedY = Math.random() * 0.16 + 0.25; 
-        this.opacity = isBackground
-          ? Math.random() * 0.3 + 0.2
-          : Math.random() * 0.5 + 0.5;
-      }
-
-      update(width: number, height: number) {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.y > height) {
-          this.y = 0;
-          this.x = Math.random() * width;
-        }
-      }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        ctx.globalAlpha = this.opacity;
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          ctx.moveTo(this.x, this.y);
-          ctx.lineTo(
-            this.x + this.radius * Math.cos((i * Math.PI) / 3),
-            this.y + this.radius * Math.sin((i * Math.PI) / 3)
-          );
-        }
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-      }
-    }
-
-    function snowingEffect() {
-      const canvas = document.getElementById("snowCanvas") as HTMLCanvasElement;
-      const ctx = canvas?.getContext("2d");
-      if (!ctx) return;
-
-      const snowflakes: Snowflake[] = [];
-      const maxSnowflakes = 270;
-
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-
-      resizeCanvas();
-      window.addEventListener("resize", resizeCanvas);
-
-      // Create initial snowflakes
-      for (let i = 0; i < maxSnowflakes; i++) {
-        snowflakes.push(new Snowflake(canvas.width, canvas.height));
-      }
-
-      function animate() {
-        ctx?.clearRect(0, 0, canvas.width, canvas.height);
-
-        for (const snowflake of snowflakes) {
-          snowflake.update(canvas.width, canvas.height);
-          if (ctx) {
-            snowflake.draw(ctx);
-          }
-        }
-
-        requestAnimationFrame(animate);
-      }
-
-      animate();
-    }
-
-    snowingEffect();
-
-    return () => {
-      window.removeEventListener("resize", () => {});
-    };
-  }, [isBoardVisible]);
-
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-
-  useEffect(() => {
-    const bgMusic = new Audio("/assets/sounds/bg_xmas.mp3");
-    bgMusic.loop = true;
-    bgMusic.volume = 0.1;
-
-    const playAudio = () => {
-      bgMusic
-        .play()
-        .then(() => {
-          setIsMusicPlaying(true);
-        })
-        .catch((err) => console.error("Error al reproducir audio:", err));
-    };
-
-    // Añade el evento tras la interacción del usuario
-    document.addEventListener("click", playAudio, { once: true });
-
-    return () => {
-      document.removeEventListener("click", playAudio);
-      bgMusic.pause();
-      bgMusic.currentTime = 0;
-      setIsMusicPlaying(false);
-    };
-  }, []);
-
-  // SNOWING EFFECT LOGIC ABOVE
-
   return (
     <div className="flex flex-col items-center justify-center min-h-svh p-4 sm:p-8 text-white">
       <div className="text-center">
@@ -349,16 +237,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <h1 className="text-3xl sm:text-4xl mb-8 font-bold">
                 <small>Welcome to the</small>
                 <br />
-                <span className="relative">
-                  Ultimate Tic-Tac-Toe,{" "}
-                  <Image
-                    className="absolute -top-0 -left-3 hover:animate-bounce"
-                    src="/assets/img/santa.png"
-                    alt="Hat"
-                    width={25}
-                    height={25}
-                  />
-                </span>
+                <span className="relative">Ultimate Tic-Tac-Toe,</span>
                 <br />
                 <small>
                   a game of <span id="type" ref={typeRef}></span>.
@@ -370,7 +249,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               </h1>
             ) : (
               <h1 className="mt-20 sm:mt-auto text-2xl sm:text-4xl font-bold">
-                Face us, if you dare...
+                So you dare to face us...
               </h1>
             )}
 
@@ -436,66 +315,90 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
             {/* Choose Bot */}
             {gameMode === "player-vs-bot" && !bot && (
-              <div className="mt-8 text-center">
+              <div className="max-w-3xl mx-auto mt-8 px-4 text-center">
                 <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                   Choose your opponent
                 </h2>
-                <div className="flex flex-wrap justify-center gap-4">
-                  {bots?.map((bot) =>
-                    bot.id === -1 ? (
-                      <button
-                        key={bot.id}
-                        className={`relative w-64 flex justify-center items-center gap-2 p-4 font-bold overflow-hidden bg-black ${
-                          botsLoaded[bot.id]
-                            ? "hover:bg-gray-700"
-                            : "opacity-50"
-                        } transition-colors`}
-                        disabled={!botsLoaded[bot.id]}
-                        onClick={() => setBot(bot)}
-                      >
-                        <div
-                          className="absolute inset-0 bg-cover bg-center opacity-40"
-                          style={{ backgroundImage: `url('/fire.gif')` }}
-                        ></div>
 
-                        {botsLoaded[bot.id] ? (
-                          <>
-                            <div className="relative z-10 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                              {bot.icon}
-                            </div>
-                            <p className="relative z-10 w-full">{bot.name}</p>
-                          </>
-                        ) : (
-                          <Loader />
-                        )}
-                      </button>
-                    ) : bot.id === 112 ? "" : (
+                <div
+                  className={`${
+                    selectedBot
+                      ? "flex flex-col sm:flex-row sm:items-start gap-4"
+                      : "grid place-items-center"
+                  }`}
+                >
+                  {/* Bot list */}
+                  <div className="grid grid-cols-2 items-center justify-items-center gap-4 flex-1">
+                    {bots?.map((botOption) => (
                       <button
-                        key={bot.id}
-                        className={`w-64 flex justify-center items-center gap-2 p-4 bg-gray-800 ${
-                          botsLoaded[bot.id]
+                        key={botOption.id}
+                        className={`w-28 h-32 relative flex flex-col items-center gap-2 p-4 font-bold overflow-hidden bg-gray-800 rounded-md ${
+                          botsLoaded[botOption.id]
                             ? "hover:bg-gray-700"
-                            : "opacity-50"
-                        } transition-colors`}
-                        disabled={!botsLoaded[bot.id]}
-                        onClick={() => setBot(bot)}
+                            : "opacity-50 cursor-not-allowed"
+                        } transition-colors ${
+                          selectedBot?.id === botOption.id
+                            ? "ring-4 ring-red-500"
+                            : ""
+                        }`}
+                        disabled={!botsLoaded[botOption.id]}
+                        onClick={() => setSelectedBot(botOption)}
                       >
-                        {botsLoaded[bot.id] ? (
+                        {botsLoaded[botOption.id] ? (
                           <>
-                            <div className="bg-gray-700 rounded-md text-4xl w-12 h-12 grid place-items-center">
-                              {bot.icon}
+                            <div
+                              className={`relative z-10 rounded-md text-4xl w-16 h-16 grid place-items-center ${
+                                botOption.id === -1 ? "bg-black" : "bg-gray-700"
+                              }`}
+                              style={
+                                botOption.id === -1
+                                  ? { backgroundImage: `url('/fire.gif')` }
+                                  : undefined
+                              }
+                            >
+                              {botOption.icon}
                             </div>
-                            <p className="w-full">{bot.name}</p>
+                            <p className="relative z-10 text-center">
+                              {botOption.name}
+                            </p>
                           </>
                         ) : (
                           <Loader />
                         )}
                       </button>
-                    )
+                    ))}
+                  </div>
+
+                  {/* Bot description */}
+                  {selectedBot && (
+                    <div className="mt-4 sm:mt-0 sm:w-80 h-full bg-gray-800 p-4 rounded-md flex flex-col items-center justify-between">
+                      <div className="text-lg font-semibold mb-4 flex flex-col items-center">
+                        <div className="bg-gray-700 rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2">
+                          {selectedBot.icon}
+                        </div>
+                        <h3 className="text-center">{selectedBot.name}</h3>
+                      </div>
+                      <p className="text-sm text-gray-400 text-center">
+                        {selectedBot.description || "No description available."}
+                      </p>
+                      <div className="mt-2">
+                        <h3>How cooked are you? 😅</h3>
+                        <p className="text-sm text-gray-400 text-center">
+                          {Array(selectedBot.difficulty).fill("🔥").join(" ")}
+                        </p>
+                      </div>
+                      <button
+                        className="mt-6 w-full py-4 px-6 bg-green-500 hover:bg-green-400 transition-colors"
+                        onClick={() => setBot(selectedBot)}
+                      >
+                        Play
+                      </button>
+                    </div>
                   )}
                 </div>
+
                 <button
-                  className="mt-4 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  className="mt-4 w-full sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
                   onClick={() => handleExitGame()}
                 >
                   Go Back
@@ -575,20 +478,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
           starts={starts}
           onExit={handleExitGame}
         />
-      )}
-
-      {!isBoardVisible && (
-        <>
-          <canvas
-            id="snowCanvas"
-            className="fixed inset-0 w-full h-full pointer-events-none z-10"
-          ></canvas>
-          {!isMusicPlaying && (
-            <div className="absolute bottom-2 py-2 px-4 text-center rounded-xl bg-black bg-opacity-25 backdrop-blur z-[100] pointer-events-none">
-              🎧 Click anywhere to start the music! 👆
-            </div>
-          )}
-        </>
       )}
     </div>
   );
