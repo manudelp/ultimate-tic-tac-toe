@@ -14,8 +14,8 @@ class GreedyAgent:
     def __init__(self):
         self.id = 1
         self.name = "Greedy"
-        self.icon = "🏹"
-        self.description = "Straighty is a greedy agent that plays the best move available. He is not very smart, but he is fun to play with!"
+        self.icon = "🤑"
+        self.description = "Greedy is an agent that doesn't think much about the future, he just plays whatever looks best at first glance"
         self.difficulty = 2
         self.loaded_up = False
         

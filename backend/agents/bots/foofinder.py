@@ -37,7 +37,7 @@ class FooFinderAgent:
         self.id = -1
         self.name = "Foo Finder"
         self.icon = "👑"
-        self.description = "The best agent in the world, the one and only Foo Finder. He is the best agent in the world, and he knows it."
+        self.description = "The best agent in the world, the one and only Foo Finder. He is the best agent in the world, and he knows it. Tiembla Arkadiusz"
         self.difficulty = 5
         self.loaded_up = False
         
