@@ -6,11 +6,11 @@ from typing import List, Tuple, Dict, Any, Union, Optional
 
 # Main Bots
 from bots.randy import RandomAgent
-from bots.monkey import MonkeyAgent
+# from bots.monkey import MonkeyAgent
 from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.arthy import ArthyAgent
-from bots.foofinder import FooFinderAgent
+# from bots.foofinder import FooFinderAgent
 
 # Other Dev Bots
 from others.jardy import GardenerAgent
@@ -38,6 +38,10 @@ t0 = time.time()
 # Initialize agents
 AGENT1 = RandomAgent()    # Replace with your chosen agent
 AGENT2 = GreedyAgent()  # Replace with your chosen agent
+
+AGENT1.load()
+AGENT2.load()
+
 ROUNDS = 2
 GAMES = ROUNDS * 2
 BLIZZARD_MODE = True

@@ -363,7 +363,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                             </p>
                           </>
                         ) : (
-                          <Loader />
+                          <>
+                            <div className="relative z-10 rounded-md text-4xl w-16 h-16 grid place-items-center bg-gray-700 animate-pulse">
+                              {botOption.icon}
+                            </div>
+                            <p className="relative z-10 text-center">{botOption.name}</p>
+                            <div className="absolute inset-0 bg-gray-900 opacity-70 flex items-center justify-center">
+                              <Loader />
+                            </div>
+                          </>
                         )}
                       </button>
                     ))}
@@ -438,6 +446,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <h3 className="mb-2">Share with friends!</h3>
               <div className="flex justify-center gap-6">
                 <button
+                title="Share on WhatsApp"
                   onClick={() => {
                     shareOnWhatsApp();
                     toast.success("Thank you for sharing on WhatsApp!");
@@ -447,6 +456,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   <FontAwesomeIcon icon={faWhatsapp} />
                 </button>
                 <button
+                title="Share on Twitter"
                   onClick={() => {
                     shareOnTwitter();
                     toast.success("Thank you for sharing on Twitter!");
@@ -456,6 +466,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   <FontAwesomeIcon icon={faXTwitter} />
                 </button>
                 <button
+                title="Share on Reddit"
                   onClick={() => {
                     shareOnReddit();
                     toast.success("Thank you for sharing on Reddit!");
