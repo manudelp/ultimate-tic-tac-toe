@@ -24,7 +24,7 @@ AGENTS = {
     GreedyAgent().id : GreedyAgent(), 
     JardineritoAgent().id : JardineritoAgent(),
     JardiShowAgent().id : JardiShowAgent(),
-    ArthyAgent().id : ArthyAgent(),
+    # ArthyAgent().id : ArthyAgent(),
     # MonkeyAgent().id : MonkeyAgent(),
     # FooFinderAgent().id : FooFinderAgent(),
     # SantaAgent().id : SantaAgent()

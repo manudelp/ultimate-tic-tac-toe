@@ -228,13 +228,13 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   }, [shuffledWords, shuffledColors]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-svh p-4 sm:p-8 text-white">
+    <div className="flex flex-col items-center justify-center p-4 text-white min-h-svh sm:p-8">
       <div className="text-center">
         {!isBoardVisible && (
           <>
             {/* Title */}
             {!gameMode ? (
-              <h1 className="text-3xl sm:text-4xl mb-8 font-bold">
+              <h1 className="mb-8 text-3xl font-bold sm:text-4xl">
                 <small>Welcome to the</small>
                 <br />
                 <span className="relative">Ultimate Tic-Tac-Toe,</span>
@@ -244,20 +244,20 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                 </small>
               </h1>
             ) : gameMode === "player-vs-player" ? (
-              <h1 className="sm:mt-auto text-2xl sm:text-4xl font-bold">
+              <h1 className="text-2xl font-bold sm:mt-auto sm:text-4xl">
                 Ready to fight?
               </h1>
             ) : (
-              <h1 className="mt-20 sm:mt-auto text-2xl sm:text-4xl font-bold">
+              <h1 className="mt-20 text-2xl font-bold sm:mt-auto sm:text-4xl">
                 So you dare to face us...
               </h1>
             )}
 
             {/* Choose Game Mode */}
             {gameMode === null && (
-              <div className="flex flex-wrap flex-col sm:flex-row justify-center gap-6">
+              <div className="flex flex-col flex-wrap justify-center gap-6 sm:flex-row">
                 <button
-                  className="sm:w-64 py-4 bg-gray-800 hover:bg-green-700 transition-colors font-medium text-lg hover:animate-pulse"
+                  className="py-4 text-lg font-medium transition-colors bg-gray-800 sm:w-64 hover:bg-green-700 hover:animate-pulse"
                   onClick={() => selectMode("player-vs-player")}
                 >
                   Fight a friend
@@ -289,23 +289,23 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
             {/* Local or Online */}
             {gameMode === "player-vs-player" && (
               <div className="mt-8 text-center">
-                <h2 className="text-xl sm:text-2xl font-semibold mb-4">How?</h2>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <h2 className="mb-4 text-xl font-semibold sm:text-2xl">How?</h2>
+                <div className="flex flex-col justify-center gap-6 sm:flex-row">
                   <button
-                    className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
+                    className="px-6 py-4 transition-colors bg-gray-800 sm:w-64 hover:bg-gray-700"
                     onClick={() => setIsOnline(false)}
                   >
                     Local
                   </button>
                   <button
-                    className="sm:w-64 py-4 px-6 bg-gray-500 opacity-70 cursor-not-allowed transition-colors"
+                    className="px-6 py-4 transition-colors bg-gray-500 cursor-not-allowed sm:w-64 opacity-70"
                     onClick={() => toast.info("Coming soon!")}
                   >
                     Online
                   </button>
                 </div>
                 <button
-                  className="mt-6 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  className="block w-full px-6 py-3 mx-auto mt-6 bg-gray-700 rounded sm:w-48 hover:bg-gray-600"
                   onClick={() => handleExitGame()}
                 >
                   Go Back
@@ -315,125 +315,181 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
             {/* Choose Bot */}
             {gameMode === "player-vs-bot" && !bot && (
-              <div className="max-w-3xl mx-auto mt-8 px-4 text-center">
-                <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+              <div className="max-w-4xl px-2 mx-auto mt-4 sm:px-4">
+                <h2 className="mb-6 text-xl font-bold text-center sm:text-2xl">
                   Choose your opponent
                 </h2>
 
                 <div
-                  className={`${
-                    selectedBot
-                      ? "flex flex-col sm:flex-row sm:items-start gap-4"
-                      : "grid place-items-center"
-                  }`}
+                  className={`grid ${
+                    selectedBot ? "grid-cols-[2fr_1fr]" : "grid-cols-1"
+                  } gap-4`}
                 >
-                  {/* Bot list */}
-                  <div className="grid grid-cols-2 items-center justify-items-center gap-4 flex-1">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {bots?.map((botOption) => (
-                      <button
+                      <div
                         key={botOption.id}
-                        className={`w-28 h-32 relative flex flex-col items-center gap-2 p-4 font-bold overflow-hidden bg-gray-800 rounded-md ${
-                          botsLoaded[botOption.id]
-                            ? "hover:bg-gray-700"
-                            : "opacity-50 cursor-not-allowed"
-                        } transition-colors ${
+                        className={`relative bg-gray-800 rounded-lg overflow-hidden transition-all duration-200 ring-2 ${
+                          !botsLoaded[botOption.id] && "opacity-60"
+                        } ${
                           selectedBot?.id === botOption.id
-                            ? "ring-4 ring-red-500"
-                            : ""
+                            ? "ring-red-500"
+                            : "ring-transparent"
                         }`}
-                        disabled={!botsLoaded[botOption.id]}
-                        onClick={() => setSelectedBot(botOption)}
                       >
-                        {botsLoaded[botOption.id] ? (
-                          <>
-                            <div
-                              className={`relative z-10 rounded-md text-4xl w-16 h-16 grid place-items-center ${
-                                botOption.id === -1 ? "bg-black" : "bg-gray-700"
-                              }`}
-                              style={
-                                botOption.id === -1
-                                  ? { backgroundImage: `url('/fire.gif')` }
-                                  : undefined
-                              }
-                            >
-                              {botOption.icon}
-                            </div>
-                            <p className="relative z-10 text-center">
+                        <button
+                          className="flex flex-col items-center w-full h-full p-4 text-left"
+                          disabled={!botsLoaded[botOption.id]}
+                          onClick={() => setSelectedBot(botOption)}
+                        >
+                          {/* Bot avatar */}
+                          <div
+                            className={`relative rounded-full text-4xl w-20 h-20 grid place-items-center mb-3 ${
+                              botOption.id === -1 ? "bg-black" : "bg-gray-700"
+                            }`}
+                            style={
+                              botOption.id === -1
+                                ? { backgroundImage: `url('/fire.gif')` }
+                                : undefined
+                            }
+                          >
+                            {botOption.icon}
+                          </div>
+
+                          {/* Bot info */}
+                          <div className="w-full text-center">
+                            <h3 className="mb-1 text-lg font-bold">
                               {botOption.name}
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <div className="relative z-10 rounded-md text-4xl w-16 h-16 grid place-items-center bg-gray-700 animate-pulse">
-                              {botOption.icon}
+                            </h3>
+
+                            {/* Difficulty rating */}
+                            <div className="flex justify-center mb-2">
+                              {Array(5)
+                                .fill(0)
+                                .map((_, i) => (
+                                  <span key={i} className="mx-0.5">
+                                    {i < botOption.difficulty ? "🔥" : "⚪"}
+                                  </span>
+                                ))}
                             </div>
-                            <p className="relative z-10 text-center">{botOption.name}</p>
-                            <div className="absolute inset-0 bg-gray-900 opacity-70 flex items-center justify-center">
+
+                            {/* Short description - visible on small screens or when not selected */}
+                            <p className="text-sm text-gray-300 line-clamp-2 sm:hidden">
+                              {botOption.description ||
+                                "No description available."}
+                            </p>
+                          </div>
+
+                          {/* Loading indicator */}
+                          {!botsLoaded[botOption.id] && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70">
                               <Loader />
                             </div>
-                          </>
+                          )}
+                        </button>
+
+                        {/* Play button appears on hover or when selected */}
+                        {botsLoaded[botOption.id] && (
+                          <div
+                            className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3 transform transition-transform duration-200 ${
+                              selectedBot?.id === botOption.id
+                                ? "translate-y-0"
+                                : "translate-y-full sm:group-hover:translate-y-0"
+                            }`}
+                          >
+                            <button
+                              className="w-full py-2 font-medium bg-green-500 rounded hover:bg-green-400"
+                              onClick={() => setBot(botOption)}
+                            >
+                              Play Now
+                            </button>
+                          </div>
                         )}
-                      </button>
+                      </div>
                     ))}
                   </div>
 
-                  {/* Bot description */}
+                  {/* Full description panel - appears below on mobile, side panel on desktop */}
                   {selectedBot && (
-                    <div className="mt-4 sm:mt-0 sm:w-80 h-full bg-gray-800 p-4 rounded-md flex flex-col items-center justify-between">
-                      <div className="text-lg font-semibold mb-4 flex flex-col items-center">
-                        <div className="bg-gray-700 rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2">
+                    <div className="flex flex-col justify-between p-4 mt-6 bg-gray-800 rounded-lg shadow-lg sm:mt-0">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center justify-center w-16 h-16 text-4xl bg-gray-700 rounded-full">
                           {selectedBot.icon}
                         </div>
-                        <h3 className="text-center">{selectedBot.name}</h3>
+                        <div className="flex flex-col items-start justify-center">
+                          <h3 className="text-xl font-bold">
+                            {selectedBot.name}
+                          </h3>
+                          <div className="flex">
+                            {Array(selectedBot.difficulty)
+                              .fill("🔥")
+                              .map((fire, i) => (
+                                <span key={i}>{fire}</span>
+                              ))}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-400 text-center">
+
+                      <p className="mb-4 text-gray-300">
                         {selectedBot.description || "No description available."}
                       </p>
-                      <div className="mt-2">
-                        <h3>How cooked are you? 😅</h3>
-                        <p className="text-sm text-gray-400 text-center">
-                          {Array(selectedBot.difficulty).fill("🔥").join(" ")}
-                        </p>
+
+                      <div className="flex gap-4">
+                        <button
+                          className="flex-1 py-3 font-bold bg-green-500 rounded hover:bg-green-400"
+                          onClick={() => setBot(selectedBot)}
+                        >
+                          Play Now
+                        </button>
+                        <button
+                          className="px-4 py-3 bg-gray-700 rounded hover:bg-gray-600"
+                          onClick={() => {
+                            setSelectedBot(null);
+                            handleExitGame();
+                          }}
+                        >
+                          Go Back
+                        </button>
                       </div>
-                      <button
-                        className="mt-6 w-full py-4 px-6 bg-green-500 hover:bg-green-400 transition-colors"
-                        onClick={() => setBot(selectedBot)}
-                      >
-                        Play
-                      </button>
                     </div>
                   )}
                 </div>
 
-                <button
-                  className="mt-4 w-full sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
-                  onClick={() => handleExitGame()}
-                >
-                  Go Back
-                </button>
+                {/* Only show this button when no bot is selected */}
+                {!selectedBot && (
+                  <button
+                    className="block w-full px-6 py-3 mx-auto mt-6 bg-gray-700 rounded sm:w-48 hover:bg-gray-600"
+                    onClick={() => {
+                      setSelectedBot(null);
+                      handleExitGame();
+                    }}
+                  >
+                    Go Back
+                  </button>
+                )}
               </div>
             )}
 
             {/* Who Starts (player-vs-bot) */}
             {gameMode === "player-vs-bot" && bot && !starts && (
               <div className="mt-8 text-center">
-                <h2 className="text-2xl font-semibold mb-4">Who starts?</h2>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <h2 className="mb-4 text-2xl font-semibold">Who starts?</h2>
+                <div className="flex flex-col justify-center gap-6 sm:flex-row">
                   <button
-                    className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
+                    className="px-6 py-4 transition-colors bg-gray-800 sm:w-64 hover:bg-gray-700"
                     onClick={() => setStarts("player")}
                   >
                     Player Starts
                   </button>
                   <button
-                    className="sm:w-64 py-4 px-6 bg-gray-800 hover:bg-gray-700 transition-colors"
+                    className="px-6 py-4 transition-colors bg-gray-800 sm:w-64 hover:bg-gray-700"
                     onClick={() => setStarts("bot")}
                   >
                     Bot Starts
                   </button>
                 </div>
                 <button
-                  className="mt-6 sm:w-64 py-4 px-6 bg-red-500 hover:bg-red-400 transition-colors"
+                  className="block w-full px-6 py-3 mx-auto mt-6 bg-gray-700 rounded sm:w-48 hover:bg-gray-600"
                   onClick={() => handleExitGame()}
                 >
                   Go Back
@@ -446,32 +502,32 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <h3 className="mb-2">Share with friends!</h3>
               <div className="flex justify-center gap-6">
                 <button
-                title="Share on WhatsApp"
+                  title="Share on WhatsApp"
                   onClick={() => {
                     shareOnWhatsApp();
                     toast.success("Thank you for sharing on WhatsApp!");
                   }}
-                  className="text-3xl hover:text-green-500 transition-colors"
+                  className="text-3xl transition-colors hover:text-green-500"
                 >
                   <FontAwesomeIcon icon={faWhatsapp} />
                 </button>
                 <button
-                title="Share on Twitter"
+                  title="Share on Twitter"
                   onClick={() => {
                     shareOnTwitter();
                     toast.success("Thank you for sharing on Twitter!");
                   }}
-                  className="text-3xl hover:text-black transition-colors"
+                  className="text-3xl transition-colors hover:text-black"
                 >
                   <FontAwesomeIcon icon={faXTwitter} />
                 </button>
                 <button
-                title="Share on Reddit"
+                  title="Share on Reddit"
                   onClick={() => {
                     shareOnReddit();
                     toast.success("Thank you for sharing on Reddit!");
                   }}
-                  className="text-3xl hover:text-orange-600 transition-colors"
+                  className="text-3xl transition-colors hover:text-orange-600"
                 >
                   <FontAwesomeIcon icon={faReddit} />
                 </button>
