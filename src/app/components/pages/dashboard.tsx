@@ -177,7 +177,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
         });
       });
     }
-  }, [bot, bots]);
+  }, [gameMode, bots]);
 
   // Words effect
   useEffect(() => {
@@ -322,10 +322,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
                 <div
                   className={`grid ${
-                    selectedBot ? "grid-cols-[2fr_1fr]" : "grid-cols-1"
+                    selectedBot ? "sm:grid-cols-[2fr_1fr]" : "grid-cols-1"
                   } gap-4`}
                 >
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
                     {bots?.map((botOption) => (
                       <div
                         key={botOption.id}
@@ -340,7 +340,19 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                         <button
                           className="flex flex-col items-center w-full h-full p-4 text-left"
                           disabled={!botsLoaded[botOption.id]}
-                          onClick={() => setSelectedBot(botOption)}
+                          onClick={() => (
+                            setSelectedBot(botOption),
+                            setTimeout(() => {
+                              const selectedBotMenu =
+                                document.getElementById("selectedBotMenu");
+                              if (selectedBotMenu) {
+                                selectedBotMenu.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "start",
+                                });
+                              }
+                            }, 100)
+                          )}
                         >
                           {/* Bot avatar */}
                           <div
@@ -372,12 +384,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                                   </span>
                                 ))}
                             </div>
-
-                            {/* Short description - visible on small screens or when not selected */}
-                            <p className="text-sm text-gray-300 line-clamp-2 sm:hidden">
-                              {botOption.description ||
-                                "No description available."}
-                            </p>
                           </div>
 
                           {/* Loading indicator */}
@@ -387,31 +393,16 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                             </div>
                           )}
                         </button>
-
-                        {/* Play button appears on hover or when selected */}
-                        {botsLoaded[botOption.id] && (
-                          <div
-                            className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3 transform transition-transform duration-200 ${
-                              selectedBot?.id === botOption.id
-                                ? "translate-y-0"
-                                : "translate-y-full sm:group-hover:translate-y-0"
-                            }`}
-                          >
-                            <button
-                              className="w-full py-2 font-medium bg-green-500 rounded hover:bg-green-400"
-                              onClick={() => setBot(botOption)}
-                            >
-                              Play Now
-                            </button>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
 
                   {/* Full description panel - appears below on mobile, side panel on desktop */}
                   {selectedBot && (
-                    <div className="flex flex-col justify-between p-4 mt-6 bg-gray-800 rounded-lg shadow-lg sm:mt-0">
+                    <div
+                      id="selectedBotMenu"
+                      className="flex flex-col justify-between p-4 mt-6 bg-gray-800 rounded-lg shadow-lg sm:mt-0"
+                    >
                       <div className="flex items-center gap-4 mb-4">
                         <div className="flex items-center justify-center w-16 h-16 text-4xl bg-gray-700 rounded-full">
                           {selectedBot.icon}

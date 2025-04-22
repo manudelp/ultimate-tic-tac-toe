@@ -33,7 +33,7 @@ class SantaAgent:
         self.id = 112
         self.name = "Santa"
         self.icon = "🎅🏻"
-        self.description = "Santa is a random agent that plays randomly. He is not very smart, but he is very lucky."
+        self.description = "Ho ho ho!"
         self.difficulty = 1
         
         # Temporary to not break

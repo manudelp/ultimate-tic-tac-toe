@@ -19,7 +19,7 @@ class JardineritoAgent:
         self.id = 2
         self.name = "Jardinerito"
         self.icon = "☘️"
-        self.description = "Jardinerito is a Minimax agent that uses Alpha Beta Pruning to play. He is a bit slow, but he is very smart!"
+        self.description = "Jardinerito is a clever little bot who loves planting winning moves and weeding out the bad ones. Watch out, he's got a green thumb for victory!" 
         self.difficulty = 3
         self.loaded_up = False
     

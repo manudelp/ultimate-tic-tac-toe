@@ -19,7 +19,7 @@ class MonkeyAgent:
         self.id = 5
         self.name = "Monkey"
         self.icon = "🙈"
-        self.description = "Monkey is a random agent that plays randomly. He is not very smart, but he is fun to play with!"
+        self.description = "Monke"
         self.difficulty = 1
         self.loaded_up = False
         
