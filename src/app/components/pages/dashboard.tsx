@@ -340,19 +340,21 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                         <button
                           className="flex flex-col items-center w-full h-full p-4 text-left"
                           disabled={!botsLoaded[botOption.id]}
-                          onClick={() => (
-                            setSelectedBot(botOption),
-                            setTimeout(() => {
-                              const selectedBotMenu =
-                                document.getElementById("selectedBotMenu");
-                              if (selectedBotMenu) {
-                                selectedBotMenu.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "start",
-                                });
-                              }
-                            }, 100)
-                          )}
+                          onClick={() => {
+                            setSelectedBot(botOption);
+                            if (window.innerWidth <= 768) {
+                              setTimeout(() => {
+                                const selectedBotMenu =
+                                  document.getElementById("selectedBotMenu");
+                                if (selectedBotMenu) {
+                                  selectedBotMenu.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                  });
+                                }
+                              }, 100);
+                            }
+                          }}
                         >
                           {/* Bot avatar */}
                           <div
