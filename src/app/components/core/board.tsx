@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MiniBoard from "@/app/components/core/miniboard";
 import GameOverModal from "../ui/game-over";
 import { useGame } from "../../hooks/useGame";
