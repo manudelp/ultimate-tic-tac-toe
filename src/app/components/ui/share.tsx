@@ -5,21 +5,37 @@ import {
   faXTwitter,
   faReddit,
 } from "@fortawesome/free-brands-svg-icons";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const Share: React.FC = () => {
   const shareOnWhatsApp = () => {
-    // Logic for sharing on WhatsApp
+    const link = window.location.href;
+    const message = `Think you're the ultimate strategist? Prove it! 🕹️ Play Ultimate Tic Tac Toe with me: ${link}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   const shareOnTwitter = () => {
-    // Logic for sharing on Twitter
+    const link = window.location.href;
+    const text = `Challenge your mind and your friends! 🧠🔥 Play Ultimate Tic Tac Toe:`;
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        text
+      )}&url=${encodeURIComponent(link)}`,
+      "_blank"
+    );
   };
 
   const shareOnReddit = () => {
-    // Logic for sharing on Reddit
+    const link = window.location.href;
+    const title =
+      "Can you outsmart the bot or your friends? 🕹️ Play Ultimate Tic Tac Toe now!";
+    window.open(
+      `https://www.reddit.com/submit?url=${encodeURIComponent(
+        link
+      )}&title=${encodeURIComponent(title)}`,
+      "_blank"
+    );
   };
-
   return (
     <div className="mt-8 text-center">
       <h3 className="mb-2">Share with friends!</h3>

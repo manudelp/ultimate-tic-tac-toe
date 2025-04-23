@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Button from "@/app/components/ui/button";
+import Share from "@/app/components/ui/share";
 import { getBots, loadBot } from "@/api";
 import { Link } from "react-router-dom";
 import Loader from "@/app/components/ui/loader";
 import { toast } from "sonner";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faWhatsapp,
-  faXTwitter,
-  faReddit,
-} from "@fortawesome/free-brands-svg-icons";
 
 const Board = dynamic(() => import("@/app/components/core/board"), {
   ssr: false,
@@ -127,35 +122,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
     });
   };
 
-  const shareOnWhatsApp = () => {
-    const link = window.location.href;
-    const message = `Think you're the ultimate strategist? Prove it! 🕹️ Play Ultimate Tic Tac Toe with me: ${link}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
-  };
-
-  const shareOnTwitter = () => {
-    const link = window.location.href;
-    const text = `Challenge your mind and your friends! 🧠🔥 Play Ultimate Tic Tac Toe:`;
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-        text
-      )}&url=${encodeURIComponent(link)}`,
-      "_blank"
-    );
-  };
-
-  const shareOnReddit = () => {
-    const link = window.location.href;
-    const title =
-      "Can you outsmart the bot or your friends? 🕹️ Play Ultimate Tic Tac Toe now!";
-    window.open(
-      `https://www.reddit.com/submit?url=${encodeURIComponent(
-        link
-      )}&title=${encodeURIComponent(title)}`,
-      "_blank"
-    );
-  };
-
   // Bot selection
   useEffect(() => {
     if (gameMode === "player-vs-bot" && !bots) {
@@ -258,14 +224,14 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
             {/* Choose Game Mode */}
             {gameMode === null && (
               <div className="flex flex-col flex-wrap justify-center gap-6 sm:flex-row">
-                <button
-                  className="py-4 text-lg font-medium transition-colors bg-gray-800 rounded sm:w-64 hover:bg-green-700 hover:animate-pulse"
+                <Button
+                  text="Fight a friend"
+                  className="text-lg font-medium hover:bg-green-700 hover:animate-pulse"
                   onClick={() => selectMode("player-vs-player")}
-                >
-                  Fight a friend
-                </button>
-                <button
-                  className={`sm:w-64 py-4 rounded transition-colors font-medium text-lg ${
+                />
+                <Button
+                  text="Fight us"
+                  className={`text-lg font-medium ${
                     isBackendConnected
                       ? "bg-gray-800 hover:bg-red-700"
                       : "bg-gray-500 opacity-70 cursor-not-allowed"
@@ -282,9 +248,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                           },
                         })
                   }
-                >
-                  Fight us
-                </button>
+                />
               </div>
             )}
 
@@ -298,12 +262,11 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                     <Button text="Online" onClick={() => setIsOnline(true)} />
                   </Link>
                 </div>
-                <button
-                  className="block w-full px-6 py-3 mx-auto mt-6 bg-gray-700 rounded sm:w-48 hover:bg-gray-600"
+                <Button
+                  text="Go Back"
+                  className="mx-auto mt-6 sm:w-48"
                   onClick={() => handleExitGame()}
-                >
-                  Go Back
-                </button>
+                />
               </div>
             )}
 
@@ -484,42 +447,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               </div>
             )}
 
-            {/* Share with friends */}
-            <div className="mt-8 text-center">
-              <h3 className="mb-2">Share with friends!</h3>
-              <div className="flex justify-center gap-6">
-                <button
-                  title="Share on WhatsApp"
-                  onClick={() => {
-                    shareOnWhatsApp();
-                    toast.success("Thank you for sharing on WhatsApp!");
-                  }}
-                  className="text-3xl transition-colors hover:text-green-500"
-                >
-                  <FontAwesomeIcon icon={faWhatsapp} />
-                </button>
-                <button
-                  title="Share on Twitter"
-                  onClick={() => {
-                    shareOnTwitter();
-                    toast.success("Thank you for sharing on Twitter!");
-                  }}
-                  className="text-3xl transition-colors hover:text-black"
-                >
-                  <FontAwesomeIcon icon={faXTwitter} />
-                </button>
-                <button
-                  title="Share on Reddit"
-                  onClick={() => {
-                    shareOnReddit();
-                    toast.success("Thank you for sharing on Reddit!");
-                  }}
-                  className="text-3xl transition-colors hover:text-orange-600"
-                >
-                  <FontAwesomeIcon icon={faReddit} />
-                </button>
-              </div>
-            </div>
+            <Share />
           </>
         )}
       </div>

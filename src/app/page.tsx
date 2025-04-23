@@ -43,10 +43,7 @@ export default function Home() {
           <Route path="/how-to-play" element={<HowToPlay />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route
-            path="/online"
-            element={<Online isBackendConnected={isBackendConnected} />}
-          />
+          <Route path="/online" element={<Online />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
