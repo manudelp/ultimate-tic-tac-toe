@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
+import Button from "@/app/components/ui/button";
 import { getBots, loadBot } from "@/api";
+import { Link } from "react-router-dom";
 import Loader from "@/app/components/ui/loader";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -73,7 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
         "execution",
         "decision-making",
         "expertise",
-        "chance",
+        "wit",
         "probability",
         "preparation",
         "risk",
@@ -257,13 +259,13 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
             {gameMode === null && (
               <div className="flex flex-col flex-wrap justify-center gap-6 sm:flex-row">
                 <button
-                  className="py-4 text-lg font-medium transition-colors bg-gray-800 sm:w-64 hover:bg-green-700 hover:animate-pulse"
+                  className="py-4 text-lg font-medium transition-colors bg-gray-800 rounded sm:w-64 hover:bg-green-700 hover:animate-pulse"
                   onClick={() => selectMode("player-vs-player")}
                 >
                   Fight a friend
                 </button>
                 <button
-                  className={`sm:w-64 py-4 transition-colors font-medium text-lg ${
+                  className={`sm:w-64 py-4 rounded transition-colors font-medium text-lg ${
                     isBackendConnected
                       ? "bg-gray-800 hover:bg-red-700"
                       : "bg-gray-500 opacity-70 cursor-not-allowed"
@@ -273,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                       ? selectMode("player-vs-bot")
                       : toast.warning("Server is offline", {
                           description:
-                            "It may take up around 1 minute to connect.",
+                            "The server is currently offline. Please try again later.",
                           action: {
                             label: "Reload",
                             onClick: () => window.location.reload(),
@@ -291,18 +293,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
               <div className="mt-8 text-center">
                 <h2 className="mb-4 text-xl font-semibold sm:text-2xl">How?</h2>
                 <div className="flex flex-col justify-center gap-6 sm:flex-row">
-                  <button
-                    className="px-6 py-4 transition-colors bg-gray-800 sm:w-64 hover:bg-gray-700"
-                    onClick={() => setIsOnline(false)}
-                  >
-                    Local
-                  </button>
-                  <button
-                    className="px-6 py-4 transition-colors bg-gray-500 cursor-not-allowed sm:w-64 opacity-70"
-                    onClick={() => toast.info("Coming soon!")}
-                  >
-                    Online
-                  </button>
+                  <Button text="Local" onClick={() => setIsOnline(false)} />
+                  <Link to="/online">
+                    <Button text="Online" onClick={() => setIsOnline(true)} />
+                  </Link>
                 </div>
                 <button
                   className="block w-full px-6 py-3 mx-auto mt-6 bg-gray-700 rounded sm:w-48 hover:bg-gray-600"

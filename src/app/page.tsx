@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { checkConnection } from "@/api";
 import Dashboard from "./components/pages/dashboard";
+import Online from "./components/pages/online";
 import HowToPlay from "./components/pages/how-to-play";
 import PrivacyPolicy from "./components/pages/privacy-policy";
 import TermsOfService from "./components/pages/terms-of-service";
@@ -32,7 +33,7 @@ export default function Home() {
   if (!isClient) return null;
   return (
     <Router>
-      <div className="min-h-svh bg-gray-900 text-white">
+      <div className="text-white bg-gray-900 min-h-svh">
         <Header />
         <Routes>
           <Route
@@ -42,6 +43,10 @@ export default function Home() {
           <Route path="/how-to-play" element={<HowToPlay />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route
+            path="/online"
+            element={<Online isBackendConnected={isBackendConnected} />}
+          />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
