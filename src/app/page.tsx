@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { checkConnection } from "@/api";
 import Dashboard from "./components/pages/dashboard";
-import Online from "./components/pages/online";
+import Lobby from "./components/pages/lobby";
 import HowToPlay from "./components/pages/how-to-play";
 import PrivacyPolicy from "./components/pages/privacy-policy";
 import TermsOfService from "./components/pages/terms-of-service";
@@ -43,7 +43,7 @@ export default function Home() {
           <Route path="/how-to-play" element={<HowToPlay />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/online" element={<Online />} />
+          <Route path="/lobby" element={<Lobby />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

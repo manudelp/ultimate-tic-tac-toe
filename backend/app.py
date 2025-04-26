@@ -6,6 +6,7 @@ from flask_jwt_extended import JWTManager
 from config import DevelopmentConfig
 from api.bots import bot_routes
 from api.auth import auth_routes
+from api.online import online_routes
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -15,8 +16,13 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)  # Cargar configuración
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')  # Clave JWT
 
-# Configurar CORS
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://www.utictactoe.online", "https://utictactoe.online"]}})
+# CORS
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:3000",
+    "https://www.utictactoe.online",
+    "https://utictactoe.online",
+    "https://utictactoe.vercel.app"
+]}})
 
 # Inicializar JWT
 jwt = JWTManager(app)
@@ -33,6 +39,7 @@ def expired_token_response(jwt_header, jwt_payload):
 # Registrar blueprints
 app.register_blueprint(bot_routes)
 app.register_blueprint(auth_routes)
+app.register_blueprint(online_routes)
 
 # Ruta de verificación de estado
 @app.route('/health', methods=['GET'])

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Link } from "react-router-dom";
 import dynamic from "next/dynamic";
 import Button from "@/app/components/ui/button";
 import Share from "@/app/components/ui/share";
 import { getBots, loadBot } from "@/api";
-import { Link } from "react-router-dom";
 import Loader from "@/app/components/ui/loader";
 import { toast } from "sonner";
 
@@ -53,7 +53,8 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   const isBoardVisible =
     gameMode &&
     (gameMode !== "player-vs-bot" || starts) &&
-    (gameMode !== "player-vs-player" || isOnline !== null);
+    (gameMode !== "player-vs-player" || isOnline === false) &&
+    (gameMode !== "online" || isOnline === true);
 
   // Ref for the typing effect
   const typeRef = useRef<HTMLSpanElement>(null);
@@ -212,9 +213,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                 </small>
               </h1>
             ) : gameMode === "player-vs-player" ? (
-              <h1 className="text-2xl font-bold sm:mt-auto sm:text-4xl">
-                Ready to fight?
-              </h1>
+              isOnline ? (
+                <h1 className="text-2xl font-bold sm:mt-auto sm:text-4xl">
+                  Find your rival
+                </h1>
+              ) : (
+                <h1 className="text-2xl font-bold sm:mt-auto sm:text-4xl">
+                  Ready to play?
+                </h1>
+              )
             ) : (
               <h1 className="mt-20 text-2xl font-bold sm:mt-auto sm:text-4xl">
                 So you dare to face us...
@@ -225,7 +232,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
             {gameMode === null && (
               <div className="flex flex-col flex-wrap justify-center gap-6 sm:flex-row">
                 <Button
-                  text="Fight a friend"
+                  text="Fight someone"
                   className="text-lg font-medium hover:bg-green-700 hover:animate-pulse"
                   onClick={() => selectMode("player-vs-player")}
                 />
@@ -253,23 +260,43 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
             )}
 
             {/* Local or Online */}
-            {gameMode === "player-vs-player" && (
+            {gameMode === "player-vs-player" && !isOnline && (
               <div className="mt-8 text-center">
                 <h2 className="mb-4 text-xl font-semibold sm:text-2xl">How?</h2>
                 <div className="flex flex-col justify-center gap-6 sm:flex-row">
                   <Button text="Local" onClick={() => setIsOnline(false)} />
-                  <Link to="/online">
-                    <Button text="Online" onClick={() => setIsOnline(true)} />
-                  </Link>
+                  <Button text="Online" onClick={() => setIsOnline(true)} />
                 </div>
                 <Button
                   text="Go Back"
-                  className="mx-auto mt-6 sm:w-48"
+                  className="mt-6 sm:!w-48"
+                  variant="danger"
                   onClick={() => handleExitGame()}
                 />
               </div>
             )}
 
+            {gameMode === "player-vs-player" && isOnline && (
+              <div className="mt-8 text-center">
+                <h2 className="mb-4 text-xl font-semibold sm:text-2xl">
+                  Select your option
+                </h2>
+                <div className="flex flex-col justify-center gap-6 sm:flex-row">
+                  <Link to="/lobby">
+                    <Button text="Share a link" />
+                  </Link>
+                  <Link to="/matchmaking">
+                    <Button text="Search for players" />
+                  </Link>
+                </div>
+                <Button
+                  text="Go Back"
+                  className="mt-6 sm:!w-48"
+                  variant="danger"
+                  onClick={() => handleExitGame()}
+                />
+              </div>
+            )}
             {/* Choose Bot */}
             {gameMode === "player-vs-bot" && !bot && (
               <div className="max-w-4xl px-2 mx-auto mt-4 sm:px-4">
@@ -385,21 +412,21 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                       </p>
 
                       <div className="flex gap-4">
-                        <button
-                          className="flex-1 py-3 font-bold bg-green-500 rounded hover:bg-green-400"
+                        <Button
+                          text="Play Now"
+                          variant="success"
+                          className="!w-full !h-12 text-sm !p-0"
                           onClick={() => setBot(selectedBot)}
-                        >
-                          Play Now
-                        </button>
-                        <button
-                          className="px-4 py-3 bg-gray-700 rounded hover:bg-gray-600"
+                        />
+                        <Button
+                          text="Go Back"
+                          variant="danger"
+                          className="!w-32 !h-12 text-sm !p-0 !px-2"
                           onClick={() => {
                             setSelectedBot(null);
                             handleExitGame();
                           }}
-                        >
-                          Go Back
-                        </button>
+                        />
                       </div>
                     </div>
                   )}
@@ -407,15 +434,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
 
                 {/* Only show this button when no bot is selected */}
                 {!selectedBot && (
-                  <button
-                    className="block w-full px-6 py-3 mx-auto mt-6 bg-gray-700 rounded sm:w-48 hover:bg-gray-600"
+                  <Button
+                    text="Go Back"
+                    variant="danger"
+                    className="mx-auto mt-6 sm:!w-48"
                     onClick={() => {
                       setSelectedBot(null);
                       handleExitGame();
                     }}
-                  >
-                    Go Back
-                  </button>
+                  />
                 )}
               </div>
             )}
