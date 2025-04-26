@@ -7,6 +7,7 @@ from config import DevelopmentConfig
 from api.bots import bot_routes
 from api.auth import auth_routes
 from api.online import online_routes
+from socketio_instance import socketio
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -55,6 +56,9 @@ def handle_exception(e):
     }
     return jsonify(response), 500
 
+# Inicializar Socket.IO con la aplicación Flask
+socketio.init_app(app)
+
 # Iniciar la aplicación Flask
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)  # Ejecutar la app
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)  # Ejecutar la app

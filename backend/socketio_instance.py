@@ -2,4 +2,4 @@
 
 from flask_socketio import SocketIO, Namespace
 
-socketio = SocketIO()
+socketio = SocketIO(cors_allowed_origins="*")  # Permitir todas las conexiones CORS
