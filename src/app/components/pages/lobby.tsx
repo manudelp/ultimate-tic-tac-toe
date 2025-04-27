@@ -16,12 +16,12 @@ export default function Lobby() {
   // State variables
   const lobbyInitialized = useRef(false);
   const [lobbyCode, setLobbyCode] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(true);
 
   // Match states
   const [yourLetter, setYourLetter] = useState<"X" | "O" | null>(null);
-  const [yourTurn, setYourTurn] = useState<boolean>(false);
+  const [, setYourTurn] = useState<boolean>(false);
 
   useEffect(() => {
     // Only run this effect once

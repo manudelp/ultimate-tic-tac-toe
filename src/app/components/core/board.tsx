@@ -249,7 +249,9 @@ const Board: React.FC<BoardProps> = ({
               <h3 className="text-sm font-medium text-gray-400">
                 Move History
               </h3>
-              <div className="text-xs text-gray-500">Move #{moveNumber}</div>
+              <div className="text-xs text-gray-500">
+                Move #{moveNumber + 1}
+              </div>
             </div>
             <div
               ref={moveHistoryRef}
@@ -358,7 +360,7 @@ const Board: React.FC<BoardProps> = ({
               <div>
                 <div className="text-sm text-gray-400 mb-1">Move</div>
                 <div className="text-3xl font-bold text-white">
-                  {moveNumber}
+                  {moveNumber + 1}
                 </div>
               </div>
 
