@@ -13,9 +13,18 @@ interface BoardProps {
   bot: BotListResponse | null;
   starts: string | null;
   onExit: () => void;
+  isOnline: boolean;
+  yourLetter?: string;
 }
 
-const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
+const Board: React.FC<BoardProps> = ({
+  gameMode,
+  bot,
+  starts,
+  onExit,
+  isOnline,
+  yourLetter,
+}) => {
   bot = bot || { id: 0, name: "", icon: "" };
 
   const [closeModal, setCloseModal] = useState(false);
@@ -46,7 +55,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
     handleCellClick,
     makeMove,
     resetGame,
-  } = useGame(gameMode, bot, starts || "player");
+  } = useGame(gameMode, bot, starts || "player", yourLetter);
 
   const handlePlayAgain = () => {
     setCloseModal(true);
@@ -86,7 +95,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
             </div>
           )}
 
-          {gameMode === "player-vs-player" && (
+          {gameMode === "player-vs-player" && !isOnline && (
             <div className="text-2xl font-medium">
               Local match {new Date().toLocaleDateString()}
             </div>
@@ -318,7 +327,7 @@ const Board: React.FC<BoardProps> = ({ gameMode, bot, starts, onExit }) => {
                 </tr>
               </thead>
               <tbody>
-                {moveHistory.map((move, index) => (
+                {moveHistory.map((move: any, index: number) => (
                   <tr
                     key={index}
                     className={`hover:text-green-400 cursor-pointer ${

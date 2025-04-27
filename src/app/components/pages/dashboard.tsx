@@ -485,6 +485,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
           gameMode={gameMode}
           bot={bot}
           starts={starts}
+          isOnline={isOnline ?? false}
           onExit={handleExitGame}
         />
       )}

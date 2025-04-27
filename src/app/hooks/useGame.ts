@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import socket from "@/socket";
 import { getBotMove, agentsReset } from "@/api";
 import { MiniBoardWinner, GameWinner, convertBoardToNumeric } from "../utils";
 import { toast } from "sonner";
@@ -12,7 +13,8 @@ interface BotListResponse {
 export const useGame = (
   gameMode: string,
   bot: BotListResponse,
-  starts: string
+  starts: string,
+  yourLetter?: string
 ) => {
   // Types
   type Board = string[][][][];
@@ -125,14 +127,14 @@ export const useGame = (
   }, []);
 
   const makeMove = useCallback(
-    (coords: Coords) => {
+    (coords: Coords, forcedLetter?: "X" | "O") => {
       const [a, b, c, d] = coords;
       if (gameWinner || gameOver || disabled[a][b] || board[a][b][c][d]) {
         return;
       }
 
       const updatedBoard = structuredClone(board);
-      updatedBoard[a][b][c][d] = turn;
+      updatedBoard[a][b][c][d] = forcedLetter || turn;
       setBoard(updatedBoard);
 
       // Actualiza el ganador del mini-tablero antes de proceder
@@ -212,8 +214,9 @@ export const useGame = (
       wrongTurnCell(a, b, c, d);
 
       toast.error("Let " + bot?.name + " " + bot?.icon + " cook.");
-    } else {
-      toast.warning("Wait for your turn.");
+    } else if (turn !== yourLetter) {
+      toast.warning("Not your turn!");
+      return;
     }
   };
 
@@ -244,6 +247,13 @@ export const useGame = (
       setIsBotThinking(false);
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
+
+  function handleOpponentMove(
+    move: [number, number, number, number],
+    opponentLetter: "X" | "O"
+  ) {
+    makeMove(move, opponentLetter);
+  }
 
   const resetGame = () => {
     setBoard(initialState.board);
@@ -281,6 +291,22 @@ export const useGame = (
       handleBotMove();
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
+
+  // Online useEffect
+  useEffect(() => {
+    if (gameMode === "online") {
+      const opponentLetter = yourLetter === "X" ? "O" : "X";
+
+      socket.on("opponentMove", (move) => {
+        console.log("Received opponent move:", move);
+        handleOpponentMove(move, opponentLetter);
+      });
+
+      return () => {
+        socket.off("opponentMove");
+      };
+    }
+  }, [gameMode, yourLetter]);
 
   return {
     board,

@@ -1,23 +1,29 @@
 // src/pages/lobby.tsx
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 import socket from "@/socket";
 import Button from "@/app/components/ui/button";
 import { toast } from "sonner";
+import Board from "../core/board";
 
 export default function Lobby() {
+  // Router and search params
   const router = useRouter();
-  const { code } = router.query;
+  const searchParams = useSearchParams();
+  const code = searchParams.get("code");
 
+  // State variables
   const [lobbyCode, setLobbyCode] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(true);
 
-  useEffect(() => {
-    if (!router.isReady) return;
+  // Match states
+  const [yourLetter, setYourLetter] = useState<"X" | "O" | null>(null);
+  const [yourTurn, setYourTurn] = useState<boolean>(false);
 
-    if (typeof code === "string") {
+  useEffect(() => {
+    if (code) {
       setLobbyCode(code);
       socket.emit("joinLobby", { code });
     } else {
@@ -30,7 +36,7 @@ export default function Lobby() {
         setCopied(true);
       });
     }
-  }, [router.isReady, code]);
+  }, [code]);
 
   useEffect(() => {
     socket.on("startGame", () => {
@@ -56,21 +62,36 @@ export default function Lobby() {
     toast.success("Link copied to clipboard!", { duration: 2000 });
   };
 
+  // Handle socket events for the game
   useEffect(() => {
-    if (copied) {
-      toast.success("Link copied to clipboard!", { duration: 2000 });
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    }
-  }, [copied]);
+    socket.on("startGame", (data) => {
+      console.log("Game starting!", data);
+      setYourLetter(data.yourLetter);
+      setYourTurn(data.yourTurn);
+      setWaiting(false);
+    });
+
+    socket.on("error", (error) => {
+      alert(error.message || "An error occurred");
+    });
+
+    return () => {
+      socket.off("startGame");
+      socket.off("error");
+    };
+  }, []);
 
   if (!waiting) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold">
-          Debugging! You have entered the game.
-        </h1>
+        <Board
+          gameMode="online"
+          bot={null}
+          starts={yourLetter}
+          onExit={() => router.push("/")}
+          isOnline={true}
+          yourLetter={yourLetter || undefined}
+        />
       </div>
     );
   }
@@ -93,8 +114,13 @@ export default function Lobby() {
         onClick={handleCopyLink}
         variant="secondary"
       />
-      <p className="mt-4 text-sm sm:text-base italic">
-        Waiting for a player to join...
+      <p className="mt-4 text-sm sm:text-base italic flex items-center justify-center">
+        Waiting for a player to join
+        <span className="inline-flex ml-1">
+          <span className="animate-bounce mx-0.5 delay-0">.</span>
+          <span className="animate-bounce mx-0.5 delay-150">.</span>
+          <span className="animate-bounce mx-0.5 delay-300">.</span>
+        </span>
       </p>
     </div>
   );

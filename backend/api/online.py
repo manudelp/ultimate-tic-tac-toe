@@ -28,23 +28,38 @@ class OnlineNamespace(Namespace):
             lobbies[code] = {'players': [request.sid]}
             join_room(code)
             emit('lobbyCreated', {'code': code})
-            print(f"Lobby {code} created by {request.sid}")
+            print(f"Lobby {code} created by player: {request.sid}")
         else:
             emit('error', {'message': 'Lobby code already exists'})
+
+    def on_clear_lobbies(self):
+        global lobbies
+        lobbies = {}
+        print("Lobbies cleared")
+        emit('lobbiesCleared')
 
     def on_joinLobby(self, data):
         code = data['code']
         if code in lobbies and len(lobbies[code]['players']) == 1:
             lobbies[code]['players'].append(request.sid)
             join_room(code)
-            emit('startGame', room=code)
+
+            players = lobbies[code]['players']
+            player1_sid, player2_sid = players[0], players[1]
+
+            # Assign player1 -> X, player2 -> O
+            emit('startGame', {'yourLetter': 'X', 'opponentLetter': 'O', 'yourTurn': True}, room=player1_sid)
+            emit('startGame', {'yourLetter': 'O', 'opponentLetter': 'X', 'yourTurn': False}, room=player2_sid)
+
             print(f"Player {request.sid} joined lobby {code}")
         else:
-            emit('error', {'message': 'Lobby not found or full'})
+            print(f"Lobby code is {code}, while lobbies are {lobbies}")
+            print(f"Amount of players in lobby is {len(lobbies[code]['players']) if code in lobbies else 'N/A'}")
 
     def on_makeMove(self, data):
         code = data['code']
         move = data['move']
+        print(f"Move made in lobby {code}: {move}")
         emit('opponentMove', move, room=code, include_self=False)
 
 # Register the namespace
