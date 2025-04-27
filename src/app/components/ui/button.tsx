@@ -1,8 +1,9 @@
 // imports
-import React from "react";
+import React, { ReactNode } from "react";
 
 interface ButtonProps {
-  text: string;
+  text?: string;
+  content?: ReactNode;
   variant?: "primary" | "secondary" | "success" | "danger" | "warning";
   className?: string;
   onClick?: () => void;
@@ -10,6 +11,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({
   text,
+  content,
   variant,
   className,
   onClick,
@@ -34,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({
           : "bg-gray-800 hover:bg-gray-700 text-white"
       }`}
     >
-      {text}
+      {content || text}
     </button>
   );
 };

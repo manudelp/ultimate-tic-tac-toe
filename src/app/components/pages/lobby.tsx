@@ -6,6 +6,7 @@ import socket from "@/socket";
 import Button from "@/app/components/ui/button";
 import { toast } from "sonner";
 import Board from "../core/board";
+import { ClipboardIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 export default function Lobby() {
   // Router and search params
@@ -16,7 +17,7 @@ export default function Lobby() {
   // State variables
   const lobbyInitialized = useRef(false);
   const [lobbyCode, setLobbyCode] = useState("");
-  const [, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(true);
 
   // Match states
@@ -101,30 +102,70 @@ export default function Lobby() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-center text-white px-4">
-      <h1 className="text-2xl font-extrabold sm:text-4xl mb-4">
-        Welcome to the Lobby!
-      </h1>
-      <p className="text-lg sm:text-xl mb-6">
-        Your lobby code is:{" "}
-        <span className="text-blue-400 font-mono text-2xl">{lobbyCode}</span>
-      </p>
-      <p className="text-sm sm:text-base mb-8">
-        The link has been copied to your clipboard! <br /> Share it with a
-        friend to join and play against you.
-      </p>
-      <Button
-        text="Copy Link Again"
-        onClick={handleCopyLink}
-        variant="secondary"
-      />
-      <p className="mt-4 text-sm sm:text-base italic flex items-center justify-center">
-        Waiting for a player to join
-        <span className="inline-flex ml-1">
-          <span className="animate-bounce mx-0.5 delay-0">.</span>
-          <span className="animate-bounce mx-0.5 delay-150">.</span>
-          <span className="animate-bounce mx-0.5 delay-300">.</span>
-        </span>
-      </p>
+      <div className="w-full max-w-md p-8 bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-700">
+        <h1 className="text-2xl font-extrabold sm:text-4xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+          Welcome to the Lobby!
+        </h1>
+
+        <div className="bg-gray-900 py-4 px-6 rounded-lg mb-6">
+          <p className="text-sm text-gray-400 mb-2">Your lobby code:</p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-blue-400 font-mono text-2xl tracking-widest">
+              {lobbyCode}
+            </span>
+            <button
+              onClick={handleCopyLink}
+              className="p-1.5 rounded-full bg-gray-700 hover:bg-blue-600 transition-colors"
+              aria-label="Copy lobby code"
+            >
+              <ClipboardIcon className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative mb-8">
+          <Button
+            content={
+              <div className="flex items-center justify-center gap-2">
+                <ClipboardIcon className="w-4 h-4" />
+                <span>Share Link with Friend</span>
+              </div>
+            }
+            onClick={handleCopyLink}
+            variant="primary"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          />
+        </div>
+
+        <div className="mb-6 flex flex-col items-center">
+          <div className="relative w-16 h-16 mb-2">
+            <div className="absolute inset-0 bg-blue-500 rounded-full opacity-20 animate-ping"></div>
+            <div className="relative flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full">
+              <span className="text-white text-lg font-bold">
+                {yourLetter || "?"}
+              </span>
+            </div>
+          </div>
+          <p className="text-sm text-gray-300 flex items-center justify-center mt-6 animate-pulse">
+            Waiting for opponent{copied ? " (Link copied!)" : ""}
+          </p>
+        </div>
+
+        <Button
+          content={
+            <div className="flex items-center justify-center gap-2">
+              <ArrowLeftIcon className="w-4 h-4" />
+              <span>Back to Menu</span>
+            </div>
+          }
+          onClick={() => {
+            socket.emit("leaveLobby", { code: lobbyCode });
+            router.push("/");
+          }}
+          variant="danger"
+          className="w-full bg-gray-700 hover:bg-gray-600 border-none text-gray-200"
+        />
+      </div>
     </div>
   );
 }
