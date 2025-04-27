@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { checkConnection } from "@/api";
-import Dashboard from "./components/pages/dashboard";
+import Home from "./components/pages/home";
 import Lobby from "./components/pages/lobby";
 import HowToPlay from "./components/pages/how-to-play";
 import PrivacyPolicy from "./components/pages/privacy-policy";
@@ -10,7 +10,8 @@ import TermsOfService from "./components/pages/terms-of-service";
 import Footer from "./components/layout/footer";
 import ContactUs from "./components/pages/contact-us";
 import NotFound from "./components/pages/not-found";
-export default function Home() {
+
+export default function App() {
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
@@ -30,20 +31,21 @@ export default function Home() {
   }, []);
 
   const renderPage = () => {
-    if (pathname === "/") {
-      return <Dashboard isBackendConnected={isBackendConnected} />;
-    } else if (pathname === "/how-to-play") {
-      return <HowToPlay />;
-    } else if (pathname === "/privacy-policy") {
-      return <PrivacyPolicy />;
-    } else if (pathname === "/terms-of-service") {
-      return <TermsOfService />;
-    } else if (pathname === "/lobby") {
-      return <Lobby />;
-    } else if (pathname === "/contact") {
-      return <ContactUs />;
-    } else {
-      return <NotFound />;
+    switch (pathname) {
+      case "/":
+        return <Home isBackendConnected={isBackendConnected} />;
+      case "/how-to-play":
+        return <HowToPlay />;
+      case "/privacy-policy":
+        return <PrivacyPolicy />;
+      case "/terms-of-service":
+        return <TermsOfService />;
+      case "/lobby":
+        return <Lobby />;
+      case "/contact":
+        return <ContactUs />;
+      default:
+        return <NotFound />;
     }
   };
 

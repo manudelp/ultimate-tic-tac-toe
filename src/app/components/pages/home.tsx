@@ -31,11 +31,11 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
-interface DashboardProps {
+interface HomeProps {
   isBackendConnected: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
+const Home: React.FC<HomeProps> = ({ isBackendConnected }) => {
   // Core
   const [gameMode, setGameMode] = useState<string | null>(null);
   const [starts, setStarts] = useState<string | null>(null);
@@ -491,4 +491,4 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   );
 };
 
-export default Dashboard;
+export default Home;
