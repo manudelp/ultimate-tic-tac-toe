@@ -104,40 +104,55 @@ export default function Lobby() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-center text-white px-4">
       <div className="w-full max-w-md p-8 bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-700">
         <h1 className="text-2xl font-extrabold sm:text-4xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-          Welcome to the Lobby!
+          Ultimate Tic-Tac-Toe Lobby
         </h1>
 
-        <div className="bg-gray-900 py-4 px-6 rounded-lg mb-6">
-          <p className="text-sm text-gray-400 mb-2">Your lobby code:</p>
+        <div
+          className="bg-gray-900 py-4 px-6 rounded-lg mb-6 cursor-pointer hover:bg-gray-800 transition-colors"
+          onClick={handleCopyLink}
+          title="Click to copy lobby link"
+        >
+          <p className="text-sm text-gray-400 mb-2">
+            Your lobby code (click to copy):
+          </p>
           <div className="flex items-center justify-center gap-2">
             <span className="text-blue-400 font-mono text-2xl tracking-widest">
               {lobbyCode}
             </span>
-            <button
-              onClick={handleCopyLink}
-              className="p-1.5 rounded-full bg-gray-700 hover:bg-blue-600 transition-colors"
-              aria-label="Copy lobby code"
-            >
-              <ClipboardIcon className="w-4 h-4 text-white" />
-            </button>
+            <ClipboardIcon className="w-6 h-6 text-white" />
           </div>
         </div>
 
-        <div className="relative mb-8">
-          <Button
-            content={
-              <div className="flex items-center justify-center gap-2">
-                <ClipboardIcon className="w-4 h-4" />
-                <span>Share Link with Friend</span>
+        {copied ? (
+          <div className="text-green-400 text-sm mb-2 flex items-center justify-center gap-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>Copied to clipboard!</span>
+          </div>
+        ) : (
+          <div className="text-xs text-gray-400 mb-2">
+            <details className="cursor-pointer">
+              <summary className="hover:text-blue-400 transition-colors">
+                Couldn&apos;t copy the code? Open to see link
+              </summary>
+              <div className="mt-2 p-2 bg-gray-700 rounded text-xs font-mono break-all select-all">
+                {`${window.location.origin}/lobby?code=${lobbyCode}`}
               </div>
-            }
-            onClick={handleCopyLink}
-            variant="primary"
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          />
-        </div>
+            </details>
+          </div>
+        )}
 
-        <div className="mb-6 flex flex-col items-center">
+        <div className="mt-10 mb-6 flex flex-col items-center">
           <div className="relative w-16 h-16 mb-2">
             <div className="absolute inset-0 bg-blue-500 rounded-full opacity-20 animate-ping"></div>
             <div className="relative flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full">
@@ -146,8 +161,8 @@ export default function Lobby() {
               </span>
             </div>
           </div>
-          <p className="text-sm text-gray-300 flex items-center justify-center mt-6 animate-pulse">
-            Waiting for opponent{copied ? " (Link copied!)" : ""}
+          <p className="text-sm text-gray-400 flex items-center justify-center mt-6 animate-pulse">
+            Waiting for opponent
           </p>
         </div>
 

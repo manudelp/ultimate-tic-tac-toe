@@ -186,54 +186,45 @@ const Board: React.FC<BoardProps> = ({
               ))
             )}
             {winningLine && (
-              <div className="absolute inset-0 pointer-events-none">
+              <div
+                className="absolute w-full h-full pointer-events-none"
+                style={{
+                  top: 0,
+                  left: 0,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 {winningLine.type === "row" && (
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    className="absolute left-0 right-0 h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
-                    style={{
-                      top: `${(winningLine.index + 0.5) * (100 / 3)}%`,
-                      transform: "translateY(-50%)",
-                    }}
+                  <div
+                    className="absolute w-[95%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                    style={{ top: `${(winningLine.index + 0.5) * 33.33}%` }}
                   />
                 )}
                 {winningLine.type === "col" && (
-                  <motion.div
-                    initial={{ scaleY: 0 }}
-                    animate={{ scaleY: 1 }}
-                    className="absolute top-0 bottom-0 w-3 bg-gradient-to-b from-red-500 to-orange-500 rounded-full"
-                    style={{
-                      left: `${(winningLine.index + 0.5) * (100 / 3)}%`,
-                      transform: "translateX(-50%)",
-                    }}
+                  <div
+                    className="absolute h-[95%] w-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                    style={{ left: `${(winningLine.index + 0.5) * 33.33}%` }}
                   />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                  <div
+                    className="absolute w-[140%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
                     style={{
-                      width: "140%",
+                      transform: "rotate(45deg)",
                       top: "50%",
-                      left: "-20%",
-                      transform: "rotate(45deg) translateY(-50%)",
-                      transformOrigin: "center",
+                      left: "-19%",
                     }}
                   />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 1 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                  <div
+                    className="absolute w-[140%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
                     style={{
-                      width: "140%",
+                      transform: "rotate(-45deg)",
                       top: "50%",
-                      left: "-20%",
-                      transform: "rotate(-45deg) translateY(-50%)",
-                      transformOrigin: "center",
+                      left: "-19%",
                     }}
                   />
                 )}
