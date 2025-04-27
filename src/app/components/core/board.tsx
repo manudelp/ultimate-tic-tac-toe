@@ -90,21 +90,21 @@ const Board: React.FC<BoardProps> = ({
   }, [moveHistory, isMobile]);
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-6">
+    <div className="relative flex flex-col w-full gap-6 px-4 mx-auto max-w-7xl md:flex-row">
       {/* Game Board Area */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex-1 flex flex-col items-center"
+        className="flex flex-col items-center flex-1"
       >
         {/* Game Info Bar */}
-        <div className="w-full mb-4 bg-gray-800 rounded-lg p-4 shadow-lg">
-          <div className="flex justify-between items-center">
+        <div className="w-full p-4 mb-4 bg-gray-800 rounded-lg shadow-lg">
+          <div className="flex items-center justify-between">
             {/* Player/Game Info */}
             <div className="flex items-center gap-3">
               {gameMode === "player-vs-bot" && (
                 <div className="flex items-center gap-2">
-                  <div className="text-3xl bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center">
+                  <div className="flex items-center justify-center w-10 h-10 text-3xl bg-gray-700 rounded-full">
                     {bot?.icon}
                   </div>
                   <div>
@@ -113,7 +113,7 @@ const Board: React.FC<BoardProps> = ({
                       {isBotThinking ? (
                         <span className="flex items-center">
                           Thinking
-                          <span className="ml-1 flex">
+                          <span className="flex ml-1">
                             <span className="animate-bounce mx-[1px] h-1 w-1 rounded-full bg-gray-400"></span>
                             <span className="animate-bounce mx-[1px] h-1 w-1 rounded-full bg-gray-400 animation-delay-100"></span>
                             <span className="animate-bounce mx-[1px] h-1 w-1 rounded-full bg-gray-400 animation-delay-200"></span>
@@ -126,35 +126,77 @@ const Board: React.FC<BoardProps> = ({
                   </div>
                 </div>
               )}
-
-              {gameMode === "player-vs-player" && (
-                <div className="text-gray-200">
-                  Local match {new Date().toLocaleDateString()}
+              {gameMode === "online" && (
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center
+                  ${
+                    yourLetter === "X" ? "bg-blue-500" : "bg-red-500"
+                  } shadow-lg`}
+                  >
+                    {yourLetter}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-200">You</p>
+                    <p
+                      className={`text-xs ${
+                        turn === yourLetter
+                          ? "font-bold text-green-400"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {turn === yourLetter ? "Your turn" : "Your Letter"}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Turn Indicator */}
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-xs text-gray-400">Current Turn</p>
-                {gameMode === "online" ? (
-                  <p className="font-bold text-green-400">
+            {gameMode === "online" ? (
+              <div className="flex items-center gap-2">
+                <div>
+                  <p
+                    className={`text-right text-xs ${
+                      turn === yourLetter
+                        ? "text-gray-400"
+                        : "font-bold text-green-400"
+                    }`}
+                  >
                     {turn === yourLetter
-                      ? `You (${yourLetter})`
-                      : `Opponent (${turn})`}
+                      ? "Playing against"
+                      : "Opponent's turn"}
                   </p>
-                ) : (
-                  <p className="font-bold text-green-400">{turn}</p>
-                )}
+                  <p className="font-medium text-right text-gray-200">
+                    Opponent
+                  </p>
+                </div>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center
+                ${yourLetter === "X" ? "bg-red-500" : "bg-blue-500"} shadow-lg`}
+                >
+                  {yourLetter === "X" ? "O" : "X"}
+                </div>
               </div>
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center
-                ${turn === "X" ? "bg-blue-500" : "bg-red-500"} shadow-lg`}
-              >
-                {turn}
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-xs text-gray-400">Current Turn</p>
+                  {gameMode === "online" ? (
+                    <p className="font-bold text-green-400">
+                      {turn === yourLetter ? "Your Turn" : "Opponent's Turn"}
+                    </p>
+                  ) : (
+                    <p className="font-bold text-green-400">{turn}</p>
+                  )}
+                </div>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center
+            ${turn === "X" ? "bg-blue-500" : "bg-red-500"} shadow-lg`}
+                >
+                  {turn}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -164,9 +206,9 @@ const Board: React.FC<BoardProps> = ({
           animate={{ scale: 1 }}
           className="relative w-full max-w-[min(calc(100vw-2rem),600px)] aspect-square"
         >
-          <div className="absolute inset-0 bg-gray-700 rounded-lg -z-10 shadow-xl"></div>
+          <div className="absolute inset-0 bg-gray-700 rounded-lg shadow-xl -z-10"></div>
 
-          <div className="relative flex flex-wrap w-full aspect-square p-2">
+          <div className="relative flex flex-wrap w-full p-2 aspect-square">
             {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
               miniBoardRow.map((miniBoard: string[][], localColIndex) => (
                 <MiniBoard
@@ -236,7 +278,7 @@ const Board: React.FC<BoardProps> = ({
         {/* Mobile Move History */}
         {isMobile && (
           <div className="w-full mt-4">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-gray-400">
                 Move History
               </h3>
@@ -246,7 +288,7 @@ const Board: React.FC<BoardProps> = ({
             </div>
             <div
               ref={moveHistoryRef}
-              className="w-full py-2 px-1 bg-gray-800 rounded-lg shadow-inner overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
+              className="w-full px-1 py-2 overflow-x-auto bg-gray-800 rounded-lg shadow-inner scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
             >
               <div className="inline-flex gap-3 px-2">
                 {moveHistory.map((move, index) => (
@@ -278,7 +320,7 @@ const Board: React.FC<BoardProps> = ({
                     >
                       {move.turn}
                     </span>
-                    <span className="text-xs ml-1">
+                    <span className="ml-1 text-xs">
                       ({move.coords.join(",")})
                     </span>
                   </motion.div>
@@ -290,9 +332,9 @@ const Board: React.FC<BoardProps> = ({
 
         {/* Game Controls for Mobile */}
         {isMobile && (
-          <div className="w-full mt-4 flex gap-4">
+          <div className="flex w-full gap-4 mt-4">
             <button
-              className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg shadow-md flex items-center justify-center gap-2 transition-colors"
+              className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
               onClick={onExit}
             >
               <svg
@@ -313,7 +355,7 @@ const Board: React.FC<BoardProps> = ({
             </button>
             {gameOver && (
               <button
-                className="flex-1 py-3 bg-green-600 hover:bg-green-500 rounded-lg shadow-md flex items-center justify-center gap-2 transition-colors"
+                className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-green-600 rounded-lg shadow-md hover:bg-green-500"
                 onClick={handlePlayAgain}
               >
                 <svg
@@ -342,14 +384,31 @@ const Board: React.FC<BoardProps> = ({
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-80 flex flex-col gap-4"
+          className="flex flex-col gap-4 w-80"
         >
           {/* Game Stats Card */}
-          <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-            <div className="flex flex-col gap-6">
+          <div className="p-6 bg-gray-800 rounded-lg shadow-lg">
+            <div className="relative flex flex-col gap-6">
+              {/* Today's Date */}
+              <div className="absolute top-0 right-0 text-xs text-right text-gray-400">
+                <div>
+                  {new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
+                </div>
+                <div>
+                  {new Date().toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+              </div>
+
               {/* Move Details */}
               <div>
-                <div className="text-sm text-gray-400 mb-1">Move</div>
+                <div className="mb-1 text-sm text-gray-400">Move</div>
                 <div className="text-3xl font-bold text-white">
                   {moveNumber + 1}
                 </div>
@@ -357,7 +416,7 @@ const Board: React.FC<BoardProps> = ({
 
               {/* Game Mode */}
               <div>
-                <div className="text-sm text-gray-400 mb-1">Game Mode</div>
+                <div className="mb-1 text-sm text-gray-400">Game Mode</div>
                 <div className="text-lg text-white">
                   {gameMode === "player-vs-player"
                     ? "Player vs Player"
@@ -370,7 +429,7 @@ const Board: React.FC<BoardProps> = ({
               {/* Bot Thinking Time */}
               {gameMode === "player-vs-bot" && (
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">
+                  <div className="mb-1 text-sm text-gray-400">
                     Bot Response Time
                   </div>
                   <div className="text-lg text-white">
@@ -381,15 +440,15 @@ const Board: React.FC<BoardProps> = ({
 
               {/* Game Status */}
               {gameOver ? (
-                <div className="bg-gray-700 rounded-lg p-4 text-center">
-                  <div className="text-sm text-gray-400 mb-1">Game Result</div>
+                <div className="p-4 text-center bg-gray-700 rounded-lg">
+                  <div className="mb-1 text-sm text-gray-400">Game Result</div>
                   <div className="text-2xl font-bold text-green-400">
                     {gameWinner ? `${gameWinner} Wins!` : "Draw!"}
                   </div>
                 </div>
               ) : (
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">Status</div>
+                  <div className="mb-1 text-sm text-gray-400">Status</div>
                   <div className="text-lg text-green-400">
                     {isBotThinking ? "Bot is thinking..." : "Game in progress"}
                   </div>
@@ -399,8 +458,8 @@ const Board: React.FC<BoardProps> = ({
           </div>
 
           {/* Move History */}
-          <div className="bg-gray-800 rounded-lg p-4 shadow-lg flex-1">
-            <div className="text-sm text-gray-400 mb-2 flex justify-between items-center">
+          <div className="flex-1 p-4 bg-gray-800 rounded-lg shadow-lg">
+            <div className="flex items-center justify-between mb-2 text-sm text-gray-400">
               <span>Move History</span>
               <span className="text-xs">{moveHistory.length} moves</span>
             </div>
@@ -409,11 +468,11 @@ const Board: React.FC<BoardProps> = ({
               className="max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
             >
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-gray-800 z-10">
+                <thead className="sticky top-0 z-10 bg-gray-800">
                   <tr className="text-xs text-gray-400">
-                    <th className="text-left py-2 font-normal">#</th>
-                    <th className="text-left py-2 font-normal">Turn</th>
-                    <th className="text-left py-2 font-normal">Position</th>
+                    <th className="py-2 font-normal text-left">#</th>
+                    <th className="py-2 font-normal text-left">Turn</th>
+                    <th className="py-2 font-normal text-left">Position</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -456,7 +515,7 @@ const Board: React.FC<BoardProps> = ({
           <div className="flex gap-2">
             <button
               onClick={onExit}
-              className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg shadow-md flex items-center justify-center gap-2 transition-colors"
+              className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
             >
               <svg
                 className="w-5 h-5"
@@ -477,7 +536,7 @@ const Board: React.FC<BoardProps> = ({
             {gameOver && (
               <button
                 onClick={handlePlayAgain}
-                className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-500 rounded-lg shadow-md flex items-center justify-center gap-2 transition-colors"
+                className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-green-600 rounded-lg shadow-md hover:bg-green-500"
               >
                 <svg
                   className="w-5 h-5"
