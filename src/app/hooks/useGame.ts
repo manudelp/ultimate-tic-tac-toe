@@ -26,6 +26,12 @@ export const useGame = (
   type WinningLine = { type: string; index: number };
   type ActiveMiniBoard = [number, number] | null;
   type MoveHistory = { turn: Turn; coords: Coords }[];
+  type MoveData = {
+    bigRow: number;
+    bigCol: number;
+    smallRow: number;
+    smallCol: number;
+  };
 
   // Initial state
   const initialBoard = Array.from({ length: 3 }, () =>
@@ -68,9 +74,7 @@ export const useGame = (
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [timeToMove, setTimeToMove] = useState<number>(0.0);
 
-  // Online information
-  const [emitMove, setEmitMove] = useState(false);
-
+  // FUNCTIONS
   const updateMiniBoardState = useCallback(
     (a: number, b: number, winner: "X" | "O" | "Draw") => {
       setWinners((prev) => {
@@ -290,76 +294,79 @@ export const useGame = (
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
 
-  function handleOpponentMove(moveData: any, opponentLetter: "X" | "O") {
-    // If moveData is just the letter, we can't process it
-    if (typeof moveData === "string") {
-      console.error("Received letter instead of move data:", moveData);
-      return;
-    }
-
-    // Safety check - if moveData is undefined or null, don't proceed
-    if (!moveData) {
-      console.error("Received invalid move data:", moveData);
-      return;
-    }
-
-    // Extract move from moveData if it's nested
-    let move = moveData;
-    if (
-      typeof moveData === "object" &&
-      moveData !== null &&
-      "move" in moveData
-    ) {
-      move = moveData.move;
-    }
-
-    // Convert move to array format if it's an object
-    let moveArray: [number, number, number, number];
-
-    if (Array.isArray(move)) {
-      // Ensure the array has all required elements
-      if (move.length < 4) {
-        console.error("Move array doesn't have enough elements:", move);
+  const handleOpponentMove = useCallback(
+    (moveData: MoveData, opponentLetter: "X" | "O") => {
+      // If moveData is just the letter, we can't process it
+      if (typeof moveData === "string") {
+        console.error("Received letter instead of move data:", moveData);
         return;
       }
-      moveArray = [
-        Number(move[0]),
-        Number(move[1]),
-        Number(move[2]),
-        Number(move[3]),
-      ];
-    } else if (typeof move === "object" && move !== null) {
-      // Check if object has all required properties
+
+      // Safety check - if moveData is undefined or null, don't proceed
+      if (!moveData) {
+        console.error("Received invalid move data:", moveData);
+        return;
+      }
+
+      // Extract move from moveData if it's nested
+      let move = moveData;
       if (
-        move.bigRow === undefined ||
-        move.bigCol === undefined ||
-        move.smallRow === undefined ||
-        move.smallCol === undefined
+        typeof moveData === "object" &&
+        moveData !== null &&
+        "move" in moveData
       ) {
-        console.error("Move object missing required properties:", move);
+        move = moveData.move as MoveData;
+      }
+
+      // Convert move to array format if it's an object
+      let moveArray: [number, number, number, number];
+
+      if (Array.isArray(move)) {
+        // Ensure the array has all required elements
+        if (move.length < 4) {
+          console.error("Move array doesn't have enough elements:", move);
+          return;
+        }
+        moveArray = [
+          Number(move[0]),
+          Number(move[1]),
+          Number(move[2]),
+          Number(move[3]),
+        ];
+      } else if (typeof move === "object" && move !== null) {
+        // Check if object has all required properties
+        if (
+          move.bigRow === undefined ||
+          move.bigCol === undefined ||
+          move.smallRow === undefined ||
+          move.smallCol === undefined
+        ) {
+          console.error("Move object missing required properties:", move);
+          return;
+        }
+        moveArray = [
+          Number(move.bigRow),
+          Number(move.bigCol),
+          Number(move.smallRow),
+          Number(move.smallCol),
+        ];
+      } else {
+        console.error("Move is neither an array nor an object:", move);
         return;
       }
-      moveArray = [
-        Number(move.bigRow),
-        Number(move.bigCol),
-        Number(move.smallRow),
-        Number(move.smallCol),
-      ];
-    } else {
-      console.error("Move is neither an array nor an object:", move);
-      return;
-    }
 
-    // Final validation before making move
-    if (
-      !moveArray.every((coord) => typeof coord === "number" && !isNaN(coord))
-    ) {
-      console.error("Invalid coordinates in moveArray:", moveArray);
-      return;
-    }
+      // Final validation before making move
+      if (
+        !moveArray.every((coord) => typeof coord === "number" && !isNaN(coord))
+      ) {
+        console.error("Invalid coordinates in moveArray:", moveArray);
+        return;
+      }
 
-    makeMove(moveArray, opponentLetter, false);
-  }
+      makeMove(moveArray, opponentLetter, false);
+    },
+    [makeMove]
+  );
 
   const resetGame = () => {
     setBoard(initialState.board);
@@ -425,7 +432,7 @@ export const useGame = (
       });
 
       // Add opponent left listener
-      socket.on("opponentLeft", (data) => {
+      socket.on("opponentLeft", () => {
         toast.error("Your opponent has left the game", {
           duration: 3000,
         });
@@ -441,7 +448,7 @@ export const useGame = (
         socket.off("opponentLeft");
       };
     }
-  }, [gameMode, yourLetter]);
+  }, [gameMode, handleOpponentMove, yourLetter]);
 
   return {
     board,
