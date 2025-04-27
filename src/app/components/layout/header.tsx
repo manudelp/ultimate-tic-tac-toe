@@ -1,5 +1,5 @@
 // import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 // import { Modal } from "@/app/components/ui/modal";
 // import { LoginForm } from "@/components/ui/login-form";
 // import { toast } from "sonner";
@@ -29,7 +29,7 @@ const Header = () => {
         className="fixed top-4 left-0 right-0 z-50 sm:left-4 sm:right-auto mx-4 sm:m-auto flex items-center justify-evenly bg-gray-900 bg-opacity-50 border border-gray-800 backdrop-blur rounded-full sm:rounded-tl-none transition"
       >
         {/* Home Link */}
-        <Link to="/" reloadDocument>
+        <Link href="/">
           <button className="flex items-center gap-2 p-4 rounded-full sm:rounded-tl-none hover:bg-white hover:text-black transition group">
             <svg
               xmlns="http://www.w3.org/2000/svg"

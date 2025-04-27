@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { usePathname } from "next/navigation";
 import { checkConnection } from "@/api";
 import Dashboard from "./components/pages/dashboard";
 import Lobby from "./components/pages/lobby";
@@ -11,10 +11,10 @@ import Footer from "./components/layout/footer";
 import Header from "./components/layout/header";
 import ContactUs from "./components/pages/contact-us";
 import NotFound from "./components/pages/not-found";
-
 export default function Home() {
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [isClient, setIsClient] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
@@ -30,25 +30,34 @@ export default function Home() {
     checkBackendConnection();
   }, []);
 
+  const renderPage = () => {
+    if (pathname === "/") {
+      return <Dashboard isBackendConnected={isBackendConnected} />;
+    } else if (pathname === "/how-to-play") {
+      return <HowToPlay />;
+    } else if (pathname === "/privacy-policy") {
+      return <PrivacyPolicy />;
+    } else if (pathname === "/terms-of-service") {
+      return <TermsOfService />;
+    } else if (pathname === "/lobby") {
+      return <Lobby />;
+    } else if (pathname === "/contact") {
+      return <ContactUs />;
+    } else {
+      return <NotFound />;
+    }
+  };
+
   if (!isClient) return null;
   return (
-    <Router>
-      <div className="text-white bg-gray-900 min-h-svh">
-        <Header />
-        <Routes>
-          <Route
-            path="/"
-            element={<Dashboard isBackendConnected={isBackendConnected} />}
-          />
-          <Route path="/how-to-play" element={<HowToPlay />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/lobby" element={<Lobby />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Footer isBackendConnected={isBackendConnected} />
-      </div>
-    </Router>
+    <div className="text-white bg-gray-900 min-h-svh">
+      {isClient && (
+        <>
+          <Header />
+          {renderPage()}
+          <Footer isBackendConnected={isBackendConnected} />
+        </>
+      )}
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const HowToPlay: React.FC = () => {
   return (
@@ -166,7 +166,7 @@ const HowToPlay: React.FC = () => {
         </ul>
       </section>
 
-      <Link to="/">
+      <Link href="/">
         <button className="mt-8 transition bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           Play Now
         </button>

@@ -14,7 +14,8 @@ export const useGame = (
   gameMode: string,
   bot: BotListResponse,
   starts: string,
-  yourLetter?: string
+  yourLetter?: string,
+  lobbyCode?: string
 ) => {
   // Types
   type Board = string[][][][];
@@ -67,6 +68,9 @@ export const useGame = (
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [timeToMove, setTimeToMove] = useState<number>(0.0);
 
+  // Online information
+  const [emitMove, setEmitMove] = useState(false);
+
   const updateMiniBoardState = useCallback(
     (a: number, b: number, winner: "X" | "O" | "Draw") => {
       setWinners((prev) => {
@@ -109,9 +113,14 @@ export const useGame = (
 
   const checkOverallGameWinner = useCallback(() => {
     setWinners((prev) => {
-      const overallWinner = GameWinner([...prev], (line) =>
-        setWinningLine(line)
-      );
+      // Get the winning line first, so we can send it immediately with the gameOver event
+      let capturedWinningLine: WinningLine | null = null;
+
+      const overallWinner = GameWinner([...prev], (line) => {
+        capturedWinningLine = line;
+        setWinningLine(line);
+      });
+
       if (overallWinner) {
         setGameWinner(overallWinner as "X" | "O" | "Draw");
         setGameOver(true);
@@ -121,58 +130,95 @@ export const useGame = (
         winnerSound.play();
 
         setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
+
+        // Notify opponent about game over in online mode with the winning line
+        if (gameMode === "online" && lobbyCode) {
+          socket.emit("gameOver", {
+            code: lobbyCode,
+            winner: overallWinner,
+            winningLine: capturedWinningLine,
+          });
+        }
       }
       return prev;
     });
-  }, []);
+  }, [gameMode, lobbyCode]);
 
   const makeMove = useCallback(
-    (coords: Coords, forcedLetter?: "X" | "O") => {
+    (coords: Coords, forcedLetter?: "X" | "O", emitMove = true) => {
       const [a, b, c, d] = coords;
-      if (gameWinner || gameOver || disabled[a][b] || board[a][b][c][d]) {
+
+      // Early validation
+      if (gameWinner || gameOver || disabled[a][b]) {
         return;
       }
 
-      const updatedBoard = structuredClone(board);
-      updatedBoard[a][b][c][d] = forcedLetter || turn;
-      setBoard(updatedBoard);
+      // Use functional form to ensure we always have the latest board state
+      setBoard((prevBoard) => {
+        // Create a deep copy of the current board
+        const newBoard = JSON.parse(JSON.stringify(prevBoard));
 
-      // Actualiza el ganador del mini-tablero antes de proceder
-      const winner = MiniBoardWinner(updatedBoard[a][b] as MiniBoard);
-      if (winner) {
-        updateMiniBoardState(a, b, winner);
-      }
+        // Check if cell is already filled
+        if (newBoard[a][b][c][d]) {
+          return prevBoard; // Don't modify board if cell is already occupied
+        }
 
-      // Calcula el próximo mini-tablero y verifica si debe deshabilitarse
-      const nextMiniBoard = MiniBoardWinner(updatedBoard[c][d] as MiniBoard);
-      if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
-        setActiveMiniBoard([c, d]);
-      } else {
-        setActiveMiniBoard(null);
-      }
+        // Update the new board - use the provided letter or current turn
+        newBoard[a][b][c][d] = forcedLetter || turn;
 
-      // Verifica si el mini-tablero está lleno
-      if (updatedBoard[a][b].flat().every((cell) => cell !== "")) {
-        disableFullMiniBoard(a, b);
-      }
+        // Immediately check for mini-board winner
+        const winner = MiniBoardWinner(newBoard[a][b] as MiniBoard);
+        if (winner) {
+          // Call this synchronously to update immediately
+          updateMiniBoardState(a, b, winner);
+        }
 
-      // Verifica si el juego general tiene un ganador
-      checkOverallGameWinner();
+        // Check if mini-board is full
+        if (newBoard[a][b].flat().every((cell: string) => cell !== "")) {
+          disableFullMiniBoard(a, b);
+        }
 
-      // Reproduce el sonido de la jugada
-      const tapSound = new Audio("/assets/sounds/tap.mp3");
-      tapSound.volume = 0.25; // Lower the volume
-      tapSound.play();
+        // Return the updated board to set as new state
+        return newBoard;
+      });
 
-      // Configura la última jugada y el próximo turno
-      setLastMove(coords);
-      setTurn((prev) => (prev === "X" ? "O" : "X"));
-      setMoveNumber((prev) => prev + 1);
+      // Process rest of game logic in timeout to ensure board is updated first
+      setTimeout(() => {
+        // Step 3: Calculate next active mini-board
+        const nextMiniBoard = MiniBoardWinner(board[c][d] as MiniBoard);
+        if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
+          setActiveMiniBoard([c, d]);
+        } else {
+          setActiveMiniBoard(null);
+        }
 
-      // Add move to history
-      setMoveHistory((prev) => [...prev, { turn, coords }]);
+        // Check overall game winner
+        checkOverallGameWinner();
+
+        // Play sound
+        const tapSound = new Audio("/assets/sounds/tap.mp3");
+        tapSound.volume = 0.25;
+        tapSound.play();
+
+        setLastMove(coords);
+        setTurn((prev) => (prev === "X" ? "O" : "X"));
+        setMoveNumber((prev) => prev + 1);
+        setMoveHistory((prev) => [
+          ...prev,
+          { turn: forcedLetter || turn, coords },
+        ]);
+
+        if (gameMode === "online" && lobbyCode && emitMove) {
+          socket.emit("makeMove", {
+            code: lobbyCode,
+            move: { bigRow: a, bigCol: b, smallRow: c, smallCol: d },
+          });
+        }
+      }, 0);
     },
     [
+      gameMode,
+      lobbyCode,
       gameWinner,
       gameOver,
       disabled,
@@ -185,21 +231,6 @@ export const useGame = (
     ]
   );
 
-  const wrongTurnCell = useCallback(
-    (a: number, b: number, c: number, d: number) => {
-      const cell = document.querySelector(
-        `#cell-${a}-${b}-${c}-${d}`
-      ) as HTMLDivElement;
-      if (cell) {
-        cell.classList.add("wrong-turn");
-        setTimeout(() => {
-          cell.classList.remove("wrong-turn");
-        }, 1000);
-      }
-    },
-    []
-  );
-
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     if (gameOver) {
       return;
@@ -207,17 +238,28 @@ export const useGame = (
 
     const coords: Coords = [a, b, c, d];
 
-    if (!isBotThinking) {
-      makeMove(coords);
-    } else if (gameMode === "player-vs-bot") {
-      // add animation to the cell when isnt players turn
-      wrongTurnCell(a, b, c, d);
+    // Check if cell is already occupied
+    if (board[a][b][c][d]) {
+      toast.warning("This cell is already occupied!");
+      return;
+    }
 
-      toast.error("Let " + bot?.name + " " + bot?.icon + " cook.");
-    } else if (turn !== yourLetter) {
+    // Online mode check - must come FIRST
+    if (gameMode === "online" && turn !== yourLetter) {
+      // Provide feedback that it's not their turn
       toast.warning("Not your turn!");
       return;
     }
+
+    // Bot mode check
+    if (gameMode === "player-vs-bot" && isBotThinking) {
+      // add animation to the cell when it isn't player's turn
+      toast.error("Let " + bot?.name + " " + bot?.icon + " cook.");
+      return;
+    }
+
+    // If we got this far, the move is valid
+    makeMove(coords);
   };
 
   const handleBotMove = useCallback(async () => {
@@ -248,11 +290,75 @@ export const useGame = (
     }
   }, [board, bot, activeMiniBoard, turn, makeMove]);
 
-  function handleOpponentMove(
-    move: [number, number, number, number],
-    opponentLetter: "X" | "O"
-  ) {
-    makeMove(move, opponentLetter);
+  function handleOpponentMove(moveData: any, opponentLetter: "X" | "O") {
+    // If moveData is just the letter, we can't process it
+    if (typeof moveData === "string") {
+      console.error("Received letter instead of move data:", moveData);
+      return;
+    }
+
+    // Safety check - if moveData is undefined or null, don't proceed
+    if (!moveData) {
+      console.error("Received invalid move data:", moveData);
+      return;
+    }
+
+    // Extract move from moveData if it's nested
+    let move = moveData;
+    if (
+      typeof moveData === "object" &&
+      moveData !== null &&
+      "move" in moveData
+    ) {
+      move = moveData.move;
+    }
+
+    // Convert move to array format if it's an object
+    let moveArray: [number, number, number, number];
+
+    if (Array.isArray(move)) {
+      // Ensure the array has all required elements
+      if (move.length < 4) {
+        console.error("Move array doesn't have enough elements:", move);
+        return;
+      }
+      moveArray = [
+        Number(move[0]),
+        Number(move[1]),
+        Number(move[2]),
+        Number(move[3]),
+      ];
+    } else if (typeof move === "object" && move !== null) {
+      // Check if object has all required properties
+      if (
+        move.bigRow === undefined ||
+        move.bigCol === undefined ||
+        move.smallRow === undefined ||
+        move.smallCol === undefined
+      ) {
+        console.error("Move object missing required properties:", move);
+        return;
+      }
+      moveArray = [
+        Number(move.bigRow),
+        Number(move.bigCol),
+        Number(move.smallRow),
+        Number(move.smallCol),
+      ];
+    } else {
+      console.error("Move is neither an array nor an object:", move);
+      return;
+    }
+
+    // Final validation before making move
+    if (
+      !moveArray.every((coord) => typeof coord === "number" && !isNaN(coord))
+    ) {
+      console.error("Invalid coordinates in moveArray:", moveArray);
+      return;
+    }
+
+    makeMove(moveArray, opponentLetter, false);
   }
 
   const resetGame = () => {
@@ -292,18 +398,47 @@ export const useGame = (
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
 
-  // Online useEffect
+  // Online mode - handle socket events
   useEffect(() => {
     if (gameMode === "online") {
       const opponentLetter = yourLetter === "X" ? "O" : "X";
 
       socket.on("opponentMove", (move) => {
-        console.log("Received opponent move:", move);
         handleOpponentMove(move, opponentLetter);
+      });
+
+      // Add game over listener
+      socket.on("gameOver", (data) => {
+        setGameWinner(data.winner);
+        setGameOver(true);
+        if (data.winningLine) {
+          setWinningLine(data.winningLine);
+        }
+
+        // Play winner sound
+        const winnerSound = new Audio("/assets/sounds/winner_xmas.mp3");
+        winnerSound.volume = 0.25;
+        winnerSound.play();
+
+        // Disable all boards
+        setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
+      });
+
+      // Add opponent left listener
+      socket.on("opponentLeft", (data) => {
+        toast.error("Your opponent has left the game", {
+          duration: 3000,
+        });
+        // Automatically exit to home page after a delay
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
       });
 
       return () => {
         socket.off("opponentMove");
+        socket.off("gameOver");
+        socket.off("opponentLeft");
       };
     }
   }, [gameMode, yourLetter]);

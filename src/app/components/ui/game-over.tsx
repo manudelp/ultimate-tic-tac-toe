@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 interface BotListResponse {
   id: number;
@@ -31,47 +32,92 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
     return null;
   }
 
+  const getResultMessage = () => {
+    if (gameMode === "player-vs-bot") {
+      const isPlayerX = starts === "player";
+      const playerSymbol = isPlayerX ? "X" : "O";
+      const botSymbol = isPlayerX ? "O" : "X";
+
+      if (gameWinner === playerSymbol) {
+        return "Victory!";
+      } else if (gameWinner === botSymbol) {
+        return "Defeat!";
+      } else {
+        return "Draw!";
+      }
+    } else {
+      if (gameWinner === "X") {
+        return "Player X Wins!";
+      } else if (gameWinner === "O") {
+        return "Player O Wins!";
+      } else {
+        return "It's a Draw!";
+      }
+    }
+  };
+
+  const getSubtitle = () => {
+    if (gameMode === "player-vs-bot" && gameWinner && gameWinner !== "Draw") {
+      const isPlayerX = starts === "player";
+      const playerSymbol = isPlayerX ? "X" : "O";
+
+      return gameWinner === playerSymbol
+        ? "Congratulations! You've won the game!"
+        : `${bot?.icon} ${bot?.name} has defeated you this time.`;
+    }
+    return "Thanks for playing!";
+  };
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 backdrop-blur-[2px] p-4 sm:p-8">
-      <div className="bg-gray-900 border border-gray-800 p-4 sm:p-8 text-center w-full max-w-md">
-        <div className="text-xl sm:text-2xl font-semibold mb-4 text-gray-200">
-          {gameMode === "player-vs-bot"
-            ? starts === "player"
-              ? gameWinner === "X"
-                ? "You win!"
-                : gameWinner === "O"
-                ? `${bot?.icon} ${bot?.name} wins! You lose!`
-                : "It's a draw!"
-              : gameWinner === "O"
-              ? "You win!"
-              : gameWinner === "X"
-              ? `${bot?.icon} ${bot?.name} wins! You lose!`
-              : "It's a draw!"
-            : gameWinner === "X"
-            ? "Player X wins!"
-            : gameWinner === "O"
-            ? "Player O wins!"
-            : "It's a draw!"}
+    <motion.div
+      className="fixed inset-0 flex items-center justify-center z-50 bg-black/70 backdrop-blur-sm p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700 shadow-2xl w-full max-w-md overflow-hidden"
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        transition={{ type: "spring", damping: 25 }}
+      >
+        <div className="p-6 sm:p-8">
+          <h2 className="text-3xl font-bold text-center mb-2">
+            {getResultMessage()}
+          </h2>
+          <p className="text-gray-300 text-center mb-8">{getSubtitle()}</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setCloseModal()}
+              className="px-4 py-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-medium transition-colors"
+            >
+              See Board
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={playAgain}
+              className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
+            >
+              Play Again
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onExit}
+              className="px-4 py-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium transition-colors"
+            >
+              Exit Game
+            </motion.button>
+          </div>
         </div>
-        <div className="flex flex-col justify-center sm:flex-row gap-4">
-          <button
-            onClick={() => setCloseModal()}
-            className="px-4 py-2 bg-blue-500 text-white"
-          >
-            See Board
-          </button>
-          <button
-            onClick={playAgain}
-            className="px-4 py-2 bg-green-500 text-white"
-          >
-            Play again
-          </button>
-          <button onClick={onExit} className="px-4 py-2 bg-red-500 text-white">
-            Exit
-          </button>
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

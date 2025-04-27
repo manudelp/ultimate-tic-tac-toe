@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface FooterProps {
@@ -47,21 +47,24 @@ const Footer: React.FC<FooterProps> = ({ isBackendConnected }) => {
         </p>
       </div>
       <div>
-        <Link to="/privacy-policy" className="text-blue-400 hover:underline">
+        <Link href="/privacy-policy" className="text-blue-400 hover:underline">
           <button>Privacy Policy</button>
         </Link>{" "}
         |{" "}
-        <Link to="/terms-of-service" className="text-blue-400 hover:underline">
+        <Link
+          href="/terms-of-service"
+          className="text-blue-400 hover:underline"
+        >
           <button>Terms of Service</button>
         </Link>{" "}
         |{" "}
-        <Link to="/contact" className="text-blue-400 hover:underline">
+        <Link href="/contact" className="text-blue-400 hover:underline">
           <button className="cursor-not-allowed" disabled>
             Contact Us
           </button>
         </Link>{" "}
         |{" "}
-        <Link to="/how-to-play" className="text-blue-400 hover:underline">
+        <Link href="/how-to-play" className="text-blue-400 hover:underline">
           <button>How to Play</button>
         </Link>
       </div>

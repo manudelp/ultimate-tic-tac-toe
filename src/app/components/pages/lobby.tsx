@@ -1,6 +1,6 @@
 // src/pages/lobby.tsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import socket from "@/socket";
 import Button from "@/app/components/ui/button";
@@ -14,8 +14,9 @@ export default function Lobby() {
   const code = searchParams.get("code");
 
   // State variables
+  const lobbyInitialized = useRef(false);
   const [lobbyCode, setLobbyCode] = useState("");
-  const [, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(true);
 
   // Match states
@@ -23,13 +24,24 @@ export default function Lobby() {
   const [yourTurn, setYourTurn] = useState<boolean>(false);
 
   useEffect(() => {
+    // Only run this effect once
+    if (lobbyInitialized.current) return;
+    lobbyInitialized.current = true;
+
     if (code) {
       setLobbyCode(code);
       socket.emit("joinLobby", { code });
+      toast.success("Joined lobby successfully!", {
+        duration: 2000,
+      });
     } else {
       const newCode = Math.random().toString(36).substring(2, 7).toUpperCase();
       setLobbyCode(newCode);
       socket.emit("createLobby", { code: newCode });
+
+      toast.success("Lobby created successfully!", {
+        duration: 2000,
+      });
 
       const lobbyLink = `${window.location.origin}/lobby?code=${newCode}`;
       navigator.clipboard.writeText(lobbyLink).then(() => {
@@ -37,22 +49,6 @@ export default function Lobby() {
       });
     }
   }, [code]);
-
-  useEffect(() => {
-    socket.on("startGame", () => {
-      console.log("Game starting!");
-      setWaiting(false);
-    });
-
-    socket.on("error", (error) => {
-      alert(error.message || "An error occurred");
-    });
-
-    return () => {
-      socket.off("startGame");
-      socket.off("error");
-    };
-  }, []);
 
   const handleCopyLink = () => {
     const lobbyLink = `${window.location.origin}/lobby?code=${lobbyCode}`;
@@ -65,10 +61,14 @@ export default function Lobby() {
   // Handle socket events for the game
   useEffect(() => {
     socket.on("startGame", (data) => {
-      console.log("Game starting!", data);
       setYourLetter(data.yourLetter);
       setYourTurn(data.yourTurn);
       setWaiting(false);
+
+      // Only show "Opponent joined" toast to the lobby creator (X player)
+      if (data.yourLetter === "X") {
+        toast.success("Opponent joined! Game starting...", { duration: 3000 });
+      }
     });
 
     socket.on("error", (error) => {
@@ -88,9 +88,12 @@ export default function Lobby() {
           gameMode="online"
           bot={null}
           starts={yourLetter}
-          onExit={() => router.push("/")}
-          isOnline={true}
+          onExit={() => {
+            socket.emit("leaveLobby", { code: lobbyCode });
+            router.push("/");
+          }}
           yourLetter={yourLetter || undefined}
+          lobbyCode={lobbyCode}
         />
       </div>
     );

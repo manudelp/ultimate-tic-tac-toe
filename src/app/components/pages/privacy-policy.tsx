@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const PrivacyPolicy: React.FC = () => {
   return (
@@ -122,7 +122,7 @@ const PrivacyPolicy: React.FC = () => {
           support@ultimatetictactoe.com
         </a>{" "}
         or using{" "}
-        <Link to="/contact" className="text-blue-400 hover:underline">
+        <Link href="/contact" className="text-blue-400 hover:underline">
           the contact form
         </Link>
         .
@@ -149,7 +149,7 @@ const PrivacyPolicy: React.FC = () => {
           support@ultimatetictactoe.com
         </a>{" "}
         or using{" "}
-        <Link to="/contact" className="text-blue-400 hover:underline">
+        <Link href="/contact" className="text-blue-400 hover:underline">
           the contact form
         </Link>
         .

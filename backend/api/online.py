@@ -20,7 +20,18 @@ class OnlineNamespace(Namespace):
         print("Client connected to /online namespace")
 
     def on_disconnect(self):
-        print("Client disconnected from /online namespace")
+        print(f"Client {request.sid} disconnected from /online namespace")
+        
+        # Find any lobbies this player is in
+        for code, lobby in list(lobbies.items()):
+            if request.sid in lobby['players']:
+                # Notify other players in the lobby
+                emit('opponentDisconnected', {}, room=code, include_self=False)
+                
+                # Remove the lobby
+                del lobbies[code]
+                print(f"Lobby {code} removed because player {request.sid} disconnected")
+                break
 
     def on_createLobby(self, data):
         code = data['code']
@@ -31,12 +42,6 @@ class OnlineNamespace(Namespace):
             print(f"Lobby {code} created by player: {request.sid}")
         else:
             emit('error', {'message': 'Lobby code already exists'})
-
-    def on_clear_lobbies(self):
-        global lobbies
-        lobbies = {}
-        print("Lobbies cleared")
-        emit('lobbiesCleared')
 
     def on_joinLobby(self, data):
         code = data['code']
@@ -55,63 +60,45 @@ class OnlineNamespace(Namespace):
         else:
             print(f"Lobby code is {code}, while lobbies are {lobbies}")
             print(f"Amount of players in lobby is {len(lobbies[code]['players']) if code in lobbies else 'N/A'}")
+            
+    def on_leaveLobby(self, data):
+        code = data.get('code')
+        if not code or code not in lobbies:
+            return
+        
+        # Find this player's SID
+        player_sid = request.sid
+        
+        # Check if player is in this lobby
+        if code in lobbies and player_sid in lobbies[code]['players']:
+            # Notify other players in the lobby that this player left
+            for sid in lobbies[code]['players']:
+                if sid != player_sid:
+                    emit('opponentLeft', {
+                        'message': 'Your opponent has left the game'
+                    }, room=sid)
+            
+            # Remove the lobby
+            del lobbies[code]
+            print(f"Lobby {code} removed because player {player_sid} left")
 
     def on_makeMove(self, data):
         code = data['code']
         move = data['move']
         print(f"Move made in lobby {code}: {move}")
         emit('opponentMove', move, room=code, include_self=False)
+        
+    def on_gameOver(self, data):
+        code = data['code']
+        winner = data['winner']
+        winningLine = data.get('winningLine')  # This might be optional
+        
+        print(f"Game over in lobby {code}. Winner: {winner}")
+        # Broadcast to everyone in the room except sender
+        emit('gameOver', {
+            'winner': winner,
+            'winningLine': winningLine
+        }, room=code, include_self=False)
 
 # Register the namespace
 socketio.on_namespace(OnlineNamespace('/online'))
-
-# HTTP routes
-@online_routes.route('/create-lobby', methods=['POST'])
-def create_lobby():
-    try:
-        player_id = request.json['player_id']
-        user_letter = request.json['user_letter']
-        online_starts = request.json['online_starts']
-        lobby_id = str(uuid.uuid4()) + user_letter.lower() + online_starts.lower()
-
-        if lobby_id in lobbies:
-            return jsonify({'status': 'error', 'message': 'Lobby already exists'}), 400
-
-        lobbies[lobby_id] = {'players': [player_id]}
-
-        print(f"Lobby {lobby_id} created by player {player_id}")
-
-        return jsonify({'lobby_id': lobby_id, 'player_id': player_id})
-    except KeyError as e:
-        return jsonify({'status': 'error', 'message': f'Missing key: {str(e)}'}), 400
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@online_routes.route('/join-lobby', methods=['POST'])
-def join_lobby():
-    try:
-        lobby_id = request.json['lobby_id']
-        player_id = request.json['player_id']
-        if lobby_id in lobbies:
-            lobbies[lobby_id]['players'].append(player_id)
-            print(f"Player {player_id} joined lobby {lobby_id}")
-            return jsonify({'status': 'joined'})
-        return jsonify({'status': 'error', 'message': 'Lobby not found'}), 404
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@online_routes.route('/send-move', methods=['POST'])
-def send_move():
-    try:
-        lobby_id = request.json['lobby_id']
-        player_id = request.json['player_id']
-        move = request.json['move']
-
-        socketio.emit('move', {'player_id': player_id, 'move': move}, room=lobby_id)
-        print(f"Move made in lobby {lobby_id}")
-        return jsonify({'status': 'success'})
-    except KeyError as e:
-        return jsonify({'status': 'error', 'message': f'Missing key: {str(e)}'}), 400
-    except Exception as e:
-        print(f"Unhandled Exception: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import Button from "@/app/components/ui/button";
 import Share from "@/app/components/ui/share";
@@ -127,7 +127,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
   useEffect(() => {
     if (gameMode === "player-vs-bot" && !bots) {
       getBots().then((bots) => {
-        console.log(bots); // Debugging
         setBots(
           bots.map((bot: BotListResponse) => ({
             ...bot,
@@ -282,10 +281,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
                   Select your option
                 </h2>
                 <div className="flex flex-col justify-center gap-6 sm:flex-row">
-                  <Link to="/lobby">
+                  <Link href="/lobby">
                     <Button text="Share a link" />
                   </Link>
-                  <Link to="/matchmaking">
+                  <Link href="/matchmaking">
                     <Button text="Search for players" />
                   </Link>
                 </div>
@@ -485,7 +484,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isBackendConnected }) => {
           gameMode={gameMode}
           bot={bot}
           starts={starts}
-          isOnline={isOnline ?? false}
           onExit={handleExitGame}
         />
       )}
