@@ -8,7 +8,6 @@ import HowToPlay from "./components/pages/how-to-play";
 import PrivacyPolicy from "./components/pages/privacy-policy";
 import TermsOfService from "./components/pages/terms-of-service";
 import Footer from "./components/layout/footer";
-import Header from "./components/layout/header";
 import ContactUs from "./components/pages/contact-us";
 import NotFound from "./components/pages/not-found";
 export default function Home() {
@@ -53,7 +52,6 @@ export default function Home() {
     <div className="text-white bg-gray-900 min-h-svh">
       {isClient && (
         <>
-          <Header />
           {renderPage()}
           <Footer isBackendConnected={isBackendConnected} />
         </>
