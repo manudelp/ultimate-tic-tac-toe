@@ -170,7 +170,7 @@ export default function Lobby() {
           content={
             <div className="flex items-center justify-center gap-2">
               <ArrowLeftIcon className="w-4 h-4" />
-              <span>Back to Menu</span>
+              <span>Go Back</span>
             </div>
           }
           onClick={() => {
@@ -178,7 +178,6 @@ export default function Lobby() {
             router.push("/");
           }}
           variant="danger"
-          className="w-full bg-gray-700 hover:bg-gray-600 border-none text-gray-200"
         />
       </div>
     </div>
