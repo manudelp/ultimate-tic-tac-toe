@@ -1,4 +1,4 @@
-from .bots import bot_routes
-
-# Optionally, you can define __all__ if you want to control what gets imported
-__all__ = ['bot_routes, auth_routes']
+"""
+API package for the Ultimate Tic-Tac-Toe application.
+"""
+# This file makes the 'api' directory a Python package

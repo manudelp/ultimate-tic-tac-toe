@@ -1,34 +1,10 @@
-# backend/api/bots.py
-
 import numpy as np
-import api.utils as utils
+import api.utils as utils  # This import should now work correctly
 import time
 from colorama import Style, Fore
 from typing import List, Tuple, Dict, Any, Union, Optional
-from flask import Blueprint, jsonify, request
-from agents.bots.randy import RandomAgent
-# from agents.bots.monkey import MonkeyAgent
-from agents.bots.jardito import JardineritoAgent
-from agents.bots.greedy import GreedyAgent
-from agents.bots.arthy import ArthyAgent
-from agents.bots.jardishow import JardiShowAgent
-from agents.bots.santa import SantaAgent
-# from agents.foofinder import FooFinderAgent
-
-bot_routes = Blueprint('bots', __name__)
-
-# IDs Dictionary, Agent:obj ; ID:int
-AGENTS = {
-    RandomAgent().id : RandomAgent(),
-    # TaylorAgent().id : TaylorAgent(), 
-    GreedyAgent().id : GreedyAgent(), 
-    JardineritoAgent().id : JardineritoAgent(),
-    JardiShowAgent().id : JardiShowAgent(),
-    # ArthyAgent().id : ArthyAgent(),
-    # MonkeyAgent().id : MonkeyAgent(),
-    # FooFinderAgent().id : FooFinderAgent(),
-    # SantaAgent().id : SantaAgent()
-}
+from flask import jsonify, request
+from . import bot_routes, AGENTS
 
 @bot_routes.route('/get-bot-list', methods=['GET'])
 def get_bot_list():
@@ -128,24 +104,26 @@ def get_bot_move():
 @bot_routes.route('/agents-reset', methods=['POST'])
 def agents_reset():
     try:
-        
         # Identify the agent to reset
         id = request.json.get('id')
         bot = AGENTS.get(id)
+    except:
+        print(Fore.RED + Style.BRIGHT + "Error: No se pudo identificar el agente a resetear" + Style.RESET_ALL)
+        return jsonify({'error': 'No se pudo identificar el agente a resetear'}), 400
         
+    try:
         # Reset the agents
         bot.reset()
-
         # Return a success response
         return jsonify({'message': 'Agent reset successfully'})
     except Exception as e:
         print(f"\nError: {e}\n")
 
         # Return an internal server error response
-        return jsonify({'error': 'Internal Server Error'}), 500
+        return jsonify({'error': 'Internal Server Error, el agente no se reseteo (routes.py, agents_reset)'}), 500
 
 # Initialize Agent Load
-@bot_routes.route('/agent-load', methods=['POST'])
+@bot_routes.route('/agent-load', methods=['POST'])  # Fixed missing = sign in methods
 def agent_load():
     try:
         # Identify the agent to load

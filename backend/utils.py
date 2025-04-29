@@ -59,6 +59,17 @@ def get_GlobalWinner(board):
     board_key = board.tobytes()
     return hash_winning_boards.get(board_key, 0)
 
+# Add missing function to check winner from board results
+def get_winner(board_results):
+    """
+    Determine if there is a winner from the board results.
+    Returns 1 if player 1 won, -1 if player -1 won, or 0 if there is no winner yet.
+    """
+    if board_results.shape != (3, 3):
+        raise ValueError("The board_results must be a 2d array with shape (3, 3).")
+    
+    return get_GlobalWinner(board_results)
+
 # Determine the absolute path to the hash_winning_boards.txt file
 hash_file_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'hashes', 'hash_winning_boards.txt')
 

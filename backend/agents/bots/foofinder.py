@@ -87,8 +87,8 @@ class FooFinderAgent:
         self.loaded_up = True
 
     def reset(self):
-        if self.minimax_plays == 0:
-            raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
+        # if self.minimax_plays == 0:
+            # raise ValueError(Style.BRIGHT + Fore.RED + "Reset has been called, it's not the first game but minimax_plays is 0..." + Style.RESET_ALL)
         
         print("FooFinder Reset Lets Goo! 🚀")
         # Counts
@@ -111,8 +111,8 @@ class FooFinderAgent:
         self.board_tuple = None
 
         # Minimax Info
-        average_minimax_time = self.total_minimax_time / self.minimax_plays
-        print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
+        # average_minimax_time = self.total_minimax_time / self.minimax_plays
+        # print(Style.BRIGHT + Fore.MAGENTA + f"\n{self.name} played Minimax {self.minimax_plays} times with an average time of {average_minimax_time:.4f} seconds" + Style.RESET_ALL)
         self.total_minimax_time = 0
         self.minimax_plays = 0
 

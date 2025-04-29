@@ -1,18 +1,9 @@
-# backend/api/online.py
-
 import os
 import sys
 import uuid
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from flask_socketio import Namespace, emit, join_room
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from socketio_instance import socketio
-
-# Create a blueprint for online routes
-online_routes = Blueprint('online', __name__)
-
-# In-memory storage for lobbies
-lobbies = {}
+from . import online_routes, lobbies, socketio
 
 # Define a Socket.IO namespace for online gameplay
 class OnlineNamespace(Namespace):

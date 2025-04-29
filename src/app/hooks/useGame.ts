@@ -130,7 +130,7 @@ export const useGame = (
         setGameOver(true);
 
         const winnerSound = new Audio("/assets/sounds/winner_xmas.mp3");
-        winnerSound.volume = 0.25;
+        winnerSound.volume = 0.2;
         winnerSound.play();
 
         setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
@@ -153,7 +153,7 @@ export const useGame = (
       const [a, b, c, d] = coords;
 
       // Early validation
-      if (gameWinner || gameOver || disabled[a][b]) {
+      if (gameWinner || gameOver || disabled[a][b] || board[a][b][c][d]) {
         return;
       }
 
@@ -161,11 +161,6 @@ export const useGame = (
       setBoard((prevBoard) => {
         // Create a deep copy of the current board
         const newBoard = JSON.parse(JSON.stringify(prevBoard));
-
-        // Check if cell is already filled
-        if (newBoard[a][b][c][d]) {
-          return prevBoard; // Don't modify board if cell is already occupied
-        }
 
         // Update the new board - use the provided letter or current turn
         newBoard[a][b][c][d] = forcedLetter || turn;
@@ -177,10 +172,21 @@ export const useGame = (
           updateMiniBoardState(a, b, winner);
         }
 
+        // Calculate next active mini-board
+        const nextMiniBoard = MiniBoardWinner(newBoard[c][d] as MiniBoard);
+        if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
+          setActiveMiniBoard([c, d]);
+        } else {
+          setActiveMiniBoard(null);
+        }
+
         // Check if mini-board is full
         if (newBoard[a][b].flat().every((cell: string) => cell !== "")) {
           disableFullMiniBoard(a, b);
         }
+
+        // Check overall game winner
+        checkOverallGameWinner();
 
         // Return the updated board to set as new state
         return newBoard;
@@ -188,21 +194,16 @@ export const useGame = (
 
       // Process rest of game logic in timeout to ensure board is updated first
       setTimeout(() => {
-        // Step 3: Calculate next active mini-board
-        const nextMiniBoard = MiniBoardWinner(board[c][d] as MiniBoard);
-        if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
-          setActiveMiniBoard([c, d]);
-        } else {
-          setActiveMiniBoard(null);
-        }
-
-        // Check overall game winner
-        checkOverallGameWinner();
-
         // Play sound
-        const tapSound = new Audio("/assets/sounds/tap.mp3");
-        tapSound.volume = 0.25;
-        tapSound.play();
+        try {
+          const tapSound = new Audio("/assets/sounds/tap.mp3");
+          tapSound.volume = 0.25;
+          tapSound.play().catch(() => {
+            return;
+          });
+        } catch (error) {
+          return error;
+        }
 
         setLastMove(coords);
         setTurn((prev) => (prev === "X" ? "O" : "X"));
@@ -221,8 +222,6 @@ export const useGame = (
       }, 0);
     },
     [
-      gameMode,
-      lobbyCode,
       gameWinner,
       gameOver,
       disabled,
@@ -232,6 +231,8 @@ export const useGame = (
       checkOverallGameWinner,
       updateMiniBoardState,
       disableFullMiniBoard,
+      gameMode,
+      lobbyCode,
     ]
   );
 
@@ -412,23 +413,6 @@ export const useGame = (
 
       socket.on("opponentMove", (move) => {
         handleOpponentMove(move, opponentLetter);
-      });
-
-      // Add game over listener
-      socket.on("gameOver", (data) => {
-        setGameWinner(data.winner);
-        setGameOver(true);
-        if (data.winningLine) {
-          setWinningLine(data.winningLine);
-        }
-
-        // Play winner sound
-        const winnerSound = new Audio("/assets/sounds/winner_xmas.mp3");
-        winnerSound.volume = 0.25;
-        winnerSound.play();
-
-        // Disable all boards
-        setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
       });
 
       // Add opponent left listener

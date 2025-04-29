@@ -252,21 +252,21 @@ const Board: React.FC<BoardProps> = ({
                 )}
                 {winningLine.type === "diag" && winningLine.index === 0 && (
                   <div
-                    className="absolute w-[140%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                    className="absolute w-[120%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
                     style={{
                       transform: "rotate(45deg)",
                       top: "50%",
-                      left: "-19%",
+                      left: "-9%",
                     }}
                   />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 1 && (
                   <div
-                    className="absolute w-[140%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                    className="absolute w-[120%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full "
                     style={{
                       transform: "rotate(-45deg)",
                       top: "50%",
-                      left: "-19%",
+                      left: "-11%",
                     }}
                   />
                 )}

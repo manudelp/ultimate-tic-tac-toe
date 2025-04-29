@@ -1,18 +1,11 @@
 import bcrypt
 import jwt
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from datetime import datetime, timedelta
 import os
 import json
 import requests
-
-auth_routes = Blueprint('auth', __name__)
-
-# Ruta al archivo donde se almacenan los usuarios
-DATA_FILE = 'users.json'
-
-# Cargar la clave secreta desde las variables de entorno
-SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_secret_key')  # Asegúrate de configurar una clave secreta segura
+from . import auth_routes, SECRET_KEY, DATA_FILE, RECAPTCHA_SECRET_KEY
 
 # Funciones auxiliares
 def load_users():
@@ -133,12 +126,8 @@ def verify_token():
         return jsonify({"message": "Token has expired."}), 401
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid token."}), 401
-    
 
-
-# VERIFY RECAPTCHA    
-RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
-
+# VERIFY RECAPTCHA
 @auth_routes.route('/verify-recaptcha', methods=['POST'])
 def verify_recaptcha():
     data = request.json
