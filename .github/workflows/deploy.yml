@@ -7,9 +7,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -26,12 +30,16 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -49,7 +57,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./backend
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
 
@@ -64,3 +72,5 @@ jobs:
             docker stop utictactoe-backend-container || true
             docker rm utictactoe-backend-container || true
             docker run -d --name utictactoe-backend-container -p 80:5000 ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
+            sleep 10
+            curl -f http://localhost/health || exit 1
