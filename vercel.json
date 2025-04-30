@@ -4,13 +4,5 @@
       "src": "src/**/*",
       "use": "@vercel/next"
     }
-  ],
-  "ignore": [
-    "backend/",
-    "tests/",
-    "videos/",
-    "tree.py",
-    ".DS_Store",
-    "structure.txt"
   ]
 }
