@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:alpine
 
 WORKDIR /app
 
@@ -13,4 +13,4 @@ ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_ENV=production
 
-CMD ["flask", "run"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
