@@ -289,10 +289,11 @@ class FooFinderAgent:
         self.load_drawn_boards(draw_boards_path)
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
-        self.load_boards_info(board_info_path)
-        self.load_results_board_eval(results_eval_path)
-        self.load_winning_results_boards(winning_results_path)
-        self.load_draw_results_boards(draw_results_path)
+        # TODO: UNCOMMENT AND ADD THE FUNCTIONS
+        # self.load_boards_info(board_info_path)
+        # self.load_results_board_eval(results_eval_path)
+        # self.load_winning_results_boards(winning_results_path)
+        # self.load_draw_results_boards(draw_results_path)
         self.load_winnable_boards_one(winnable_boards_one_path)
         self.load_winnable_boards_minus_one(winnable_boards_minus_one_path)
 
@@ -913,6 +914,18 @@ class FooFinderAgent:
                     board_info_tuple = ast.literal_eval(board_info_str)
                     heuristic_value, result = board_info_tuple
                     self.hash_eval_boards[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result))
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
+
+    def load_boards_info(self, file_path):
+        ''' Load the evaluated boards from a file and store them in a dictionary '''
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    board_hex, board_info_str = line.strip().split(':')
+                    board_info_tuple = ast.literal_eval(board_info_str)
+                    heuristic_value, result, positional_lead, positional_score = board_info_tuple
+                    self.hash_boards_information[bytes.fromhex(board_hex)] = (float(heuristic_value), int(result), int(positional_lead), float(positional_score))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Evaluated boards will not be loaded.")
 
