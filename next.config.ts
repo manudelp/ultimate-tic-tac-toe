@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        destination: "/",
+        destination: "/:path*", // This allows Next.js to handle all paths dynamically
       },
     ];
   },
