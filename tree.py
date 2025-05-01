@@ -15,15 +15,12 @@ def generate_tree_structure(root_dir, output_file):
     
     with open(output_file, 'w') as f:
         for dirpath, dirnames, filenames in os.walk(root_dir):
-            # Skip directories that match ignore patterns
-            dirnames[:] = [d for d in dirnames if not any(
-                pattern in d or 
-                (pattern.startswith('*') and d.endswith(pattern[1:])) 
-                for pattern in ignore_patterns
-            )]
-            
-            # Skip if current directory should be ignored
-            if any(pattern in dirpath.split(os.sep) for pattern in ignore_patterns):
+            # Skip node_modules, .git, .venv, venv, and __pycache__ directories
+            # Skip directories and files in the gitignore list
+            ignored_patterns = ['node_modules', '.pnp', '.yarn', 'coverage', '.next', 'out', 'build', 
+                               '.DS_Store', '.env', '.vercel', '__pycache__', '.cache', '.pytest_cache',
+                               '.git', '.venv', 'venv', 'tsbuildinfo', 'next-env.d.ts']
+            if any(ignored in dirpath for ignored in ignored_patterns) or any(file.endswith(('.pem', '.pyc', '.tsbuildinfo')) for file in filenames):
                 continue
                 
             level = dirpath.replace(root_dir, '').count(os.sep)
