@@ -1,0 +1,30 @@
+services:
+  backend:
+    image: ${DOCKERHUB_USERNAME}/utictactoe-backend:latest
+    container_name: utictactoe-backend-container
+    restart: always
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_ENV=production
+    networks:
+      - app-network
+
+  nginx:
+    build: ./nginx
+    container_name: utictactoe-nginx-container
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy Backend to AWS EC2
 
 on:
   push:
@@ -27,12 +27,9 @@ jobs:
       - name: Run tests
         run: pytest
 
-  deploy:
+  build:
     needs: test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
 
     steps:
       - name: Checkout repository
@@ -54,23 +51,63 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push backend Docker image
         uses: docker/build-push-action@v4
         with:
           context: ./backend
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
+      - name: Build and push nginx Docker image
+        uses: docker/build-push-action@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
+          context: ./nginx
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Deploy to laptop
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            # Pull the latest images
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
-            docker stop utictactoe-backend-container || true
-            docker rm utictactoe-backend-container || true
-            docker run -d --name utictactoe-backend-container -p 80:5000 ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
-            sleep 10
-            curl -f http://localhost/health || exit 1
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
+            
+            # Stop and remove existing containers if they exist
+            docker-compose -f ~/utictactoe/docker-compose.yml down || true
+            
+            # Make sure directory exists
+            mkdir -p ~/utictactoe
+            
+            # Create or update docker-compose file
+            cat > ~/utictactoe/docker-compose.yml << 'COMPOSE'
+          version: '3'
+          services:
+            backend:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
+              restart: always
+            nginx:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
+              ports:
+                - "80:80"
+              depends_on:
+                - backend
+              restart: always
+          COMPOSE
+            
+            # Start the containers
+            cd ~/utictactoe && docker-compose up -d
+          EOF

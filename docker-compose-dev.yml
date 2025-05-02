@@ -1,0 +1,33 @@
+services:
+  backend:
+    build: ./backend # Build from local code instead of pulling image
+    container_name: utictactoe-backend-dev
+    restart: unless-stopped # Less aggressive restart for development
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_ENV=development # Set to development
+      - FLASK_DEBUG=1 # Enable debug mode
+    volumes:
+      - ./backend:/app # Mount local code for hot reloading
+    ports:
+      - "5000:5000" # Expose API directly for easier debugging
+    networks:
+      - app-network-dev
+
+  nginx:
+    build: ./nginx
+    container_name: utictactoe-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "8080:80" # Use different port for dev
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf # Dev config
+    depends_on:
+      - backend
+    networks:
+      - app-network-dev
+
+networks:
+  app-network-dev:
+    driver: bridge
