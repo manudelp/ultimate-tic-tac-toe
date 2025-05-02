@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import MiniBoard from "@/app/components/core/miniboard";
+import MiniBoard from "@/components/core/miniboard";
 import GameOverModal from "../ui/game-over";
 import { useGame } from "../../hooks/useGame";
 import { motion } from "framer-motion"; // You'll need to install framer-motion
@@ -12,9 +12,9 @@ interface BotListResponse {
 
 interface BoardProps {
   gameMode: string;
-  bot: BotListResponse | null;
-  starts: string | null;
   onExit: () => void;
+  bot?: BotListResponse;
+  starts?: string;
   yourLetter?: string;
   lobbyCode?: string;
 }
@@ -419,7 +419,7 @@ const Board: React.FC<BoardProps> = ({
                 <div className="mb-1 text-sm text-gray-400">Game Mode</div>
                 <div className="text-lg text-white">
                   {gameMode === "player-vs-player"
-                    ? "Player vs Player"
+                    ? "Local"
                     : gameMode === "player-vs-bot"
                     ? `vs ${bot?.name}`
                     : "Online Match"}
@@ -565,7 +565,7 @@ const Board: React.FC<BoardProps> = ({
           gameWinner={gameWinner}
           gameMode={gameMode}
           bot={bot}
-          starts={starts}
+          starts={starts || null}
           closeModal={closeModal}
           setCloseModal={() => setCloseModal(true)}
           playAgain={handlePlayAgain}

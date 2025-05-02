@@ -1,13 +1,10 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { checkConnection } from "@/api";
 
-interface FooterProps {
-  isBackendConnected: boolean;
-}
-
-const Footer: React.FC<FooterProps> = ({ isBackendConnected }) => {
+const Footer: React.FC = () => {
   useEffect(() => {
     const year = new Date().getFullYear();
     if (typeof window !== "undefined") {
@@ -18,8 +15,20 @@ const Footer: React.FC<FooterProps> = ({ isBackendConnected }) => {
     }
   }, []);
 
+  // Check backend connection
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkBackendConnection = async () => {
+      const isConnected = await checkConnection();
+      setIsBackendConnected(isConnected);
+    };
+
+    checkBackendConnection();
+  }, []);
+
   return (
-    <div className="w-full min-h-fit flex flex-col items-center justify-center gap-2  p-8 text-sm text-white text-center bg-gray-950">
+    <div className="flex flex-col items-center justify-center w-full gap-2 p-8 text-sm text-center text-white min-h-fit bg-gray-950">
       <div>
         <p>
           &copy; <span id="year"></span> Ultimate Tic Tac Toe. All rights

@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import socket from "@/socket";
 import { getBotMove, agentsReset } from "@/api";
-import { MiniBoardWinner, GameWinner, convertBoardToNumeric } from "../utils";
+import {
+  MiniBoardWinner,
+  GameWinner,
+  convertBoardToNumeric,
+} from "@/lib/utils";
 import { toast } from "sonner";
 
 interface BotListResponse {
