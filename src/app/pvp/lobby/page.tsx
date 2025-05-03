@@ -126,7 +126,7 @@ export default function Lobby() {
 
   if (!waiting) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 py-8 text-white bg-gray-900 min-h-svh sm:px-8 sm:py-16">
+      <div className="flex flex-col items-center justify-center px-4 py-8  min-h-svh sm:px-8 sm:py-16">
         <Board
           gameMode="online"
           starts={yourLetter}
@@ -142,7 +142,7 @@ export default function Lobby() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center text-white bg-gray-900">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center ">
       <div className="w-full max-w-md p-8 space-y-6 ">
         <h1 className="text-2xl font-bold sm:text-4xl">The Lobby</h1>
         <h2 className="text-md">Share your lobby link below:</h2>

@@ -48,14 +48,32 @@ export const checkConnection = async (): Promise<boolean> => {
 
 // Bots
 export const getBots = async (): Promise<BotListResponse[]> => {
-  const response = await axios.get<BotListResponse[]>(
-    `${API_URL}/get-bot-list`
-  );
-  return response.data;
+  try {
+    const response = await axios.get<BotListResponse[]>(
+      `${API_URL}/get-bot-list`
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to retrieve bot list"
+      );
+    }
+    console.error("Error fetching bots:", error);
+    throw new Error("Failed to retrieve bot list. Please try again later.");
+  }
 };
 
 export const loadBot = async (id: number): Promise<void> => {
-  await axios.post(`${API_URL}/agent-load`, { id });
+  try {
+    await axios.post(`${API_URL}/agent-load`, { id });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Failed to load bot");
+    }
+    console.error("Error loading bot:", error);
+    throw new Error("Failed to load bot. Please try again later.");
+  }
 };
 
 export const getBotMove = async (
@@ -64,20 +82,36 @@ export const getBotMove = async (
   activeMiniBoard: number[] | null,
   turn: string
 ): Promise<[number, number, number, number]> => {
-  const response = await axios.post<BotMoveResponse>(
-    `${API_URL}/get-bot-move`,
-    {
-      bot,
-      board,
-      activeMiniBoard,
-      turn,
+  try {
+    const response = await axios.post<BotMoveResponse>(
+      `${API_URL}/get-bot-move`,
+      {
+        bot,
+        board,
+        activeMiniBoard,
+        turn,
+      }
+    );
+    return response.data.move;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Failed to get bot move");
     }
-  );
-  return response.data.move;
+    console.error("Error getting bot move:", error);
+    throw new Error("Failed to get bot move. Please try again later.");
+  }
 };
 
 export const agentsReset = async (id: number): Promise<void> => {
-  await axios.post(`${API_URL}/agents-reset`, { id });
+  try {
+    await axios.post(`${API_URL}/agents-reset`, { id });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Failed to reset agents");
+    }
+    console.error("Error resetting agents:", error);
+    throw new Error("Failed to reset agents. Please try again later.");
+  }
 };
 
 // Register user

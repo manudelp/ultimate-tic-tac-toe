@@ -107,7 +107,7 @@ export default function Home() {
   }, [shuffledWords, shuffledColors]);
 
   return (
-    <div className="text-white bg-gray-900 min-h-svh">
+    <div className=" min-h-svh">
       <div className="flex flex-col items-center justify-center p-4 text-white min-h-svh sm:p-8">
         <div className="text-center">
           {/* Title */}

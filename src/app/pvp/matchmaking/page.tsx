@@ -3,7 +3,7 @@ import Button from "@/components/ui/button";
 
 export default function Matchmaking() {
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-12 text-white bg-gray-900 min-h-svh">
+    <div className="flex flex-col items-center justify-center px-6 py-12  min-h-svh">
       <div className="w-full max-w-2xl text-center">
         <h1 className="mb-12 text-3xl font-bold sm:text-5xl ">Matchmaking</h1>
 

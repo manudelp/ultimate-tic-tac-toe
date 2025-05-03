@@ -9,7 +9,7 @@ export default function PVP() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-8 text-white bg-gray-900 min-h-svh sm:px-8 sm:py-16">
+    <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
       <>
         {/* Local or Online */}
         {isOnline === null && (

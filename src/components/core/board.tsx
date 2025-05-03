@@ -206,8 +206,6 @@ const Board: React.FC<BoardProps> = ({
           animate={{ scale: 1 }}
           className="relative w-full max-w-[min(calc(100vw-2rem),600px)] aspect-square"
         >
-          <div className="absolute inset-0 bg-gray-700 rounded-lg shadow-xl -z-10"></div>
-
           <div className="relative flex flex-wrap w-full p-2 aspect-square">
             {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
               miniBoardRow.map((miniBoard: string[][], localColIndex) => (

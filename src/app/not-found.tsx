@@ -4,7 +4,7 @@ import Button from "@/components/ui/button";
 
 const NotFound: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 space-y-6 text-white bg-gray-900">
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 space-y-6 ">
       <div className="grid grid-cols-3 mb-6">
         <div className="flex items-center justify-center w-24 h-24 border-b-2 border-r-2 border-white"></div>
         <div className="flex items-center justify-center w-24 h-24 border-b-2 border-l-2 border-r-2 border-white"></div>

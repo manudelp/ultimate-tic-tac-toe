@@ -42,12 +42,7 @@ export default function Bot() {
   useEffect(() => {
     if (!bots) {
       getBots().then((bots) => {
-        setBots(
-          bots.map((bot: BotListResponse) => ({
-            ...bot,
-            description: bot.description || "",
-          }))
-        );
+        setBots(bots.map((bot: BotListResponse) => ({ ...bot })));
 
         bots.forEach((bot) => {
           loadBot(bot.id).then(() => {
@@ -59,7 +54,7 @@ export default function Bot() {
   }, [bots]);
 
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-8 text-white bg-gray-900 min-h-svh sm:px-8 sm:py-16">
+    <div className="flex flex-col items-center justify-center px-4 py-8  min-h-svh sm:px-8 sm:py-16">
       {/* Choose Bot */}
       {!bot && (
         <>
