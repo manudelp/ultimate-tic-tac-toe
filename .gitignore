@@ -10,12 +10,16 @@
 !.yarn/releases
 !.yarn/versions
 
+# Ignore SSL certificates folder
+ssl/
+ssl/*
+
 # testing
 /coverage
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
 /build
