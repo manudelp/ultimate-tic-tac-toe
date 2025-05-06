@@ -2,7 +2,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { getBots, loadBot } from "@/api";
-import Board from "@/components/core/board";
+import Board from "@/components/core/board/board";
 import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 import Share from "@/components/ui/share";

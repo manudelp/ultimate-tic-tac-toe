@@ -1,17 +1,18 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils"; // Assuming you have a utility function for class names
 
 interface PlayerOProps {
-  theme: string;
+  className?: string;
 }
 
-const PlayerO: React.FC<PlayerOProps> = ({ theme }) => {
+const PlayerO: React.FC<PlayerOProps> = ({ className }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="grid place-items-center"
+      className={cn("grid place-items-center", className)}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +20,7 @@ const PlayerO: React.FC<PlayerOProps> = ({ theme }) => {
         height="90%"
         viewBox="0 0 24 24"
         strokeWidth="1"
-        stroke={`${theme === "dark" ? "#ffffff" : "#000000"}`}
+        stroke="currentColor"
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"

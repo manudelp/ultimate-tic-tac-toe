@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/button";
-import Board from "@/components/core/board";
+import Board from "@/components/core/board/board";
 import Share from "@/components/ui/share";
 
 export default function PVP() {

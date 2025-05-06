@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import MiniBoard from "@/components/core/miniboard";
-import GameOverModal from "../ui/game-over";
-import { useGame } from "../../hooks/useGame";
+import GameOverModal from "@/components/ui/game-over";
+import GameInfo from "@/components/core/board/game-info";
+import { useGame } from "@/hooks/useGame";
 import { motion } from "framer-motion"; // You'll need to install framer-motion
 
 interface BotListResponse {
@@ -11,7 +12,7 @@ interface BotListResponse {
 }
 
 interface BoardProps {
-  gameMode: string;
+  gameMode: "player-vs-bot" | "online";
   onExit: () => void;
   bot?: BotListResponse;
   starts?: string;
@@ -98,107 +99,13 @@ const Board: React.FC<BoardProps> = ({
         className="flex flex-col items-center flex-1"
       >
         {/* Game Info Bar */}
-        <div className="w-full p-4 mb-4 bg-gray-800 rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
-            {/* Player/Game Info */}
-            <div className="flex items-center gap-3">
-              {gameMode === "player-vs-bot" && (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-10 h-10 text-3xl bg-gray-700 rounded-full">
-                    {bot?.icon}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-200">{bot?.name}</p>
-                    <p className="text-xs text-gray-400">
-                      {isBotThinking ? (
-                        <span className="flex items-center">
-                          Thinking
-                          <span className="flex ml-1">
-                            <span className="animate-bounce mx-[1px] h-1 w-1 rounded-full bg-gray-400"></span>
-                            <span className="animate-bounce mx-[1px] h-1 w-1 rounded-full bg-gray-400 animation-delay-100"></span>
-                            <span className="animate-bounce mx-[1px] h-1 w-1 rounded-full bg-gray-400 animation-delay-200"></span>
-                          </span>
-                        </span>
-                      ) : (
-                        "Your turn"
-                      )}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {gameMode === "online" && (
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center
-                  ${
-                    yourLetter === "X" ? "bg-blue-500" : "bg-red-500"
-                  } shadow-lg`}
-                  >
-                    {yourLetter}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-200">You</p>
-                    <p
-                      className={`text-xs ${
-                        turn === yourLetter
-                          ? "font-bold text-green-400"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {turn === yourLetter ? "Your turn" : "Your Letter"}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {gameMode === "online" ? (
-              <div className="flex items-center gap-2">
-                <div>
-                  <p
-                    className={`text-right text-xs ${
-                      turn === yourLetter
-                        ? "text-gray-400"
-                        : "font-bold text-green-400"
-                    }`}
-                  >
-                    {turn === yourLetter
-                      ? "Playing against"
-                      : "Opponent's turn"}
-                  </p>
-                  <p className="font-medium text-right text-gray-200">
-                    Opponent
-                  </p>
-                </div>
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center
-                ${yourLetter === "X" ? "bg-red-500" : "bg-blue-500"} shadow-lg`}
-                >
-                  {yourLetter === "X" ? "O" : "X"}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className="text-xs text-gray-400">Current Turn</p>
-                  {gameMode === "online" ? (
-                    <p className="font-bold text-green-400">
-                      {turn === yourLetter ? "Your Turn" : "Opponent's Turn"}
-                    </p>
-                  ) : (
-                    <p className="font-bold text-green-400">{turn}</p>
-                  )}
-                </div>
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center
-            ${turn === "X" ? "bg-blue-500" : "bg-red-500"} shadow-lg`}
-                >
-                  {turn}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <GameInfo
+          gameMode={gameMode}
+          yourLetter={yourLetter}
+          turn={turn}
+          bot={bot}
+          isBotThinking={isBotThinking}
+        />
 
         {/* Game Board */}
         <motion.div
@@ -416,11 +323,11 @@ const Board: React.FC<BoardProps> = ({
               <div>
                 <div className="mb-1 text-sm text-gray-400">Game Mode</div>
                 <div className="text-lg text-white">
-                  {gameMode === "player-vs-player"
-                    ? "Local"
-                    : gameMode === "player-vs-bot"
+                  {gameMode === "player-vs-bot"
                     ? `vs ${bot?.name}`
-                    : "Online Match"}
+                    : gameMode === "online"
+                    ? "Online Match"
+                    : "Local"}
                 </div>
               </div>
 

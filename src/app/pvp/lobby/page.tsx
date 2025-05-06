@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import socket from "@/socket";
 import Button from "@/components/ui/button";
-import Board from "@/components/core/board";
+import Board from "@/components/core/board/board";
 import Share from "@/components/ui/share";
 import { toast } from "sonner";
 import { ClipboardIcon } from "@heroicons/react/24/outline";
