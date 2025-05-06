@@ -57,7 +57,7 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
             
             # Stop and remove existing containers if they exist
-            docker-compose -f ~/utictactoe/docker-compose.yml down || true
+            docker compose -f ~/utictactoe/docker-compose.yml down || true
             
             # Make sure directory exists
             mkdir -p ~/utictactoe
@@ -79,5 +79,5 @@ jobs:
           COMPOSE
             
             # Start the containers
-            cd ~/utictactoe && docker-compose up -d
+            cd ~/utictactoe && docker compose up -d
           EOF
