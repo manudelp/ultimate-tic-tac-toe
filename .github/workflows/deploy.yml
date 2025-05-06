@@ -49,6 +49,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
+      - name: Copy docker-compose.yml to server
+        run: |
+          scp -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/
+
       - name: Deploy to Server
         run: |
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
@@ -62,22 +66,8 @@ jobs:
             # Make sure directory exists
             mkdir -p ~/utictactoe
             
-            # Create or update docker-compose file
-            cat > ~/utictactoe/docker-compose.yml << 'COMPOSE'
-          version: '3'
-          services:
-            backend:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
-              restart: always
-            nginx:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
-              ports:
-                - "80:80"
-              depends_on:
-                - backend
-              restart: always
-          COMPOSE
-            
-            # Start the containers
-            cd ~/utictactoe && docker compose up -d
+            # Set the Docker Hub username and start containers
+            cd ~/utictactoe
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            docker compose up -d
           EOF

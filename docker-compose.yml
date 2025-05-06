@@ -1,0 +1,17 @@
+services:
+  backend:
+    image: ${DOCKERHUB_USERNAME:-username}/utictactoe-backend:latest
+    restart: always
+    ports:
+      - "5000:5000"
+  
+  nginx:
+    image: ${DOCKERHUB_USERNAME:-username}/utictactoe-nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+    restart: always
