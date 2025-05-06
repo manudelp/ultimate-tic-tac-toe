@@ -1,4 +1,4 @@
-name: Deploy Backend to AWS EC2
+name: Deploy Backend to Server
 
 on:
   push:
@@ -34,13 +34,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -79,9 +72,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
-      - name: Deploy to laptop
+      - name: Deploy to Server
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             # Pull the latest images
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
