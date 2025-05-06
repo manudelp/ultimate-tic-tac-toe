@@ -1,6 +1,8 @@
 FROM nginx:alpine
 
-COPY default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+COPY ssl /etc/nginx/ssl
 
 EXPOSE 80 443
 
