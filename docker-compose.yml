@@ -8,13 +8,11 @@ services:
       - utictactoe
 
   nginx:
-    context: .
+    image: ${DOCKERHUB_USERNAME:-username}/utictactoe-nginx:latest
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - backend

@@ -31,7 +31,8 @@ jobs:
       - name: Build and push nginx Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./nginx
+          context: ./
+          file: ./nginx/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
 
