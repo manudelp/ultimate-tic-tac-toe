@@ -52,7 +52,7 @@ jobs:
 
       - name: Copy docker-compose.yml to server
         run: |
-          scp -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/
+          scp -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/ || { echo "Error: Server is offline or unreachable"; exit 1; }
 
       - name: Copy SSL certificates to server
         run: |
