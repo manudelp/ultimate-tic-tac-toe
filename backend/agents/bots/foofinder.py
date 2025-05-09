@@ -289,7 +289,6 @@ class FooFinderAgent:
         self.load_drawn_boards(draw_boards_path)
         self.load_over_boards(over_boards_path)
         self.load_evaluated_boards(evaluated_boards_path)
-        # TODO: UNCOMMENT AND ADD THE FUNCTIONS
         # self.load_boards_info(board_info_path)
         # self.load_results_board_eval(results_eval_path)
         # self.load_winning_results_boards(winning_results_path)
