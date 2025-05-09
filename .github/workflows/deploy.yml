@@ -54,6 +54,7 @@ jobs:
         run: |
           echo "${{ secrets.SSL_FULLCHAIN_PEM }}" | base64 -d > fullchain.pem
           echo "${{ secrets.SSL_PRIVKEY_PEM }}" | base64 -d > privkey.pem
+          mkdir -p ~/utictactoe/ssl
           scp -P ${{ secrets.SSH_PORT }} fullchain.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/ssl/
           scp -P ${{ secrets.SSH_PORT }} privkey.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/ssl/
 
