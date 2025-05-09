@@ -50,31 +50,25 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
+      - name: Recreate SSL files and send to server
+        run: |
+          echo "${{ secrets.SSL_FULLCHAIN_PEM }}" | base64 -d > fullchain.pem
+          echo "${{ secrets.SSL_PRIVKEY_PEM }}" | base64 -d > privkey.pem
+          scp -P ${{ secrets.SSH_PORT }} fullchain.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/ssl/
+          scp -P ${{ secrets.SSH_PORT }} privkey.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/ssl/
+
       - name: Copy docker-compose.yml to server
         run: |
           scp -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/
 
-      - name: Copy SSL certificates to server
-        run: |
-          scp -P ${{ secrets.SSH_PORT }} -r ./ssl ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/utictactoe/
-
       - name: Deploy to Server
         run: |
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            # Login to Docker Hub if needed
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-            
-            # Pull the latest images
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-backend:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/utictactoe-nginx:latest
-
-            # Stop and remove existing containers if they exist
             docker compose -f ~/utictactoe/docker-compose.yml down || true
-
-            # Ensure the directory exists
             mkdir -p ~/utictactoe
-
-            # Set the Docker Hub username and start containers
             cd ~/utictactoe
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             docker compose -f ~/utictactoe/docker-compose.yml up -d
