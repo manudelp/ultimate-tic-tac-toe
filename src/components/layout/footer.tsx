@@ -67,12 +67,6 @@ const Footer: React.FC = () => {
           <button>Terms of Service</button>
         </Link>{" "}
         |{" "}
-        <Link href="/contact" className="text-blue-400 hover:underline">
-          <button className="cursor-not-allowed" disabled>
-            Contact Us
-          </button>
-        </Link>{" "}
-        |{" "}
         <Link href="/how-to-play" className="text-blue-400 hover:underline">
           <button>How to Play</button>
         </Link>

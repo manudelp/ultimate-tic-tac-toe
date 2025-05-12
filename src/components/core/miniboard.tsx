@@ -168,8 +168,8 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                   borderRight: cellIndex === 1 ? `2px solid white` : "none",
                 }}
               >
-                {cell === "X" && <X theme={"dark"} />}
-                {cell === "O" && <O theme={"dark"} />}
+                {cell === "X" && <X />}
+                {cell === "O" && <O />}
               </div>
             );
           })}
@@ -187,13 +187,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
           } hover:opacity-0`}
         >
           <div className="pointer-events-auto grid place-items-center">
-            {winner === "X" ? (
-              <X theme={"dark"} />
-            ) : winner === "O" ? (
-              <O theme={"dark"} />
-            ) : (
-              <Draw theme={"dark"} />
-            )}
+            {winner === "X" ? <X /> : winner === "O" ? <O /> : <Draw />}
           </div>
         </div>
       )}

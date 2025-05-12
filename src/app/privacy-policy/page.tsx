@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 
 const PrivacyPolicy: React.FC = () => {
   return (
@@ -118,13 +117,9 @@ const PrivacyPolicy: React.FC = () => {
         child under age 13 without verification of parental consent, we will
         delete that information as quickly as possible. If you become aware of
         any data we have collected from children under age 13, please contact at{" "}
-        <a className="font-medium" href="mailto:support@ultimatetictactoe.com.">
+        <a className="font-medium" href="mailto:support@ultimatetictactoe.com">
           support@ultimatetictactoe.com
-        </a>{" "}
-        or using{" "}
-        <Link href="/contact" className="text-blue-400 hover:underline">
-          the contact form
-        </Link>
+        </a>
         .
       </p>
 
@@ -145,13 +140,9 @@ const PrivacyPolicy: React.FC = () => {
       </h2>
       <p className="text-gray-200">
         If you have any questions about this Privacy Policy, please contact at{" "}
-        <a className="font-medium" href="mailto:support@ultimatetictactoe.com.">
+        <a className="font-medium" href="mailto:support@ultimatetictactoe.com">
           support@ultimatetictactoe.com
-        </a>{" "}
-        or using{" "}
-        <Link href="/contact" className="text-blue-400 hover:underline">
-          the contact form
-        </Link>
+        </a>
         .
       </p>
     </div>

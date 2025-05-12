@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 
 const TermsOfService: React.FC = () => {
   return (
@@ -88,13 +87,9 @@ const TermsOfService: React.FC = () => {
       </h2>
       <p className="text-gray-200">
         If you have any questions about this Privacy Policy, please contact at{" "}
-        <a className="font-medium" href="mailto:support@ultimatetictactoe.com.">
+        <a className="font-medium" href="mailto:support@ultimatetictactoe.com">
           support@ultimatetictactoe.com
-        </a>{" "}
-        or using{" "}
-        <Link href="/contact" className="text-blue-400 hover:underline">
-          the contact form
-        </Link>
+        </a>
         .
       </p>
     </div>
