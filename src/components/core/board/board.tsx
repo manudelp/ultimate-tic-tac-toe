@@ -12,7 +12,7 @@ interface BotListResponse {
 }
 
 interface BoardProps {
-  gameMode: "player-vs-bot" | "online";
+  gameMode: "player-vs-player" | "player-vs-bot" | "online";
   onExit: () => void;
   bot?: BotListResponse;
   starts?: string;

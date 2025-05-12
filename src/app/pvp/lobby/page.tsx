@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import socket from "@/socket";
+import { getSocket, disconnectSocket } from "@/socket";
+import { Socket } from "socket.io-client";
 import Button from "@/components/ui/button";
 import Board from "@/components/core/board/board";
 import Share from "@/components/ui/share";
@@ -19,6 +20,7 @@ export default function Lobby() {
   const [lobbyCode, setLobbyCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(true);
+  const socketRef = useRef<Socket | null>(null);
 
   // Match states
   const [yourLetter, setYourLetter] = useState<string>("X");
@@ -66,20 +68,23 @@ export default function Lobby() {
   };
 
   useEffect(() => {
+    // Initialize socket connection
+    socketRef.current = getSocket();
+
     // Only run this effect once
     if (lobbyInitialized.current) return;
     lobbyInitialized.current = true;
 
     if (code) {
       setLobbyCode(code);
-      socket.emit("joinLobby", { code });
+      socketRef.current.emit("joinLobby", { code });
       toast.success("Joined lobby successfully!", {
         duration: 2000,
       });
     } else {
       const newCode = Math.random().toString(36).substring(2, 7).toUpperCase();
       setLobbyCode(newCode);
-      socket.emit("createLobby", { code: newCode });
+      socketRef.current.emit("createLobby", { code: newCode });
 
       toast.success("Lobby created successfully!", {
         duration: 2000,
@@ -99,10 +104,18 @@ export default function Lobby() {
         toast.success("Link copied to clipboard!", { duration: 2000 });
       }
     }
+
+    // Cleanup function
+    return () => {
+      disconnectSocket();
+    };
   }, [code]);
 
   // Handle socket events for the game
   useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
     socket.on("startGame", (data) => {
       setYourLetter(data.yourLetter);
       setYourTurn(data.yourTurn);
@@ -131,7 +144,10 @@ export default function Lobby() {
           gameMode="online"
           starts={yourLetter}
           onExit={() => {
-            socket.emit("leaveLobby", { code: lobbyCode });
+            if (socketRef.current) {
+              socketRef.current.emit("leaveLobby", { code: lobbyCode });
+            }
+            disconnectSocket();
             router.push("/");
           }}
           yourLetter={yourLetter || undefined}
@@ -172,11 +188,13 @@ export default function Lobby() {
         <p className="flex items-center justify-center mt-6 text-sm text-gray-400 animate-pulse">
           Waiting for opponent
         </p>
-
         <Button
           text="Leave Lobby"
           onClick={() => {
-            socket.emit("leaveLobby", { code: lobbyCode });
+            if (socketRef.current) {
+              socketRef.current.emit("leaveLobby", { code: lobbyCode });
+            }
+            disconnectSocket();
             router.push("/");
           }}
           variant="danger"

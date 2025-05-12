@@ -2,7 +2,7 @@ import PlayerO from "@/components/ui/playero";
 import PlayerX from "@/components/ui/playerx";
 
 interface GameInfoProps {
-  gameMode: "player-vs-bot" | "online";
+  gameMode: "player-vs-player" | "player-vs-bot" | "online";
   yourLetter?: string;
   turn: string;
   bot?: { name: string; icon: string };

@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import socket from "@/socket";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { getSocket } from "@/socket";
+import { Socket } from "socket.io-client";
 import { getBotMove, agentsReset } from "@/api";
 import {
   MiniBoardWinner,
@@ -21,6 +22,9 @@ export const useGame = (
   yourLetter?: string,
   lobbyCode?: string
 ) => {
+  // Socket reference
+  const socketRef = useRef<Socket | null>(null);
+
   // Types
   type Board = string[][][][];
   type MiniBoard = string[][];
@@ -140,8 +144,8 @@ export const useGame = (
         setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
 
         // Notify opponent about game over in online mode with the winning line
-        if (gameMode === "online" && lobbyCode) {
-          socket.emit("gameOver", {
+        if (gameMode === "online" && lobbyCode && socketRef.current) {
+          socketRef.current.emit("gameOver", {
             code: lobbyCode,
             winner: overallWinner,
             winningLine: capturedWinningLine,
@@ -218,10 +222,12 @@ export const useGame = (
         ]);
 
         if (gameMode === "online" && lobbyCode && emitMove) {
-          socket.emit("makeMove", {
-            code: lobbyCode,
-            move: { bigRow: a, bigCol: b, smallRow: c, smallCol: d },
-          });
+          if (socketRef.current) {
+            socketRef.current.emit("makeMove", {
+              code: lobbyCode,
+              move: { bigRow: a, bigCol: b, smallRow: c, smallCol: d },
+            });
+          }
         }
       }, 0);
     },
@@ -413,6 +419,9 @@ export const useGame = (
   // Online mode - handle socket events
   useEffect(() => {
     if (gameMode === "online") {
+      // Initialize socket only when in online mode
+      socketRef.current = getSocket();
+      const socket = socketRef.current;
       const opponentLetter = yourLetter === "X" ? "O" : "X";
 
       socket.on("opponentMove", (move) => {
