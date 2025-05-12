@@ -86,10 +86,6 @@ export default function Lobby() {
       setLobbyCode(newCode);
       socketRef.current.emit("createLobby", { code: newCode });
 
-      toast.success("Lobby created successfully!", {
-        duration: 2000,
-      });
-
       // Handle clipboard in useEffect to avoid hydration mismatch
       if (typeof window !== "undefined") {
         // Using setTimeout to ensure this runs after component mounts
@@ -100,8 +96,6 @@ export default function Lobby() {
             toast.success("Link copied to clipboard!", { duration: 2000 });
           });
         }, 0);
-      } else {
-        toast.success("Link copied to clipboard!", { duration: 2000 });
       }
     }
 
@@ -128,14 +122,43 @@ export default function Lobby() {
     });
 
     socket.on("error", (error) => {
-      alert(error.message || "An error occurred");
+      console.log("Socket error received:", error);
+      toast.error(error.message || "An error occurred");
+
+      // Handle "already has lobby" error specifically
+      if (error.code === "ALREADY_HAS_LOBBY" && error.existingLobbyCode) {
+        toast.info(
+          `Redirecting to your existing lobby: ${error.existingLobbyCode}`,
+          {
+            duration: 3000,
+          }
+        );
+
+        // Redirect to the existing lobby
+        setTimeout(() => {
+          router.push(`/pvp/lobby?code=${error.existingLobbyCode}`);
+        }, 2000);
+      } else {
+        // For other errors, go back after a delay
+        setTimeout(() => {
+          router.push("/pvp");
+        }, 3000);
+      }
+    });
+
+    socket.on("lobbyCreated", (data) => {
+      console.log("Lobby created:", data);
+      toast.success("Lobby created successfully!", {
+        duration: 2000,
+      });
     });
 
     return () => {
       socket.off("startGame");
       socket.off("error");
+      socket.off("lobbyCreated");
     };
-  }, []);
+  }, [router]);
 
   if (!waiting) {
     return (
