@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSocket, disconnectSocket } from "@/socket";
 import { Socket } from "socket.io-client";
@@ -9,7 +9,8 @@ import Share from "@/components/ui/share";
 import { toast } from "sonner";
 import { ClipboardIcon } from "@heroicons/react/24/outline";
 
-export default function Lobby() {
+// Component for wrapping the search params in Suspense
+function LobbyContent() {
   // Router and search params
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -139,7 +140,7 @@ export default function Lobby() {
 
   if (!waiting) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 py-8  min-h-svh sm:px-8 sm:py-16">
+      <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
         <Board
           gameMode="online"
           starts={yourLetter}
@@ -156,7 +157,6 @@ export default function Lobby() {
       </div>
     );
   }
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center ">
       <div className="w-full max-w-md p-8 space-y-6 ">
@@ -203,5 +203,20 @@ export default function Lobby() {
 
       <Share />
     </div>
+  );
+}
+
+// Main component that wraps the content in Suspense
+export default function Lobby() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
+      <LobbyContent />
+    </Suspense>
   );
 }
