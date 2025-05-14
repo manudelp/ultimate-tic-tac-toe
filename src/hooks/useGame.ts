@@ -165,18 +165,26 @@ export const useGame = (
         return;
       }
 
-      // Use functional form to ensure we always have the latest board state
-      setBoard((prevBoard) => {
-        // Create a deep copy of the current board
+      // Store the current turn value for use in callbacks
+      const currentTurn = forcedLetter || turn;
+      
+      // Update turn FIRST - this is critical to prevent multiple bot moves
+      setTurn(prev => prev === "X" ? "O" : "X");
+      setLastMove(coords);
+      setMoveNumber(prev => prev + 1);
+      setMoveHistory(prev => [
+        ...prev,
+        { turn: currentTurn, coords },
+      ]);
+
+      // Now update the board
+      setBoard(prevBoard => {
         const newBoard = JSON.parse(JSON.stringify(prevBoard));
+        newBoard[a][b][c][d] = currentTurn;
 
-        // Update the new board - use the provided letter or current turn
-        newBoard[a][b][c][d] = forcedLetter || turn;
-
-        // Immediately check for mini-board winner
+        // Check for mini-board winner
         const winner = MiniBoardWinner(newBoard[a][b] as MiniBoard);
         if (winner) {
-          // Call this synchronously to update immediately
           updateMiniBoardState(a, b, winner);
         }
 
@@ -193,41 +201,30 @@ export const useGame = (
           disableFullMiniBoard(a, b);
         }
 
-        // Check overall game winner
+        // Check for overall game winner
         checkOverallGameWinner();
-
-        // Return the updated board to set as new state
+        
         return newBoard;
       });
 
-      // Process rest of game logic in timeout to ensure board is updated first
+      // Optional operations that can happen after state updates
       setTimeout(() => {
         // Play sound
         try {
           const tapSound = new Audio("/assets/sounds/tap.mp3");
           tapSound.volume = 0.25;
-          tapSound.play().catch(() => {
-            return;
-          });
+          tapSound.play().catch(() => {});
         } catch (error) {
-          return error;
+          // Silently handle errors with sound
+          console.error("Error playing sound:", error);
         }
 
-        setLastMove(coords);
-        setTurn((prev) => (prev === "X" ? "O" : "X"));
-        setMoveNumber((prev) => prev + 1);
-        setMoveHistory((prev) => [
-          ...prev,
-          { turn: forcedLetter || turn, coords },
-        ]);
-
-        if (gameMode === "online" && lobbyCode && emitMove) {
-          if (socketRef.current) {
-            socketRef.current.emit("makeMove", {
-              code: lobbyCode,
-              move: { bigRow: a, bigCol: b, smallRow: c, smallCol: d },
-            });
-          }
+        // Online mode - emit move
+        if (gameMode === "online" && lobbyCode && emitMove && socketRef.current) {
+          socketRef.current.emit("makeMove", {
+            code: lobbyCode,
+            move: { bigRow: a, bigCol: b, smallRow: c, smallCol: d },
+          });
         }
       }, 0);
     },
