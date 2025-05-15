@@ -168,8 +168,8 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                   borderRight: cellIndex === 1 ? `2px solid white` : "none",
                 }}
               >
-                {cell === "X" && <X className="w-8 h-8" />}
-                {cell === "O" && <O className="w-8 h-8" />}
+                {cell === "X" && <X />}
+                {cell === "O" && <O />}
               </div>
             );
           })}

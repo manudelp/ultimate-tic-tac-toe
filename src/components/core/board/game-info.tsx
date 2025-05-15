@@ -57,7 +57,7 @@ export default function GameInfo({
 
   return (
     <div className="w-full mb-2">
-      <div className="bg-gray-700 rounded-full px-3 py-1.5 flex items-center justify-between shadow-md">
+      <div className="bg-gray-700 rounded-lg px-3 py-1.5 flex items-center justify-between shadow-md">
         {/* Left side: Game mode */}
         <span className="text-xs font-medium text-gray-300">
           {getGameModeText()}
