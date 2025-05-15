@@ -26,6 +26,7 @@ export default function Bot() {
   const [bot, setBot] = useState<BotListResponse | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
+  const [, setWidth] = useState(window.innerWidth);
 
   const handleExitGame = () => {
     setBots(null);
@@ -57,6 +58,12 @@ export default function Bot() {
       });
     }
   }, [bots]);
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
@@ -160,7 +167,7 @@ export default function Bot() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="flex flex-col justify-between h-full p-4 bg-gray-800 border border-gray-700 rounded-lg"
+                      className="flex flex-col justify-between h-full p-4 space-y-6 bg-gray-800 border border-gray-700 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-12 h-12 text-3xl bg-gray-700 rounded-full">
@@ -238,7 +245,9 @@ export default function Bot() {
                       exit={{ opacity: 0 }}
                       className="flex flex-col items-center justify-center h-full p-4 bg-gray-800 border border-gray-700 rounded-lg"
                     >
-                      <div className="mb-3 text-3xl">👈</div>
+                      <div className="mb-3 text-3xl">
+                        {typeof window !== 'undefined' && window.matchMedia("(min-width: 768px)").matches ? "👈" : "👆"}
+                      </div>
                       <h3 className="text-base font-medium text-center text-gray-300">
                         Select an opponent
                       </h3>

@@ -89,7 +89,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
 
   return (
     <div
-      className={`w-1/3 h-1/3 p-2 sm:p-4 transition relative ${
+      className={`w-1/3 h-1/3 p-1 sm:p-4 transition relative ${
         (disabled?.[localRowIndex]?.[localColIndex] ||
           (activeMiniBoard !== null &&
             (activeMiniBoard?.[0] !== localRowIndex ||
@@ -120,7 +120,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
       }}
     >
       {miniBoard.map((row: string[], rowIndex: number) => (
-        <div key={rowIndex} className="h-1/3 flex flex-wrap">
+        <div key={rowIndex} className="flex flex-wrap h-1/3">
           {row.map((cell: string, cellIndex: number) => {
             // Apply hover effect based on global hoveredMove
             const isHovered =
@@ -168,8 +168,8 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                   borderRight: cellIndex === 1 ? `2px solid white` : "none",
                 }}
               >
-                {cell === "X" && <X />}
-                {cell === "O" && <O />}
+                {cell === "X" && <X className="w-8 h-8" />}
+                {cell === "O" && <O className="w-8 h-8" />}
               </div>
             );
           })}
@@ -186,7 +186,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
               : "opacity-100"
           } hover:opacity-0`}
         >
-          <div className="pointer-events-auto grid place-items-center">
+          <div className="grid pointer-events-auto place-items-center">
             {winner === "X" ? <X /> : winner === "O" ? <O /> : <Draw />}
           </div>
         </div>

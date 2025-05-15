@@ -25,11 +25,11 @@ const Header = () => {
     <>
       <div
         id="header"
-        className="fixed top-4 z-50 left-4 right-auto mx-4 m-auto flex items-center justify-evenly bg-opacity-50 border border-gray-800 backdrop-blur rounded-full rounded-tl-none transition"
+        className="fixed left-0 right-auto z-50 flex items-center m-auto mx-4 transition bg-opacity-50 border border-gray-800 rounded-full rounded-tl-none top-2 sm:top-4 sm:left-4 justify-evenly backdrop-blur"
       >
         {/* Home Link */}
         <Link href="/">
-          <button className="flex items-center gap-2 p-4 rounded-full rounded-tl-none hover:bg-white hover:text-black transition group">
+          <button className="flex items-center gap-2 p-4 transition rounded-full rounded-tl-none hover:bg-white hover:text-black group">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -69,7 +69,7 @@ const Header = () => {
             <span>{userName}</span>
             <button
               title="Logout"
-              className="ml-4 text-white hover:text-red-600 transition"
+              className="ml-4 text-white transition hover:text-red-600"
               onClick={handleLogout}
             >
               <svg
@@ -91,7 +91,7 @@ const Header = () => {
           </div>
         ) : (
           <button
-            className="flex items-center gap-2 p-4 rounded-full hover:bg-white hover:text-black transition group"
+            className="flex items-center gap-2 p-4 transition rounded-full hover:bg-white hover:text-black group"
             onClick={() =>
               isBackendConnected
                 ? setModalOpen(true)
