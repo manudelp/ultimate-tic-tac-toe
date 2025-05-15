@@ -26,7 +26,7 @@ export default function Bot() {
   const [bot, setBot] = useState<BotListResponse | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
-  const [, setWidth] = useState(window.innerWidth);
+  const [width, setWidth] = useState(0);
 
   const handleExitGame = () => {
     setBots(null);
@@ -60,9 +60,12 @@ export default function Bot() {
   }, [bots]);
 
   useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    if (typeof window !== 'undefined') {
+      setWidth(window.innerWidth);
+      const handleResize = () => setWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
   }, []);
 
   return (
@@ -243,10 +246,11 @@ export default function Bot() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="flex flex-col items-center justify-center h-full p-4 bg-gray-800 border border-gray-700 rounded-lg"
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col items-center justify-center h-full p-4 space-y-3 bg-gray-800 border border-gray-700 rounded-lg"
                     >
                       <div className="mb-3 text-3xl">
-                        {typeof window !== 'undefined' && window.matchMedia("(min-width: 768px)").matches ? "👈" : "👆"}
+                        {width >= 768 ? "👈" : "👆"}
                       </div>
                       <h3 className="text-base font-medium text-center text-gray-300">
                         Select an opponent
