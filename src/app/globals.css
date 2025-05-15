@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 body {
+  background-color: #111827;
+  color: white;
   font-family: var(--font-space-grotesk);
 }
 
@@ -64,9 +66,31 @@ body {
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-[var(--border)];
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[var(--background)] text-[var(--foreground)];
+  }
+}
+
+.wrong-turn {
+  animation: wrong-turn 0.5s ease-in-out;
+}
+
+@keyframes wrong-turn {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
   }
 }
