@@ -90,7 +90,8 @@ export default function Bot() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: botsLoaded[botOption.id] ? 1 : 0.6 }}
                       transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className={`cursor-pointer relative bg-gray-800 rounded-lg overflow-hidden border hover:border-blue-500/50 ${
+                      className={`cursor-pointer relative bg-gray-800 rounded-lg h-48 flex flex-col justify-center
+                        overflow-hidden border hover:border-blue-500/50 ${
                         selectedBot?.id === botOption.id
                           ? "border-blue-500"
                           : "border-gray-700"
@@ -107,7 +108,7 @@ export default function Bot() {
                       <div className="flex flex-col items-center p-3">
                         {/* Bot avatar - simplified */}
                         <div
-                          className={`relative rounded-full text-3xl w-14 h-14 flex items-center justify-center mb-2 ${
+                          className={`relative rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2 ${
                             botOption.id === -1 ? "bg-black" : "bg-gray-700"
                           }`}
                           style={
@@ -123,7 +124,7 @@ export default function Bot() {
                         </div>
 
                         {/* Bot info - streamlined */}
-                        <h3 className="text-sm font-medium text-center">
+                        <h3 className="text-base font-medium text-center">
                           {botOption.name}
                         </h3>
 
@@ -132,7 +133,7 @@ export default function Bot() {
                           {Array(5)
                             .fill(0)
                             .map((_, i) => (
-                              <span key={i} className="text-xs mx-0.5">
+                              <span key={i} className="text-sm mx-0.5">
                                 {i < botOption.difficulty ? "🔥" : "⚪"}
                               </span>
                             ))}
@@ -163,18 +164,18 @@ export default function Bot() {
                       className="flex flex-col justify-between h-full p-4 bg-gray-800 border border-gray-700 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-12 h-12 text-3xl bg-gray-700 rounded-full">
+                        <div className="flex items-center justify-center w-14 h-14 text-4xl bg-gray-700 rounded-full">
                           {selectedBot.icon}
                         </div>
                         <div>
-                          <h2 className="text-lg font-bold">
+                          <h2 className="text-xl font-bold">
                             {selectedBot.name}
                           </h2>
                           <div className="flex mt-1">
                             {Array(selectedBot.difficulty)
                               .fill("🔥")
                               .map((fire, i) => (
-                                <span key={i} className="text-sm">
+                                <span key={i} className="text-base">
                                   {fire}
                                 </span>
                               ))}
@@ -182,7 +183,8 @@ export default function Bot() {
                         </div>
                       </div>
 
-                      <p className="h-10 pr-2 overflow-y-auto text-sm text-gray-300 scrollbar-thin scrollbar-thumb-gray-600">
+                      {/* <p className="h-10 pr-2 overflow-y-auto text-sm text-gray-300 scrollbar-thin scrollbar-thumb-gray-600"> */}
+                      <p className="h-10 pr-2 text-base text-gray-300 scrollbar-thin scrollbar-thumb-gray-600 mb-16">
                         {selectedBot.description}
                       </p>
 
@@ -238,12 +240,13 @@ export default function Bot() {
                       exit={{ opacity: 0 }}
                       className="flex flex-col items-center justify-center h-full p-4 bg-gray-800 border border-gray-700 rounded-lg"
                     >
-                      <div className="mb-3 text-3xl">👈</div>
-                      <h3 className="text-base font-medium text-center text-gray-300">
+                      <div className="mb-3 text-4xl">👈</div>
+                      <h3 className="text-lg font-medium text-center text-gray-300">
                         Select an opponent
                       </h3>
-                      <p className="mt-1 text-xs text-center text-gray-400">
-                        Choose from the available bots
+                      <p className="mt-1 text-base text-center text-gray-400">
+                        Choose from the available bots <br></br>
+                        <span className="text-xs">(🔥 represent difficulty)</span>
                       </p>
                     </motion.div>
                   )}
