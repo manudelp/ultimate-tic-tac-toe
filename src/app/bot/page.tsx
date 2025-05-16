@@ -81,12 +81,12 @@ export default function Bot() {
       ) : (
         <div className="w-full max-w-3xl pt-4 mx-auto">
           <h1 className="mb-6 text-xl font-bold text-center sm:text-2xl">
-            Playing agaist us
+            Playing against us
           </h1>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-48">
-              <Loader size="large" />
+            <div className="flex flex-col items-center justify-center h-48 bg-gray-800 border border-gray-700 rounded-lg">
+              <Loader />
               <p className="mt-4 text-sm text-gray-400">Loading opponents...</p>
             </div>
           ) : (
@@ -170,7 +170,7 @@ export default function Bot() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="flex flex-col justify-between h-full p-4 space-y-6 bg-gray-800 border border-gray-700 rounded-lg"
+                      className="flex flex-col justify-between h-full p-4 space-y-6 bg-gray-800 border border-gray-700 rounded-lg sm:space-y-0"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-12 h-12 text-3xl bg-gray-700 rounded-full">
