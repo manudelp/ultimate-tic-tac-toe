@@ -50,7 +50,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
         <Header />
-        <main>{children}</main>
+        <main className="pt-10 sm:pt-0">{children}</main>
         <Toaster richColors />
         <Footer />
         <SpeedInsights />

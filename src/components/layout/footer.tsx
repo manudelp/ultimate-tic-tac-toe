@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { toast } from "sonner";
 import { checkConnection } from "@/api";
 
 const Footer: React.FC = () => {
@@ -71,6 +70,8 @@ const Footer: React.FC = () => {
           <button>How to Play</button>
         </Link>
       </div>
+      {/*
+      // TODO: Uncomment when we have a social media account
       <div>
         <p>
           Stay connected with us on{" "}
@@ -78,13 +79,12 @@ const Footer: React.FC = () => {
             href="#"
             className="text-blue-400 hover:underline"
             rel="noopener noreferrer"
-            onClick={() => toast.info("We dont have an Instagram account yet!")}
           >
             Instagram
           </a>
           .
         </p>
-      </div>
+      </div> */}
       <div>
         {isBackendConnected ? (
           <p>🟢 Server is operational.</p>

@@ -91,7 +91,7 @@ const Board: React.FC<BoardProps> = ({
   }, [moveHistory, isMobile]);
 
   return (
-    <div className="relative flex flex-col w-full gap-6 px-4 mx-auto max-w-7xl md:flex-row">
+    <div className="relative flex flex-col w-full gap-6 mx-auto sm:px-4 max-w-7xl md:flex-row">
       {/* Game Board Area */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -113,7 +113,7 @@ const Board: React.FC<BoardProps> = ({
           animate={{ scale: 1 }}
           className="relative w-full max-w-[min(calc(100vw-2rem),600px)] aspect-square"
         >
-          <div className="relative flex flex-wrap w-full p-2 aspect-square">
+          <div className="relative flex flex-wrap w-full sm:p-2 aspect-square">
             {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
               miniBoardRow.map((miniBoard: string[][], localColIndex) => (
                 <MiniBoard
