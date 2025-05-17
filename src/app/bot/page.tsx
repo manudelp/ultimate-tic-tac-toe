@@ -8,6 +8,12 @@ import Loader from "@/components/ui/loader";
 import Share from "@/components/ui/share";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 // Types
 type BotListResponse = {
@@ -60,11 +66,11 @@ export default function Bot() {
   }, [bots]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setWidth(window.innerWidth);
       const handleResize = () => setWidth(window.innerWidth);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
 
@@ -102,10 +108,10 @@ export default function Bot() {
                       transition={{ duration: 0.2, delay: index * 0.05 }}
                       className={`cursor-pointer relative bg-gray-800 rounded-lg h-48 flex flex-col justify-center
                         overflow-hidden border hover:border-blue-500/50 ${
-                        selectedBot?.id === botOption.id
-                          ? "border-blue-500"
-                          : "border-gray-700"
-                      }`}
+                          selectedBot?.id === botOption.id
+                            ? "border-blue-500"
+                            : "border-gray-700"
+                        }`}
                       onClick={() => {
                         if (botsLoaded[botOption.id]) {
                           setSelectedBot(
@@ -139,15 +145,37 @@ export default function Bot() {
                         </h3>
 
                         {/* Difficulty rating - more compact */}
-                        <div className="flex justify-center mt-1">
-                          {Array(5)
-                            .fill(0)
-                            .map((_, i) => (
-                              <span key={i} className="text-sm mx-0.5">
-                                {i < botOption.difficulty ? "🔥" : "⚪"}
-                              </span>
-                            ))}
-                        </div>
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex justify-center mt-1">
+                                {Array(5)
+                                  .fill(0)
+                                  .map((_, i) => (
+                                    <span key={i} className="text-sm mx-0.5">
+                                      {i < botOption.difficulty ? "🔥" : "⚪"}
+                                    </span>
+                                  ))}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="bottom"
+                              className="!bg-gray-700 !text-gray-200"
+                            >
+                              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-700 rotate-45 z-[-1]" />
+
+                              <p className="text-xs">
+                                Difficulty: {botOption.difficulty} / 5 (
+                                {botOption.difficulty < 3
+                                  ? "Easy"
+                                  : botOption.difficulty < 5
+                                  ? "Medium"
+                                  : "Hard"}
+                                )
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
 
                       {/* Loading indicator */}
@@ -181,6 +209,7 @@ export default function Bot() {
                           <h2 className="text-xl font-bold">
                             {selectedBot.name}
                           </h2>
+
                           <div className="flex mt-1">
                             {Array(selectedBot.difficulty)
                               .fill("🔥")
@@ -194,53 +223,53 @@ export default function Bot() {
                       </div>
 
                       {/* <p className="h-10 pr-2 overflow-y-auto text-sm text-gray-300 scrollbar-thin scrollbar-thumb-gray-600"> */}
-                      <p className="mb-16 text-gray-300">
-                        {selectedBot.description}
-                      </p>
+                      <p className="text-gray-300">{selectedBot.description}</p>
 
-                      {/* Who starts section - simplified */}
-                      <div>
-                        <h3 className="mb-2 text-sm font-medium text-center">
-                          First move
-                        </h3>
-                        <div className="flex gap-2">
-                          <button
-                            className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
-                              starts === "player"
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-700 hover:bg-gray-600"
-                            }`}
-                            onClick={() => setStarts("player")}
-                          >
-                            You Start
-                          </button>
-                          <button
-                            className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
-                              starts === "bot"
-                                ? "bg-red-600 text-white"
-                                : "bg-gray-700/50 text-white/50"
-                            }`} // FIXME: change color back to bg-gray-700 hover:bg-gray-600
-                            onClick={() =>
-                              toast.info(
-                                "We are currently working on this feature."
-                              )
-                            }
-                            // FIXME: onClick={() => setStarts("bot")}
-                          >
-                            Bot Starts
-                          </button>
+                      <div className="flex flex-col gap-3">
+                        {/* Who starts section - simplified */}
+                        <div>
+                          <h3 className="mb-2 text-sm font-medium text-center">
+                            First move
+                          </h3>
+                          <div className="flex gap-2">
+                            <button
+                              className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
+                                starts === "player"
+                                  ? "bg-blue-600 text-white"
+                                  : "bg-gray-700 hover:bg-gray-600"
+                              }`}
+                              onClick={() => setStarts("player")}
+                            >
+                              You Start
+                            </button>
+                            <button
+                              className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
+                                starts === "bot"
+                                  ? "bg-red-600 text-white"
+                                  : "bg-gray-700/50 text-white/50"
+                              }`} // FIXME: change color back to bg-gray-700 hover:bg-gray-600
+                              onClick={() =>
+                                toast.info(
+                                  "We are currently working on this feature."
+                                )
+                              }
+                              // FIXME: onClick={() => setStarts("bot")}
+                            >
+                              Bot Starts
+                            </button>
+                          </div>
                         </div>
-                      </div>
 
-                      <Button
-                        text="Start Game"
-                        variant="success"
-                        className={`!w-full !py-2 text-sm ${
-                          !starts ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        disabled={!starts}
-                        onClick={() => setBot(selectedBot)}
-                      />
+                        <Button
+                          text="Start Game"
+                          variant="success"
+                          className={`!w-full !py-2 text-sm ${
+                            !starts ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                          disabled={!starts}
+                          onClick={() => setBot(selectedBot)}
+                        />
+                      </div>
                     </motion.div>
                   ) : (
                     <motion.div
@@ -251,13 +280,14 @@ export default function Bot() {
                       transition={{ duration: 0.2 }}
                       className="flex flex-col items-center justify-center h-full p-4 space-y-3 bg-gray-800 border border-gray-700 rounded-lg"
                     >
-                      <div className="mb-3 text-4xl">👈</div>
+                      <div className="mb-3 text-4xl">
+                        {width > 768 ? "👈" : "👆"}
+                      </div>
                       <h3 className="text-lg font-medium text-center text-gray-300">
                         Select an opponent
                       </h3>
                       <p className="mt-1 text-base text-center text-gray-400">
-                        Choose from the available bots <br></br>
-                        <span className="text-xs text-gray-500">(*🔥 represents difficulty)</span>
+                        Choose from the available bots
                       </p>
                     </motion.div>
                   )}
