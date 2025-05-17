@@ -8,6 +8,12 @@ import Loader from "@/components/ui/loader";
 import Share from "@/components/ui/share";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 // Types
 type BotListResponse = {
@@ -60,11 +66,11 @@ export default function Bot() {
   }, [bots]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setWidth(window.innerWidth);
       const handleResize = () => setWidth(window.innerWidth);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
 
@@ -100,11 +106,12 @@ export default function Bot() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: botsLoaded[botOption.id] ? 1 : 0.6 }}
                       transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className={`cursor-pointer relative bg-gray-800 rounded-lg overflow-hidden border hover:border-blue-500/50 ${
-                        selectedBot?.id === botOption.id
-                          ? "border-blue-500"
-                          : "border-gray-700"
-                      }`}
+                      className={`cursor-pointer relative bg-gray-800 rounded-lg h-48 flex flex-col justify-center
+                        overflow-hidden border hover:border-blue-500/50 ${
+                          selectedBot?.id === botOption.id
+                            ? "border-blue-500"
+                            : "border-gray-700"
+                        }`}
                       onClick={() => {
                         if (botsLoaded[botOption.id]) {
                           setSelectedBot(
@@ -117,7 +124,7 @@ export default function Bot() {
                       <div className="flex flex-col items-center p-3">
                         {/* Bot avatar - simplified */}
                         <div
-                          className={`relative rounded-full text-3xl w-14 h-14 flex items-center justify-center mb-2 ${
+                          className={`relative rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2 ${
                             botOption.id === -1 ? "bg-black" : "bg-gray-700"
                           }`}
                           style={
@@ -133,20 +140,42 @@ export default function Bot() {
                         </div>
 
                         {/* Bot info - streamlined */}
-                        <h3 className="text-sm font-medium text-center">
+                        <h3 className="text-base font-medium text-center">
                           {botOption.name}
                         </h3>
 
                         {/* Difficulty rating - more compact */}
-                        <div className="flex justify-center mt-1">
-                          {Array(5)
-                            .fill(0)
-                            .map((_, i) => (
-                              <span key={i} className="text-xs mx-0.5">
-                                {i < botOption.difficulty ? "🔥" : "⚪"}
-                              </span>
-                            ))}
-                        </div>
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex justify-center mt-1">
+                                {Array(5)
+                                  .fill(0)
+                                  .map((_, i) => (
+                                    <span key={i} className="text-sm mx-0.5">
+                                      {i < botOption.difficulty ? "🔥" : "⚪"}
+                                    </span>
+                                  ))}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="bottom"
+                              className="!bg-gray-700 !text-gray-200"
+                            >
+                              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-700 rotate-45 z-[-1]" />
+
+                              <p className="text-xs">
+                                Difficulty: {botOption.difficulty} / 5 (
+                                {botOption.difficulty < 3
+                                  ? "Easy"
+                                  : botOption.difficulty < 5
+                                  ? "Medium"
+                                  : "Hard"}
+                                )
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
 
                       {/* Loading indicator */}
@@ -173,18 +202,19 @@ export default function Bot() {
                       className="flex flex-col justify-between h-full p-4 space-y-6 bg-gray-800 border border-gray-700 rounded-lg sm:space-y-0"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-12 h-12 text-3xl bg-gray-700 rounded-full">
+                        <div className="flex items-center justify-center text-4xl bg-gray-700 rounded-full w-14 h-14">
                           {selectedBot.icon}
                         </div>
                         <div>
-                          <h2 className="text-lg font-bold">
+                          <h2 className="text-xl font-bold">
                             {selectedBot.name}
                           </h2>
+
                           <div className="flex mt-1">
                             {Array(selectedBot.difficulty)
                               .fill("🔥")
                               .map((fire, i) => (
-                                <span key={i} className="text-sm">
+                                <span key={i} className="text-base">
                                   {fire}
                                 </span>
                               ))}
@@ -192,53 +222,54 @@ export default function Bot() {
                         </div>
                       </div>
 
-                      <p className="h-10 pr-2 overflow-y-auto text-sm text-gray-300 scrollbar-thin scrollbar-thumb-gray-600">
-                        {selectedBot.description}
-                      </p>
+                      {/* <p className="h-10 pr-2 overflow-y-auto text-sm text-gray-300 scrollbar-thin scrollbar-thumb-gray-600"> */}
+                      <p className="text-gray-300">{selectedBot.description}</p>
 
-                      {/* Who starts section - simplified */}
-                      <div>
-                        <h3 className="mb-2 text-sm font-medium text-center">
-                          First move
-                        </h3>
-                        <div className="flex gap-2">
-                          <button
-                            className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
-                              starts === "player"
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-700 hover:bg-gray-600"
-                            }`}
-                            onClick={() => setStarts("player")}
-                          >
-                            You Start
-                          </button>
-                          <button
-                            className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
-                              starts === "bot"
-                                ? "bg-red-600 text-white"
-                                : "bg-gray-700/50 text-white/50"
-                            }`} // FIXME: change color back to bg-gray-700 hover:bg-gray-600
-                            onClick={() =>
-                              toast.info(
-                                "We are currently working on this feature."
-                              )
-                            }
-                            // FIXME: onClick={() => setStarts("bot")}
-                          >
-                            Bot Starts
-                          </button>
+                      <div className="flex flex-col gap-3">
+                        {/* Who starts section - simplified */}
+                        <div>
+                          <h3 className="mb-2 text-sm font-medium text-center">
+                            First move
+                          </h3>
+                          <div className="flex gap-2">
+                            <button
+                              className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
+                                starts === "player"
+                                  ? "bg-blue-600 text-white"
+                                  : "bg-gray-700 hover:bg-gray-600"
+                              }`}
+                              onClick={() => setStarts("player")}
+                            >
+                              You Start
+                            </button>
+                            <button
+                              className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
+                                starts === "bot"
+                                  ? "bg-red-600 text-white"
+                                  : "bg-gray-700/50 text-white/50"
+                              }`} // FIXME: change color back to bg-gray-700 hover:bg-gray-600
+                              onClick={() =>
+                                toast.info(
+                                  "We are currently working on this feature."
+                                )
+                              }
+                              // FIXME: onClick={() => setStarts("bot")}
+                            >
+                              Bot Starts
+                            </button>
+                          </div>
                         </div>
-                      </div>
 
-                      <Button
-                        text="Start Game"
-                        variant="success"
-                        className={`!w-full !py-2 text-sm ${
-                          !starts ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        disabled={!starts}
-                        onClick={() => setBot(selectedBot)}
-                      />
+                        <Button
+                          text="Start Game"
+                          variant="success"
+                          className={`!w-full !py-2 text-sm ${
+                            !starts ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                          disabled={!starts}
+                          onClick={() => setBot(selectedBot)}
+                        />
+                      </div>
                     </motion.div>
                   ) : (
                     <motion.div
@@ -249,13 +280,13 @@ export default function Bot() {
                       transition={{ duration: 0.2 }}
                       className="flex flex-col items-center justify-center h-full p-4 space-y-3 bg-gray-800 border border-gray-700 rounded-lg"
                     >
-                      <div className="mb-3 text-3xl">
-                        {width >= 768 ? "👈" : "👆"}
+                      <div className="mb-3 text-4xl">
+                        {width > 768 ? "👈" : "👆"}
                       </div>
-                      <h3 className="text-base font-medium text-center text-gray-300">
+                      <h3 className="text-lg font-medium text-center text-gray-300">
                         Select an opponent
                       </h3>
-                      <p className="mt-1 text-xs text-center text-gray-400">
+                      <p className="mt-1 text-base text-center text-gray-400">
                         Choose from the available bots
                       </p>
                     </motion.div>
