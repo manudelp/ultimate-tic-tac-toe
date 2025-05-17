@@ -164,7 +164,7 @@ export default function Bot() {
                       className="flex flex-col justify-between h-full p-4 bg-gray-800 border border-gray-700 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-14 h-14 text-4xl bg-gray-700 rounded-full">
+                        <div className="flex items-center justify-center text-4xl bg-gray-700 rounded-full w-14 h-14">
                           {selectedBot.icon}
                         </div>
                         <div>
@@ -184,7 +184,7 @@ export default function Bot() {
                       </div>
 
                       {/* <p className="h-10 pr-2 overflow-y-auto text-sm text-gray-300 scrollbar-thin scrollbar-thumb-gray-600"> */}
-                      <p className="h-10 pr-2 text-base text-gray-300 scrollbar-thin scrollbar-thumb-gray-600 mb-16">
+                      <p className="mb-16 text-gray-300">
                         {selectedBot.description}
                       </p>
 
@@ -246,7 +246,7 @@ export default function Bot() {
                       </h3>
                       <p className="mt-1 text-base text-center text-gray-400">
                         Choose from the available bots <br></br>
-                        <span className="text-xs">(🔥 represent difficulty)</span>
+                        <span className="text-xs text-gray-500">(*🔥 represents difficulty)</span>
                       </p>
                     </motion.div>
                   )}
