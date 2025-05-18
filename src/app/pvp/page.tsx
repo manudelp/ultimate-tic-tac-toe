@@ -4,6 +4,7 @@ import Link from "next/link";
 import Button from "@/components/ui/button";
 import Board from "@/components/core/board/board";
 import Share from "@/components/ui/share";
+import { toast } from "sonner";
 
 export default function PVP() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
@@ -38,8 +39,8 @@ export default function PVP() {
               Got friends?
             </h1>
 
-            <div className="text-center">
-              <h2 className="mb-4 text-xl font-semibold sm:text-2xl">
+            <div className="space-y-6 text-center">
+              <h2 className="text-xl font-semibold sm:text-2xl">
                 Be honest...
               </h2>
               <div className="flex flex-col justify-center gap-6 sm:flex-row">
@@ -49,6 +50,33 @@ export default function PVP() {
                 <Link href="/pvp/matchmaking">
                   <Button text="No, I don't" />
                 </Link>
+              </div>
+
+              <h3 className="text-lg font-semibold">Or join a lobby:</h3>
+              <div>
+                <input
+                  type="text"
+                  id="lobby-id"
+                  placeholder="Lobby ID"
+                  className="px-6 py-4 text-black rounded-l"
+                />
+                <Button
+                  text="Join"
+                  className="!w-fit !rounded-l-none"
+                  onClick={() => {
+                    const input = document.querySelector(
+                      "#lobby-id"
+                    ) as HTMLInputElement;
+                    if (input) {
+                      const lobbyId = input.value;
+                      if (lobbyId.length === 5) {
+                        window.location.href = `/pvp/lobby?code=${lobbyId.toUpperCase()}`;
+                      } else {
+                        toast.error("Please enter a valid lobby ID.");
+                      }
+                    }
+                  }}
+                />
               </div>
             </div>
           </>
