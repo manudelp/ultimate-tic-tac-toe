@@ -2,52 +2,50 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSocket, disconnectSocket } from "@/socket";
-import { Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
+import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import Button from "@/components/ui/button";
 import Board from "@/components/core/board/board";
 import Share from "@/components/ui/share";
 import { toast } from "sonner";
 import { ClipboardIcon } from "@heroicons/react/24/outline";
 
-// Component for wrapping the search params in Suspense
+interface StartGameData {
+  yourLetter: string;
+  yourTurn: boolean;
+}
+
 function LobbyContent() {
-  // Router and search params
   const router = useRouter();
   const searchParams = useSearchParams();
-  const code = searchParams.get("code");
+  const codeParam = searchParams.get("code") ?? "";
 
-  // State variables
   const lobbyInitialized = useRef(false);
-  const [lobbyCode, setLobbyCode] = useState("");
+  const [lobbyCode, setLobbyCode] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(true);
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(
+    null
+  );
 
-  // Match states
   const [yourLetter, setYourLetter] = useState<string>("X");
-  const [, setYourTurn] = useState<boolean>(false);
 
-  // Page title
   useEffect(() => {
     if (lobbyCode && waiting) {
-      // Change title with animated dots
       const dots = [".", "..", "..."];
       const titleInterval = setInterval(() => {
         const currentDotIndex = new Date().getSeconds() % 3;
         document.title = `Waiting${dots[currentDotIndex]} | Lobby ${lobbyCode} - Ultimate Tic Tac Toe`;
       }, 1000);
 
-      // Clear interval when component unmounts or state changes
       return () => {
         clearInterval(titleInterval);
         document.title = "Ultimate Tic Tac Toe";
       };
     } else if (lobbyCode) {
-      // Set title when waiting is false
       document.title = `IN GAME! | Lobby ${lobbyCode} - Ultimate Tic Tac Toe`;
     }
 
-    // Restore original title when component unmounts
     return () => {
       document.title = "Ultimate Tic Tac Toe";
     };
@@ -69,31 +67,23 @@ function LobbyContent() {
   };
 
   useEffect(() => {
-    // Initialize socket connection
-    socketRef.current = getSocket();
-
-    // Only run this effect once
     if (lobbyInitialized.current) return;
     lobbyInitialized.current = true;
 
-    if (code) {
-      setLobbyCode(code);
-      socketRef.current.emit("joinLobby", { code });
-      toast.success("Joined lobby successfully!", {
-        duration: 2000,
-      });
+    socketRef.current = getSocket();
+
+    if (codeParam) {
+      setLobbyCode(codeParam);
+      socketRef.current.emit("joinLobby", { code: codeParam });
+      toast.success("Joined lobby successfully!", { duration: 2000 });
     } else {
       const newCode = Math.random().toString(36).substring(2, 7).toUpperCase();
       setLobbyCode(newCode);
       socketRef.current.emit("createLobby", { code: newCode });
 
-      toast.success("Lobby created successfully!", {
-        duration: 2000,
-      });
+      toast.success("Lobby created successfully!", { duration: 2000 });
 
-      // Handle clipboard in useEffect to avoid hydration mismatch
       if (typeof window !== "undefined") {
-        // Using setTimeout to ensure this runs after component mounts
         setTimeout(() => {
           const lobbyLink = `${window.location.origin}/pvp/lobby?code=${newCode}`;
           navigator.clipboard.writeText(lobbyLink).then(() => {
@@ -106,35 +96,34 @@ function LobbyContent() {
       }
     }
 
-    // Cleanup function
     return () => {
       disconnectSocket();
     };
-  }, [code]);
+  }, [codeParam]);
 
-  // Handle socket events for the game
   useEffect(() => {
     const socket = socketRef.current;
     if (!socket) return;
 
-    socket.on("startGame", (data) => {
+    const onStartGame = (data: StartGameData) => {
       setYourLetter(data.yourLetter);
-      setYourTurn(data.yourTurn);
       setWaiting(false);
 
-      // Only show "Opponent joined" toast to the lobby creator (X player)
       if (data.yourLetter === "X") {
         toast.success("Opponent joined! Game starting...", { duration: 3000 });
       }
-    });
+    };
 
-    socket.on("error", (error) => {
+    const onError = (error: { message?: string }) => {
       alert(error.message || "An error occurred");
-    });
+    };
+
+    socket.on("startGame", onStartGame);
+    socket.on("error", onError);
 
     return () => {
-      socket.off("startGame");
-      socket.off("error");
+      socket.off("startGame", onStartGame);
+      socket.off("error", onError);
     };
   }, []);
 
@@ -145,21 +134,23 @@ function LobbyContent() {
           gameMode="online"
           starts={yourLetter}
           onExit={() => {
-            if (socketRef.current) {
-              socketRef.current.emit("leaveLobby", { code: lobbyCode });
+            const socket = socketRef.current;
+            if (socket) {
+              socket.emit("leaveLobby", { code: lobbyCode });
             }
             disconnectSocket();
             router.push("/");
           }}
-          yourLetter={yourLetter || undefined}
+          yourLetter={yourLetter}
           lobbyCode={lobbyCode}
         />
       </div>
     );
   }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center ">
-      <div className="w-full max-w-md p-8 space-y-6 ">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+      <div className="w-full max-w-md p-8 space-y-6">
         <h1 className="text-2xl font-bold sm:text-4xl">The Lobby</h1>
         <h2 className="text-md">Share your lobby link below:</h2>
 
@@ -182,7 +173,7 @@ function LobbyContent() {
           <div className="p-2 font-mono text-xs break-all bg-gray-700 rounded select-all">
             {typeof window !== "undefined"
               ? `${window.location.origin}/pvp/lobby?code=${lobbyCode}`
-              : `${lobbyCode}`}
+              : lobbyCode}
           </div>
         ) : null}
         <p className="flex items-center justify-center mt-6 text-sm text-gray-400 animate-pulse">
@@ -191,8 +182,9 @@ function LobbyContent() {
         <Button
           text="Leave Lobby"
           onClick={() => {
-            if (socketRef.current) {
-              socketRef.current.emit("leaveLobby", { code: lobbyCode });
+            const socket = socketRef.current;
+            if (socket) {
+              socket.emit("leaveLobby", { code: lobbyCode });
             }
             disconnectSocket();
             router.push("/");
@@ -206,7 +198,6 @@ function LobbyContent() {
   );
 }
 
-// Main component that wraps the content in Suspense
 export default function Lobby() {
   return (
     <Suspense
