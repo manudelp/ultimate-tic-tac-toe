@@ -27,76 +27,34 @@ function LobbyContent() {
   const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(
     null
   );
+  const [hydrated, setHydrated] = useState(false);
 
   const [yourLetter, setYourLetter] = useState<string>("X");
 
+  // Mark hydrated after client mount to avoid SSR/client mismatch
   useEffect(() => {
-    if (lobbyCode && waiting) {
-      const dots = [".", "..", "..."];
-      const titleInterval = setInterval(() => {
-        const currentDotIndex = new Date().getSeconds() % 3;
-        document.title = `Waiting${dots[currentDotIndex]} | Lobby ${lobbyCode} - Ultimate Tic Tac Toe`;
-      }, 1000);
-
-      return () => {
-        clearInterval(titleInterval);
-        document.title = "Ultimate Tic Tac Toe";
-      };
-    } else if (lobbyCode) {
-      document.title = `IN GAME! | Lobby ${lobbyCode} - Ultimate Tic Tac Toe`;
-    }
-
-    return () => {
-      document.title = "Ultimate Tic Tac Toe";
-    };
-  }, [lobbyCode, waiting]);
-
-  const handleCopyLink = () => {
-    const lobbyLink = `/pvp/lobby?code=${lobbyCode}`;
-    const fullLink =
-      typeof window !== "undefined"
-        ? `${window.location.origin}${lobbyLink}`
-        : lobbyLink;
-
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(fullLink).then(() => {
-        setCopied(true);
-        toast.success("Link copied to clipboard!", { duration: 2000 });
-      });
-    }
-  };
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     if (lobbyInitialized.current) return;
     lobbyInitialized.current = true;
 
-    console.log("Initializing socket connection for lobby");
     socketRef.current = getSocket();
     const socket = socketRef.current;
 
-    // Debug the current socket configuration
-    console.log("Socket configuration:", {
-      id: socket.id,
-      connected: socket.connected,
-      disconnected: socket.disconnected,
-    });
-
-    // Connect to the socket first, then join/create lobby
     const joinOrCreateLobby = () => {
       if (codeParam) {
-        console.log(`Joining existing lobby with code: ${codeParam}`);
         setLobbyCode(codeParam);
         socket.emit("joinLobby", { code: codeParam });
-        toast.success("Attempting to join lobby...", { duration: 2000 });
       } else {
         const newCode = Math.random()
           .toString(36)
           .substring(2, 7)
           .toUpperCase();
-        console.log(`Creating new lobby with code: ${newCode}`);
         setLobbyCode(newCode);
         socket.emit("createLobby", { code: newCode });
-        toast.success("Creating lobby...", { duration: 2000 });
 
         if (typeof window !== "undefined") {
           setTimeout(() => {
@@ -110,41 +68,30 @@ function LobbyContent() {
       }
     };
 
-    // If already connected, join/create lobby immediately
     if (socket.connected) {
       joinOrCreateLobby();
     } else {
-      // Otherwise wait for connection before proceeding
       socket.on("connect", joinOrCreateLobby);
     }
 
-    // Clean up on unmount
     return () => {
       if (socket) {
         socket.off("connect", joinOrCreateLobby);
-        console.log("Cleaning up socket connection");
         if (lobbyCode) {
           socket.emit("leaveLobby", { code: lobbyCode });
         }
         disconnectSocket();
       }
     };
-  }, [codeParam]);
+  }, [codeParam, hydrated]);
 
   useEffect(() => {
+    if (!hydrated) return;
+
     const socket = socketRef.current;
     if (!socket) return;
 
-    console.log("Setting up socket event listeners");
-
-    // Listen for lobby created confirmation
-    socket.on("lobbyCreated", (data) => {
-      console.log("Lobby created successfully:", data);
-      toast.success(`Lobby ${data.code} created!`, { duration: 2000 });
-    });
-
     const onStartGame = (data: StartGameData) => {
-      console.log("Game starting with data:", data);
       setYourLetter(data.yourLetter);
       setWaiting(false);
 
@@ -164,12 +111,36 @@ function LobbyContent() {
     socket.on("error", onError);
 
     return () => {
-      console.log("Removing socket event listeners");
       socket.off("lobbyCreated");
       socket.off("startGame", onStartGame);
       socket.off("error", onError);
     };
-  }, []);
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    if (lobbyCode && waiting) {
+      const dots = [".", "..", "..."];
+      const titleInterval = setInterval(() => {
+        const currentDotIndex = new Date().getSeconds() % 3;
+        document.title = `Waiting${dots[currentDotIndex]} | Lobby ${lobbyCode} - Ultimate Tic Tac Toe`;
+      }, 1000);
+
+      return () => {
+        clearInterval(titleInterval);
+        document.title = "Ultimate Tic Tac Toe";
+      };
+    } else if (lobbyCode) {
+      document.title = `IN GAME! | Lobby ${lobbyCode} - Ultimate Tic Tac Toe`;
+    }
+
+    return () => {
+      document.title = "Ultimate Tic Tac Toe";
+    };
+  }, [lobbyCode, waiting, hydrated]);
+
+  if (!hydrated) return null;
 
   if (!waiting) {
     return (
@@ -200,7 +171,19 @@ function LobbyContent() {
 
         <div
           className="px-6 py-4 mb-6 transition-colors bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700"
-          onClick={handleCopyLink}
+          onClick={() => {
+            const lobbyLink = `/pvp/lobby?code=${lobbyCode}`;
+            const fullLink =
+              typeof window !== "undefined"
+                ? `${window.location.origin}${lobbyLink}`
+                : lobbyLink;
+            if (typeof navigator !== "undefined" && navigator.clipboard) {
+              navigator.clipboard.writeText(fullLink).then(() => {
+                setCopied(true);
+                toast.success("Link copied to clipboard!", { duration: 2000 });
+              });
+            }
+          }}
           title="Click to copy lobby link"
         >
           <p className="text-sm text-gray-400">
