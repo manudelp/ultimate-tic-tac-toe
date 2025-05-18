@@ -11,18 +11,28 @@ let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 // Function to get or create a socket connection
 export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
   if (!socket) {
-    socket = io(API_URL, {
+    console.log("Creating new socket connection to:", API_URL);
+
+    socket = io(API_URL + "/online", {
+      // Connect directly to the /online namespace
       transports: ["websocket", "polling"], // Try WebSocket first, fallback to polling
       reconnection: true, // Enable reconnection
       reconnectionAttempts: 5, // Set max reconnection attempts
       reconnectionDelay: 1000, // Start with a 1s delay
       reconnectionDelayMax: 5000, // Max delay of 5s
       timeout: 20000, // Connection timeout
+      forceNew: true, // Force a new connection
     });
 
     // Add connection event handlers for debugging
     socket.on("connect", () => {
-      console.log("Socket connected!", socket?.id);
+      console.log("Socket connected with ID:", socket?.id);
+      console.log("Connected to namespace:", socket?.nsp);
+    });
+
+    // Add handler for any events (for debugging)
+    socket.onAny((eventName, ...args) => {
+      console.log(`Received event '${eventName}':`, args);
     });
 
     socket.on("connect_error", (error) => {

@@ -70,34 +70,64 @@ function LobbyContent() {
     if (lobbyInitialized.current) return;
     lobbyInitialized.current = true;
 
+    console.log("Initializing socket connection for lobby");
     socketRef.current = getSocket();
+    const socket = socketRef.current;
 
-    if (codeParam) {
-      setLobbyCode(codeParam);
-      socketRef.current.emit("joinLobby", { code: codeParam });
-      toast.success("Joined lobby successfully!", { duration: 2000 });
-    } else {
-      const newCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-      setLobbyCode(newCode);
-      socketRef.current.emit("createLobby", { code: newCode });
+    // Debug the current socket configuration
+    console.log("Socket configuration:", {
+      id: socket.id,
+      connected: socket.connected,
+      disconnected: socket.disconnected,
+    });
 
-      toast.success("Lobby created successfully!", { duration: 2000 });
-
-      if (typeof window !== "undefined") {
-        setTimeout(() => {
-          const lobbyLink = `${window.location.origin}/pvp/lobby?code=${newCode}`;
-          navigator.clipboard.writeText(lobbyLink).then(() => {
-            setCopied(true);
-            toast.success("Link copied to clipboard!", { duration: 2000 });
-          });
-        }, 0);
+    // Connect to the socket first, then join/create lobby
+    const joinOrCreateLobby = () => {
+      if (codeParam) {
+        console.log(`Joining existing lobby with code: ${codeParam}`);
+        setLobbyCode(codeParam);
+        socket.emit("joinLobby", { code: codeParam });
+        toast.success("Attempting to join lobby...", { duration: 2000 });
       } else {
-        toast.success("Link copied to clipboard!", { duration: 2000 });
+        const newCode = Math.random()
+          .toString(36)
+          .substring(2, 7)
+          .toUpperCase();
+        console.log(`Creating new lobby with code: ${newCode}`);
+        setLobbyCode(newCode);
+        socket.emit("createLobby", { code: newCode });
+        toast.success("Creating lobby...", { duration: 2000 });
+
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            const lobbyLink = `${window.location.origin}/pvp/lobby?code=${newCode}`;
+            navigator.clipboard.writeText(lobbyLink).then(() => {
+              setCopied(true);
+              toast.success("Link copied to clipboard!", { duration: 2000 });
+            });
+          }, 0);
+        }
       }
+    };
+
+    // If already connected, join/create lobby immediately
+    if (socket.connected) {
+      joinOrCreateLobby();
+    } else {
+      // Otherwise wait for connection before proceeding
+      socket.on("connect", joinOrCreateLobby);
     }
 
+    // Clean up on unmount
     return () => {
-      disconnectSocket();
+      if (socket) {
+        socket.off("connect", joinOrCreateLobby);
+        console.log("Cleaning up socket connection");
+        if (lobbyCode) {
+          socket.emit("leaveLobby", { code: lobbyCode });
+        }
+        disconnectSocket();
+      }
     };
   }, [codeParam]);
 
@@ -105,23 +135,37 @@ function LobbyContent() {
     const socket = socketRef.current;
     if (!socket) return;
 
+    console.log("Setting up socket event listeners");
+
+    // Listen for lobby created confirmation
+    socket.on("lobbyCreated", (data) => {
+      console.log("Lobby created successfully:", data);
+      toast.success(`Lobby ${data.code} created!`, { duration: 2000 });
+    });
+
     const onStartGame = (data: StartGameData) => {
+      console.log("Game starting with data:", data);
       setYourLetter(data.yourLetter);
       setWaiting(false);
 
       if (data.yourLetter === "X") {
         toast.success("Opponent joined! Game starting...", { duration: 3000 });
+      } else {
+        toast.success("Joined game! Starting...", { duration: 3000 });
       }
     };
 
     const onError = (error: { message?: string }) => {
-      alert(error.message || "An error occurred");
+      console.error("Socket error:", error);
+      toast.error(error.message || "An error occurred", { duration: 3000 });
     };
 
     socket.on("startGame", onStartGame);
     socket.on("error", onError);
 
     return () => {
+      console.log("Removing socket event listeners");
+      socket.off("lobbyCreated");
       socket.off("startGame", onStartGame);
       socket.off("error", onError);
     };
