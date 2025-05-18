@@ -4,7 +4,6 @@ import Link from "next/link";
 import Button from "@/components/ui/button";
 import Board from "@/components/core/board/board";
 import Share from "@/components/ui/share";
-import { toast } from "sonner";
 
 export default function PVP() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
@@ -23,11 +22,7 @@ export default function PVP() {
               <h2 className="mb-4 text-xl font-semibold sm:text-2xl">How?</h2>
               <div className="flex flex-col justify-center gap-6 sm:flex-row">
                 <Button text="Local" onClick={() => setIsOnline(false)} />
-                <Button
-                  text="Online"
-                  onClick={() => toast.info("Coming soon!")}
-                />
-                {/* () => setIsOnline(true) */}
+                <Button text="Online" onClick={() => setIsOnline(true)} />
               </div>
             </div>
           </>
