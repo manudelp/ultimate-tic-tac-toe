@@ -27,7 +27,7 @@ export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
     // Add connection event handlers for debugging
     socket.on("connect", () => {
       console.log("Socket connected with ID:", socket?.id);
-      console.log("Connected to namespace:", socket?.nsp);
+      console.log("Connected to namespace:", socket?.io.opts.path || "/online");
     });
 
     // Add handler for any events (for debugging)
