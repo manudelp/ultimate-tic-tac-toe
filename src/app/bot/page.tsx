@@ -7,7 +7,7 @@ import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 import Share from "@/components/ui/share";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import {
   Tooltip,
   TooltipTrigger,
@@ -246,14 +246,9 @@ export default function Bot() {
                               className={`flex-1 py-2 text-xs font-medium rounded-md transition-all ${
                                 starts === "bot"
                                   ? "bg-red-600 text-white"
-                                  : "bg-gray-700/50 text-white/50"
-                              }`} // FIXME: change color back to bg-gray-700 hover:bg-gray-600
-                              onClick={() =>
-                                toast.info(
-                                  "We are currently working on this feature."
-                                )
-                              }
-                              // FIXME: onClick={() => setStarts("bot")}
+                                  : "bg-gray-700 hover:bg-gray-600"
+                              }`}
+                              onClick={() => setStarts("bot")}
                             >
                               Bot Starts
                             </button>

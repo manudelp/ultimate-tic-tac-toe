@@ -81,6 +81,7 @@ export const useGame = (
   // Bot information
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [timeToMove, setTimeToMove] = useState<number>(0.0);
+  const isBotThinkingRef = useRef(false);
 
   // FUNCTIONS
   const updateMiniBoardState = useCallback(
@@ -167,18 +168,15 @@ export const useGame = (
 
       // Store the current turn value for use in callbacks
       const currentTurn = forcedLetter || turn;
-      
+
       // Update turn FIRST - this is critical to prevent multiple bot moves
-      setTurn(prev => prev === "X" ? "O" : "X");
+      setTurn((prev) => (prev === "X" ? "O" : "X"));
       setLastMove(coords);
-      setMoveNumber(prev => prev + 1);
-      setMoveHistory(prev => [
-        ...prev,
-        { turn: currentTurn, coords },
-      ]);
+      setMoveNumber((prev) => prev + 1);
+      setMoveHistory((prev) => [...prev, { turn: currentTurn, coords }]);
 
       // Now update the board
-      setBoard(prevBoard => {
+      setBoard((prevBoard) => {
         const newBoard = JSON.parse(JSON.stringify(prevBoard));
         newBoard[a][b][c][d] = currentTurn;
 
@@ -203,7 +201,7 @@ export const useGame = (
 
         // Check for overall game winner
         checkOverallGameWinner();
-        
+
         return newBoard;
       });
 
@@ -220,7 +218,12 @@ export const useGame = (
         }
 
         // Online mode - emit move
-        if (gameMode === "online" && lobbyCode && emitMove && socketRef.current) {
+        if (
+          gameMode === "online" &&
+          lobbyCode &&
+          emitMove &&
+          socketRef.current
+        ) {
           socketRef.current.emit("makeMove", {
             code: lobbyCode,
             move: { bigRow: a, bigCol: b, smallRow: c, smallCol: d },
@@ -405,13 +408,17 @@ export const useGame = (
       gameMode === "player-vs-bot" &&
       ((starts === "player" && turn === "O") ||
         (starts === "bot" && turn === "X")) &&
-      !isBotThinking &&
+      !isBotThinkingRef.current &&
       !gameOver
     ) {
+      isBotThinkingRef.current = true;
       setIsBotThinking(true);
-      handleBotMove();
+      handleBotMove().finally(() => {
+        isBotThinkingRef.current = false;
+        setIsBotThinking(false);
+      });
     }
-  }, [turn, starts, gameMode, handleBotMove, gameOver, isBotThinking]);
+  }, [turn, starts, gameMode, handleBotMove, gameOver]);
 
   // Online mode - handle socket events
   useEffect(() => {
