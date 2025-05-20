@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import MiniBoard from "@/components/core/miniboard";
 import GameOverModal from "@/components/ui/game-over";
-import GameInfo from "@/components/core/board/game-info";
 import { useGame } from "@/hooks/useGame";
 import { motion } from "framer-motion"; // You'll need to install framer-motion
 
@@ -99,13 +98,48 @@ const Board: React.FC<BoardProps> = ({
         className="flex flex-col items-center flex-1"
       >
         {/* Game Info Bar */}
-        <GameInfo
-          gameMode={gameMode}
-          yourLetter={yourLetter}
-          turn={turn}
-          bot={bot}
-          isBotThinking={isBotThinking}
-        />
+        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 flex items-center justify-center rounded-md ${
+                turn === "X" ? "bg-blue-500/20" : "bg-red-500/20"
+              }`}
+            >
+              <span
+                className={`text-2xl font-bold ${
+                  turn === "X" ? "text-blue-400" : "text-red-400"
+                }`}
+              >
+                {turn}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-gray-400">
+                Current Turn
+              </span>
+              <span className="text-sm font-semibold text-white">
+                {gameMode === "player-vs-bot" && isBotThinking
+                  ? `${bot?.name || "Bot"} is thinking...`
+                  : gameMode === "online" && turn !== yourLetter
+                  ? "Opponent's turn"
+                  : "Your turn"}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {gameMode === "player-vs-bot" && (
+              <div className="px-2 py-1 text-xs font-medium text-orange-300 rounded-md bg-orange-500/30">
+                {bot?.icon}
+                {bot?.name}
+              </div>
+            )}
+            {gameMode === "online" && (
+              <div className="px-2 py-1 ml-3 text-xs font-medium text-indigo-300 rounded-md bg-indigo-500/30">
+                {lobbyCode}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Game Board */}
         <motion.div
@@ -193,7 +227,7 @@ const Board: React.FC<BoardProps> = ({
             </div>
             <div
               ref={moveHistoryRef}
-              className="w-full px-1 py-2 overflow-x-auto bg-gray-800 rounded-lg shadow-inner scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
+              className="w-full px-1 py-2 overflow-x-auto bg-gray-800 rounded scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
             >
               <div className="inline-flex gap-3 px-2">
                 {moveHistory.map((move, index) => (
@@ -239,7 +273,7 @@ const Board: React.FC<BoardProps> = ({
         {isMobile && (
           <div className="flex w-full gap-4 mt-4">
             <button
-              className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+              className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-gray-700 rounded hover:bg-gray-600"
               onClick={onExit}
             >
               <svg
@@ -260,7 +294,7 @@ const Board: React.FC<BoardProps> = ({
             </button>
             {gameOver && (
               <button
-                className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-green-600 rounded-lg shadow-md hover:bg-green-500"
+                className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-green-600 rounded hover:bg-green-500"
                 onClick={handlePlayAgain}
               >
                 <svg
@@ -292,7 +326,7 @@ const Board: React.FC<BoardProps> = ({
           className="flex flex-col gap-4 w-80"
         >
           {/* Game Stats Card */}
-          <div className="p-6 bg-gray-800 rounded-lg shadow-lg">
+          <div className="p-6 bg-gray-800 rounded">
             <div className="relative flex flex-col gap-6">
               {/* Today's Date */}
               <div className="absolute top-0 right-0 text-xs text-right text-gray-400">
@@ -345,10 +379,12 @@ const Board: React.FC<BoardProps> = ({
 
               {/* Game Status */}
               {gameOver ? (
-                <div className="p-4 text-center bg-gray-700 rounded-lg">
+                <div className="p-4 text-center bg-gray-700 rounded">
                   <div className="mb-1 text-sm text-gray-400">Game Result</div>
                   <div className="text-2xl font-bold text-green-400">
-                    {gameWinner ? `${gameWinner} Wins!` : "Draw!"}
+                    {gameWinner === "X" || gameWinner === "O"
+                      ? `${gameWinner} Wins!`
+                      : "Draw!"}
                   </div>
                 </div>
               ) : (
@@ -363,14 +399,16 @@ const Board: React.FC<BoardProps> = ({
           </div>
 
           {/* Move History */}
-          <div className="flex-1 p-4 bg-gray-800 rounded-lg shadow-lg">
+          <div className="flex-1 p-4 bg-gray-800 rounded">
             <div className="flex items-center justify-between mb-2 text-sm text-gray-400">
               <span>Move History</span>
               <span className="text-xs">{moveHistory.length} moves</span>
             </div>
             <div
               ref={moveHistoryRef}
-              className="max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
+              className={`${
+                gameMode === "player-vs-bot" ? "h-[200px]" : "h-[300px]"
+              } pr-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent`}
             >
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10 bg-gray-800">
@@ -420,7 +458,7 @@ const Board: React.FC<BoardProps> = ({
           <div className="flex gap-2">
             <button
               onClick={onExit}
-              className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+              className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-gray-700 rounded hover:bg-gray-600"
             >
               <svg
                 className="w-5 h-5"
@@ -441,7 +479,7 @@ const Board: React.FC<BoardProps> = ({
             {gameOver && (
               <button
                 onClick={handlePlayAgain}
-                className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-green-600 rounded-lg shadow-md hover:bg-green-500"
+                className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-green-600 rounded hover:bg-green-500"
               >
                 <svg
                   className="w-5 h-5"

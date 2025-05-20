@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import type { Metadata } from "next";
-import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "./globals.css";
@@ -49,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        <Header />
+        {/* <Header /> */}
         <main className="pt-10 sm:pt-0">{children}</main>
         <Toaster richColors />
         <Footer />

@@ -19,7 +19,7 @@ interface MiniBoardProps {
     rowIndex: number,
     cellIndex: number
   ) => void;
-  makeMove: (ooords: [number, number, number, number]) => void;
+  makeMove: (coords: [number, number, number, number]) => void;
 }
 
 const MiniBoard: React.FC<MiniBoardProps> = ({
@@ -146,7 +146,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                 }
                 id={`cell-${localRowIndex}-${localColIndex}-${rowIndex}-${cellIndex}`}
                 key={cellIndex}
-                className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-red-500 ${
+                className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-white/20 ${
                   isHovered
                     ? "bg-green-500"
                     : lastMove &&
@@ -162,10 +162,10 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                     : ""
                 }`}
                 style={{
-                  borderTop: rowIndex === 1 ? `2px solid white` : "none",
-                  borderBottom: rowIndex === 1 ? `2px solid white` : "none",
-                  borderLeft: cellIndex === 1 ? `2px solid white` : "none",
-                  borderRight: cellIndex === 1 ? `2px solid white` : "none",
+                  borderTop: rowIndex === 1 ? `1px solid white` : "none",
+                  borderBottom: rowIndex === 1 ? `1px solid white` : "none",
+                  borderLeft: cellIndex === 1 ? `1px solid white` : "none",
+                  borderRight: cellIndex === 1 ? `1px solid white` : "none",
                 }}
               >
                 {cell === "X" && <X />}
