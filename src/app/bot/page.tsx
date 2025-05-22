@@ -153,7 +153,7 @@ export default function Bot() {
                                   .fill(0)
                                   .map((_, i) => (
                                     <span key={i} className="text-sm mx-0.5">
-                                      {i < botOption.difficulty ? "🔥" : "⚪"}
+                                      {i < botOption.difficulty ? "🔥" : "▫️"}
                                     </span>
                                   ))}
                               </div>
@@ -218,6 +218,13 @@ export default function Bot() {
                                   {fire}
                                 </span>
                               ))}
+                            {Array(5 - selectedBot.difficulty)
+                              .fill("▫️")
+                              .map((fire, i) => (
+                                <span key={i} className="text-base">
+                                  {fire}
+                                </span>
+                              ))}
                           </div>
                         </div>
                       </div>
@@ -250,7 +257,7 @@ export default function Bot() {
                               }`}
                               onClick={() => setStarts("bot")}
                             >
-                              Bot Starts
+                              {selectedBot.name} Starts
                             </button>
                           </div>
                         </div>

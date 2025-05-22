@@ -98,7 +98,7 @@ const Board: React.FC<BoardProps> = ({
         className="flex flex-col items-center flex-1"
       >
         {/* Game Info Bar */}
-        <div className="sticky z-10 flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded top-10">
+        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded top-10">
           <div className="flex items-center gap-3">
             <motion.div
               key={turn}
