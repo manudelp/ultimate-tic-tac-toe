@@ -100,7 +100,7 @@ export default function Bot() {
               {/* Bot selection grid */}
               <div className="w-full md:w-1/2">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-2">
-                  {bots?.map((botOption, index) => (
+                  {bots?.sort((a, b) => a.difficulty - b.difficulty).map((botOption, index) => (
                     <motion.div
                       key={botOption.id}
                       initial={{ opacity: 0 }}

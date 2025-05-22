@@ -16,8 +16,8 @@ const PlayerO: React.FC<PlayerOProps> = ({ className }) => {
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="90%"
-        height="90%"
+        width="100%"
+        height="100%"
         viewBox="0 0 24 24"
         strokeWidth="1"
         stroke="currentColor"
@@ -26,7 +26,7 @@ const PlayerO: React.FC<PlayerOProps> = ({ className }) => {
         strokeLinejoin="round"
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+        <circle cx="12" cy="12" r="7.5" />
       </svg>
     </motion.div>
   );

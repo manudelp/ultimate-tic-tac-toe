@@ -148,15 +148,15 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                 key={cellIndex}
                 className={`w-1/3 h-full grid place-items-center text-white text-xl cursor-pointer hover:bg-white/20 ${
                   isHovered
-                    ? "bg-green-500"
+                    ? "bg-green-500/20"
                     : lastMove &&
                       lastMove[0] === localRowIndex &&
                       lastMove[1] === localColIndex &&
                       lastMove[2] === rowIndex &&
                       lastMove[3] === cellIndex
-                    ? "bg-indigo-400"
+                    ? "bg-indigo-400/20"
                     : isWinningCell
-                    ? "bg-yellow-500"
+                    ? "bg-yellow-500/20"
                     : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
                     ? "pointer-events-none"
                     : ""
@@ -168,8 +168,8 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                   borderRight: cellIndex === 1 ? `1px solid white` : "none",
                 }}
               >
-                {cell === "X" && <X />}
-                {cell === "O" && <O />}
+                {cell === "X" && <X className="text-[#71a2f6]" />}
+                {cell === "O" && <O className="text-[#f2756f]" />}
               </div>
             );
           })}
@@ -187,7 +187,13 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
           } hover:opacity-0`}
         >
           <div className="grid pointer-events-auto place-items-center">
-            {winner === "X" ? <X /> : winner === "O" ? <O /> : <Draw />}
+            {winner === "X" ? (
+              <X className="text-[#71a2f6]" />
+            ) : winner === "O" ? (
+              <O className="text-[#f2756f]" />
+            ) : (
+              <Draw />
+            )}
           </div>
         </div>
       )}

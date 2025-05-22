@@ -98,12 +98,17 @@ const Board: React.FC<BoardProps> = ({
         className="flex flex-col items-center flex-1"
       >
         {/* Game Info Bar */}
-        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded">
+        <div className="sticky z-10 flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded top-10">
           <div className="flex items-center gap-3">
-            <div
+            <motion.div
+              key={turn}
+              initial={{ rotateY: -180 }}
+              animate={{ rotateY: 0 }}
+              transition={{ duration: 0.1 }}
               className={`w-10 h-10 flex items-center justify-center rounded-md ${
                 turn === "X" ? "bg-blue-500/20" : "bg-red-500/20"
               }`}
+              style={{ perspective: 600 }}
             >
               <span
                 className={`text-2xl font-bold ${
@@ -112,14 +117,14 @@ const Board: React.FC<BoardProps> = ({
               >
                 {turn}
               </span>
-            </div>
+            </motion.div>
             <div className="flex flex-col">
               <span className="text-xs font-medium text-gray-400">
                 Current Turn
               </span>
               <span className="text-sm font-semibold text-white">
                 {gameMode === "player-vs-bot" && isBotThinking
-                  ? `${bot?.name || "Bot"} is thinking...`
+                  ? `${bot?.name + " " + bot?.icon} is thinking...`
                   : gameMode === "online" && turn !== yourLetter
                   ? "Opponent's turn"
                   : "Your turn"}
@@ -127,12 +132,6 @@ const Board: React.FC<BoardProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {gameMode === "player-vs-bot" && (
-              <div className="px-2 py-1 text-xs font-medium text-orange-300 rounded-md bg-orange-500/30">
-                {bot?.icon}
-                {bot?.name}
-              </div>
-            )}
             {gameMode === "online" && (
               <div className="px-2 py-1 ml-3 text-xs font-medium text-indigo-300 rounded-md bg-indigo-500/30">
                 {lobbyCode}
@@ -185,13 +184,13 @@ const Board: React.FC<BoardProps> = ({
                 )}
                 {winningLine.type === "col" && (
                   <div
-                    className="absolute h-[95%] w-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                    className="absolute h-[95%] w-3 bg-gradient-to-b from-red-500 to-orange-500 rounded-full"
                     style={{ left: `${(winningLine.index + 0.5) * 33.33}%` }}
                   />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 0 && (
                   <div
-                    className="absolute w-[120%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                    className="absolute w-[120%] h-3 bg-gradient-to-tr from-red-500 to-orange-500 rounded-full"
                     style={{
                       transform: "rotate(45deg)",
                       top: "50%",
@@ -201,7 +200,7 @@ const Board: React.FC<BoardProps> = ({
                 )}
                 {winningLine.type === "diag" && winningLine.index === 1 && (
                   <div
-                    className="absolute w-[120%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full "
+                    className="absolute w-[120%] h-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-full "
                     style={{
                       transform: "rotate(-45deg)",
                       top: "50%",
@@ -358,7 +357,7 @@ const Board: React.FC<BoardProps> = ({
                 <div className="mb-1 text-sm text-gray-400">Game Mode</div>
                 <div className="text-lg text-white">
                   {gameMode === "player-vs-bot"
-                    ? `vs ${bot?.name}`
+                    ? `Playing against ${bot?.name} ${bot?.icon}`
                     : gameMode === "online"
                     ? "Online Match"
                     : "Local"}
@@ -369,7 +368,7 @@ const Board: React.FC<BoardProps> = ({
               {gameMode === "player-vs-bot" && (
                 <div>
                   <div className="mb-1 text-sm text-gray-400">
-                    Bot Response Time
+                    {bot?.name}&apos;s Response Time
                   </div>
                   <div className="text-lg text-white">
                     {timeToMove.toFixed(2)}s
@@ -391,7 +390,9 @@ const Board: React.FC<BoardProps> = ({
                 <div>
                   <div className="mb-1 text-sm text-gray-400">Status</div>
                   <div className="text-lg text-green-400">
-                    {isBotThinking ? "Bot is thinking..." : "Game in progress"}
+                    {isBotThinking
+                      ? `${bot?.name + " " + bot?.icon} is thinking...`
+                      : "Game in progress"}
                   </div>
                 </div>
               )}
@@ -413,9 +414,9 @@ const Board: React.FC<BoardProps> = ({
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10 bg-gray-800">
                   <tr className="text-xs text-gray-400">
-                    <th className="py-2 font-normal text-left">#</th>
-                    <th className="py-2 font-normal text-left">Turn</th>
-                    <th className="py-2 font-normal text-left">Position</th>
+                    <th className="p-2 font-normal text-left">#</th>
+                    <th className="p-2 font-normal text-left">Turn</th>
+                    <th className="p-2 font-normal text-left">Position</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -438,15 +439,17 @@ const Board: React.FC<BoardProps> = ({
                       }
                       onMouseLeave={() => handleMoveHover(null)}
                     >
-                      <td className="py-2">{index + 1}</td>
+                      <td className="p-2 rounded-l">{index + 1}</td>
                       <td
-                        className={`py-2 ${
+                        className={`p-2 ${
                           move.turn === "X" ? "text-blue-400" : "text-red-400"
                         } font-medium`}
                       >
                         {move.turn}
                       </td>
-                      <td className="py-2">({move.coords.join(",")})</td>
+                      <td className="p-2 rounded-r">
+                        ({move.coords.join(",")})
+                      </td>
                     </motion.tr>
                   ))}
                 </tbody>
