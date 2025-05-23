@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
@@ -53,6 +54,7 @@ export default function RootLayout({
         <Toaster richColors />
         <Footer />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
