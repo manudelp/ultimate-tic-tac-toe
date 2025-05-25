@@ -49,7 +49,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        {/* <Header /> */}
         <main className="pt-10 sm:pt-0">{children}</main>
         <Toaster richColors />
         <Footer />
