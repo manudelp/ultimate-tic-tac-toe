@@ -370,9 +370,13 @@ const Board: React.FC<BoardProps> = ({
                   <div className="mb-1 text-sm text-gray-400">
                     {bot?.name}&apos;s Response Time
                   </div>
-                  <div className="text-lg text-white">
-                    {timeToMove.toFixed(2)}s
-                  </div>
+                      <div className="text-lg text-white">
+                      {timeToMove >= 3600 
+                        ? `${Math.floor(timeToMove / 3600)}h ${Math.floor((timeToMove % 3600) / 60)}m ${Math.round(timeToMove % 60)}s` 
+                        : timeToMove >= 60 
+                        ? `${Math.floor(timeToMove / 60)}m ${Math.round(timeToMove % 60)}s` 
+                        : `${timeToMove.toFixed(2)}s`}
+                      </div>
                 </div>
               )}
 
