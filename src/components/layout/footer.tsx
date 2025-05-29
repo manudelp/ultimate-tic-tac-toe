@@ -85,6 +85,14 @@ const Footer: React.FC = () => {
           .
         </p>
       </div> */}
+
+      <div className="text-gray-400 text-xs">
+        <p>
+          Note: This is a{" "}
+          <span className="text-yellow-300 font-semibold">beta version</span>.
+          Please report any issues you encounter.
+        </p>
+      </div>
       <div>
         {isBackendConnected ? (
           <p>🟢 Server is operational.</p>
