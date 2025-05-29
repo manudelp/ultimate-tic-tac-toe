@@ -35,10 +35,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     try {
       if (isLogin) {
         // Login
-        const { access_token, name } = await loginUser(
-          formData.email,
-          formData.password
-        );
+        const { name } = await loginUser(formData.email, formData.password);
 
         // Verify the token to get complete user data
         await verifyToken();

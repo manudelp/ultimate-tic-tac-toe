@@ -83,7 +83,7 @@ function LobbyContent() {
         disconnectSocket();
       }
     };
-  }, [codeParam, hydrated]);
+  }, [codeParam, hydrated, lobbyCode]);
 
   useEffect(() => {
     if (!hydrated) return;
