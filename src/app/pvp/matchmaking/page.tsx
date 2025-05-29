@@ -35,22 +35,13 @@ export default function Matchmaking() {
     setSearchTime(0);
   };
 
-  // Simulate connection to matchmaking server
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setConnectionStatus("Connected");
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   // Handle search timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isSearching) {
       interval = setInterval(() => {
         setSearchTime((prev) => prev + 1);
-        setAnimateIcon((prev) => !prev); // Toggle animation state
+        setAnimateIcon((prev) => !prev);
       }, 1000);
     }
     return () => clearInterval(interval);
