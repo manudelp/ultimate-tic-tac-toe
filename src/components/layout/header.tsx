@@ -68,8 +68,12 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 bg-background">
-      <div className="container flex items-center justify-between mx-auto">
+    <header
+      className={`fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 ${
+        showMobileMenu ? "bg-gray-900" : ""
+      }`}
+    >
+      <div className="container flex items-center justify-between mx-auto ">
         <Link href="/" className="text-xl font-bold">
           {hostname}
         </Link>
@@ -202,9 +206,9 @@ const Header: React.FC = () => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <ul className="flex flex-col py-2">
+            <ul className="flex flex-col">
               <motion.li
-                className="p-3 border-b border-gray-700"
+                className="p-3 border-b border-gray-700 bg-gray-900"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
@@ -218,7 +222,7 @@ const Header: React.FC = () => {
                 </Link>
               </motion.li>
               <motion.li
-                className="p-3 border-b border-gray-700"
+                className="p-3 border-b border-gray-700 bg-gray-900"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -232,7 +236,7 @@ const Header: React.FC = () => {
                 </Link>
               </motion.li>
               <motion.li
-                className="p-3 border-b border-gray-700"
+                className="p-3 border-b border-gray-700 bg-gray-900"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
