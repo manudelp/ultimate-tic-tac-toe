@@ -69,10 +69,10 @@ export default function Matchmaking() {
       setConnectedUsers(count);
     });
 
-    socket.on("matchFound", ({ code }) => {
+    socket.on("matchFound", ({ code, yourLetter: assignedLetter }) => {
       setMatchFound(true);
       setLobbyCode(code);
-      setYourLetter(Math.random() > 0.5 ? "X" : "O");
+      setYourLetter(assignedLetter);
     });
 
     return () => {
