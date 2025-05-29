@@ -174,7 +174,7 @@ export default function Matchmaking() {
             <TooltipContent>
               <span className="text-xs">
                 {connectedUsers <= 1
-                  ? "There must be at least 2 users connected to start matchmaking"
+                  ? "There must be at least 2 users connected to find a match"
                   : `${connectedUsers} users connected`}
               </span>
             </TooltipContent>
@@ -222,10 +222,7 @@ export default function Matchmaking() {
         <Button
           text={isSearching ? "Cancel Search" : "Find Match"}
           variant={isSearching ? "primary" : "secondary"}
-          className={`${
-            connectedUsers <= 1 ? "cursor-not-allowed opacity-50" : ""
-          }`}
-          onClick={connectedUsers > 1 ? toggleSearch : undefined}
+          onClick={toggleSearch}
         />
 
         <Button
