@@ -21,6 +21,13 @@ interface LoginResponse {
   name: string;
 }
 
+// Enhanced User interfaces
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 interface RegisterResponse {
   message: string;
 }
@@ -118,15 +125,13 @@ export const agentsReset = async (id: number): Promise<void> => {
 export const registerUser = async (
   name: string,
   email: string,
-  password: string,
-  captchaToken: string
+  password: string
 ): Promise<RegisterResponse> => {
   try {
     const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
       name,
       email,
       password,
-      captchaToken,
     });
     return response.data;
   } catch (error) {
@@ -137,22 +142,41 @@ export const registerUser = async (
   }
 };
 
+// Get current user from localStorage
+export const getCurrentUser = (): User | null => {
+  const userData = localStorage.getItem("userData");
+  if (!userData) return null;
+
+  try {
+    return JSON.parse(userData) as User;
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+    return null;
+  }
+};
+
 // Login user
 export const loginUser = async (
   email: string,
-  password: string,
-  captchaToken: string
+  password: string
 ): Promise<LoginResponse> => {
   try {
     const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
       email,
       password,
-      captchaToken,
     });
     const { access_token, name } = response.data;
 
     // Save token in localStorage
     localStorage.setItem("token", access_token);
+
+    // Store user data
+    const userData = {
+      name,
+      email,
+      // The id will be populated when verifying the token
+    };
+    localStorage.setItem("userData", JSON.stringify(userData));
 
     return { access_token, name };
   } catch (error) {
@@ -166,6 +190,7 @@ export const loginUser = async (
 // Logout user
 export const logoutUser = (): void => {
   localStorage.removeItem("token");
+  localStorage.removeItem("userData");
 };
 
 // Verify token
@@ -183,6 +208,12 @@ export const verifyToken = async (): Promise<VerifyTokenResponse> => {
         },
       }
     );
+
+    // Update user data if verification is successful
+    if (response.data.valid && response.data.data) {
+      localStorage.setItem("userData", JSON.stringify(response.data.data));
+    }
+
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

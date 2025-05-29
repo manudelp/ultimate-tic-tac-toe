@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/button-2";
 import Board from "@/components/core/board";
 import Share from "@/components/ui/share";
 import { toast } from "sonner";

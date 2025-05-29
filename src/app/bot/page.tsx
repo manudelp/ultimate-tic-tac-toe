@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { getBots, loadBot } from "@/api";
 import Board from "@/components/core/board";
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/button-2";
 import Loader from "@/components/ui/loader";
 import Share from "@/components/ui/share";
 import { motion, AnimatePresence } from "framer-motion";
@@ -100,92 +100,98 @@ export default function Bot() {
               {/* Bot selection grid */}
               <div className="w-full md:w-1/2">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-2">
-                  {bots?.sort((a, b) => a.difficulty - b.difficulty).map((botOption, index) => (
-                    <motion.div
-                      key={botOption.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: botsLoaded[botOption.id] ? 1 : 0.6 }}
-                      transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className={`cursor-pointer relative bg-gray-800 rounded-lg h-48 flex flex-col justify-center
+                  {bots
+                    ?.sort((a, b) => a.difficulty - b.difficulty)
+                    .map((botOption, index) => (
+                      <motion.div
+                        key={botOption.id}
+                        initial={{ opacity: 0 }}
+                        animate={{
+                          opacity: botsLoaded[botOption.id] ? 1 : 0.6,
+                        }}
+                        transition={{ duration: 0.2, delay: index * 0.05 }}
+                        className={`cursor-pointer relative bg-gray-800 rounded-lg h-48 flex flex-col justify-center
                         overflow-hidden border hover:border-blue-500/50 ${
                           selectedBot?.id === botOption.id
                             ? "border-blue-500"
                             : "border-gray-700"
                         }`}
-                      onClick={() => {
-                        if (botsLoaded[botOption.id]) {
-                          setSelectedBot(
-                            selectedBot?.id === botOption.id ? null : botOption
-                          );
-                          setStarts(null);
-                        }
-                      }}
-                    >
-                      <div className="flex flex-col items-center p-3">
-                        {/* Bot avatar - simplified */}
-                        <div
-                          className={`relative rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2 ${
-                            botOption.id === -1 ? "bg-black" : "bg-gray-700"
-                          }`}
-                          style={
-                            botOption.id === -1
-                              ? { backgroundImage: `url('/fire.gif')` }
-                              : undefined
+                        onClick={() => {
+                          if (botsLoaded[botOption.id]) {
+                            setSelectedBot(
+                              selectedBot?.id === botOption.id
+                                ? null
+                                : botOption
+                            );
+                            setStarts(null);
                           }
-                        >
-                          {botOption.icon}
-                          {selectedBot?.id === botOption.id && (
-                            <div className="absolute inset-0 border border-blue-400 rounded-full"></div>
-                          )}
+                        }}
+                      >
+                        <div className="flex flex-col items-center p-3">
+                          {/* Bot avatar - simplified */}
+                          <div
+                            className={`relative rounded-full text-4xl w-16 h-16 flex items-center justify-center mb-2 ${
+                              botOption.id === -1 ? "bg-black" : "bg-gray-700"
+                            }`}
+                            style={
+                              botOption.id === -1
+                                ? { backgroundImage: `url('/fire.gif')` }
+                                : undefined
+                            }
+                          >
+                            {botOption.icon}
+                            {selectedBot?.id === botOption.id && (
+                              <div className="absolute inset-0 border border-blue-400 rounded-full"></div>
+                            )}
+                          </div>
+
+                          {/* Bot info - streamlined */}
+                          <h3 className="text-base font-medium text-center">
+                            {botOption.name}
+                          </h3>
+
+                          {/* Difficulty rating - more compact */}
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex justify-center mt-1">
+                                  {Array(5)
+                                    .fill(0)
+                                    .map((_, i) => (
+                                      <span key={i} className="text-sm mx-0.5">
+                                        {i < botOption.difficulty ? "🔥" : "▫️"}
+                                      </span>
+                                    ))}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="bottom"
+                                className="!bg-gray-700 !text-gray-200"
+                              >
+                                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-700 rotate-45 z-[-1]" />
+
+                                <p className="text-xs">
+                                  Difficulty: {botOption.difficulty} / 5 (
+                                  {botOption.difficulty < 3
+                                    ? "Easy"
+                                    : botOption.difficulty < 5
+                                    ? "Medium"
+                                    : "Hard"}
+                                  )
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
 
-                        {/* Bot info - streamlined */}
-                        <h3 className="text-base font-medium text-center">
-                          {botOption.name}
-                        </h3>
-
-                        {/* Difficulty rating - more compact */}
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex justify-center mt-1">
-                                {Array(5)
-                                  .fill(0)
-                                  .map((_, i) => (
-                                    <span key={i} className="text-sm mx-0.5">
-                                      {i < botOption.difficulty ? "🔥" : "▫️"}
-                                    </span>
-                                  ))}
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="bottom"
-                              className="!bg-gray-700 !text-gray-200"
-                            >
-                              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-700 rotate-45 z-[-1]" />
-
-                              <p className="text-xs">
-                                Difficulty: {botOption.difficulty} / 5 (
-                                {botOption.difficulty < 3
-                                  ? "Easy"
-                                  : botOption.difficulty < 5
-                                  ? "Medium"
-                                  : "Hard"}
-                                )
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-
-                      {/* Loading indicator */}
-                      {!botsLoaded[botOption.id] && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60">
-                          <Loader size="small" />
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+                        {/* Loading indicator */}
+                        {!botsLoaded[botOption.id] && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60">
+                            <Loader size="small" />
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
                 </div>
               </div>
 

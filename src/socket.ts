@@ -11,8 +11,11 @@ let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 // Function to get or create a socket connection
 export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
   if (!socket) {
-    socket = io(API_URL + "/online", {
-      // Connect directly to the /online namespace
+    // Get authentication token if available
+    const token = localStorage.getItem("token");
+
+    // Connection options with authentication
+    const options = {
       transports: ["websocket", "polling"], // Try WebSocket first, fallback to polling
       reconnection: true, // Enable reconnection
       reconnectionAttempts: 5, // Set max reconnection attempts
@@ -20,6 +23,18 @@ export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
       reconnectionDelayMax: 5000, // Max delay of 5s
       timeout: 20000, // Connection timeout
       forceNew: true, // Force a new connection
+      auth: token ? { token } : undefined, // Include auth token if available
+    };
+
+    socket = io(API_URL + "/online", options);
+
+    // Setup event handlers
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket?.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
     });
   }
 
@@ -34,6 +49,12 @@ export const disconnectSocket = (): void => {
   }
 };
 
+// Function to reconnect with a new token
+export const reconnectSocket = (): void => {
+  disconnectSocket();
+  getSocket();
+};
+
 // For backward compatibility
-const socketUtils = { getSocket, disconnectSocket };
+const socketUtils = { getSocket, disconnectSocket, reconnectSocket };
 export default socketUtils;

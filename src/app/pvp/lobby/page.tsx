@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getSocket, disconnectSocket } from "@/socket";
 import type { Socket } from "socket.io-client";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/button-2";
 import Board from "@/components/core/board";
 import Share from "@/components/ui/share";
 import { toast } from "sonner";
@@ -105,6 +105,9 @@ function LobbyContent() {
     const onError = (error: { message?: string }) => {
       console.error("Socket error:", error);
       toast.error(error.message || "An error occurred", { duration: 3000 });
+      setTimeout(() => {
+        window.location.href = "/pvp";
+      }, 3000);
     };
 
     socket.on("startGame", onStartGame);

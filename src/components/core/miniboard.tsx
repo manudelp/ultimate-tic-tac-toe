@@ -89,7 +89,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
 
   return (
     <div
-      className={`w-1/3 h-1/3 p-1 sm:p-4 transition relative ${
+      className={`w-1/3 h-1/3 p-2 sm:p-4 transition relative ${
         (disabled?.[localRowIndex]?.[localColIndex] ||
           (activeMiniBoard !== null &&
             (activeMiniBoard?.[0] !== localRowIndex ||
@@ -136,42 +136,46 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
 
             return (
               <div
-          onClick={() =>
-            handleCellClick(
-              localRowIndex,
-              localColIndex,
-              rowIndex,
-              cellIndex
-            )
-          }
-          id={`cell-${localRowIndex}-${localColIndex}-${rowIndex}-${cellIndex}`}
-          key={cellIndex}
-          className={`w-1/3 h-full grid place-items-center cursor-pointer hover:bg-white/20 ${
-            isHovered
-              ? "bg-green-500/20"
-              : lastMove &&
-                lastMove[0] === localRowIndex &&
-                lastMove[1] === localColIndex &&
-                lastMove[2] === rowIndex &&
-                lastMove[3] === cellIndex
-              ? "bg-indigo-400/20"
-              : isWinningCell
-              ? "bg-yellow-500/20"
-              : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
-              ? "pointer-events-none"
-              : ""
-          }`}
-          style={{
-            borderTop: rowIndex === 1 ? `2px solid white` : "none",
-            borderBottom: rowIndex === 1 ? `2px solid white` : "none",
-            borderLeft: cellIndex === 1 ? `2px solid white` : "none",
-            borderRight: cellIndex === 1 ? `2px solid white` : "none",
-          }}
+                onClick={() =>
+                  handleCellClick(
+                    localRowIndex,
+                    localColIndex,
+                    rowIndex,
+                    cellIndex
+                  )
+                }
+                id={`cell-${localRowIndex}-${localColIndex}-${rowIndex}-${cellIndex}`}
+                key={cellIndex}
+                className={`w-1/3 h-full grid place-items-center cursor-pointer hover:bg-white/20 ${
+                  isHovered
+                    ? "bg-green-500/20"
+                    : lastMove &&
+                      lastMove[0] === localRowIndex &&
+                      lastMove[1] === localColIndex &&
+                      lastMove[2] === rowIndex &&
+                      lastMove[3] === cellIndex
+                    ? "bg-indigo-400/20"
+                    : isWinningCell
+                    ? "bg-yellow-500/20"
+                    : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
+                    ? "pointer-events-none"
+                    : ""
+                }`}
+                style={{
+                  borderTop: rowIndex === 1 ? `2px solid white` : "none",
+                  borderBottom: rowIndex === 1 ? `2px solid white` : "none",
+                  borderLeft: cellIndex === 1 ? `2px solid white` : "none",
+                  borderRight: cellIndex === 1 ? `2px solid white` : "none",
+                }}
               >
-          <div className="flex items-center justify-center w-10/12 h-10/12">
-            {cell === "X" && <X className="text-[#71a2f6] w-full h-full" />}
-            {cell === "O" && <O className="text-[#f2756f] w-full h-full" />}
-          </div>
+                <div className="flex items-center justify-center w-10/12 h-10/12">
+                  {cell === "X" && (
+                    <X className="text-[#71a2f6] w-full h-full" />
+                  )}
+                  {cell === "O" && (
+                    <O className="text-[#f2756f] w-full h-full" />
+                  )}
+                </div>
               </div>
             );
           })}
