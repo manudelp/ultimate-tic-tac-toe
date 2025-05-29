@@ -93,7 +93,9 @@ const Header: React.FC = () => {
                 </div>
               ) : (
                 <Button
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={() =>
+                    toast.info("We are working on the login feature!")
+                  }
                   className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700"
                 >
                   Login
