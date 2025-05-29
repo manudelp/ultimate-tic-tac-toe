@@ -13,7 +13,7 @@ export default function PVP() {
     <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
       {isOnline === null && (
         <>
-          <h1 className="mb-8 text-3xl font-bold sm:text-4xl">
+          <h1 className="mb-8 text-3xl font-bold sm:text-4xl bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text">
             Ready to play?
           </h1>
           <h2 className="mb-6 text-xl font-semibold sm:text-2xl">

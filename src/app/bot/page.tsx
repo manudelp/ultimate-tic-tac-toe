@@ -86,9 +86,13 @@ export default function Bot() {
         />
       ) : (
         <div className="w-full max-w-3xl pt-4 mx-auto">
-          <h1 className="mb-6 text-xl font-bold text-center sm:text-2xl">
-            Playing against us
+          <h1 className="mb-8 text-3xl font-bold sm:text-4xl text-center bg-gradient-to-r from-pink-400 to-yellow-500 text-transparent bg-clip-text">
+            Ready to play?
           </h1>
+
+          <h2 className="mb-6 text-xl font-semibold text-center sm:text-2xl">
+            Select your opponent
+          </h2>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center h-48 bg-gray-800 border border-gray-700 rounded-lg">
