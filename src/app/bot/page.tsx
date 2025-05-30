@@ -166,7 +166,9 @@ export default function Bot() {
                                         {i < botOption.difficulty ? (
                                           "🔥"
                                         ) : (
-                                          <span className="opacity-30">🔥</span>
+                                          <span className="bg-gray-500 bg-clip-text text-transparent">
+                                            🔥
+                                          </span>
                                         )}
                                       </span>
                                     ))}
@@ -235,7 +237,10 @@ export default function Bot() {
                             {Array(5 - selectedBot.difficulty)
                               .fill("🔥")
                               .map((fire, i) => (
-                                <span key={i} className="text-base opacity-30">
+                                <span
+                                  key={i}
+                                  className="text-base bg-gray-500 bg-clip-text text-transparent"
+                                >
                                   {fire}
                                 </span>
                               ))}
