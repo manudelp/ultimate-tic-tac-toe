@@ -19,7 +19,7 @@ export default function PVP() {
           <h2 className="mb-6 text-xl font-semibold sm:text-2xl">
             Select mode
           </h2>
-          <div className="flex flex-col items-center gap-4 sm:flex-row">
+          <div className="flex items-center gap-4 flex-wrap">
             <Button text="Local" onClick={() => setIsOnline(false)} />
             <Button text="Online" onClick={() => setIsOnline(true)} />
           </div>

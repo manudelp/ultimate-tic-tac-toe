@@ -93,7 +93,7 @@ export default function Matchmaking() {
 
   if (matchFound) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
+      <div className="flex flex-col items-center justify-center px-2 py-4 min-h-svh sm:px-8 sm:py-16">
         <Board
           gameMode="online"
           starts={yourLetter}
@@ -113,11 +113,11 @@ export default function Matchmaking() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-svh space-y-6">
-      <h1 className="text-4xl font-bold text-center mb-2 text-white">
+    <div className="flex flex-col items-center justify-center min-h-svh px-4 py-6 space-y-4 sm:space-y-6">
+      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-1 sm:mb-2 text-white">
         Matchmaking
       </h1>
-      <div className="flex items-center justify-center mb-4">
+      <div className="flex flex-wrap items-center justify-center gap-2 mb-2 sm:mb-4">
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -151,7 +151,7 @@ export default function Matchmaking() {
           <Tooltip>
             <TooltipTrigger>
               <span
-                className={`ml-2 w-fit flex items-center space-x-1 bg-gray-700/30 rounded-lg px-2 py-1 text-xs ${
+                className={`w-fit flex items-center space-x-1 bg-gray-700/30 rounded-lg px-2 py-1 text-xs ${
                   connectedUsers <= 1 ? "ring-1 ring-red-500" : ""
                 }`}
               >
@@ -175,34 +175,34 @@ export default function Matchmaking() {
       </div>
 
       {isSearching ? (
-        <div className="mb-8 text-center">
+        <div className="mb-4 sm:mb-8 text-center">
           <div
-            className={`inline-block p-4 mb-4 rounded-full bg-blue-500/10 ${
+            className={`inline-block p-3 sm:p-4 mb-3 sm:mb-4 rounded-full bg-blue-500/10 ${
               animateIcon ? "scale-110" : "scale-100"
             } transition-all duration-500`}
           >
             <ArrowPathIcon
-              className={`h-12 w-12 text-blue-400 ${
+              className={`h-8 w-8 sm:h-12 sm:w-12 text-blue-400 ${
                 animateIcon ? "rotate-180" : "rotate-0"
               } transition-all duration-500`}
             />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
             Finding Opponent
           </h2>
-          <p className="mb-2">{formatTime(searchTime)}</p>
+          <p className="mb-1 sm:mb-2">{formatTime(searchTime)}</p>
         </div>
       ) : (
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-6">
+        <div className="mb-4 sm:mb-8 text-center">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <div className="flex flex-col items-center">
-              <div className="p-3 rounded-full bg-emerald-500/10 mb-2">
-                <MagnifyingGlassIcon className="h-12 w-12 text-emerald-400" />
+              <div className="p-2 sm:p-3 rounded-full bg-emerald-500/10 mb-2">
+                <MagnifyingGlassIcon className="h-8 w-8 sm:h-12 sm:w-12 text-emerald-400" />
               </div>
-              <span className="text-2xl font-bold text-white">
+              <span className="text-xl sm:text-2xl font-bold text-white">
                 Click below to start looking for a match
               </span>
-              <span className="text-sm text-gray-400">
+              <span className="text-xs sm:text-sm text-gray-400 mt-1">
                 You will be matched with a random opponent
               </span>
             </div>
@@ -210,7 +210,7 @@ export default function Matchmaking() {
         </div>
       )}
 
-      <div className="flex flex-col justify-center items-center space-y-4 w-full max-w-md">
+      <div className="flex flex-col justify-center items-center space-y-3 sm:space-y-4 w-full max-w-md px-4">
         <Button
           text={isSearching ? "Cancel Search" : "Find Match"}
           variant={isSearching ? "primary" : "secondary"}
@@ -219,7 +219,6 @@ export default function Matchmaking() {
 
         <Button
           text="Back to Home"
-          className="!w-fit !py-3 !text-sm"
           variant="danger"
           onClick={() => router.push("/")}
         />

@@ -163,7 +163,11 @@ export default function Bot() {
                                     .fill(0)
                                     .map((_, i) => (
                                       <span key={i} className="text-sm mx-0.5">
-                                        {i < botOption.difficulty ? "🔥" : "▫️"}
+                                        {i < botOption.difficulty ? (
+                                          "🔥"
+                                        ) : (
+                                          <span className="opacity-30">🔥</span>
+                                        )}
                                       </span>
                                     ))}
                                 </div>
@@ -229,9 +233,9 @@ export default function Bot() {
                                 </span>
                               ))}
                             {Array(5 - selectedBot.difficulty)
-                              .fill("▫️")
+                              .fill("🔥")
                               .map((fire, i) => (
-                                <span key={i} className="text-base">
+                                <span key={i} className="text-base opacity-30">
                                   {fire}
                                 </span>
                               ))}
