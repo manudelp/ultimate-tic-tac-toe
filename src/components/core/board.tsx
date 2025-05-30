@@ -98,7 +98,7 @@ const Board: React.FC<BoardProps> = ({
         className="flex flex-col items-center flex-1"
       >
         {/* Game Info Bar */}
-        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded top-10">
+        <div className="flex items-center justify-between w-full px-4 py-3 mb-6 bg-gray-800 rounded top-10">
           <div className="flex items-center gap-3">
             <motion.div
               key={turn}
@@ -146,7 +146,7 @@ const Board: React.FC<BoardProps> = ({
           animate={{ scale: 1 }}
           className="relative w-full max-w-[min(calc(100vw-2rem),600px)] aspect-square"
         >
-          <div className="relative flex flex-wrap w-full sm:p-2 aspect-square">
+          <div className="relative flex flex-wrap w-full aspect-square">
             {board.map((miniBoardRow: string[][][], localRowIndex: number) =>
               miniBoardRow.map((miniBoard: string[][], localColIndex) => (
                 <MiniBoard
@@ -179,32 +179,34 @@ const Board: React.FC<BoardProps> = ({
                 {winningLine.type === "row" && (
                   <div
                     className="absolute w-[95%] h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
-                    style={{ top: `${(winningLine.index + 0.5) * 33.33}%` }}
+                    style={{
+                      top: `${(100 / 3) * winningLine.index + 50 / 3 - 1}%`,
+                    }}
                   />
                 )}
                 {winningLine.type === "col" && (
                   <div
                     className="absolute h-[95%] w-3 bg-gradient-to-b from-red-500 to-orange-500 rounded-full"
-                    style={{ left: `${(winningLine.index + 0.5) * 33.33}%` }}
+                    style={{
+                      left: `${(100 / 3) * winningLine.index + 50 / 3 - 1}%`,
+                    }}
                   />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 0 && (
                   <div
-                    className="absolute w-[120%] h-3 bg-gradient-to-tr from-red-500 to-orange-500 rounded-full"
+                    className="absolute w-[130%] h-3 bg-gradient-to-tr from-red-500 to-orange-500 rounded-full"
                     style={{
                       transform: "rotate(45deg)",
-                      top: "50%",
-                      left: "-9%",
+                      top: "49.35%",
                     }}
                   />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 1 && (
                   <div
-                    className="absolute w-[120%] h-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-full "
+                    className="absolute w-[130%] h-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-full "
                     style={{
                       transform: "rotate(-45deg)",
-                      top: "50%",
-                      left: "-11%",
+                      top: "49.35%",
                     }}
                   />
                 )}
@@ -370,13 +372,17 @@ const Board: React.FC<BoardProps> = ({
                   <div className="mb-1 text-sm text-gray-400">
                     {bot?.name}&apos;s Response Time
                   </div>
-                      <div className="text-lg text-white">
-                      {timeToMove >= 3600 
-                        ? `${Math.floor(timeToMove / 3600)}h ${Math.floor((timeToMove % 3600) / 60)}m ${Math.round(timeToMove % 60)}s` 
-                        : timeToMove >= 60 
-                        ? `${Math.floor(timeToMove / 60)}m ${Math.round(timeToMove % 60)}s` 
-                        : `${timeToMove.toFixed(2)}s`}
-                      </div>
+                  <div className="text-lg text-white">
+                    {timeToMove >= 3600
+                      ? `${Math.floor(timeToMove / 3600)}h ${Math.floor(
+                          (timeToMove % 3600) / 60
+                        )}m ${Math.round(timeToMove % 60)}s`
+                      : timeToMove >= 60
+                      ? `${Math.floor(timeToMove / 60)}m ${Math.round(
+                          timeToMove % 60
+                        )}s`
+                      : `${timeToMove.toFixed(2)}s`}
+                  </div>
                 </div>
               )}
 
