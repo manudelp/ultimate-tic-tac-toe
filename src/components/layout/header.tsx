@@ -70,6 +70,15 @@ const Header: React.FC = () => {
       if (scrollTimer) clearTimeout(scrollTimer);
       if (hideTimer) clearTimeout(hideTimer);
 
+      // Don't hide header if mobile menu is open
+      if (showMobileMenu) {
+        if (!showHeader) {
+          setShowHeader(true);
+        }
+        lastScrollTop = currentScrollTop;
+        return;
+      }
+
       // Always show header when near top
       if (currentScrollTop <= 50) {
         if (!showHeader) {
@@ -81,8 +90,8 @@ const Header: React.FC = () => {
 
       const scrollDifference = Math.abs(currentScrollTop - lastScrollTop);
 
-      // Only react to significant scroll movements (more than 15px)
-      if (scrollDifference < 15) {
+      // Only react to significant 5px scroll changes
+      if (scrollDifference < 5) {
         return;
       }
 
@@ -109,7 +118,7 @@ const Header: React.FC = () => {
       if (scrollTimer) clearTimeout(scrollTimer);
       if (hideTimer) clearTimeout(hideTimer);
     };
-  }, [showHeader]);
+  }, [showHeader, showMobileMenu]);
 
   return (
     <header

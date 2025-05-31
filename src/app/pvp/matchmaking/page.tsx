@@ -61,8 +61,8 @@ export default function Matchmaking() {
       setConnectionStatus("Connected");
     });
 
-    socket.on("searching", () => {
-      setConnectionStatus("Searching...");
+    socket.on("disconnect", () => {
+      setConnectionStatus("Not connected");
     });
 
     socket.on("connectedUsers", (count) => {
@@ -86,6 +86,11 @@ export default function Matchmaking() {
 
   useEffect(() => {
     const socket = socketRef.current;
+
+    if (socketRef.current?.connected) {
+      setConnectionStatus(isSearching ? "Searching..." : "Connected");
+    }
+
     if (socket && isSearching) {
       socket.emit("matchmakingSearch");
     }
