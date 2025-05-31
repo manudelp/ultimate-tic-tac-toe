@@ -113,32 +113,35 @@ export default function Matchmaking() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-svh px-4 py-6 space-y-4 sm:space-y-6">
-      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-1 sm:mb-2 text-white">
-        Matchmaking
+    <div className="flex flex-col items-center justify-center min-h-svh px-4 py-8 max-w-md mx-auto w-full">
+      <h1 className="text-3xl sm:text-4xl font-bold text-center text-white mb-1">
+        Find Opponent
       </h1>
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-2 sm:mb-4">
+      <p className="text-sm text-gray-400 mb-6">
+        Quick match with a random player
+      </p>
+
+      <div className="flex items-center justify-center gap-3 mb-6">
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="!mt-0 cursor-help w-fit flex items-center space-x-1 bg-gray-700/30 rounded-lg px-2 py-1 text-xs">
+              <div className="cursor-help flex items-center gap-2 bg-gray-800/50 rounded-full px-3 py-1.5">
                 <span
-                  className={`inline-block w-2 h-2 rounded-full ${
+                  className={`h-2.5 w-2.5 rounded-full ${
                     connectionStatus === "Connected"
                       ? "bg-green-500"
                       : connectionStatus === "Searching..."
                       ? "bg-yellow-500 animate-pulse"
                       : "bg-red-500"
                   }`}
-                ></span>
-                <span className="text-gray-400">
+                />
+                <span className="text-gray-300 text-sm">
                   {!socketRef.current?.id ? "Not connected" : connectionStatus}
                 </span>
               </div>
             </TooltipTrigger>
             <TooltipContent
               side="bottom"
-              sideOffset={10}
               className="bg-gray-800 text-white text-xs px-2 py-1 z-50"
             >
               <span>ID: {socketRef.current?.id || "Not connected"}</span>
@@ -146,83 +149,78 @@ export default function Matchmaking() {
           </Tooltip>
         </TooltipProvider>
 
-        {/* Display current connected users */}
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
-              <span
-                className={`w-fit flex items-center space-x-1 bg-gray-700/30 rounded-lg px-2 py-1 text-xs ${
-                  connectedUsers <= 1 ? "ring-1 ring-red-500" : ""
+            <TooltipTrigger asChild>
+              <div
+                className={`flex items-center gap-2 bg-gray-800/50 rounded-full px-3 py-1.5 ${
+                  connectedUsers <= 1 ? "ring-1 ring-red-500/50" : ""
                 }`}
               >
                 <span
-                  className={`inline-block w-2 h-2 rounded-full ${
+                  className={`h-2.5 w-2.5 rounded-full ${
                     connectedUsers > 1 ? "bg-green-500" : "bg-red-500"
                   }`}
-                ></span>
-                <span className="text-gray-400">{connectedUsers}</span>
-              </span>
+                />
+                <span className="text-gray-300 text-sm">
+                  {connectedUsers} online
+                </span>
+              </div>
             </TooltipTrigger>
-            <TooltipContent>
-              <span className="text-xs">
-                {connectedUsers <= 1
-                  ? "There must be at least 2 users connected to find a match"
-                  : `${connectedUsers} users connected`}
-              </span>
+            <TooltipContent
+              side="bottom"
+              className="bg-gray-800 text-white text-xs"
+            >
+              {connectedUsers <= 1
+                ? "Need at least 2 players to match"
+                : `${connectedUsers} players available`}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
 
-      {isSearching ? (
-        <div className="mb-4 sm:mb-8 text-center">
-          <div
-            className={`inline-block p-3 sm:p-4 mb-3 sm:mb-4 rounded-full bg-blue-500/10 ${
-              animateIcon ? "scale-110" : "scale-100"
-            } transition-all duration-500`}
-          >
-            <ArrowPathIcon
-              className={`h-8 w-8 sm:h-12 sm:w-12 text-blue-400 ${
-                animateIcon ? "rotate-180" : "rotate-0"
-              } transition-all duration-500`}
-            />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
-            Finding Opponent
-          </h2>
-          <p className="mb-1 sm:mb-2">{formatTime(searchTime)}</p>
-        </div>
-      ) : (
-        <div className="mb-4 sm:mb-8 text-center">
-          <div className="flex justify-center mb-4 sm:mb-6">
-            <div className="flex flex-col items-center">
-              <div className="p-2 sm:p-3 rounded-full bg-emerald-500/10 mb-2">
-                <MagnifyingGlassIcon className="h-8 w-8 sm:h-12 sm:w-12 text-emerald-400" />
-              </div>
-              <span className="text-xl sm:text-2xl font-bold text-white">
-                Click below to start looking for a match
-              </span>
-              <span className="text-xs sm:text-sm text-gray-400 mt-1">
-                You will be matched with a random opponent
-              </span>
+      <div className="w-full bg-gray-800/30 rounded-xl p-8 mb-6 flex flex-col items-center">
+        {isSearching ? (
+          <>
+            <div
+              className={`p-4 mb-4 rounded-full bg-blue-500/20 ${
+                animateIcon ? "scale-105" : "scale-100"
+              } transition-all duration-300`}
+            >
+              <ArrowPathIcon
+                className={`h-10 w-10 text-blue-400 ${
+                  animateIcon ? "rotate-180" : "rotate-0"
+                } transition-all duration-300`}
+              />
             </div>
-          </div>
-        </div>
-      )}
+            <h2 className="text-2xl font-bold text-white mb-2">Searching...</h2>
+            <p className="text-lg text-gray-300 font-mono">
+              {formatTime(searchTime)}
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="p-4 mb-4 rounded-full bg-emerald-500/20">
+              <MagnifyingGlassIcon className="h-10 w-10 text-emerald-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Ready</h2>
+            <p className="text-gray-400">Click below to start matchmaking</p>
+          </>
+        )}
 
-      <div className="flex flex-col justify-center items-center space-y-3 sm:space-y-4 w-full max-w-md px-4">
         <Button
+          className="mt-4 w-full"
           text={isSearching ? "Cancel Search" : "Find Match"}
           variant={isSearching ? "primary" : "secondary"}
           onClick={toggleSearch}
         />
-
-        <Button
-          text="Back to Home"
-          variant="danger"
-          onClick={() => router.push("/")}
-        />
       </div>
+
+      <Button
+        text="Back to Home"
+        variant="danger"
+        onClick={() => router.push("/")}
+      />
 
       <Share />
     </div>
