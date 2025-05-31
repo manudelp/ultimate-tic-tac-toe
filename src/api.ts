@@ -224,25 +224,3 @@ export const verifyToken = async (): Promise<VerifyTokenResponse> => {
     throw new Error("Token verification failed");
   }
 };
-
-// Example protected route call
-export const fetchProtectedData = async (
-  endpoint: string
-): Promise<unknown> => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-
-    const response = await axios.get(`${API_URL}/${endpoint}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Request failed");
-    }
-    throw new Error("Request failed");
-  }
-};

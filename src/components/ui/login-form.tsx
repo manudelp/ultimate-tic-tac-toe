@@ -76,7 +76,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 text-white bg-gray-800 rounded-lg">
+    <div className="w-96 rounded-lg flex flex-col items-center justify-center p-4 bg-gray-800">
       <div className="w-full max-w-md p-4 space-y-6">
         <h2 className="text-2xl font-bold text-center">
           {isLogin ? "Welcome Back!" : "Create Your Account"}
@@ -153,7 +153,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
         {/* Google Sign-In */}
         <Button
-          className="flex items-center justify-center w-full gap-2 p-2 text-black transition bg-white rounded-md shadow-md hover:bg-gray-700 hover:text-white"
+          className="flex items-center justify-center w-full gap-2 p-2 text-black transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
           onClick={() => toast.info("Google Sign-In is coming soon!")}
           disabled={isLoading}
         >

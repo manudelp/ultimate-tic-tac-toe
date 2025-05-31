@@ -171,9 +171,7 @@ const Header: React.FC = () => {
                 </div>
               ) : (
                 <Button
-                  onClick={() =>
-                    toast.info("We are working on the login feature!")
-                  }
+                  onClick={() => setShowLoginModal(true)}
                   className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700"
                 >
                   Login
@@ -329,11 +327,15 @@ const Header: React.FC = () => {
       </AnimatePresence>
 
       {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="relative max-w-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/50 cursor-pointer"
+            onClick={() => setShowLoginModal(false)}
+          ></div>
+          <div className="relative">
             <button
               onClick={() => setShowLoginModal(false)}
-              className="absolute flex items-center justify-center w-8 h-8 text-white bg-gray-700 rounded-full top-2 right-2 hover:bg-gray-600"
+              className="absolute flex items-center justify-center w-8 h-8 text-white bg-gray-700 rounded-full top-2 right-2 transition hover:bg-red-600 active:scale-90"
             >
               ✕
             </button>
