@@ -135,9 +135,9 @@ export default function Matchmaking() {
                   className={`h-2.5 w-2.5 rounded-full ${
                     connectionStatus === "Connected"
                       ? "bg-green-500"
-                      : connectionStatus === "Searching..."
-                      ? "bg-yellow-500 animate-pulse"
-                      : "bg-red-500"
+                      : connectionStatus === "Not connected"
+                      ? "bg-red-500"
+                      : "bg-green-500 animate-pulse"
                   }`}
                 />
                 <span className="text-gray-300 text-sm">
