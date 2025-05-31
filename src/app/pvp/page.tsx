@@ -34,8 +34,10 @@ export default function PVP() {
         <>
           <h1 className="mb-8 text-3xl font-bold sm:text-4xl">Online Mode</h1>
 
-          <div className="flex flex-col sm:flex-row justify-center items-center mx-auto gap-12 w-full max-w-3xl">
+          <div className="flex flex-col sm:flex-row justify-center items-start mx-auto gap-12 w-full max-w-3xl">
             <div className="flex flex-col items-center gap-4">
+              <p className="text-lg font-medium">Create or join a lobby</p>
+
               <Link href="/pvp/lobby">
                 <Button text="Create Lobby" />
               </Link>
