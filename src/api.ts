@@ -21,13 +21,6 @@ interface LoginResponse {
   name: string;
 }
 
-// Enhanced User interfaces
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
 interface RegisterResponse {
   message: string;
 }
@@ -121,62 +114,22 @@ export const agentsReset = async (id: number): Promise<void> => {
   }
 };
 
-// Register user
-export const registerUser = async (
-  name: string,
-  email: string,
-  password: string
-): Promise<RegisterResponse> => {
-  try {
-    const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
-      name,
-      email,
-      password,
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Registration failed");
-    }
-    throw new Error("Registration failed");
-  }
-};
-
-// Get current user from localStorage
-export const getCurrentUser = (): User | null => {
-  const userData = localStorage.getItem("userData");
-  if (!userData) return null;
-
-  try {
-    return JSON.parse(userData) as User;
-  } catch (error) {
-    console.error("Error parsing user data:", error);
-    return null;
-  }
-};
-
 // Login user
 export const loginUser = async (
   email: string,
-  password: string
+  password: string,
+  recaptchaToken: string
 ): Promise<LoginResponse> => {
   try {
     const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
       email,
       password,
+      recaptcha: recaptchaToken,
     });
     const { access_token, name } = response.data;
 
-    // Save token in localStorage
     localStorage.setItem("token", access_token);
-
-    // Store user data
-    const userData = {
-      name,
-      email,
-      // The id will be populated when verifying the token
-    };
-    localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("userData", JSON.stringify({ name, email }));
 
     return { access_token, name };
   } catch (error) {
@@ -184,6 +137,29 @@ export const loginUser = async (
       throw new Error(error.response.data.message || "Login failed");
     }
     throw new Error("Login failed");
+  }
+};
+
+// Register user
+export const registerUser = async (
+  name: string,
+  email: string,
+  password: string,
+  recaptchaToken: string
+): Promise<RegisterResponse> => {
+  try {
+    const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
+      name,
+      email,
+      password,
+      recaptcha: recaptchaToken,
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Registration failed");
+    }
+    throw new Error("Registration failed");
   }
 };
 

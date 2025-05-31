@@ -1,4 +1,5 @@
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,19 +8,35 @@ import { toast } from "sonner";
 import { loginUser, registerUser, verifyToken } from "@/api";
 import { reconnectSocket } from "@/socket";
 
+const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+// Add type declaration for grecaptcha
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      execute: (
+        siteKey: string,
+        options: { action: string }
+      ) => Promise<string>;
+    };
+  }
+}
+
 interface LoginFormProps {
   onLoginSuccess?: () => void;
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+  const [recaptchaToken, setRecaptchaToken] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -28,6 +45,18 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
   };
 
+  useEffect(() => {
+    const loadRecaptcha = () => {
+      if (!window.grecaptcha || !SITE_KEY) return;
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute(SITE_KEY, { action: "login" })
+          .then(setRecaptchaToken);
+      });
+    };
+    loadRecaptcha();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -35,7 +64,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     try {
       if (isLogin) {
         // Login
-        const { name } = await loginUser(formData.email, formData.password);
+        const { name } = await loginUser(
+          formData.email,
+          formData.password,
+          recaptchaToken
+        );
 
         // Verify the token to get complete user data
         await verifyToken();
@@ -59,7 +92,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         const response = await registerUser(
           formData.username,
           formData.email,
-          formData.password
+          formData.password,
+          recaptchaToken
         );
         toast.success(response.message);
         setIsLogin(true);

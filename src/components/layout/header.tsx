@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { LoginForm } from "../ui/login-form";
-import { getCurrentUser, logoutUser, verifyToken } from "@/api";
+import { logoutUser, verifyToken } from "@/api";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -51,10 +51,6 @@ const Header: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    const userData = getCurrentUser();
-    if (userData) {
-      setUser({ name: userData.name });
-    }
   };
 
   useEffect(() => {
@@ -161,21 +157,10 @@ const Header: React.FC = () => {
                 <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
               ) : user ? (
                 <div className="flex items-center gap-4">
-                  <span className="text-white">Welcome, {user.name}!</span>
-                  <Button
-                    onClick={handleLogout}
-                    className="px-4 py-2 text-white transition-colors bg-red-600 rounded-md hover:bg-red-700"
-                  >
-                    Logout
-                  </Button>
+                  <Button onClick={handleLogout}>Logout</Button>
                 </div>
               ) : (
-                <Button
-                  onClick={() => setShowLoginModal(true)}
-                  className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700"
-                >
-                  Login
-                </Button>
+                <Button onClick={() => setShowLoginModal(true)}>Login</Button>
               )}
             </li>
           </ul>
