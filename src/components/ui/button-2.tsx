@@ -24,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-full sm:w-64 px-6 py-4 transition-colors rounded 
+      className={` 
       ${className || ""} ${
         variant === "primary"
           ? "bg-gray-800 hover:bg-gray-700 text-white"
@@ -37,7 +37,7 @@ const Button: React.FC<ButtonProps> = ({
           : variant === "warning"
           ? "bg-yellow-600 hover:bg-yellow-500 text-black"
           : "bg-gray-800 hover:bg-gray-700 text-white"
-      }`}
+      } w-full sm:w-64 px-6 py-4 transition-colors rounded`}
     >
       {content || text}
     </button>
