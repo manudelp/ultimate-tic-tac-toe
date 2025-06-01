@@ -154,12 +154,14 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                       lastMove[1] === localColIndex &&
                       lastMove[2] === rowIndex &&
                       lastMove[3] === cellIndex
-                    ? "bg-indigo-400/20"
+                      ? cell === "X" 
+                        ? "bg-indigo-400/20" 
+                        : "bg-red-400/20"
                     : isWinningCell
-                    ? "bg-yellow-500/20"
-                    : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
-                    ? "pointer-events-none"
-                    : ""
+                      ? "bg-yellow-500/20"
+                      : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
+                        ? "pointer-events-none"
+                        : ""
                 }`}
                 style={{
                   borderTop: rowIndex === 1 ? `2px solid white` : "none",
