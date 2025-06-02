@@ -66,8 +66,8 @@ const Header: React.FC = () => {
       if (scrollTimer) clearTimeout(scrollTimer);
       if (hideTimer) clearTimeout(hideTimer);
 
-      // Don't hide header if mobile menu is open
-      if (showMobileMenu) {
+      // Don't hide header if mobile menu or login modal is open
+      if (showMobileMenu || showLoginModal) {
         if (!showHeader) {
           setShowHeader(true);
         }
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
       if (scrollTimer) clearTimeout(scrollTimer);
       if (hideTimer) clearTimeout(hideTimer);
     };
-  }, [showHeader, showMobileMenu]);
+  }, [showHeader, showLoginModal, showMobileMenu]);
 
   return (
     <header

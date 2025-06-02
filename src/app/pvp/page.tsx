@@ -31,14 +31,14 @@ export default function PVP() {
       )}
 
       {isOnline === true && (
-        <>
+        <div className="flex flex-col items-center">
           <h1 className="mb-8 text-3xl font-bold sm:text-4xl">Online Mode</h1>
 
           <div className="flex flex-col sm:flex-row justify-center items-start mx-auto gap-12 w-full max-w-3xl">
             <div className="flex flex-col items-center gap-4">
               <p className="text-lg font-medium">Create or join a lobby</p>
 
-              <Link href="/pvp/lobby">
+              <Link href="/pvp/lobby" className="w-full">
                 <Button text="Create Lobby" />
               </Link>
 
@@ -71,14 +71,14 @@ export default function PVP() {
 
             <span className="hidden sm:block w-px h-48 bg-gray-300/20"></span>
 
-            <div className="flex flex-col items-center gap-4">
+            <div className="w-full flex flex-col justify-center items-center gap-4">
               <p className="text-lg font-medium">Quick Match</p>
-              <Link href="/pvp/matchmaking">
+              <Link href="/pvp/matchmaking" className="w-full">
                 <Button text="Find Opponent" />
               </Link>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {isOnline !== false && (
