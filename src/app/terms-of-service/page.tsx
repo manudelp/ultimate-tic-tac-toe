@@ -86,11 +86,8 @@ const TermsOfService: React.FC = () => {
         9. Contact Us
       </h2>
       <p className="text-gray-200">
-        If you have any questions about this Privacy Policy, please contact at{" "}
-        <a className="font-medium" href="mailto:support@ultimatetictactoe.com">
-          support@ultimatetictactoe.com
-        </a>
-        .
+        If you have any questions about this Terms of Service, please contact us
+        via LinkedIn.
       </p>
     </div>
   );
