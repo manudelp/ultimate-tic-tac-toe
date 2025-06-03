@@ -48,7 +48,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   // Define the onRecaptchaLoad function
   useEffect(() => {
     window.onRecaptchaLoad = () => {
-      console.info("reCAPTCHA has loaded");
       if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
         setTimeout(() => initializeRecaptcha(), 100);
       }
@@ -214,7 +213,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         src={`https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`}
         strategy="afterInteractive"
         onLoad={() => {
-          console.info("reCAPTCHA script loaded");
           // Wait for grecaptcha to be properly initialized
           window.setTimeout(() => {
             initializeRecaptcha();
