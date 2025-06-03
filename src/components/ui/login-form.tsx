@@ -171,7 +171,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   };
   const initializeRecaptcha = () => {
     if (!SITE_KEY || !recaptchaRef.current || !window.grecaptcha) {
-      console.error("Cannot initialize reCAPTCHA: missing dependencies");
       return;
     }
 
@@ -179,7 +178,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       // Skip initialization if already rendered
       if (recaptchaWidgetId.current !== null) {
         window.grecaptcha.reset(recaptchaWidgetId.current);
-        console.info("reCAPTCHA reset successfully");
         return;
       }
 
@@ -197,9 +195,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           },
         }
       );
-      console.info("reCAPTCHA initialized successfully");
     } catch (error) {
-      console.error("Error initializing reCAPTCHA:", error);
       // Don't show the error toast if it's just the "already rendered" error
       if (
         !(
