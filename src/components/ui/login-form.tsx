@@ -70,12 +70,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     // Reset any existing token
     setRecaptchaToken("");
 
-    if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
+    // Only initialize if not already rendered
+    if (
+      !recaptchaWidgetId.current &&
+      recaptchaRef.current &&
+      window.grecaptcha &&
+      SITE_KEY
+    ) {
       try {
-        // Reset any existing widget
-        if (recaptchaWidgetId.current !== null) {
-          window.grecaptcha.reset(recaptchaWidgetId.current);
-        }
         recaptchaWidgetId.current = window.grecaptcha.render(
           recaptchaRef.current,
           {
@@ -92,10 +94,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       } catch (error) {
         console.error("Error rendering reCAPTCHA:", error);
       }
+    } else if (recaptchaWidgetId.current !== null && window.grecaptcha) {
+      // Just reset the existing widget
+      window.grecaptcha.reset(recaptchaWidgetId.current);
     }
+
     return () => {
       // Reset the reCAPTCHA widget when component unmounts
-      if (recaptchaWidgetId.current !== null) {
+      if (recaptchaWidgetId.current !== null && window.grecaptcha) {
         window.grecaptcha.reset(recaptchaWidgetId.current);
       }
     };
@@ -163,7 +169,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       }
     }
   };
-
   const initializeRecaptcha = () => {
     if (!SITE_KEY || !recaptchaRef.current || !window.grecaptcha) {
       console.error("Cannot initialize reCAPTCHA: missing dependencies");
@@ -171,12 +176,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
 
     try {
-      // Reset any existing widget
+      // Skip initialization if already rendered
       if (recaptchaWidgetId.current !== null) {
         window.grecaptcha.reset(recaptchaWidgetId.current);
+        console.info("reCAPTCHA reset successfully");
+        return;
       }
 
-      // Render the reCAPTCHA widget
+      // Render the reCAPTCHA widget only if not already rendered
       recaptchaWidgetId.current = window.grecaptcha.render(
         recaptchaRef.current,
         {
@@ -193,7 +200,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       console.info("reCAPTCHA initialized successfully");
     } catch (error) {
       console.error("Error initializing reCAPTCHA:", error);
-      toast.error("Failed to initialize reCAPTCHA. Please try again later.");
+      // Don't show the error toast if it's just the "already rendered" error
+      if (
+        !(
+          error instanceof Error &&
+          error.message.includes("already been rendered")
+        )
+      ) {
+        toast.error("Failed to initialize reCAPTCHA. Please try again later.");
+      }
     }
   };
 
