@@ -152,16 +152,16 @@ const HowToPlay: React.FC = () => {
         <h2 className="text-2xl font-semibold mb-4">Game Modes</h2>
         <ul className="list-disc pl-6 text-base leading-relaxed">
           <li>
-            <strong>Player vs. Player:</strong> Play against another human
-            player.
+            <Link href="/pvp">
+              <strong className="hover:text-blue-500">Fight someone:</strong>
+            </Link>{" "}
+            Play against another human player.
           </li>
           <li>
-            <strong>Player vs. Bot:</strong> Challenge an AI opponent with
-            varying difficulty levels.
-          </li>
-          <li>
-            <strong>Bot vs. Bot:</strong> Watch AI players compete against each
-            other for fun or for analysis.
+            <Link href="/bot">
+              <strong className="hover:text-blue-500">Fight us:</strong>{" "}
+            </Link>
+            Challenge an AI opponent with varying difficulty levels.
           </li>
         </ul>
       </section>
