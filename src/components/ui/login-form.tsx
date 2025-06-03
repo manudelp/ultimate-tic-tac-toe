@@ -48,7 +48,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   // Define the onRecaptchaLoad function
   useEffect(() => {
     window.onRecaptchaLoad = () => {
-      console.log("reCAPTCHA has loaded");
+      console.info("reCAPTCHA has loaded");
     };
     return () => {
       window.onRecaptchaLoad = () => {}; // Empty function instead of undefined
