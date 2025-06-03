@@ -6,44 +6,54 @@ import { logoutUser, verifyToken } from "@/api";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [hostname, setHostname] = useState("utictactoe.online");
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; image: string } | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check for existing token and verify it
+  const checkAuth = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const isValid = await verifyToken();
+        if (isValid) {
+          const userData = localStorage.getItem("userData");
+          if (userData) {
+            const parsedUserData = JSON.parse(userData);
+            setUser({ name: parsedUserData.name, image: parsedUserData.image });
+          }
+        } else {
+          // Invalid token, clear it
+          localStorage.removeItem("token");
+          localStorage.removeItem("userData");
+        }
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     setHostname(window.location.hostname.replace(/^www\./, ""));
-
-    // Check for existing token and verify it
-    const checkAuth = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const isValid = await verifyToken();
-          if (isValid) {
-            const userData = localStorage.getItem("userData");
-            if (userData) {
-              const parsedUserData = JSON.parse(userData);
-              setUser({ name: parsedUserData.name });
-            }
-          } else {
-            // Invalid token, clear it
-            localStorage.removeItem("token");
-            localStorage.removeItem("userData");
-          }
-        }
-      } catch (error) {
-        console.error("Authentication error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     checkAuth();
   }, []);
 
@@ -55,6 +65,7 @@ const Header: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
+    checkAuth();
   };
 
   useEffect(() => {
@@ -160,8 +171,31 @@ const Header: React.FC = () => {
               {isLoading ? (
                 <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
               ) : user ? (
-                <div className="flex items-center gap-4">
-                  <Button onClick={handleLogout}>Logout</Button>
+                <div className="flex items-center gap-2">
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <Avatar className="cursor-pointer hover:ring-2 hover:ring-gray-500 transition">
+                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>
+                        <div className="max-w-[200px] truncate">
+                          {user.name}
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="text-red-500"
+                      >
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ) : (
                 <Button onClick={() => setShowLoginModal(true)}>Login</Button>
@@ -290,10 +324,26 @@ const Header: React.FC = () => {
                 {isLoading ? (
                   <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
                 ) : user ? (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-white">Welcome, {user.name}!</span>
+                  <div className="flex justify-between gap-2">
+                    <div className="w-2/3 flex items-center gap-2">
+                      <Avatar>
+                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span
+                        className="text-white w-full truncate"
+                        title={user.name}
+                      >
+                        {user.name}
+                      </span>
+                    </div>
                     <Button
-                      onClick={handleLogout}
+                      onClick={() => {
+                        handleLogout();
+                        setShowMobileMenu(false);
+                      }}
                       className="px-4 py-2 text-white transition-colors bg-red-600 rounded-md hover:bg-red-700"
                     >
                       Logout
@@ -301,9 +351,10 @@ const Header: React.FC = () => {
                   </div>
                 ) : (
                   <Button
-                    onClick={() =>
-                      toast.info("We are working on the login feature!")
-                    }
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      setShowLoginModal(true);
+                    }}
                     className="w-full px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700"
                   >
                     Login

@@ -17,7 +17,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
-      config.headers["Authorization"] = `${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -182,9 +182,15 @@ export const loginUser = async (
       recaptcha,
     });
 
-    // Store the token
+    // Store the token and user data
     if (response.data.access_token) {
       localStorage.setItem("token", response.data.access_token);
+
+      // Store user data in localStorage
+      const userData = {
+        name: response.data.name,
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
     }
 
     return response.data;
@@ -221,15 +227,7 @@ export const verifyToken = async (): Promise<boolean> => {
       return false;
     }
 
-    const response = await api.post(
-      "/verify-token",
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.post("/verify-token");
     return response.status === 200;
   } catch (error) {
     console.error("Token verification failed:", error);
