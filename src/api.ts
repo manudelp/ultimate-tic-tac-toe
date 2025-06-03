@@ -132,7 +132,8 @@ export const registerUser = async (
 ) => {
   try {
     // Validate recaptcha token
-    if (!recaptcha || recaptcha.length < 10) {
+    const RECAPTCHA_MIN_LENGTH = 10; // Minimum length for a valid reCAPTCHA token
+    if (!recaptcha || recaptcha.length < RECAPTCHA_MIN_LENGTH) {
       throw new Error("Invalid reCAPTCHA token");
     }
 
