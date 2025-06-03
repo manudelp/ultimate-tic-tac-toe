@@ -57,41 +57,39 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     // Reset any existing token
     setRecaptchaToken("");
 
-    window.onRecaptchaLoad = () => {
-      if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
-        try {
-          // Reset any existing widget
-          if (recaptchaWidgetId.current !== null) {
-            window.grecaptcha.reset(recaptchaWidgetId.current);
-          }
-
-          recaptchaWidgetId.current = window.grecaptcha.render(
-            recaptchaRef.current,
-            {
-              sitekey: SITE_KEY,
-              theme: "dark",
-              callback: (token: string) => {
-                console.log(
-                  "reCAPTCHA token received, length:",
-                  token?.length || 0
-                );
-                setRecaptchaToken(token);
-              },
-              "expired-callback": () => {
-                console.log("reCAPTCHA token expired");
-                setRecaptchaToken("");
-              },
-            }
-          );
-        } catch (error) {
-          console.error("Error rendering reCAPTCHA:", error);
+    if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
+      try {
+        // Reset any existing widget
+        if (recaptchaWidgetId.current !== null) {
+          window.grecaptcha.reset(recaptchaWidgetId.current);
         }
+        recaptchaWidgetId.current = window.grecaptcha.render(
+          recaptchaRef.current,
+          {
+            sitekey: SITE_KEY,
+            theme: "dark",
+            callback: (token: string) => {
+              console.log(
+                "reCAPTCHA token received, length:",
+                token?.length || 0
+              );
+              setRecaptchaToken(token);
+            },
+            "expired-callback": () => {
+              console.log("reCAPTCHA token expired");
+              setRecaptchaToken("");
+            },
+          }
+        );
+      } catch (error) {
+        console.error("Error rendering reCAPTCHA:", error);
       }
-    };
-
+    }
     return () => {
-      // Clean up the global callback when component unmounts
-      window.onRecaptchaLoad = () => {};
+      // Reset the reCAPTCHA widget when component unmounts
+      if (recaptchaWidgetId.current !== null) {
+        window.grecaptcha.reset(recaptchaWidgetId.current);
+      }
     };
   }, [isLogin]); // Re-initialize when switching between login/register
 
