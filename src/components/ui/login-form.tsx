@@ -24,7 +24,7 @@ declare global {
       reset: (widgetId?: number) => void;
       getResponse: (widgetId?: number) => string;
     };
-    onRecaptchaLoad: () => void;
+    onRecaptchaLoad: (() => void) | undefined;
   }
 }
 
@@ -44,6 +44,16 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   });
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const recaptchaWidgetId = useRef<number | null>(null);
+
+  // Define the onRecaptchaLoad function
+  useEffect(() => {
+    window.onRecaptchaLoad = () => {
+      console.log("reCAPTCHA has loaded");
+    };
+    return () => {
+      window.onRecaptchaLoad = () => {}; // Empty function instead of undefined
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
