@@ -49,6 +49,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   useEffect(() => {
     window.onRecaptchaLoad = () => {
       console.info("reCAPTCHA has loaded");
+      if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
+        setTimeout(() => initializeRecaptcha(), 100);
+      }
     };
     return () => {
       window.onRecaptchaLoad = () => {}; // Empty function instead of undefined
@@ -190,17 +193,21 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       console.info("reCAPTCHA initialized successfully");
     } catch (error) {
       console.error("Error initializing reCAPTCHA:", error);
+      toast.error("Failed to initialize reCAPTCHA. Please try again later.");
     }
   };
 
   return (
     <>
       <Script
-        src={`https://www.google.com/recaptcha/api.js??onload=onRecaptchaLoad&render=explicit`}
-        strategy="lazyOnload"
+        src={`https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`}
+        strategy="afterInteractive"
         onLoad={() => {
           console.info("reCAPTCHA script loaded");
-          initializeRecaptcha();
+          // Wait for grecaptcha to be properly initialized
+          window.setTimeout(() => {
+            initializeRecaptcha();
+          }, 100);
         }}
       />
 
