@@ -7,7 +7,7 @@ const TermsOfService: React.FC = () => {
         Terms of Service
       </h1>
       <p className="text-gray-300 mb-4 text-sm italic">
-        Last updated: November 2024
+        Last updated: June 2025
       </p>
 
       <h2 className="text-2xl font-semibold text-gray-100 mt-8 mb-3">
