@@ -42,7 +42,11 @@ interface BotMoveResponse {
 // Connection
 export const checkConnection = async (): Promise<boolean> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/health`);
+    const response = await api.get("/health", {
+      headers: {
+        Authorization: undefined, // Exclude Authorization header if not required
+      },
+    });
     return response.status === 200;
   } catch (error) {
     console.error("Failed to connect to backend:", error);
