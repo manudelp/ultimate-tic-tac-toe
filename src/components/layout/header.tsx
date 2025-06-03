@@ -24,9 +24,13 @@ const Header: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          const result = await verifyToken();
-          if (result.valid && result.data) {
-            setUser({ name: result.data.name });
+          const isValid = await verifyToken();
+          if (isValid) {
+            const userData = localStorage.getItem("userData");
+            if (userData) {
+              const parsedUserData = JSON.parse(userData);
+              setUser({ name: parsedUserData.name });
+            }
           } else {
             // Invalid token, clear it
             localStorage.removeItem("token");

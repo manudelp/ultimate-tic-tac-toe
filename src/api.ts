@@ -221,7 +221,15 @@ export const verifyToken = async (): Promise<boolean> => {
       return false;
     }
 
-    const response = await api.get("/verify-token");
+    const response = await api.post(
+      "/verify-token",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.status === 200;
   } catch (error) {
     console.error("Token verification failed:", error);
