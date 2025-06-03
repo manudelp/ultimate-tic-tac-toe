@@ -161,12 +161,49 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   };
 
+  const initializeRecaptcha = () => {
+    if (!SITE_KEY || !recaptchaRef.current || !window.grecaptcha) {
+      console.error("Cannot initialize reCAPTCHA: missing dependencies");
+      return;
+    }
+
+    try {
+      // Reset any existing widget
+      if (recaptchaWidgetId.current !== null) {
+        window.grecaptcha.reset(recaptchaWidgetId.current);
+      }
+
+      // Render the reCAPTCHA widget
+      recaptchaWidgetId.current = window.grecaptcha.render(
+        recaptchaRef.current,
+        {
+          sitekey: SITE_KEY,
+          theme: "dark",
+          callback: (token: string) => {
+            setRecaptchaToken(token);
+          },
+          "expired-callback": () => {
+            setRecaptchaToken("");
+          },
+        }
+      );
+      console.info("reCAPTCHA initialized successfully");
+    } catch (error) {
+      console.error("Error initializing reCAPTCHA:", error);
+    }
+  };
+
   return (
     <>
       <Script
-        src={`https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`}
+        src={`https://www.google.com/recaptcha/api.js??onload=onRecaptchaLoad&render=explicit`}
         strategy="lazyOnload"
+        onLoad={() => {
+          console.info("reCAPTCHA script loaded");
+          initializeRecaptcha();
+        }}
       />
+
       <div className="w-96 rounded-lg flex flex-col items-center justify-center p-4 bg-gray-800">
         <div className="w-full max-w-md p-4 space-y-6">
           <h2 className="text-2xl font-bold text-center">
