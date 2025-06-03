@@ -1,7 +1,30 @@
 // src/api.ts
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+// Base API URL - make sure it's correct
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
+// Configure axios defaults
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Add a request interceptor to include the token in requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers["Authorization"] = `${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Types
 interface BotListResponse {
@@ -16,29 +39,10 @@ interface BotMoveResponse {
   move: [number, number, number, number];
 }
 
-interface LoginResponse {
-  access_token: string;
-  name: string;
-}
-
-interface RegisterResponse {
-  message: string;
-}
-
-interface VerifyTokenResponse {
-  valid: boolean;
-  data?: {
-    id: number;
-    name: string;
-    email: string;
-    exp: number;
-  };
-}
-
 // Connection
 export const checkConnection = async (): Promise<boolean> => {
   try {
-    const response = await axios.get(`${API_URL}/health`);
+    const response = await axios.get(`${API_BASE_URL}/health`);
     return response.status === 200;
   } catch (error) {
     console.error("Failed to connect to backend:", error);
@@ -50,7 +54,7 @@ export const checkConnection = async (): Promise<boolean> => {
 export const getBots = async (): Promise<BotListResponse[]> => {
   try {
     const response = await axios.get<BotListResponse[]>(
-      `${API_URL}/get-bot-list`
+      `${API_BASE_URL}/get-bot-list`
     );
     return response.data;
   } catch (error) {
@@ -66,7 +70,7 @@ export const getBots = async (): Promise<BotListResponse[]> => {
 
 export const loadBot = async (id: number): Promise<void> => {
   try {
-    await axios.post(`${API_URL}/agent-load`, { id });
+    await axios.post(`${API_BASE_URL}/agent-load`, { id });
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to load bot");
@@ -84,7 +88,7 @@ export const getBotMove = async (
 ): Promise<[number, number, number, number]> => {
   try {
     const response = await axios.post<BotMoveResponse>(
-      `${API_URL}/get-bot-move`,
+      `${API_BASE_URL}/get-bot-move`,
       {
         bot,
         board,
@@ -104,7 +108,7 @@ export const getBotMove = async (
 
 export const agentsReset = async (id: number): Promise<void> => {
   try {
-    await axios.post(`${API_URL}/agents-reset`, { id });
+    await axios.post(`${API_BASE_URL}/agents-reset`, { id });
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to reset agents");
@@ -114,89 +118,115 @@ export const agentsReset = async (id: number): Promise<void> => {
   }
 };
 
-// Login user
+// AUTH FUNCTIONS
+
+export const registerUser = async (
+  username: string,
+  email: string,
+  password: string,
+  recaptcha: string
+) => {
+  try {
+    console.log("Registering user:", {
+      username,
+      email,
+      recaptchaLength: recaptcha?.length || 0,
+    });
+
+    // Validate recaptcha token
+    if (!recaptcha || recaptcha.length < 10) {
+      throw new Error("Invalid reCAPTCHA token");
+    }
+
+    const response = await api.post("/register", {
+      name: username,
+      email,
+      password,
+      recaptcha,
+    });
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Registration error:",
+        error.response?.data || error.message
+      );
+      throw new Error(error.response?.data?.message || "Registration failed");
+    }
+    console.error("Registration error:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Registration failed"
+    );
+  }
+};
+
 export const loginUser = async (
   email: string,
   password: string,
-  recaptchaToken: string
-): Promise<LoginResponse> => {
+  recaptcha: string
+) => {
   try {
-    const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
+    console.log("Logging in user:", {
+      email,
+      recaptchaLength: recaptcha?.length || 0,
+    });
+
+    // Validate recaptcha token
+    if (!recaptcha || recaptcha.length < 10) {
+      throw new Error("Invalid reCAPTCHA token");
+    }
+
+    const response = await api.post("/login", {
       email,
       password,
-      recaptcha: recaptchaToken,
+      recaptcha,
     });
-    const { access_token, name } = response.data;
 
-    localStorage.setItem("token", access_token);
-    localStorage.setItem("userData", JSON.stringify({ name, email }));
-
-    return { access_token, name };
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Login failed");
+    // Store the token
+    if (response.data.access_token) {
+      localStorage.setItem("token", response.data.access_token);
     }
+
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error("Login error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || "Login failed");
+    }
+    console.error("Login error:", error);
     throw new Error("Login failed");
   }
 };
 
-// Register user
-export const registerUser = async (
-  name: string,
-  email: string,
-  password: string,
-  recaptchaToken: string
-): Promise<RegisterResponse> => {
+export const logoutUser = () => {
   try {
-    const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
-      name,
-      email,
-      password,
-      recaptcha: recaptchaToken,
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Registration failed");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    return { success: true };
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error("Logout error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || "Logout failed");
     }
-    throw new Error("Registration failed");
+    console.error("Logout error:", error);
+    throw new Error("Logout failed");
   }
 };
 
-// Logout user
-export const logoutUser = (): void => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userData");
-};
-
-// Verify token
-export const verifyToken = async (): Promise<VerifyTokenResponse> => {
+// Verify token validity
+export const verifyToken = async (): Promise<boolean> => {
   try {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-
-    const response = await axios.post<VerifyTokenResponse>(
-      `${API_URL}/verify-token`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    // Update user data if verification is successful
-    if (response.data.valid && response.data.data) {
-      localStorage.setItem("userData", JSON.stringify(response.data.data));
+    if (!token) {
+      return false;
     }
 
-    return response.data;
+    const response = await api.get("/verify-token");
+    return response.status === 200;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(
-        error.response.data.message || "Token verification failed"
-      );
-    }
-    throw new Error("Token verification failed");
+    console.error("Token verification failed:", error);
+    return false;
   }
 };
+
+export default api;
