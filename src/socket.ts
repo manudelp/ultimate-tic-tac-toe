@@ -28,11 +28,6 @@ export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
 
     socket = io(API_URL + "/online", options);
 
-    // Setup event handlers
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket?.id);
-    });
-
     socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
     });

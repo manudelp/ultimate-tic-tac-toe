@@ -69,14 +69,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             sitekey: SITE_KEY,
             theme: "dark",
             callback: (token: string) => {
-              console.log(
-                "reCAPTCHA token received, length:",
-                token?.length || 0
-              );
               setRecaptchaToken(token);
             },
             "expired-callback": () => {
-              console.log("reCAPTCHA token expired");
               setRecaptchaToken("");
             },
           }
@@ -101,7 +96,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       return;
     }
 
-    console.log("Using reCAPTCHA token with length:", recaptchaToken.length);
     setIsLoading(true);
 
     try {

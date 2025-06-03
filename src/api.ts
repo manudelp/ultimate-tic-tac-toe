@@ -127,12 +127,6 @@ export const registerUser = async (
   recaptcha: string
 ) => {
   try {
-    console.log("Registering user:", {
-      username,
-      email,
-      recaptchaLength: recaptcha?.length || 0,
-    });
-
     // Validate recaptcha token
     if (!recaptcha || recaptcha.length < 10) {
       throw new Error("Invalid reCAPTCHA token");
@@ -166,11 +160,6 @@ export const loginUser = async (
   recaptcha: string
 ) => {
   try {
-    console.log("Logging in user:", {
-      email,
-      recaptchaLength: recaptcha?.length || 0,
-    });
-
     // Validate recaptcha token
     if (!recaptcha || recaptcha.length < 10) {
       throw new Error("Invalid reCAPTCHA token");
