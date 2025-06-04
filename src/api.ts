@@ -137,14 +137,21 @@ export const registerUser = async (
   const userId = data.user?.id;
   if (!userId) throw new Error("User ID missing");
 
-  const { error: profileError } = await supabase.from("profiles").insert({
-    id: userId,
-    email,
-    username,
-  });
-  if (profileError) throw new Error(profileError.message);
+  const { error: profileError, data: profileData } = await supabase
+    .from("profiles")
+    .insert({
+      id: userId,
+      email,
+      username,
+    })
+    .select();
 
-  return { success: true };
+  if (profileError) {
+    console.error("Profile insertion error:", profileError);
+    throw new Error(profileError.message);
+  }
+
+  return { success: true, profileData };
 };
 
 export const loginUser = async (email: string, password: string) => {

@@ -177,8 +177,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             {isLogin
               ? "Welcome Back!"
               : step === 1
-              ? "Step 1: Email & Password"
-              : "Step 2: Username"}
+              ? "Create your account"
+              : "Set up your username"}
           </h2>
           <form className="space-y-3" onSubmit={handleSubmit}>
             {isLogin
