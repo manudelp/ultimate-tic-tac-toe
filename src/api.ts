@@ -1,5 +1,6 @@
 // src/api.ts
 import axios from "axios";
+import { supabase } from "@/lib/supabase";
 
 // Base API URL - make sure it's correct
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
@@ -14,16 +15,15 @@ const api = axios.create({
 
 // Add a request interceptor to include the token in requests
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
+  async (config) => {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Types
@@ -123,110 +123,53 @@ export const agentsReset = async (id: number): Promise<void> => {
 };
 
 // AUTH FUNCTIONS
-
 export const registerUser = async (
-  username: string,
   email: string,
   password: string,
-  recaptcha: string
+  username: string
 ) => {
-  try {
-    // Validate recaptcha token
-    const RECAPTCHA_MIN_LENGTH = 10; // Minimum length for a valid reCAPTCHA token
-    if (!recaptcha || recaptcha.length < RECAPTCHA_MIN_LENGTH) {
-      throw new Error("Invalid reCAPTCHA token");
-    }
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+  if (error) throw new Error(error.message);
 
-    const response = await api.post("/register", {
-      name: username,
-      email,
-      password,
-      recaptcha,
-    });
-    return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        "Registration error:",
-        error.response?.data || error.message
-      );
-      throw new Error(error.response?.data?.message || "Registration failed");
-    }
-    console.error("Registration error:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Registration failed"
-    );
-  }
+  const userId = data.user?.id;
+  if (!userId) throw new Error("User ID missing");
+
+  const { error: profileError } = await supabase.from("profiles").insert({
+    id: userId,
+    email,
+    username,
+  });
+  if (profileError) throw new Error(profileError.message);
+
+  return { success: true };
 };
 
-export const loginUser = async (
-  email: string,
-  password: string,
-  recaptcha: string
-) => {
-  try {
-    // Validate recaptcha token
-    if (!recaptcha || recaptcha.length < 10) {
-      throw new Error("Invalid reCAPTCHA token");
-    }
+export const loginUser = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error) throw new Error(error.message);
 
-    const response = await api.post("/login", {
-      email,
-      password,
-      recaptcha,
-    });
-
-    // Store the token and user data
-    if (response.data.access_token) {
-      localStorage.setItem("token", response.data.access_token);
-
-      // Store user data in localStorage
-      const userData = {
-        name: response.data.name,
-      };
-      localStorage.setItem("userData", JSON.stringify(userData));
-    }
-
-    return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error("Login error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || "Login failed");
-    }
-    console.error("Login error:", error);
-    throw new Error("Login failed");
-  }
+  const token = data.session?.access_token;
+  if (token) localStorage.setItem("token", token);
+  return data.user;
 };
 
-export const logoutUser = () => {
-  try {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    return { success: true };
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error("Logout error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || "Logout failed");
-    }
-    console.error("Logout error:", error);
-    throw new Error("Logout failed");
-  }
+export const logoutUser = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw new Error(error.message);
+  localStorage.removeItem("token");
+  return { success: true };
 };
 
 // Verify token validity
 export const verifyToken = async (): Promise<boolean> => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      return false;
-    }
-
-    const response = await api.post("/verify-token");
-    return response.status === 200;
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return false;
-  }
+  const { data } = await supabase.auth.getSession();
+  return !!data.session;
 };
 
 export default api;
