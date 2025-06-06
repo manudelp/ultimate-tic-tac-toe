@@ -1,6 +1,5 @@
-// src/components/ui/login-form.tsx
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +9,6 @@ import { loginUser, registerUser } from "@/api";
 import { reconnectSocket } from "@/socket";
 import Script from "next/script";
 
-const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
 declare global {
   interface Window {
     grecaptcha: {
@@ -20,20 +17,17 @@ declare global {
         siteKey: string,
         options: { action: string }
       ) => Promise<string>;
-      render: (container: string | HTMLElement, parameters: object) => number;
-      reset: (widgetId?: number) => void;
-      getResponse: (widgetId?: number) => string;
     };
-    onRecaptchaLoad: (() => void) | undefined;
   }
 }
+
+const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 interface LoginFormProps {
   onLoginSuccess?: () => void;
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
-  const [recaptchaToken, setRecaptchaToken] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,18 +37,24 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     password: "",
     confirmPassword: "",
   });
-  const recaptchaRef = useRef<HTMLDivElement>(null);
-  const recaptchaWidgetId = useRef<number | null>(null);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
 
   useEffect(() => {
-    window.onRecaptchaLoad = () => {
-      if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
-        setTimeout(() => initializeRecaptcha(), 100);
-      }
-    };
-    return () => {
-      window.onRecaptchaLoad = () => {};
-    };
+    // Check if reCAPTCHA is already loaded
+    if (window.grecaptcha) {
+      setRecaptchaLoaded(true);
+    } else {
+      // Wait for the script to load
+      const checkRecaptcha = setInterval(() => {
+        if (window.grecaptcha) {
+          setRecaptchaLoaded(true);
+          clearInterval(checkRecaptcha);
+        }
+      }, 100);
+
+      // Cleanup interval after 10 seconds
+      setTimeout(() => clearInterval(checkRecaptcha), 10000);
+    }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,52 +64,116 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
   };
 
-  useEffect(() => {
-    setRecaptchaToken("");
-    if (
-      !recaptchaWidgetId.current &&
-      recaptchaRef.current &&
-      window.grecaptcha &&
-      SITE_KEY
-    ) {
-      try {
-        recaptchaWidgetId.current = window.grecaptcha.render(
-          recaptchaRef.current,
-          {
-            sitekey: SITE_KEY,
-            theme: "dark",
-            callback: (token: string) => setRecaptchaToken(token),
-            "expired-callback": () => setRecaptchaToken(""),
-          }
-        );
-      } catch {
-        // ignore
+  const executeRecaptcha = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!SITE_KEY) {
+        console.error("reCAPTCHA site key is missing");
+        reject(new Error("reCAPTCHA configuration error"));
+        return;
       }
-    } else if (recaptchaWidgetId.current !== null && window.grecaptcha) {
-      window.grecaptcha.reset(recaptchaWidgetId.current);
-    }
-    return () => {
-      if (recaptchaWidgetId.current !== null && window.grecaptcha) {
-        window.grecaptcha.reset(recaptchaWidgetId.current);
+
+      if (!window.grecaptcha) {
+        console.error("reCAPTCHA script not loaded");
+        reject(new Error("reCAPTCHA not loaded"));
+        return;
       }
-    };
-  }, [isLogin]);
+
+      if (!recaptchaLoaded) {
+        console.error("reCAPTCHA still initializing");
+        reject(new Error("reCAPTCHA still loading"));
+        return;
+      }
+
+      console.log("Executing reCAPTCHA with site key:", SITE_KEY);
+
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute(SITE_KEY as string, { action: "submit" })
+          .then((token) => {
+            if (!token || token.length === 0) {
+              console.error("Empty reCAPTCHA token received");
+              reject(new Error("Empty reCAPTCHA token received"));
+              return;
+            }
+            console.log("reCAPTCHA token generated successfully");
+            console.log("Token length:", token.length);
+            console.log("Token preview:", token.substring(0, 50) + "...");
+            resolve(token);
+          })
+          .catch((error) => {
+            console.error("reCAPTCHA execution failed:", error);
+            reject(new Error("Failed to execute reCAPTCHA"));
+          });
+      });
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!recaptchaToken) {
-      toast.error("Complete reCAPTCHA");
+    setIsLoading(true);
+
+    if (!isLogin && step === 1) {
+      if (formData.password !== formData.confirmPassword) {
+        toast.error("Passwords do not match");
+        setIsLoading(false);
+        return;
+      }
+      setStep(2);
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    // Check if reCAPTCHA is loaded before proceeding
+    if (!recaptchaLoaded) {
+      toast.error(
+        "Security verification is loading. Please wait a moment and try again."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    // Verify site key is available
+    if (!SITE_KEY) {
+      console.error("reCAPTCHA site key is missing from environment");
+      toast.error(
+        "Security verification is not configured. Please check configuration."
+      );
+      setIsLoading(false);
+      return;
+    }
+
     try {
+      let token = "";
+      try {
+        console.log("Attempting to generate reCAPTCHA token...");
+        token = await executeRecaptcha();
+        console.log("reCAPTCHA token generated successfully");
+      } catch (error) {
+        console.error("reCAPTCHA error:", error);
+        toast.error(
+          "Security verification failed. Please refresh the page and try again."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      if (!token || token.length < 50) {
+        console.error("Invalid token length:", token?.length);
+        toast.error(
+          "Invalid security token. Please refresh the page and try again."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("Sending login request with token...");
+
       if (isLogin) {
         const result = await loginUser(
           formData.email,
           formData.password,
-          recaptchaToken
+          token
         );
         reconnectSocket();
         toast.success(
@@ -117,26 +181,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         );
         onLoginSuccess?.();
       } else {
-        if (step === 1) {
-          if (formData.password !== formData.confirmPassword) {
-            toast.error("Passwords do not match");
-            setIsLoading(false);
-            return;
-          }
-          setStep(2);
-          setIsLoading(false);
-          return;
-        }
         await registerUser(
           formData.email,
           formData.password,
           formData.username,
-          recaptchaToken
+          token
         );
         toast.success("Registration complete. Please log in.");
         setIsLogin(true);
         setStep(1);
-        // Reset form
         setFormData({
           username: "",
           email: "",
@@ -146,44 +199,32 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error(error instanceof Error ? error.message : "Error");
+      if (error instanceof Error && error.message.includes("reCAPTCHA")) {
+        toast.error("Security verification failed. Please try again.");
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : "Authentication error"
+        );
+      }
     } finally {
       setIsLoading(false);
-      if (window.grecaptcha && recaptchaWidgetId.current !== null) {
-        window.grecaptcha.reset(recaptchaWidgetId.current);
-        setRecaptchaToken("");
-      }
-    }
-  };
-
-  const initializeRecaptcha = () => {
-    if (!SITE_KEY || !recaptchaRef.current || !window.grecaptcha) return;
-    try {
-      if (recaptchaWidgetId.current !== null) {
-        window.grecaptcha.reset(recaptchaWidgetId.current);
-        return;
-      }
-      recaptchaWidgetId.current = window.grecaptcha.render(
-        recaptchaRef.current,
-        {
-          sitekey: SITE_KEY,
-          theme: "dark",
-          callback: (token: string) => setRecaptchaToken(token),
-          "expired-callback": () => setRecaptchaToken(""),
-        }
-      );
-    } catch {
-      // ignore
     }
   };
 
   return (
     <>
       <Script
-        src={`https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`}
+        src={`https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`}
         strategy="afterInteractive"
         onLoad={() => {
-          window.setTimeout(() => initializeRecaptcha(), 100);
+          console.log("reCAPTCHA script loaded");
+          setRecaptchaLoaded(true);
+        }}
+        onError={() => {
+          console.error("Failed to load reCAPTCHA script");
+          toast.error(
+            "Failed to load security verification. Please refresh the page."
+          );
         }}
       />
 
@@ -196,6 +237,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               ? "Create your account"
               : "Set up your username"}
           </h2>
+
+          {!recaptchaLoaded && (
+            <div className="text-center text-sm text-yellow-400 bg-yellow-900 bg-opacity-20 p-2 rounded">
+              Loading security verification...
+            </div>
+          )}
+
           <form className="space-y-3" onSubmit={handleSubmit}>
             {isLogin
               ? null
@@ -263,12 +311,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 )}
               </>
             )}
-            <div className="flex justify-center my-2">
-              <div ref={recaptchaRef}></div>
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || !recaptchaLoaded}
+            >
               {isLoading
                 ? "Processing..."
+                : !recaptchaLoaded
+                ? "Loading..."
                 : isLogin
                 ? "Login"
                 : step === 1

@@ -143,6 +143,27 @@ export const agentsReset = async (id: number): Promise<void> => {
   }
 };
 
+// Test reCAPTCHA validation
+export const testRecaptcha = async (token: string): Promise<boolean> => {
+  try {
+    console.log("Testing reCAPTCHA token:", token.substring(0, 20) + "...");
+
+    const response = await fetch(`${API_BASE_URL}/test-recaptcha`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recaptcha: token }),
+    });
+
+    const data = await response.json();
+    console.log("reCAPTCHA test result:", data);
+
+    return response.ok && data.valid === true;
+  } catch (error) {
+    console.error("reCAPTCHA test error:", error);
+    return false;
+  }
+};
+
 // AUTH FUNCTIONS
 export async function loginUser(
   email: string,
@@ -150,11 +171,24 @@ export async function loginUser(
   recaptcha: string
 ) {
   try {
+    console.log("Attempting login with:", {
+      email,
+      recaptchaLength: recaptcha.length,
+      recaptchaPreview: recaptcha.substring(0, 20) + "...",
+      timestamp: new Date().toISOString(),
+    });
+
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, recaptcha }),
     });
+
+    console.log("Login response status:", response.status);
+    console.log(
+      "Login response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
 
     if (!response.ok) {
       let errorData;
@@ -163,6 +197,18 @@ export async function loginUser(
       // Check if response is JSON
       if (contentType && contentType.includes("application/json")) {
         errorData = await response.json();
+        console.error("Login error data:", errorData);
+
+        // Provide more specific error messages for reCAPTCHA issues
+        if (
+          errorData.message &&
+          errorData.message.toLowerCase().includes("recaptcha")
+        ) {
+          throw new Error(
+            "Security verification failed. Please refresh the page and try again."
+          );
+        }
+
         throw new Error(errorData.message || "Login failed");
       } else {
         // If not JSON, it's likely an HTML error page
@@ -175,6 +221,7 @@ export async function loginUser(
     }
 
     const data = await response.json();
+    console.log("Login successful:", { user: data.user?.username });
 
     // Store token and user data
     if (data.access_token) {
@@ -196,11 +243,19 @@ export const registerUser = async (
   recaptcha: string
 ) => {
   try {
+    console.log("Attempting registration with:", {
+      email,
+      username,
+      recaptchaLength: recaptcha.length,
+    });
+
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, username, recaptcha }),
     });
+
+    console.log("Registration response status:", response.status);
 
     if (!response.ok) {
       let errorData;
@@ -209,6 +264,7 @@ export const registerUser = async (
       // Check if response is JSON
       if (contentType && contentType.includes("application/json")) {
         errorData = await response.json();
+        console.error("Registration error data:", errorData);
         throw new Error(errorData.message || "Registration failed");
       } else {
         // If not JSON, it's likely an HTML error page
@@ -220,7 +276,9 @@ export const registerUser = async (
       }
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log("Registration successful");
+    return result;
   } catch (error) {
     console.error("Registration error:", error);
     throw error;
