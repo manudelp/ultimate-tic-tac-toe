@@ -104,11 +104,22 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     setIsLoading(true);
     try {
       if (isLogin) {
-        const user = await loginUser(formData.email, formData.password);
+        const { user, token } = await loginUser(
+          formData.email,
+          formData.password
+        );
         await verifyToken();
         reconnectSocket();
-        toast.success(`Welcome back, ${user.email}!`);
-        onLoginSuccess?.();
+
+        if (user) {
+          localStorage.setItem(
+            "userData",
+            JSON.stringify({ username: user.username, image: user.avatar_url })
+          );
+          if (token) localStorage.setItem("token", token);
+          toast.success(`Welcome back, ${user.username}!`);
+          onLoginSuccess?.();
+        }
       } else {
         if (step === 1) {
           if (formData.password !== formData.confirmPassword) {

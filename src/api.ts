@@ -163,7 +163,19 @@ export const loginUser = async (email: string, password: string) => {
 
   const token = data.session?.access_token;
   if (token) localStorage.setItem("token", token);
-  return data.user;
+
+  const user = data.user;
+
+  // Obtener perfil extendido desde "profiles"
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("username, name, avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) throw new Error(profileError.message);
+
+  return { user: { ...user, ...profile }, token };
 };
 
 export const logoutUser = async () => {

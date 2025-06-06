@@ -21,32 +21,46 @@ const Header: React.FC = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [hostname, setHostname] = useState("utictactoe.online");
-  const [user, setUser] = useState<{ name: string; image: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<{
+    name: string;
+    username: string;
+    image: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Check for existing token and verify it
   const checkAuth = async () => {
     setIsLoading(true);
     try {
+      const userData = localStorage.getItem("userData");
       const token = localStorage.getItem("token");
-      if (token) {
-        const isValid = await verifyToken();
-        if (isValid) {
-          const userData = localStorage.getItem("userData");
-          if (userData) {
-            const parsedUserData = JSON.parse(userData);
-            setUser({ name: parsedUserData.name, image: parsedUserData.image });
-          }
-        } else {
-          // Invalid token, clear it
-          localStorage.removeItem("token");
-          localStorage.removeItem("userData");
-        }
+
+      if (!token || !userData) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const isValid = await verifyToken();
+      if (!isValid) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        setUser(null);
+      } else {
+        const parsed = JSON.parse(userData);
+        setUser({
+          name: parsed.name,
+          username: parsed.username,
+          image: parsed.avatar_url || "",
+        });
       }
     } catch (error) {
-      console.error("Authentication error:", error);
+      console.error("Auth check failed", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userData");
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -177,17 +191,23 @@ const Header: React.FC = () => {
                       <Avatar className="cursor-pointer hover:ring-2 hover:ring-gray-500 transition">
                         <AvatarImage src={user.image} alt={user.name} />
                         <AvatarFallback>
-                          {user.name.charAt(0).toUpperCase()}
+                          {(user.name || user.username).charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>
-                        <div className="max-w-[200px] truncate">
-                          {user.name}
-                        </div>
+                      <DropdownMenuLabel className="text-sm font-semibold">
+                        <span
+                          className="truncate"
+                          title={user.name || user.username}
+                        >
+                          {user.name || user.username}
+                        </span>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <Link href="/profile" title="Profile">
+                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                      </Link>
                       <DropdownMenuItem
                         onClick={handleLogout}
                         className="text-red-500"
@@ -325,20 +345,27 @@ const Header: React.FC = () => {
                   <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
                 ) : user ? (
                   <div className="flex justify-between gap-2">
-                    <div className="w-2/3 flex items-center gap-2">
+                    <Link
+                      href="/profile"
+                      className="w-2/3 flex items-center gap-2"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
                       <Avatar>
-                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarImage
+                          src={user.image}
+                          alt={user.name || user.username}
+                        />
                         <AvatarFallback>
-                          {user.name.charAt(0).toUpperCase()}
+                          {(user.name || user.username).charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span
                         className="text-white w-full truncate"
-                        title={user.name}
+                        title={user.name || user.username}
                       >
-                        {user.name}
+                        {user.name || user.username}
                       </span>
-                    </div>
+                    </Link>
                     <Button
                       onClick={() => {
                         handleLogout();
