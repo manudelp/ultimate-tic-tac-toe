@@ -260,9 +260,13 @@ export default function ProfilePage() {
                   toast.dismiss();
                   toast.success("Avatar updated successfully");
                 }
-              } catch (error) {
+              } catch (error: Error | unknown) {
                 toast.dismiss();
-                toast.error("Failed to upload avatar");
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to upload avatar"
+                );
                 console.error("Error uploading avatar:", error);
               }
             }}
