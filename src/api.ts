@@ -14,16 +14,15 @@ const api = axios.create({
 
 // Add a request interceptor to include the token in requests
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // Use backend token instead of Supabase token
     const token = localStorage.getItem("token");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Types
@@ -54,11 +53,15 @@ export const checkConnection = async (): Promise<boolean> => {
   }
 };
 
-// Bots
+// Bots - Update to use backend token
 export const getBots = async (): Promise<BotListResponse[]> => {
   try {
+    const token = localStorage.getItem("token");
     const response = await axios.get<BotListResponse[]>(
-      `${API_BASE_URL}/get-bot-list`
+      `${API_BASE_URL}/bot/get-bot-list`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
     );
     return response.data;
   } catch (error) {
@@ -74,7 +77,14 @@ export const getBots = async (): Promise<BotListResponse[]> => {
 
 export const loadBot = async (id: number): Promise<void> => {
   try {
-    await axios.post(`${API_BASE_URL}/agent-load`, { id });
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${API_BASE_URL}/bot/agent-load`,
+      { id },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to load bot");
@@ -91,13 +101,17 @@ export const getBotMove = async (
   turn: string
 ): Promise<[number, number, number, number]> => {
   try {
+    const token = localStorage.getItem("token");
     const response = await axios.post<BotMoveResponse>(
-      `${API_BASE_URL}/get-bot-move`,
+      `${API_BASE_URL}/bot/get-bot-move`,
       {
         bot,
         board,
         activeMiniBoard,
         turn,
+      },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     );
     return response.data.move;
@@ -112,7 +126,14 @@ export const getBotMove = async (
 
 export const agentsReset = async (id: number): Promise<void> => {
   try {
-    await axios.post(`${API_BASE_URL}/agents-reset`, { id });
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${API_BASE_URL}/bot/agents-reset`,
+      { id },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to reset agents");
@@ -123,110 +144,122 @@ export const agentsReset = async (id: number): Promise<void> => {
 };
 
 // AUTH FUNCTIONS
+export async function loginUser(
+  email: string,
+  password: string,
+  recaptcha: string
+) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, recaptcha }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      const contentType = response.headers.get("content-type");
+
+      // Check if response is JSON
+      if (contentType && contentType.includes("application/json")) {
+        errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      } else {
+        // If not JSON, it's likely an HTML error page
+        const textContent = await response.text();
+        console.error("Non-JSON response:", textContent);
+        throw new Error(
+          `Server error: ${response.status} - ${response.statusText}`
+        );
+      }
+    }
+
+    const data = await response.json();
+
+    // Store token and user data
+    if (data.access_token) {
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("userData", JSON.stringify(data.user));
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
+}
 
 export const registerUser = async (
+  email: string,
+  password: string,
   username: string,
-  email: string,
-  password: string,
   recaptcha: string
 ) => {
   try {
-    // Validate recaptcha token
-    const RECAPTCHA_MIN_LENGTH = 10; // Minimum length for a valid reCAPTCHA token
-    if (!recaptcha || recaptcha.length < RECAPTCHA_MIN_LENGTH) {
-      throw new Error("Invalid reCAPTCHA token");
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, username, recaptcha }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      const contentType = response.headers.get("content-type");
+
+      // Check if response is JSON
+      if (contentType && contentType.includes("application/json")) {
+        errorData = await response.json();
+        throw new Error(errorData.message || "Registration failed");
+      } else {
+        // If not JSON, it's likely an HTML error page
+        const textContent = await response.text();
+        console.error("Non-JSON response:", textContent);
+        throw new Error(
+          `Server error: ${response.status} - ${response.statusText}`
+        );
+      }
     }
 
-    const response = await api.post("/register", {
-      name: username,
-      email,
-      password,
-      recaptcha,
-    });
-    return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        "Registration error:",
-        error.response?.data || error.message
-      );
-      throw new Error(error.response?.data?.message || "Registration failed");
-    }
+    return await response.json();
+  } catch (error) {
     console.error("Registration error:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Registration failed"
-    );
+    throw error;
   }
 };
 
-export const loginUser = async (
-  email: string,
-  password: string,
-  recaptcha: string
-) => {
-  try {
-    // Validate recaptcha token
-    if (!recaptcha || recaptcha.length < 10) {
-      throw new Error("Invalid reCAPTCHA token");
-    }
+export const verifyToken = async (): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  if (!token) return false;
 
-    const response = await api.post("/login", {
-      email,
-      password,
-      recaptcha,
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    // Store the token and user data
-    if (response.data.access_token) {
-      localStorage.setItem("token", response.data.access_token);
+    if (!response.ok) return false;
 
-      // Store user data in localStorage
-      const userData = {
-        name: response.data.name,
-      };
-      localStorage.setItem("userData", JSON.stringify(userData));
+    const data = await response.json();
+
+    // Update stored user data if verification succeeds
+    if (data.valid && data.user) {
+      localStorage.setItem("userData", JSON.stringify(data.user));
     }
 
-    return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error("Login error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || "Login failed");
-    }
-    console.error("Login error:", error);
-    throw new Error("Login failed");
-  }
-};
-
-export const logoutUser = () => {
-  try {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    return { success: true };
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error("Logout error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || "Logout failed");
-    }
-    console.error("Logout error:", error);
-    throw new Error("Logout failed");
-  }
-};
-
-// Verify token validity
-export const verifyToken = async (): Promise<boolean> => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      return false;
-    }
-
-    const response = await api.post("/verify-token");
-    return response.status === 200;
+    return data.valid === true;
   } catch (error) {
     console.error("Token verification failed:", error);
     return false;
   }
+};
+
+export const logoutUser = async () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userData");
+  return { success: true };
 };
 
 export default api;

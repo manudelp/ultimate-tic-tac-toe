@@ -11,7 +11,7 @@ let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 // Function to get or create a socket connection
 export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
   if (!socket) {
-    // Get authentication token if available
+    // Get authentication token from localStorage (backend token)
     const token = localStorage.getItem("token");
 
     // Connection options with authentication
@@ -30,6 +30,14 @@ export const getSocket = (): Socket<DefaultEventsMap, DefaultEventsMap> => {
 
     socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
+      // If auth error, clear tokens
+      if (
+        error.message?.includes("auth") ||
+        error.message?.includes("unauthorized")
+      ) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+      }
     });
   }
 

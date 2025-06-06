@@ -1,3 +1,4 @@
+// src/components/ui/login-form.tsx
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -5,13 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { toast } from "sonner";
-import { loginUser, registerUser, verifyToken } from "@/api";
+import { loginUser, registerUser } from "@/api";
 import { reconnectSocket } from "@/socket";
 import Script from "next/script";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-// Add type declaration for grecaptcha
 declare global {
   interface Window {
     grecaptcha: {
@@ -35,6 +35,7 @@ interface LoginFormProps {
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [recaptchaToken, setRecaptchaToken] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -45,7 +46,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const recaptchaWidgetId = useRef<number | null>(null);
 
-  // Define the onRecaptchaLoad function
   useEffect(() => {
     window.onRecaptchaLoad = () => {
       if (recaptchaRef.current && window.grecaptcha && SITE_KEY) {
@@ -53,7 +53,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       }
     };
     return () => {
-      window.onRecaptchaLoad = () => {}; // Empty function instead of undefined
+      window.onRecaptchaLoad = () => {};
     };
   }, []);
 
@@ -64,12 +64,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
   };
 
-  // Initialize reCAPTCHA when the component mounts
   useEffect(() => {
-    // Reset any existing token
     setRecaptchaToken("");
-
-    // Only initialize if not already rendered
     if (
       !recaptchaWidgetId.current &&
       recaptchaRef.current &&
@@ -82,128 +78,102 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           {
             sitekey: SITE_KEY,
             theme: "dark",
-            callback: (token: string) => {
-              setRecaptchaToken(token);
-            },
-            "expired-callback": () => {
-              setRecaptchaToken("");
-            },
+            callback: (token: string) => setRecaptchaToken(token),
+            "expired-callback": () => setRecaptchaToken(""),
           }
         );
-      } catch (error) {
-        console.error("Error rendering reCAPTCHA:", error);
+      } catch {
+        // ignore
       }
     } else if (recaptchaWidgetId.current !== null && window.grecaptcha) {
-      // Just reset the existing widget
       window.grecaptcha.reset(recaptchaWidgetId.current);
     }
-
     return () => {
-      // Reset the reCAPTCHA widget when component unmounts
       if (recaptchaWidgetId.current !== null && window.grecaptcha) {
         window.grecaptcha.reset(recaptchaWidgetId.current);
       }
     };
-  }, [isLogin]); // Re-initialize when switching between login/register
+  }, [isLogin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!recaptchaToken) {
-      toast.error("Please complete the reCAPTCHA verification");
+      toast.error("Complete reCAPTCHA");
       return;
     }
 
     setIsLoading(true);
-
     try {
       if (isLogin) {
-        // Login
-        const { name } = await loginUser(
+        const result = await loginUser(
           formData.email,
           formData.password,
           recaptchaToken
         );
-
-        // Verify the token to get complete user data
-        await verifyToken();
-
-        // Reconnect socket with the new auth token
         reconnectSocket();
-
-        toast.success(`Welcome back, ${name}!`);
-
-        // Call the success callback if provided
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        }
+        toast.success(
+          `Welcome back, ${result.user.name || result.user.username}!`
+        );
+        onLoginSuccess?.();
       } else {
-        // Register
-        if (formData.password !== formData.confirmPassword) {
-          toast.error("Passwords do not match!");
+        if (step === 1) {
+          if (formData.password !== formData.confirmPassword) {
+            toast.error("Passwords do not match");
+            setIsLoading(false);
+            return;
+          }
+          setStep(2);
+          setIsLoading(false);
           return;
         }
-
-        const response = await registerUser(
-          formData.username,
+        await registerUser(
           formData.email,
           formData.password,
+          formData.username,
           recaptchaToken
         );
-        toast.success(response.message);
+        toast.success("Registration complete. Please log in.");
         setIsLogin(true);
+        setStep(1);
+        // Reset form
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Something went wrong!");
-      }
+      console.error("Form submission error:", error);
+      toast.error(error instanceof Error ? error.message : "Error");
     } finally {
       setIsLoading(false);
-      // Reset the reCAPTCHA
       if (window.grecaptcha && recaptchaWidgetId.current !== null) {
         window.grecaptcha.reset(recaptchaWidgetId.current);
         setRecaptchaToken("");
       }
     }
   };
-  const initializeRecaptcha = () => {
-    if (!SITE_KEY || !recaptchaRef.current || !window.grecaptcha) {
-      return;
-    }
 
+  const initializeRecaptcha = () => {
+    if (!SITE_KEY || !recaptchaRef.current || !window.grecaptcha) return;
     try {
-      // Skip initialization if already rendered
       if (recaptchaWidgetId.current !== null) {
         window.grecaptcha.reset(recaptchaWidgetId.current);
         return;
       }
-
-      // Render the reCAPTCHA widget only if not already rendered
       recaptchaWidgetId.current = window.grecaptcha.render(
         recaptchaRef.current,
         {
           sitekey: SITE_KEY,
           theme: "dark",
-          callback: (token: string) => {
-            setRecaptchaToken(token);
-          },
-          "expired-callback": () => {
-            setRecaptchaToken("");
-          },
+          callback: (token: string) => setRecaptchaToken(token),
+          "expired-callback": () => setRecaptchaToken(""),
         }
       );
-    } catch (error) {
-      // Don't show the error toast if it's just the "already rendered" error
-      if (
-        !(
-          error instanceof Error &&
-          error.message.includes("already been rendered")
-        )
-      ) {
-        toast.error("Failed to initialize reCAPTCHA. Please try again later.");
-      }
+    } catch {
+      // ignore
     }
   };
 
@@ -213,116 +183,135 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         src={`https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`}
         strategy="afterInteractive"
         onLoad={() => {
-          // Wait for grecaptcha to be properly initialized
-          window.setTimeout(() => {
-            initializeRecaptcha();
-          }, 100);
+          window.setTimeout(() => initializeRecaptcha(), 100);
         }}
       />
 
       <div className="w-96 rounded-lg flex flex-col items-center justify-center p-4 bg-gray-800">
-        <div className="w-full max-w-md p-4 space-y-6">
-          <h2 className="text-2xl font-bold text-center">
-            {isLogin ? "Welcome Back!" : "Create Your Account"}
+        <div className="w-full max-w-md p-4 space-y-4">
+          <h2 className="text-xl font-bold text-center">
+            {isLogin
+              ? "Welcome Back!"
+              : step === 1
+              ? "Create your account"
+              : "Set up your username"}
           </h2>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter your username"
-                  required
-                  className="text-white bg-gray-700"
-                  value={formData.username}
-                  onChange={handleChange}
-                />
-              </div>
+          <form className="space-y-3" onSubmit={handleSubmit}>
+            {isLogin
+              ? null
+              : step === 2 && (
+                  <div>
+                    <Label htmlFor="username" className="text-sm">
+                      Username
+                    </Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Enter username"
+                      required
+                      className="text-white bg-gray-700 h-9"
+                      value={formData.username}
+                      onChange={handleChange}
+                    />
+                  </div>
+                )}
+            {(isLogin || step === 1) && (
+              <>
+                <div>
+                  <Label htmlFor="email" className="text-sm">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    required
+                    className="text-white bg-gray-700 h-9"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="password" className="text-sm">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                    className="text-white bg-gray-700 h-9"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                </div>
+                {!isLogin && (
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-sm">
+                      Confirm Password
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Confirm your password"
+                      required
+                      className="text-white bg-gray-700 h-9"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                    />
+                  </div>
+                )}
+              </>
             )}
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                required
-                className="text-white bg-gray-700"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                required
-                className="text-white bg-gray-700"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-            {!isLogin && (
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Confirm your password"
-                  required
-                  className="text-white bg-gray-700"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
-              </div>
-            )}
-
-            {/* Add the reCAPTCHA container */}
-            <div className="flex justify-center my-4">
+            <div className="flex justify-center my-2">
               <div ref={recaptchaRef}></div>
             </div>
-
-            <Button type="submit" className="w-full mt-4" disabled={isLoading}>
-              {isLoading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading
+                ? "Processing..."
+                : isLogin
+                ? "Login"
+                : step === 1
+                ? "Next"
+                : "Sign Up"}
             </Button>
           </form>
 
-          {/* Separador visual */}
-          <div className="flex items-center justify-center my-4 space-x-2">
+          <div className="flex items-center justify-center my-2 space-x-2">
             <div className="w-1/4 h-px bg-gray-600"></div>
-            <p className="text-sm text-gray-400">OR</p>
+            <p className="text-xs text-gray-400">OR</p>
             <div className="w-1/4 h-px bg-gray-600"></div>
           </div>
 
-          {/* Google Sign-In */}
           <Button
-            className="flex items-center justify-center w-full gap-2 p-2 text-black transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
-            onClick={() => toast.info("Google Sign-In is coming soon!")}
+            className="flex items-center justify-center w-full gap-2 p-1 text-black text-sm transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
+            onClick={() => toast.info("Google Sign-In coming soon")}
             disabled={isLoading}
           >
             <Image
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="Google Logo"
-              className="w-5 h-5"
-              width={20}
-              height={20}
+              className="w-4 h-4"
+              width={16}
+              height={16}
             />
             {isLogin ? "Continue with Google" : "Sign up with Google"}
           </Button>
 
-          <div className="flex items-center justify-between">
-            <a href="#" className="text-sm text-gray-400 hover:underline">
-              Forgot your password?
+          <div className="flex items-center justify-between text-xs">
+            <a href="#" className="text-gray-400 hover:underline">
+              Forgot password?
             </a>
             <button
               type="button"
-              className="text-sm text-gray-400 hover:underline"
-              onClick={() => setIsLogin(!isLogin)}
+              className="text-gray-400 hover:underline"
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setStep(1);
+              }}
               disabled={isLoading}
             >
-              {isLogin ? "  Sign up" : "Login instead"}
+              {isLogin ? "Sign up" : "Login instead"}
             </button>
           </div>
         </div>
