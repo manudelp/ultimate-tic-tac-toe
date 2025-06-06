@@ -21,10 +21,24 @@ export default function ProfilePage() {
     null
   );
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const fetchProfile = async () => {
       try {
+        // Check if Supabase is available
+        if (!supabase) {
+          toast.error("Service temporarily unavailable");
+          setLoading(false);
+          return;
+        }
+
         const token = localStorage.getItem("token");
         if (!token) {
           toast.error("Not logged in");
@@ -62,9 +76,11 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, []);
+  }, [isClient]);
 
   async function updateAvatarUrl(userId: string, avatarUrl: string) {
+    if (!supabase) throw new Error("Service unavailable");
+
     const { error } = await supabase
       .from("profiles")
       .update({ avatar_url: avatarUrl })
@@ -76,6 +92,8 @@ export default function ProfilePage() {
   }
 
   const uploadAvatar = async (file: File) => {
+    if (!supabase) throw new Error("Service unavailable");
+
     // Check file size - 1MB limit
     if (file.size > 1024 * 1024) {
       throw new Error("File size exceeds 1MB limit");
@@ -135,6 +153,8 @@ export default function ProfilePage() {
 
   const handleSaveField = async (field: "name" | "username") => {
     try {
+      if (!supabase) throw new Error("Service unavailable");
+
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error("Not authenticated");
 
@@ -198,7 +218,7 @@ export default function ProfilePage() {
     handleSaveField(field);
   };
 
-  if (loading)
+  if (!isClient || loading)
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
         <Loader />
