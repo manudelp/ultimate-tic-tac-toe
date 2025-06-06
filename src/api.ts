@@ -1,6 +1,5 @@
 // src/api.ts
 import axios from "axios";
-import { supabase } from "@/lib/supabase";
 
 // Base API URL - make sure it's correct
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";

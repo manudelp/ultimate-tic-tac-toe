@@ -75,6 +75,7 @@ export default function ProfilePage() {
         setOriginalProfile({ ...profile });
       }
     } catch (error) {
+      console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
       setProfile((prev) => ({ ...prev, [field]: originalProfile[field] }));
     }
