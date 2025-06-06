@@ -73,6 +73,11 @@ export default function ProfilePage() {
   }
 
   const uploadAvatar = async (file: File) => {
+    // Check file size - 1MB limit
+    if (file.size > 1024 * 1024) {
+      throw new Error("File size exceeds 1MB limit");
+    }
+
     const {
       data: { user },
       error: userError,
