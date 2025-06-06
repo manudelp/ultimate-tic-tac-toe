@@ -7,6 +7,9 @@ import Loader from "@/components/ui/loader";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PencilIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
+// Force dynamic rendering to prevent prerendering
+export const dynamic = "force-dynamic";
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState({
     username: "",
