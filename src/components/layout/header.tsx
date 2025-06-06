@@ -168,7 +168,7 @@ const Header: React.FC = () => {
             <li>
               <Link
                 href="/"
-                className="transition-colors hover:text-gray-300 hover:underline"
+                className="relative transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
               >
                 Home
               </Link>
@@ -176,7 +176,7 @@ const Header: React.FC = () => {
             <li>
               <Link
                 href="/how-to-play"
-                className="transition-colors hover:text-gray-300 hover:underline"
+                className="relative transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
               >
                 How to Play
               </Link>
