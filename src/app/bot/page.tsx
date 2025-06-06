@@ -197,7 +197,7 @@ export default function Bot() {
                         {/* Loading indicator */}
                         {!botsLoaded[botOption.id] && (
                           <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60">
-                            <Loader size="small" />
+                            <Loader />
                           </div>
                         )}
                       </motion.div>
