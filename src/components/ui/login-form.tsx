@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { toast } from "sonner";
-import { loginUser, registerUser, verifyToken } from "@/api";
+import { loginUser, registerUser } from "@/api";
 import { reconnectSocket } from "@/socket";
 import Script from "next/script";
 
@@ -97,29 +97,25 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!recaptchaToken) {
       toast.error("Complete reCAPTCHA");
       return;
     }
+
     setIsLoading(true);
     try {
       if (isLogin) {
-        const { user, token } = await loginUser(
+        const result = await loginUser(
           formData.email,
-          formData.password
+          formData.password,
+          recaptchaToken
         );
-        await verifyToken();
         reconnectSocket();
-
-        if (user) {
-          localStorage.setItem(
-            "userData",
-            JSON.stringify({ username: user.username, image: user.avatar_url })
-          );
-          if (token) localStorage.setItem("token", token);
-          toast.success(`Welcome back, ${user.username}!`);
-          onLoginSuccess?.();
-        }
+        toast.success(
+          `Welcome back, ${result.user.name || result.user.username}!`
+        );
+        onLoginSuccess?.();
       } else {
         if (step === 1) {
           if (formData.password !== formData.confirmPassword) {
@@ -134,13 +130,22 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         await registerUser(
           formData.email,
           formData.password,
-          formData.username
+          formData.username,
+          recaptchaToken
         );
         toast.success("Registration complete. Please log in.");
         setIsLogin(true);
         setStep(1);
+        // Reset form
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
       }
     } catch (error) {
+      console.error("Form submission error:", error);
       toast.error(error instanceof Error ? error.message : "Error");
     } finally {
       setIsLoading(false);

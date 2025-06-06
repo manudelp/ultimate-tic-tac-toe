@@ -16,8 +16,8 @@ const api = axios.create({
 // Add a request interceptor to include the token in requests
 api.interceptors.request.use(
   async (config) => {
-    const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
+    // Use backend token instead of Supabase token
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
@@ -54,11 +54,15 @@ export const checkConnection = async (): Promise<boolean> => {
   }
 };
 
-// Bots
+// Bots - Update to use backend token
 export const getBots = async (): Promise<BotListResponse[]> => {
   try {
+    const token = localStorage.getItem("token");
     const response = await axios.get<BotListResponse[]>(
-      `${API_BASE_URL}/get-bot-list`
+      `${API_BASE_URL}/bot/get-bot-list`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
     );
     return response.data;
   } catch (error) {
@@ -74,7 +78,14 @@ export const getBots = async (): Promise<BotListResponse[]> => {
 
 export const loadBot = async (id: number): Promise<void> => {
   try {
-    await axios.post(`${API_BASE_URL}/agent-load`, { id });
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${API_BASE_URL}/bot/agent-load`,
+      { id },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to load bot");
@@ -91,13 +102,17 @@ export const getBotMove = async (
   turn: string
 ): Promise<[number, number, number, number]> => {
   try {
+    const token = localStorage.getItem("token");
     const response = await axios.post<BotMoveResponse>(
-      `${API_BASE_URL}/get-bot-move`,
+      `${API_BASE_URL}/bot/get-bot-move`,
       {
         bot,
         board,
         activeMiniBoard,
         turn,
+      },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     );
     return response.data.move;
@@ -112,7 +127,14 @@ export const getBotMove = async (
 
 export const agentsReset = async (id: number): Promise<void> => {
   try {
-    await axios.post(`${API_BASE_URL}/agents-reset`, { id });
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${API_BASE_URL}/bot/agents-reset`,
+      { id },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to reset agents");
@@ -123,72 +145,122 @@ export const agentsReset = async (id: number): Promise<void> => {
 };
 
 // AUTH FUNCTIONS
+export async function loginUser(
+  email: string,
+  password: string,
+  recaptcha: string
+) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, recaptcha }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      const contentType = response.headers.get("content-type");
+
+      // Check if response is JSON
+      if (contentType && contentType.includes("application/json")) {
+        errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      } else {
+        // If not JSON, it's likely an HTML error page
+        const textContent = await response.text();
+        console.error("Non-JSON response:", textContent);
+        throw new Error(
+          `Server error: ${response.status} - ${response.statusText}`
+        );
+      }
+    }
+
+    const data = await response.json();
+
+    // Store token and user data
+    if (data.access_token) {
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("userData", JSON.stringify(data.user));
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
+}
+
 export const registerUser = async (
   email: string,
   password: string,
-  username: string
+  username: string,
+  recaptcha: string
 ) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-  if (error) throw new Error(error.message);
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, username, recaptcha }),
+    });
 
-  const userId = data.user?.id;
-  if (!userId) throw new Error("User ID missing");
+    if (!response.ok) {
+      let errorData;
+      const contentType = response.headers.get("content-type");
 
-  const { error: profileError, data: profileData } = await supabase
-    .from("profiles")
-    .insert({
-      id: userId,
-      email,
-      username,
-    })
-    .select();
+      // Check if response is JSON
+      if (contentType && contentType.includes("application/json")) {
+        errorData = await response.json();
+        throw new Error(errorData.message || "Registration failed");
+      } else {
+        // If not JSON, it's likely an HTML error page
+        const textContent = await response.text();
+        console.error("Non-JSON response:", textContent);
+        throw new Error(
+          `Server error: ${response.status} - ${response.statusText}`
+        );
+      }
+    }
 
-  if (profileError) {
-    console.error("Profile insertion error:", profileError);
-    throw new Error(profileError.message);
+    return await response.json();
+  } catch (error) {
+    console.error("Registration error:", error);
+    throw error;
   }
-
-  return { success: true, profileData };
 };
 
-export const loginUser = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-  if (error) throw new Error(error.message);
+export const verifyToken = async (): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  if (!token) return false;
 
-  const token = data.session?.access_token;
-  if (token) localStorage.setItem("token", token);
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  const user = data.user;
+    if (!response.ok) return false;
 
-  // Obtener perfil extendido desde "profiles"
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("username, name, avatar_url")
-    .eq("id", user.id)
-    .single();
+    const data = await response.json();
 
-  if (profileError) throw new Error(profileError.message);
+    // Update stored user data if verification succeeds
+    if (data.valid && data.user) {
+      localStorage.setItem("userData", JSON.stringify(data.user));
+    }
 
-  return { user: { ...user, ...profile }, token };
+    return data.valid === true;
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    return false;
+  }
 };
 
 export const logoutUser = async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw new Error(error.message);
   localStorage.removeItem("token");
+  localStorage.removeItem("userData");
   return { success: true };
-};
-
-// Verify token validity
-export const verifyToken = async (): Promise<boolean> => {
-  const { data } = await supabase.auth.getSession();
-  return !!data.session;
 };
 
 export default api;

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { verifyToken } from "@/api";
 import { toast } from "sonner";
 import Loader from "@/components/ui/loader";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -20,37 +20,41 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError || !user) {
-        toast.error("Not logged in");
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("Not logged in");
+          setLoading(false);
+          return;
+        }
+
+        const isValid = await verifyToken();
+        if (!isValid) {
+          toast.error("Session expired. Please log in again.");
+          localStorage.removeItem("token");
+          localStorage.removeItem("userData");
+          setLoading(false);
+          return;
+        }
+
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          const userProfile = {
+            username: parsedData.username || "",
+            name: parsedData.name || "",
+            avatar_url: parsedData.avatar_url || "",
+          };
+
+          setProfile(userProfile);
+          setOriginalProfile(userProfile);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast.error("Failed to load profile");
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("username, name, avatar_url")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        toast.error(error.message);
-        setLoading(false);
-        return;
-      }
-
-      const userProfile = {
-        username: data.username,
-        name: data.name || "",
-        avatar_url: data.avatar_url,
-      };
-
-      setProfile(userProfile);
-      setOriginalProfile(userProfile);
-      setLoading(false);
     };
 
     fetchProfile();
@@ -59,36 +63,22 @@ export default function ProfilePage() {
   const handleSaveField = async (field: "name" | "username") => {
     console.log("Saving field:", field, "current editing field:", editingField);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // For now, just update localStorage since we don't have a backend profile update endpoint
+    try {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData[field] = profile[field];
+        localStorage.setItem("userData", JSON.stringify(parsedData));
 
-    if (!user) {
-      toast.error("Not logged in");
-      setEditingField(null);
-      return;
-    }
-
-    const dataToUpdate = { [field]: profile[field] };
-
-    const { error } = await supabase
-      .from("profiles")
-      .update(dataToUpdate)
-      .eq("id", user.id);
-
-    if (error) {
-      toast.error(error.message);
-      // Reset to original value on error
+        toast.success("Profile updated locally");
+        setOriginalProfile({ ...profile });
+      }
+    } catch (error) {
+      toast.error("Failed to update profile");
       setProfile((prev) => ({ ...prev, [field]: originalProfile[field] }));
-    } else {
-      localStorage.setItem("userData", JSON.stringify(profile));
-      toast.success("Profile updated");
-      // Update the original profile with the new saved data
-      setOriginalProfile({ ...profile });
     }
 
-    // Always exit edit mode after save attempt
-    console.log("Exiting edit mode");
     setEditingField(null);
   };
 

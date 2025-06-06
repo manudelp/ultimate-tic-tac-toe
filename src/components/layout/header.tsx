@@ -51,7 +51,7 @@ const Header: React.FC = () => {
       } else {
         const parsed = JSON.parse(userData);
         setUser({
-          name: parsed.name,
+          name: parsed.name || parsed.username,
           username: parsed.username,
           image: parsed.avatar_url || "",
         });
