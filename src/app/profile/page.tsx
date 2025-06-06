@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { verifyToken } from "@/api";
+import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import Loader from "@/components/ui/loader";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -60,20 +61,92 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
-  const handleSaveField = async (field: "name" | "username") => {
-    console.log("Saving field:", field, "current editing field:", editingField);
+  async function updateAvatarUrl(userId: string, avatarUrl: string) {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: avatarUrl })
+      .eq("id", userId);
 
-    // For now, just update localStorage since we don't have a backend profile update endpoint
+    if (error) {
+      throw error;
+    }
+  }
+
+  const uploadAvatar = async (file: File) => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Not authenticated");
+
+    // Convert image to WebP
+    const webpFile = await convertToWebP(file);
+    const filePath = `${user.id}/avatar.webp`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, webpFile, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+    if (!data?.publicUrl) throw new Error("Failed to get public URL");
+
+    await updateAvatarUrl(user.id, data.publicUrl);
+
+    return data.publicUrl;
+  };
+
+  // Helper function to convert image to WebP
+  const convertToWebP = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("WebP conversion failed"));
+            }
+          },
+          "image/webp",
+          0.9
+        ); // 0.9 is the quality (90%)
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleSaveField = async (field: "name" | "username") => {
     try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ [field]: profile[field] })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      // Actualizar localStorage
       const userData = localStorage.getItem("userData");
       if (userData) {
         const parsedData = JSON.parse(userData);
         parsedData[field] = profile[field];
         localStorage.setItem("userData", JSON.stringify(parsedData));
-
-        toast.success("Profile updated locally");
-        setOriginalProfile({ ...profile });
       }
+
+      toast.success("Profile updated");
+      setOriginalProfile({ ...profile });
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
@@ -134,9 +207,10 @@ export default function ProfilePage() {
       <label className="block text-sm text-gray-300 text-center mb-2">
         Avatar
       </label>
-      <div className="flex justify-center mb-6">
-        <Avatar className="h-24 w-24">
+      <div className="flex flex-col items-center mb-6">
+        <Avatar className="h-24 w-24 mb-2">
           <AvatarImage
+            key={profile.avatar_url}
             src={profile.avatar_url}
             alt={profile.name || profile.username}
           />
@@ -144,6 +218,51 @@ export default function ProfilePage() {
             {(profile.name || profile.username || "?").charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
+
+        <label
+          htmlFor="avatar-upload"
+          className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mt-2"
+        >
+          Change avatar
+          <input
+            id="avatar-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              try {
+                if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                  toast.loading("Uploading avatar...");
+                  const publicUrl = await uploadAvatar(file);
+
+                  // Update profile and localStorage
+                  const newProfile = { ...profile, avatar_url: publicUrl };
+                  setProfile(newProfile);
+                  setOriginalProfile(newProfile);
+
+                  // Update localStorage
+                  const userData = localStorage.getItem("userData");
+                  if (userData) {
+                    const parsedData = JSON.parse(userData);
+                    parsedData.avatar_url = publicUrl;
+                    localStorage.setItem(
+                      "userData",
+                      JSON.stringify(parsedData)
+                    );
+                  }
+
+                  toast.dismiss();
+                  toast.success("Avatar updated successfully");
+                }
+              } catch (error) {
+                toast.dismiss();
+                toast.error("Failed to upload avatar");
+                console.error("Error uploading avatar:", error);
+              }
+            }}
+          />
+        </label>
       </div>
 
       {/* Name Field */}
