@@ -235,10 +235,11 @@ export default function ProfilePage() {
             accept="image/*"
             className="hidden"
             onChange={async (e) => {
+              let toastId;
               try {
                 if (e.target.files && e.target.files[0]) {
                   const file = e.target.files[0];
-                  toast.loading("Uploading avatar...");
+                  toastId = toast.loading("Uploading avatar...");
                   const publicUrl = await uploadAvatar(file);
 
                   // Update profile and localStorage
@@ -257,11 +258,11 @@ export default function ProfilePage() {
                     );
                   }
 
-                  toast.dismiss();
+                  toast.dismiss(toastId);
                   toast.success("Avatar updated successfully");
                 }
               } catch (error: Error | unknown) {
-                toast.dismiss();
+                if (toastId) toast.dismiss(toastId);
                 toast.error(
                   error instanceof Error
                     ? error.message
