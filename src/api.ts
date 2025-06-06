@@ -58,7 +58,7 @@ export const getBots = async (): Promise<BotListResponse[]> => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.get<BotListResponse[]>(
-      `${API_BASE_URL}/bot/get-bot-list`,
+      `${API_BASE_URL}/get-bot-list`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
@@ -79,7 +79,7 @@ export const loadBot = async (id: number): Promise<void> => {
   try {
     const token = localStorage.getItem("token");
     await axios.post(
-      `${API_BASE_URL}/bot/agent-load`,
+      `${API_BASE_URL}/agent-load`,
       { id },
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -103,7 +103,7 @@ export const getBotMove = async (
   try {
     const token = localStorage.getItem("token");
     const response = await axios.post<BotMoveResponse>(
-      `${API_BASE_URL}/bot/get-bot-move`,
+      `${API_BASE_URL}/get-bot-move`,
       {
         bot,
         board,
@@ -128,7 +128,7 @@ export const agentsReset = async (id: number): Promise<void> => {
   try {
     const token = localStorage.getItem("token");
     await axios.post(
-      `${API_BASE_URL}/bot/agents-reset`,
+      `${API_BASE_URL}/agents-reset`,
       { id },
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
