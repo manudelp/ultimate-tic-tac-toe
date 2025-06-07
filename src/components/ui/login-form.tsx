@@ -191,11 +191,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`,
+            data: {
+              username: formData.username, // Include username in metadata
+              name: formData.username, // Default name to username
+            },
           },
         });
 
         if (error) {
-          // Check if user already exists with a different provider
           if (error.message.includes("already registered")) {
             toast.error(
               "An account with this email already exists. Try logging in or use 'Forgot Password' if you can't remember your credentials."
@@ -206,6 +209,23 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
 
         if (data.user && !data.session) {
+          // Create profile entry for email confirmation flow
+          try {
+            await supabase.from("profiles").insert({
+              id: data.user.id,
+              email: email,
+              username: formData.username,
+              name: formData.username,
+              provider: "email",
+            });
+          } catch (profileError) {
+            console.warn(
+              "Profile creation failed during signup:",
+              profileError
+            );
+            // Continue anyway - will be created later
+          }
+
           toast.success(
             "Registration successful! Please check your email to confirm your account."
           );
@@ -218,7 +238,21 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             confirmPassword: "",
           });
         } else if (data.session) {
-          // Auto-confirmed
+          // Auto-confirmed - ensure profile exists
+          try {
+            if (data.user) {
+              await supabase.from("profiles").upsert({
+                id: data.user.id,
+                email: email,
+                username: formData.username,
+                name: formData.username,
+                provider: "email",
+              });
+            }
+          } catch (profileError) {
+            console.warn("Profile upsert failed:", profileError);
+          }
+
           toast.success("Registration successful! You're now logged in.");
           onLoginSuccess?.();
         }
@@ -245,8 +279,33 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           return;
         }
 
-        if (data.user) {
-          toast.success(`Welcome back!`);
+        if (data.user && data.session) {
+          // Ensure profile exists for email login
+          try {
+            const { data: existingProfile } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", data.user.id)
+              .single();
+
+            if (!existingProfile) {
+              // Create missing profile
+              await supabase.from("profiles").insert({
+                id: data.user.id,
+                email: data.user.email,
+                username: data.user.email?.split("@")[0] || "user",
+                name:
+                  data.user.user_metadata?.name ||
+                  data.user.email?.split("@")[0] ||
+                  "User",
+                provider: "email",
+              });
+            }
+          } catch (profileError) {
+            console.warn("Profile check/creation failed:", profileError);
+          }
+
+          toast.success("Welcome back!");
           onLoginSuccess?.();
         }
       }

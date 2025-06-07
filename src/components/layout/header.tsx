@@ -38,53 +38,112 @@ const Header: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessionChecked, setSessionChecked] = useState(false);
 
-  const updateUserFromSession = useCallback(async (session: Session | null) => {
-    if (session?.user) {
+  // Enhanced user profile loading with database fallback
+  const loadUserProfile = useCallback(async (session: Session) => {
+    if (!session?.user) return null;
+
+    try {
+      // First, get normalized data from session
       const userData = getNormalizedUserData(session.user);
-      if (userData) {
-        const userForState = {
-          name: userData.name || userData.username,
-          username: userData.username,
-          image: userData.avatar_url || "",
-          provider: userData.provider,
-          emailVerified: userData.emailVerified,
-        };
+      if (!userData) return null;
 
-        setUser(userForState);
-        localStorage.setItem("userData", JSON.stringify(userData));
+      // For all users, try to fetch additional profile data from database
+      let profileData = userData;
 
-        // Sync with backend if needed (for bot games, etc.)
-        // This is optional since you mentioned backend isn't handling auth
-        const token = localStorage.getItem("token");
-        if (!token && userData.provider === "email") {
-          // Only try to sync email users with backend
-          // Google users don't need backend sync in your current setup
-          console.log(
-            "Email user logged in, backend sync could be implemented here"
-          );
+      try {
+        const { data: dbProfile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userData.id)
+          .single();
+
+        if (!profileError && dbProfile) {
+          // Merge database profile with session data
+          profileData = {
+            ...userData,
+            username: dbProfile.username || userData.username,
+            name: dbProfile.name || userData.name,
+            avatar_url: dbProfile.avatar_url || userData.avatar_url,
+          };
+        } else {
+          console.log("No database profile found, using session data only");
         }
+      } catch (dbError) {
+        console.warn(
+          "Database profile fetch failed, using session data:",
+          dbError
+        );
+        // Continue with session data only
       }
-    } else {
-      setUser(null);
-      localStorage.removeItem("userData");
-      localStorage.removeItem("token"); // Clear any backend tokens
+
+      return {
+        name: profileData.name || profileData.username,
+        username: profileData.username,
+        image: profileData.avatar_url || "",
+        provider: profileData.provider,
+        emailVerified: profileData.emailVerified,
+      };
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+      return null;
     }
   }, []);
 
-  const checkAuthState = useCallback(async () => {
-    if (sessionChecked) return; // Prevent multiple checks
+  const updateUserFromSession = useCallback(
+    async (session: Session | null) => {
+      try {
+        if (session?.user) {
+          console.log("Updating user from session:", {
+            userId: session.user.id,
+            email: session.user.email,
+            provider: session.user.app_metadata?.provider,
+          });
 
-    try {
-      setIsLoading(true);
-      const session = await validateSession();
+          const userForState = await loadUserProfile(session);
 
-      if (session) {
-        await updateUserFromSession(session);
-      } else {
+          if (userForState) {
+            setUser(userForState);
+
+            // Store normalized user data in localStorage
+            const userData = getNormalizedUserData(session.user);
+            if (userData) {
+              localStorage.setItem("userData", JSON.stringify(userData));
+            }
+
+            console.log("User state updated successfully:", userForState);
+          } else {
+            console.error("Failed to load user profile data");
+          }
+        } else {
+          console.log("No session user, clearing user state");
+          setUser(null);
+          localStorage.removeItem("userData");
+          localStorage.removeItem("token");
+        }
+      } catch (error) {
+        console.error("Error updating user from session:", error);
         setUser(null);
         localStorage.removeItem("userData");
         localStorage.removeItem("token");
       }
+    },
+    [loadUserProfile]
+  );
+
+  const checkAuthState = useCallback(async () => {
+    if (sessionChecked) return;
+
+    try {
+      setIsLoading(true);
+      console.log("Checking initial auth state...");
+
+      const session = await validateSession();
+      console.log(
+        "Initial session check result:",
+        session ? "Session found" : "No session"
+      );
+
+      await updateUserFromSession(session);
     } catch (error) {
       console.error("Auth state check failed:", error);
       setUser(null);
@@ -102,25 +161,34 @@ const Header: React.FC = () => {
     // Initial auth check
     checkAuthState();
 
-    // Subscribe to auth state changes
+    // Subscribe to auth state changes with enhanced logging
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(
-        "Auth state changed:",
+      console.log("Auth state change detected:", {
         event,
-        session?.user?.email,
-        session?.user?.app_metadata?.provider
-      );
+        userId: session?.user?.id,
+        email: session?.user?.email,
+        provider: session?.user?.app_metadata?.provider,
+        hasSession: !!session,
+      });
 
-      // Handle different auth events
+      // Reset session checked flag on auth events to allow re-checking
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setSessionChecked(false);
+      }
+
+      // Handle different auth events with proper state management
       switch (event) {
         case "SIGNED_IN":
+          console.log("Processing SIGNED_IN event");
+          setIsLoading(true);
           await updateUserFromSession(session);
           setIsLoading(false);
           break;
 
         case "SIGNED_OUT":
+          console.log("Processing SIGNED_OUT event");
           setUser(null);
           localStorage.removeItem("userData");
           localStorage.removeItem("token");
@@ -128,17 +196,22 @@ const Header: React.FC = () => {
           break;
 
         case "TOKEN_REFRESHED":
-          // Session was refreshed, update user data
+          console.log("Processing TOKEN_REFRESHED event");
           if (session) {
             await updateUserFromSession(session);
           }
           break;
 
         case "USER_UPDATED":
-          // User profile was updated
+          console.log("Processing USER_UPDATED event");
           if (session) {
             await updateUserFromSession(session);
           }
+          break;
+
+        case "PASSWORD_RECOVERY":
+          console.log("Processing PASSWORD_RECOVERY event");
+          // Handle password recovery if needed
           break;
 
         default:
@@ -151,9 +224,11 @@ const Header: React.FC = () => {
     };
   }, [checkAuthState, updateUserFromSession]);
 
+  // Enhanced logout with proper cleanup
   const handleLogout = async () => {
     try {
       setIsLoading(true);
+      console.log("Initiating logout...");
 
       // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
@@ -168,9 +243,11 @@ const Header: React.FC = () => {
       setUser(null);
       setShowLoginModal(false);
       setShowMobileMenu(false);
+      setSessionChecked(false); // Reset to allow fresh auth check
       localStorage.removeItem("userData");
       localStorage.removeItem("token");
 
+      console.log("Logout completed successfully");
       toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
@@ -181,8 +258,13 @@ const Header: React.FC = () => {
   };
 
   const handleLoginSuccess = () => {
+    console.log("Login success callback triggered");
     setShowLoginModal(false);
     // Auth state change will be handled by the subscription
+    // Force a session check to ensure immediate UI update
+    setTimeout(() => {
+      checkAuthState();
+    }, 100);
   };
 
   // Show provider-specific user info
@@ -253,6 +335,19 @@ const Header: React.FC = () => {
   }, [showHeader, showLoginModal, showMobileMenu]);
 
   const userInfo = getUserDisplayInfo();
+
+  // Enhanced debug logging for development
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("Header state:", {
+        isLoading,
+        sessionChecked,
+        hasUser: !!user,
+        userProvider: user?.provider,
+        userEmail: user?.username,
+      });
+    }
+  }, [isLoading, sessionChecked, user]);
 
   return (
     <header
