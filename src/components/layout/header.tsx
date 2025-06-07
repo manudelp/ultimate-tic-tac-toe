@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { LoginForm } from "../ui/login-form";
-import { logoutUser, verifyToken } from "@/api";
+import { supabase } from "@/lib/supabase";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,52 +28,36 @@ const Header: React.FC = () => {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = useRef<() => Promise<void>>();
-
-  checkAuth.current = async () => {
-    setIsLoading(true);
+  const updateUserState = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("userData");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (!token || !userData) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userData");
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
+      if (session?.user) {
+        const userData = {
+          name:
+            session.user.user_metadata?.full_name ||
+            session.user.user_metadata?.name ||
+            session.user.email?.split("@")[0] ||
+            "User",
+          username:
+            session.user.user_metadata?.user_name ||
+            session.user.email?.split("@")[0] ||
+            "user",
+          image: session.user.user_metadata?.avatar_url || "",
+        };
 
-      const isValid = await verifyToken();
-
-      if (!isValid) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userData");
-        setUser(null);
+        setUser(userData);
+        localStorage.setItem("userData", JSON.stringify(userData));
       } else {
-        let parsed;
-        try {
-          parsed = JSON.parse(userData);
-        } catch {
-          parsed = null;
-        }
-        if (parsed && (parsed.name || parsed.username)) {
-          setUser({
-            name: parsed.name || parsed.username,
-            username: parsed.username,
-            image: parsed.avatar_url || "",
-          });
-        } else {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userData");
-          setUser(null);
-        }
+        setUser(null);
+        localStorage.removeItem("userData");
       }
     } catch (error) {
-      console.error("Auth check failed", error);
-      localStorage.removeItem("token");
-      localStorage.removeItem("userData");
+      console.error("Error updating user state:", error);
       setUser(null);
+      localStorage.removeItem("userData");
     } finally {
       setIsLoading(false);
     }
@@ -81,25 +65,62 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     setHostname(window.location.hostname.replace(/^www\./, ""));
-    checkAuth.current?.();
+
+    // Initial auth check
+    updateUserState();
+
+    // Subscribe to auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.email);
+
+      if (event === "SIGNED_IN" && session?.user) {
+        const userData = {
+          name:
+            session.user.user_metadata?.full_name ||
+            session.user.user_metadata?.name ||
+            session.user.email?.split("@")[0] ||
+            "User",
+          username:
+            session.user.user_metadata?.user_name ||
+            session.user.email?.split("@")[0] ||
+            "user",
+          image: session.user.user_metadata?.avatar_url || "",
+        };
+
+        setUser(userData);
+        localStorage.setItem("userData", JSON.stringify(userData));
+        setIsLoading(false);
+      } else if (event === "SIGNED_OUT") {
+        setUser(null);
+        localStorage.removeItem("userData");
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const handleLogout = () => {
-    logoutUser();
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    setUser(null);
-    setShowLoginModal(false);
-    setShowMobileMenu(false);
-    toast.success("You've been logged out successfully");
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setShowLoginModal(false);
+      setShowMobileMenu(false);
+      localStorage.removeItem("userData");
+      toast.success("You've been logged out successfully");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed");
+    }
   };
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    setTimeout(() => {
-      checkAuth.current?.();
-    }, 50);
+    // Auth state change will be handled by the subscription
   };
 
   useEffect(() => {

@@ -288,6 +288,51 @@ export const verifyToken = async (): Promise<boolean> => {
   }
 };
 
+// User data interface for Supabase token exchange
+interface SupabaseUserData {
+  id: string;
+  email?: string;
+  username?: string;
+  [key: string]: string | number | boolean | null | undefined; // Allows for additional fields with common types
+}
+
+// New function to exchange Supabase token for backend token
+export const exchangeSupabaseToken = async (
+  supabaseToken: string,
+  userData: SupabaseUserData
+) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/supabase-exchange`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        supabase_token: supabaseToken,
+        user_data: userData,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Token exchange failed");
+    }
+
+    const data = await response.json();
+
+    // Store the backend token and user data
+    if (data.access_token) {
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("userData", JSON.stringify(data.user));
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Supabase token exchange error:", error);
+    throw error;
+  }
+};
+
 export const logoutUser = async () => {
   localStorage.removeItem("token");
   localStorage.removeItem("userData");

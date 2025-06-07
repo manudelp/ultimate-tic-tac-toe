@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import type { Metadata } from "next";
-import AuthListener from "@/app/auth-listener";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import "@fortawesome/fontawesome-svg-core/styles.css";
@@ -57,7 +56,6 @@ export default function RootLayout({
         <Footer />
         <SpeedInsights />
         <Analytics />
-        <AuthListener />
       </body>
     </html>
   );

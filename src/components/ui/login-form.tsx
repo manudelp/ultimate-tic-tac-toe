@@ -494,15 +494,27 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 onClick={async () => {
                   setIsLoading(true);
                   try {
-                    await supabase.auth.signInWithOAuth({
+                    // Get the current origin for redirect
+                    const redirectUrl = `${window.location.origin}/auth/callback`;
+
+                    const { error } = await supabase.auth.signInWithOAuth({
                       provider: "google",
                       options: {
-                        redirectTo: `${window.location.origin}/auth/callback`,
+                        redirectTo: redirectUrl,
+                        queryParams: {
+                          access_type: "offline",
+                          prompt: "consent",
+                        },
                       },
                     });
+
+                    if (error) {
+                      console.error("Google sign-in error:", error);
+                      toast.error("Google sign-in failed. Please try again.");
+                    }
                   } catch (error) {
-                    console.error(error);
-                    toast.error("Google sign-in failed");
+                    console.error("Google sign-in error:", error);
+                    toast.error("Google sign-in failed. Please try again.");
                   } finally {
                     setIsLoading(false);
                   }

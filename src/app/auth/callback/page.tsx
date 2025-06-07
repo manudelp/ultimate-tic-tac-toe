@@ -10,31 +10,43 @@ export default function Callback() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+    const handleAuthCallback = async () => {
+      try {
+        // Get the session from Supabase
+        const { data, error } = await supabase.auth.getSession();
 
-      if (error || !data.session) {
-        toast.error("Login failed");
-        router.push("/login");
-        return;
-      }
+        if (error || !data.session) {
+          toast.error("Login failed");
+          router.push("/");
+          return;
+        }
 
-      toast.success("Login successful");
+        // Store user data in localStorage for UI state management
+        const userData = {
+          id: data.session.user.id,
+          email: data.session.user.email,
+          name:
+            data.session.user.user_metadata?.full_name ||
+            data.session.user.user_metadata?.name ||
+            data.session.user.email?.split("@")[0],
+          username:
+            data.session.user.user_metadata?.user_name ||
+            data.session.user.email?.split("@")[0],
+          avatar_url: data.session.user.user_metadata?.avatar_url,
+        };
 
-      const origin = window.location.origin;
-      if (
-        origin.includes("utictatoe.online") ||
-        origin.includes("utictactoe.vercel.app") ||
-        origin.includes("localhost:3000")
-      ) {
+        localStorage.setItem("userData", JSON.stringify(userData));
+
+        toast.success("Login successful");
         router.push("/");
-      } else {
-        // fallback or other origin
+      } catch (error) {
+        console.error("Auth callback error:", error);
+        toast.error("Login failed");
         router.push("/");
       }
     };
 
-    checkSession();
+    handleAuthCallback();
   }, [router]);
 
   return (
