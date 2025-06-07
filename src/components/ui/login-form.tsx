@@ -124,7 +124,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       return;
     }
 
-    // Check if reCAPTCHA is loaded before proceeding
     if (!recaptchaLoaded) {
       toast.error(
         "Security verification is loading. Please wait a moment and try again."
@@ -133,7 +132,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       return;
     }
 
-    // Verify site key is available
     if (!SITE_KEY) {
       console.error("reCAPTCHA site key is missing from environment");
       toast.error(
@@ -146,28 +144,15 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     try {
       let token = "";
       try {
-        console.log("Attempting to generate reCAPTCHA token...");
         token = await executeRecaptcha();
-        console.log("reCAPTCHA token generated successfully");
       } catch (error) {
-        console.error("reCAPTCHA error:", error);
         toast.error(
           "Security verification failed. Please refresh the page and try again."
         );
+        console.error(error);
         setIsLoading(false);
         return;
       }
-
-      if (!token || token.length < 50) {
-        console.error("Invalid token length:", token?.length);
-        toast.error(
-          "Invalid security token. Please refresh the page and try again."
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      console.log("Sending login request with token...");
 
       if (isLogin) {
         const result = await loginUser(
@@ -181,31 +166,38 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         );
         onLoginSuccess?.();
       } else {
-        await registerUser(
-          formData.email,
-          formData.password,
-          formData.username,
-          token
-        );
-        toast.success("Registration complete. Please log in.");
-        setIsLogin(true);
-        setStep(1);
-        setFormData({
-          username: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        });
+        try {
+          await registerUser(
+            formData.email,
+            formData.password,
+            formData.username,
+            token
+          );
+          toast.success("Registration complete. Please log in.");
+          setIsLogin(true);
+          setStep(1);
+          setFormData({
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          });
+        } catch (error) {
+          console.error("Registration error:", error);
+          if (error instanceof Error && error.message.includes("reCAPTCHA")) {
+            toast.error("Security verification failed. Please try again.");
+          } else {
+            toast.error(
+              error instanceof Error ? error.message : "Registration failed"
+            );
+          }
+        }
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      if (error instanceof Error && error.message.includes("reCAPTCHA")) {
-        toast.error("Security verification failed. Please try again.");
-      } else {
-        toast.error(
-          error instanceof Error ? error.message : "Authentication error"
-        );
-      }
+      toast.error(
+        error instanceof Error ? error.message : "Authentication error"
+      );
     } finally {
       setIsLoading(false);
     }
