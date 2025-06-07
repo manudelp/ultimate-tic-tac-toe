@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { loginUser, registerUser } from "@/api";
 import { reconnectSocket } from "@/socket";
 import Script from "next/script";
-import Loader from "@/components/ui/loader";
 
 declare global {
   interface Window {
