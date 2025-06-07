@@ -36,6 +36,29 @@ export default function Confirm() {
 
         const hash = window.location.hash;
         const params = new URLSearchParams(hash.slice(1)); // remove '#'
+
+        // Check for error parameters first
+        const urlError = params.get("error");
+        const errorCode = params.get("error_code");
+        const errorDescription = params.get("error_description");
+
+        if (urlError) {
+          // Handle specific error codes
+          if (errorCode === "otp_expired") {
+            setStatus("Email link has expired");
+          } else {
+            setStatus(
+              errorDescription?.replace(/\+/g, " ") || "Verification failed"
+            );
+          }
+          setIsLoading(false);
+          toast.error(
+            errorDescription?.replace(/\+/g, " ") || "Verification failed"
+          );
+          return;
+        }
+
+        // Continue with the existing success flow
         const accessToken = params.get("access_token");
         const type = params.get("type");
 
