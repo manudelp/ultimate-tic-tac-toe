@@ -354,7 +354,7 @@ export default function ProfilePage() {
           />
         ) : (
           <div className="w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md cursor-not-allowed hover:bg-gray-650 transition-colors">
-            {profile.name || "Click to add name"}
+            {profile.name || "Name"}
           </div>
         )}
       </div>
