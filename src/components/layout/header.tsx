@@ -1,8 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { LoginForm } from "../ui/login-form";
-import { supabase } from "@/lib/supabase";
+import {
+  supabase,
+  getNormalizedUserData,
+  validateSession,
+} from "@/lib/supabase";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,112 +19,186 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Session } from "@supabase/supabase-js";
+
+interface UserData {
+  name: string;
+  username: string;
+  image: string;
+  provider: string;
+  emailVerified: boolean;
+}
 
 const Header: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [hostname, setHostname] = useState("utictactoe.online");
-  const [user, setUser] = useState<{
-    name: string;
-    username: string;
-    image: string;
-  } | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
-  const updateUserState = async () => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const userData = {
-          name:
-            session.user.user_metadata?.full_name ||
-            session.user.user_metadata?.name ||
-            session.user.email?.split("@")[0] ||
-            "User",
-          username:
-            session.user.user_metadata?.user_name ||
-            session.user.email?.split("@")[0] ||
-            "user",
-          image: session.user.user_metadata?.avatar_url || "",
+  const updateUserFromSession = useCallback(async (session: Session | null) => {
+    if (session?.user) {
+      const userData = getNormalizedUserData(session.user);
+      if (userData) {
+        const userForState = {
+          name: userData.name || userData.username,
+          username: userData.username,
+          image: userData.avatar_url || "",
+          provider: userData.provider,
+          emailVerified: userData.emailVerified,
         };
 
-        setUser(userData);
+        setUser(userForState);
         localStorage.setItem("userData", JSON.stringify(userData));
+
+        // Sync with backend if needed (for bot games, etc.)
+        // This is optional since you mentioned backend isn't handling auth
+        const token = localStorage.getItem("token");
+        if (!token && userData.provider === "email") {
+          // Only try to sync email users with backend
+          // Google users don't need backend sync in your current setup
+          console.log(
+            "Email user logged in, backend sync could be implemented here"
+          );
+        }
+      }
+    } else {
+      setUser(null);
+      localStorage.removeItem("userData");
+      localStorage.removeItem("token"); // Clear any backend tokens
+    }
+  }, []);
+
+  const checkAuthState = useCallback(async () => {
+    if (sessionChecked) return; // Prevent multiple checks
+
+    try {
+      setIsLoading(true);
+      const session = await validateSession();
+
+      if (session) {
+        await updateUserFromSession(session);
       } else {
         setUser(null);
         localStorage.removeItem("userData");
+        localStorage.removeItem("token");
       }
     } catch (error) {
-      console.error("Error updating user state:", error);
+      console.error("Auth state check failed:", error);
       setUser(null);
       localStorage.removeItem("userData");
+      localStorage.removeItem("token");
     } finally {
       setIsLoading(false);
+      setSessionChecked(true);
     }
-  };
+  }, [sessionChecked, updateUserFromSession]);
 
   useEffect(() => {
     setHostname(window.location.hostname.replace(/^www\./, ""));
 
     // Initial auth check
-    updateUserState();
+    checkAuthState();
 
     // Subscribe to auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.email);
+      console.log(
+        "Auth state changed:",
+        event,
+        session?.user?.email,
+        session?.user?.app_metadata?.provider
+      );
 
-      if (event === "SIGNED_IN" && session?.user) {
-        const userData = {
-          name:
-            session.user.user_metadata?.full_name ||
-            session.user.user_metadata?.name ||
-            session.user.email?.split("@")[0] ||
-            "User",
-          username:
-            session.user.user_metadata?.user_name ||
-            session.user.email?.split("@")[0] ||
-            "user",
-          image: session.user.user_metadata?.avatar_url || "",
-        };
+      // Handle different auth events
+      switch (event) {
+        case "SIGNED_IN":
+          await updateUserFromSession(session);
+          setIsLoading(false);
+          break;
 
-        setUser(userData);
-        localStorage.setItem("userData", JSON.stringify(userData));
-        setIsLoading(false);
-      } else if (event === "SIGNED_OUT") {
-        setUser(null);
-        localStorage.removeItem("userData");
-        setIsLoading(false);
+        case "SIGNED_OUT":
+          setUser(null);
+          localStorage.removeItem("userData");
+          localStorage.removeItem("token");
+          setIsLoading(false);
+          break;
+
+        case "TOKEN_REFRESHED":
+          // Session was refreshed, update user data
+          if (session) {
+            await updateUserFromSession(session);
+          }
+          break;
+
+        case "USER_UPDATED":
+          // User profile was updated
+          if (session) {
+            await updateUserFromSession(session);
+          }
+          break;
+
+        default:
+          console.log("Unhandled auth event:", event);
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [checkAuthState, updateUserFromSession]);
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      setIsLoading(true);
+
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Logout error:", error);
+        toast.error("Logout failed");
+        return;
+      }
+
+      // Clear all local state and storage
       setUser(null);
       setShowLoginModal(false);
       setShowMobileMenu(false);
       localStorage.removeItem("userData");
-      toast.success("You've been logged out successfully");
+      localStorage.removeItem("token");
+
+      toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Logout failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
     // Auth state change will be handled by the subscription
+  };
+
+  // Show provider-specific user info
+  const getUserDisplayInfo = () => {
+    if (!user) return null;
+
+    return {
+      ...user,
+      displayName: user.name || user.username,
+      providerBadge:
+        user.provider === "google"
+          ? "🔗 Google"
+          : user.emailVerified
+          ? "✅ Email"
+          : "⚠️ Unverified",
+    };
   };
 
   useEffect(() => {
@@ -174,6 +252,8 @@ const Header: React.FC = () => {
     };
   }, [showHeader, showLoginModal, showMobileMenu]);
 
+  const userInfo = getUserDisplayInfo();
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-20 transition ${
@@ -211,25 +291,33 @@ const Header: React.FC = () => {
             <li>
               {isLoading ? (
                 <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
-              ) : user ? (
+              ) : userInfo ? (
                 <div className="flex items-center gap-2">
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Avatar className="cursor-pointer hover:ring-2 hover:ring-gray-500 transition">
-                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarImage
+                          src={userInfo.image}
+                          alt={userInfo.displayName}
+                        />
                         <AvatarFallback>
-                          {(user.name || user.username).charAt(0).toUpperCase()}
+                          {userInfo.displayName.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-64">
                       <DropdownMenuLabel className="text-sm font-semibold">
-                        <span
-                          className="truncate"
-                          title={user.name || user.username}
-                        >
-                          {user.name || user.username}
-                        </span>
+                        <div className="flex flex-col">
+                          <span
+                            className="truncate"
+                            title={userInfo.displayName}
+                          >
+                            {userInfo.displayName}
+                          </span>
+                          <span className="text-xs text-gray-500 font-normal">
+                            {userInfo.providerBadge}
+                          </span>
+                        </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <Link href="/profile" title="Profile">
@@ -238,8 +326,9 @@ const Header: React.FC = () => {
                       <DropdownMenuItem
                         onClick={handleLogout}
                         className="text-red-500"
+                        disabled={isLoading}
                       >
-                        Logout
+                        {isLoading ? "Logging out..." : "Logout"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

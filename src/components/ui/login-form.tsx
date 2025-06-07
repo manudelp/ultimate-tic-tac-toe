@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { toast } from "sonner";
-import { loginUser, registerUser } from "@/api";
-import { reconnectSocket } from "@/socket";
 import Script from "next/script";
 
 declare global {
@@ -180,6 +178,117 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   };
 
+  const handleEmailPasswordSubmit = async (
+    email: string,
+    password: string,
+    isRegister: boolean
+  ) => {
+    try {
+      if (isRegister) {
+        // Register with Supabase Auth
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`,
+          },
+        });
+
+        if (error) {
+          // Check if user already exists with a different provider
+          if (error.message.includes("already registered")) {
+            toast.error(
+              "An account with this email already exists. Try logging in or use 'Forgot Password' if you can't remember your credentials."
+            );
+            return;
+          }
+          throw error;
+        }
+
+        if (data.user && !data.session) {
+          toast.success(
+            "Registration successful! Please check your email to confirm your account."
+          );
+          setMode("login");
+          setStep(1);
+          setFormData({
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          });
+        } else if (data.session) {
+          // Auto-confirmed
+          toast.success("Registration successful! You're now logged in.");
+          onLoginSuccess?.();
+        }
+      } else {
+        // Login with Supabase Auth
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          // Provide helpful error messages
+          if (error.message.includes("Invalid login credentials")) {
+            toast.error(
+              "Invalid email or password. Please check your credentials and try again."
+            );
+          } else if (error.message.includes("Email not confirmed")) {
+            toast.error(
+              "Please confirm your email address before logging in. Check your inbox for a confirmation link."
+            );
+          } else {
+            toast.error(error.message || "Login failed");
+          }
+          return;
+        }
+
+        if (data.user) {
+          toast.success(`Welcome back!`);
+          onLoginSuccess?.();
+        }
+      }
+    } catch (error) {
+      console.error("Auth error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Authentication failed"
+      );
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (error) {
+        // Handle specific OAuth errors
+        if (error.message.includes("popup_closed_by_user")) {
+          toast.error("Sign-in was cancelled. Please try again.");
+        } else {
+          console.error("Google sign-in error:", error);
+          toast.error("Google sign-in failed. Please try again.");
+        }
+      }
+      // Success will be handled by the callback page
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      toast.error("Google sign-in failed. Please try again.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -201,89 +310,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       return;
     }
 
-    if (!recaptchaLoaded) {
-      toast.error(
-        "Security verification is loading. Please wait a moment and try again."
-      );
-      setIsLoading(false);
-      return;
-    }
-
-    if (!SITE_KEY) {
-      console.error("reCAPTCHA site key is missing from environment");
-      toast.error(
-        "Security verification is not configured. Please check configuration."
-      );
-      setIsLoading(false);
-      return;
-    }
-
+    // For email/password authentication, we'll use Supabase directly
+    // instead of the backend API to avoid provider conflicts
     try {
-      let token = "";
-      try {
-        token = await executeRecaptcha();
-      } catch (error) {
-        toast.error(
-          "Security verification failed. Please refresh the page and try again."
-        );
-        console.error(error);
-        setIsLoading(false);
-        return;
-      }
-
-      if (mode === "login") {
-        const result = await loginUser(
-          formData.email,
-          formData.password,
-          token
-        );
-        reconnectSocket();
-        toast.success(
-          `Welcome back, ${result.user.name || result.user.username}!`
-        );
-        onLoginSuccess?.();
-      } else {
-        try {
-          await registerUser(
-            formData.email,
-            formData.password,
-            formData.username,
-            token
-          );
-          toast.success("Registration complete. Please log in.");
-          setMode("login");
-          setStep(1);
-          setFormData({
-            username: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-          });
-        } catch (error) {
-          console.error("Registration error:", error);
-          if (error instanceof Error && error.message.includes("Supabase")) {
-            toast.error("Failed to register user. Please try again later.");
-          } else if (
-            error instanceof Error &&
-            error.message.includes("email")
-          ) {
-            toast.error(
-              "Email is already in use. Please use a different email."
-            );
-          } else if (
-            error instanceof Error &&
-            error.message.includes("username")
-          ) {
-            toast.error(
-              "Username is already taken. Please choose a different username."
-            );
-          } else {
-            toast.error(
-              error instanceof Error ? error.message : "Registration failed"
-            );
-          }
-        }
-      }
+      await handleEmailPasswordSubmit(
+        formData.email,
+        formData.password,
+        mode === "register"
+      );
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error(
@@ -491,35 +525,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               </div>
               <Button
                 className="flex items-center justify-center w-full gap-2 p-1 text-black text-sm transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
-                onClick={async () => {
-                  setIsLoading(true);
-                  try {
-                    // Get the current origin for redirect
-                    const redirectUrl = `${window.location.origin}/auth/callback`;
-
-                    const { error } = await supabase.auth.signInWithOAuth({
-                      provider: "google",
-                      options: {
-                        redirectTo: redirectUrl,
-                        queryParams: {
-                          access_type: "offline",
-                          prompt: "consent",
-                        },
-                      },
-                    });
-
-                    if (error) {
-                      console.error("Google sign-in error:", error);
-                      toast.error("Google sign-in failed. Please try again.");
-                    }
-                  } catch (error) {
-                    console.error("Google sign-in error:", error);
-                    toast.error("Google sign-in failed. Please try again.");
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
+                onClick={handleGoogleSignIn}
                 disabled={isLoading}
+                type="button"
               >
                 <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
@@ -532,6 +540,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                   ? "Continue with Google"
                   : "Sign up with Google"}
               </Button>
+
+              {/* Provider conflict warning */}
+              <div className="text-xs text-gray-500 text-center">
+                <p>
+                  Note: Google and email logins create separate accounts even
+                  with the same email.
+                </p>
+              </div>
             </>
           )}
 
