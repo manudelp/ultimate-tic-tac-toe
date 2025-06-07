@@ -97,10 +97,9 @@ const Header: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    // Defer to next tick to ensure tokens are set in localStorage
     setTimeout(() => {
       checkAuth.current?.();
-    }, 0);
+    }, 50);
   };
 
   useEffect(() => {
