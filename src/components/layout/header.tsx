@@ -74,7 +74,12 @@ const Header: React.FC = () => {
   const handleLogout = () => {
     logoutUser();
     setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    setShowLoginModal(false);
+    setShowMobileMenu(false);
     toast.success("You've been logged out successfully");
+    window.location.reload();
   };
 
   const handleLoginSuccess = () => {
