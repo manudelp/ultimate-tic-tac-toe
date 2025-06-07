@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, getNormalizedUserData } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -9,21 +9,12 @@ import Loader from "@/components/ui/loader";
 // Force dynamic rendering to prevent prerendering
 export const dynamic = "force-dynamic";
 
-export default function Callback() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState("Processing authentication...");
-  const [isClient, setIsClient] = useState(false);
-
-  // Ensure we're on the client side
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
-    // Only run on client side
-    if (!isClient) return;
-
     const handleAuthCallback = async () => {
       try {
         // Check for error in URL params first
@@ -135,22 +126,27 @@ export default function Callback() {
     };
 
     handleAuthCallback();
-  }, [router, searchParams, isClient]);
-
-  // Show loading state until client-side hydration is complete
-  if (!isClient) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <Loader />
-        <p className="text-gray-400 mt-4">Loading...</p>
-      </div>
-    );
-  }
+  }, [router, searchParams]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <Loader />
       <p className="text-gray-400 mt-4">{status}</p>
     </div>
+  );
+}
+
+export default function Callback() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <Loader />
+          <p className="text-gray-400 mt-4">Loading...</p>
+        </div>
+      }
+    >
+      <CallbackContent />
+    </Suspense>
   );
 }
