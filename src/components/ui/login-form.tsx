@@ -184,8 +184,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           });
         } catch (error) {
           console.error("Registration error:", error);
-          if (error instanceof Error && error.message.includes("reCAPTCHA")) {
-            toast.error("Security verification failed. Please try again.");
+          if (error instanceof Error && error.message.includes("Supabase")) {
+            toast.error("Failed to register user. Please try again later.");
           } else {
             toast.error(
               error instanceof Error ? error.message : "Registration failed"
