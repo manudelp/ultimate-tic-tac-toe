@@ -146,8 +146,6 @@ export const agentsReset = async (id: number): Promise<void> => {
 // Test reCAPTCHA validation
 export const testRecaptcha = async (token: string): Promise<boolean> => {
   try {
-    console.log("Testing reCAPTCHA token:", token.substring(0, 20) + "...");
-
     const response = await fetch(`${API_BASE_URL}/test-recaptcha`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -155,7 +153,6 @@ export const testRecaptcha = async (token: string): Promise<boolean> => {
     });
 
     const data = await response.json();
-    console.log("reCAPTCHA test result:", data);
 
     return response.ok && data.valid === true;
   } catch (error) {
@@ -171,24 +168,11 @@ export async function loginUser(
   recaptcha: string
 ) {
   try {
-    console.log("Attempting login with:", {
-      email,
-      recaptchaLength: recaptcha.length,
-      recaptchaPreview: recaptcha.substring(0, 20) + "...",
-      timestamp: new Date().toISOString(),
-    });
-
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, recaptcha }),
     });
-
-    console.log("Login response status:", response.status);
-    console.log(
-      "Login response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
 
     if (!response.ok) {
       let errorData;
@@ -221,7 +205,6 @@ export async function loginUser(
     }
 
     const data = await response.json();
-    console.log("Login successful:", { user: data.user?.username });
 
     // Store token and user data
     if (data.access_token) {
@@ -243,19 +226,11 @@ export const registerUser = async (
   recaptcha: string
 ) => {
   try {
-    console.log("Attempting registration with:", {
-      email,
-      username,
-      recaptchaLength: recaptcha.length,
-    });
-
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, username, recaptcha }),
     });
-
-    console.log("Registration response status:", response.status);
 
     if (!response.ok) {
       let errorData;
@@ -277,7 +252,6 @@ export const registerUser = async (
     }
 
     const result = await response.json();
-    console.log("Registration successful");
     return result;
   } catch (error) {
     console.error("Registration error:", error);

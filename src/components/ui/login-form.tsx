@@ -84,8 +84,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         return;
       }
 
-      console.log("Executing reCAPTCHA with site key:", SITE_KEY);
-
       window.grecaptcha.ready(() => {
         window.grecaptcha
           .execute(SITE_KEY as string, { action: "submit" })
@@ -95,9 +93,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               reject(new Error("Empty reCAPTCHA token received"));
               return;
             }
-            console.log("reCAPTCHA token generated successfully");
-            console.log("Token length:", token.length);
-            console.log("Token preview:", token.substring(0, 50) + "...");
             resolve(token);
           })
           .catch((error) => {
@@ -223,11 +218,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         src={`https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`}
         strategy="afterInteractive"
         onLoad={() => {
-          console.log("reCAPTCHA script loaded");
           setRecaptchaLoaded(true);
         }}
         onError={() => {
-          console.error("Failed to load reCAPTCHA script");
           toast.error(
             "Failed to load security verification. Please refresh the page."
           );
