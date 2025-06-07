@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase, getNormalizedUserData } from "@/lib/supabase";
+import { supabase, getUserProfileWithLinking } from "@/lib/supabase";
 import { toast } from "sonner";
 import Loader from "@/components/ui/loader";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -9,15 +9,23 @@ import { PencilIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
 // Force dynamic rendering to prevent prerendering
 export const dynamic = "force-dynamic";
 
+interface UserProfile {
+  username: string;
+  avatar_url: string;
+  name: string;
+  provider: "google" | "email";
+  emailVerified: boolean;
+}
+
 export default function ProfilePage() {
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<UserProfile>({
     username: "",
     avatar_url: "",
     name: "",
     provider: "email",
     emailVerified: false,
   });
-  const [originalProfile, setOriginalProfile] = useState(profile);
+  const [originalProfile, setOriginalProfile] = useState<UserProfile>(profile);
   const [editingField, setEditingField] = useState<null | "name" | "username">(
     null
   );
@@ -44,8 +52,8 @@ export default function ProfilePage() {
           return;
         }
 
-        // Get normalized user data
-        const userData = getNormalizedUserData(user);
+        // Use enhanced profile loading with linking
+        const userData = await getUserProfileWithLinking(user);
 
         if (!userData) {
           toast.error("Failed to load user data");
@@ -63,6 +71,14 @@ export default function ProfilePage() {
 
         setProfile(userProfile);
         setOriginalProfile(userProfile);
+
+        // Log account linking info if available
+        if (userData._originalAuthData) {
+          console.log("Profile loaded with linked account data:", {
+            currentProvider: userData.provider,
+            originalProvider: userData._originalAuthData.provider,
+          });
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
         toast.error("Failed to load profile");

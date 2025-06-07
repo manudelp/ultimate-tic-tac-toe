@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase, getNormalizedUserData } from "@/lib/supabase";
+import { supabase, getUserProfileWithLinking } from "@/lib/supabase";
 import { toast } from "sonner";
 import Loader from "@/components/ui/loader";
 
@@ -52,8 +52,8 @@ function CallbackContent() {
 
         setStatus("Setting up user profile...");
 
-        // Get normalized user data
-        const userData = getNormalizedUserData(session.user);
+        // Get user profile with linking logic
+        const userData = await getUserProfileWithLinking(session.user);
 
         if (!userData) {
           toast.error("Failed to process user data");
@@ -68,45 +68,37 @@ function CallbackContent() {
         const provider = userData.provider;
 
         if (provider === "google") {
-          // For Google OAuth, check if we need to create/update profile
-          try {
-            const { data: existingProfile } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", userData.id)
-              .single();
-
-            if (!existingProfile) {
-              // Create profile for new Google user
-              const { error: profileError } = await supabase
-                .from("profiles")
-                .insert({
-                  id: userData.id,
-                  email: userData.email,
-                  username: userData.username,
-                  name: userData.name,
-                  avatar_url: userData.avatar_url,
-                  provider: "google",
-                });
-
-              if (profileError) {
-                console.warn("Profile creation failed:", profileError);
-                // Continue anyway - profile might already exist
-              }
-            }
-          } catch (profileError) {
-            console.warn("Profile check/creation failed:", profileError);
-            // Continue anyway
+          // Check if this was a newly linked account
+          if (userData._originalAuthData) {
+            toast.success(
+              `Accounts linked! Welcome back, ${
+                userData.name || userData.username
+              }!`
+            );
+          } else {
+            toast.success(
+              `Welcome${userData.name ? `, ${userData.name}` : ""}!`
+            );
           }
-
-          toast.success(`Welcome${userData.name ? `, ${userData.name}` : ""}!`);
         } else {
           // Email confirmation or password reset
           const type = searchParams.get("type");
           if (type === "signup") {
             toast.success("Email confirmed! You're now logged in.");
           } else if (type === "recovery") {
-            toast.success("Password reset confirmed! You're now logged in.");
+            // Handle password reset confirmation
+            const accessToken = searchParams.get("access_token");
+            const refreshToken = searchParams.get("refresh_token");
+
+            if (accessToken && refreshToken) {
+              // Redirect to reset password page with tokens
+              router.push(
+                `/reset-password?access_token=${accessToken}&refresh_token=${refreshToken}`
+              );
+              return;
+            } else {
+              toast.success("Password reset confirmed! You're now logged in.");
+            }
           } else {
             toast.success("Login successful!");
           }

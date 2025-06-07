@@ -23,9 +23,27 @@ function ResetPasswordForm() {
     const params = new URLSearchParams(hash.slice(1));
     const token =
       params.get("access_token") || searchParams.get("access_token");
+    const refreshToken =
+      params.get("refresh_token") || searchParams.get("refresh_token");
 
     if (token) {
       setAccessToken(token);
+
+      // If we have both tokens, set the session
+      if (refreshToken) {
+        supabase.auth
+          .setSession({
+            access_token: token,
+            refresh_token: refreshToken,
+          })
+          .then(({ error }) => {
+            if (error) {
+              console.error("Session setting error:", error);
+              toast.error("Invalid reset link");
+              setTimeout(() => router.push("/"), 3000);
+            }
+          });
+      }
     } else {
       toast.error("Invalid or missing reset token");
       setTimeout(() => router.push("/"), 3000);
@@ -59,10 +77,14 @@ function ResetPasswordForm() {
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
+
       setIsSuccess(true);
       toast.success("Password updated successfully!");
+
+      // Give time for the success message before redirecting
       setTimeout(() => router.push("/"), 3000);
     } catch (error) {
+      console.error("Password reset error:", error);
       toast.error(error instanceof Error ? error.message : "Reset failed");
     } finally {
       setIsLoading(false);

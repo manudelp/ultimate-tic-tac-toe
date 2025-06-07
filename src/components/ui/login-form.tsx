@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getUserProfileWithLinking } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { toast } from "sonner";
 import Script from "next/script";
+import { LoginFormData, ValidationResult } from "@/types/auth";
 
 declare global {
   interface Window {
@@ -27,18 +28,24 @@ interface LoginFormProps {
   onLoginSuccess?: () => void;
 }
 
+type FormMode = "login" | "register" | "forgot";
+
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
-  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
-  const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [mode, setMode] = useState<FormMode>("login");
+  const [step, setStep] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [formData, setFormData] = useState<LoginFormData>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
-  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState<boolean>(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] =
+    useState<boolean>(false);
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   useEffect(() => {
     // Check if reCAPTCHA is already loaded
@@ -58,11 +65,60 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
+  const validateForm = (): ValidationResult => {
+    const errors: Record<string, string> = {};
+
+    if (mode !== "forgot") {
+      if (!formData.email) {
+        errors.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        errors.email = "Invalid email format";
+      }
+
+      if (!formData.password) {
+        errors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        errors.password = "Password must be at least 6 characters";
+      }
+
+      if (mode === "register") {
+        if (!formData.username) {
+          errors.username = "Username is required";
+        } else if (formData.username.length < 3) {
+          errors.username = "Username must be at least 3 characters";
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+          errors.confirmPassword = "Passwords do not match";
+        }
+      }
+    } else {
+      if (!formData.email) {
+        errors.email = "Email is required";
+      }
+    }
+
+    setValidationErrors(errors);
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+    };
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+
+    // Clear validation error for this field
+    if (validationErrors[id]) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [id]: "",
+      }));
+    }
   };
 
   const executeRecaptcha = (action: string = "submit"): Promise<string> => {
@@ -104,9 +160,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
   };
 
-  const handleForgotPassword = async () => {
-    if (!formData.email) {
-      toast.error("Please enter your email address");
+  const handleForgotPassword = async (): Promise<void> => {
+    const validation = validateForm();
+    if (!validation.isValid) {
       return;
     }
 
@@ -117,28 +173,10 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       return;
     }
 
-    if (!SITE_KEY) {
-      console.error("reCAPTCHA site key is missing from environment");
-      toast.error(
-        "Security verification is not configured. Please check configuration."
-      );
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      let token = "";
-      try {
-        token = await executeRecaptcha("forgot_password");
-      } catch (error) {
-        toast.error(
-          "Security verification failed. Please refresh the page and try again."
-        );
-        console.error(error);
-        setIsLoading(false);
-        return;
-      }
+      const token = await executeRecaptcha("forgot_password");
 
       const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: "POST",
@@ -152,20 +190,17 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       });
 
       if (!response.ok) {
-        let errorData;
         const contentType = response.headers.get("content-type");
+        let errorMessage = "Failed to send reset email";
 
         if (contentType && contentType.includes("application/json")) {
-          errorData = await response.json();
-          throw new Error(errorData.message || "Failed to send reset email");
-        } else {
-          throw new Error(
-            `Server error: ${response.status} - ${response.statusText}`
-          );
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
         }
+
+        throw new Error(errorMessage);
       }
 
-      await response.json();
       setForgotPasswordSuccess(true);
       toast.success("Password reset email sent! Check your inbox.");
     } catch (error) {
@@ -182,7 +217,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     email: string,
     password: string,
     isRegister: boolean
-  ) => {
+  ): Promise<void> => {
     try {
       if (isRegister) {
         // Register with Supabase Auth
@@ -192,8 +227,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`,
             data: {
-              username: formData.username, // Include username in metadata
-              name: formData.username, // Default name to username
+              username: formData.username,
+              name: formData.username,
             },
           },
         });
@@ -209,26 +244,18 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
 
         if (data.user && !data.session) {
-          // Create profile entry for email confirmation flow
-          try {
-            await supabase.from("profiles").insert({
-              id: data.user.id,
-              email: email,
-              username: formData.username,
-              name: formData.username,
-              provider: "email",
-            });
-          } catch (profileError) {
-            console.warn(
-              "Profile creation failed during signup:",
-              profileError
+          // Handle account linking during registration
+          const linkedProfile = await getUserProfileWithLinking(data.user);
+          if (linkedProfile?._originalAuthData) {
+            toast.success(
+              "Account linked! Please check your email to confirm your account."
             );
-            // Continue anyway - will be created later
+          } else {
+            toast.success(
+              "Registration successful! Please check your email to confirm your account."
+            );
           }
 
-          toast.success(
-            "Registration successful! Please check your email to confirm your account."
-          );
           setMode("login");
           setStep(1);
           setFormData({
@@ -238,22 +265,17 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             confirmPassword: "",
           });
         } else if (data.session) {
-          // Auto-confirmed - ensure profile exists
-          try {
-            if (data.user) {
-              await supabase.from("profiles").upsert({
-                id: data.user.id,
-                email: email,
-                username: formData.username,
-                name: formData.username,
-                provider: "email",
-              });
-            }
-          } catch (profileError) {
-            console.warn("Profile upsert failed:", profileError);
+          // Auto-confirmed - handle linking
+          const linkedProfile = await getUserProfileWithLinking(data.user!);
+
+          if (linkedProfile?._originalAuthData) {
+            toast.success(
+              "Accounts linked! Registration successful and you're now logged in."
+            );
+          } else {
+            toast.success("Registration successful! You're now logged in.");
           }
 
-          toast.success("Registration successful! You're now logged in.");
           onLoginSuccess?.();
         }
       } else {
@@ -280,32 +302,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
 
         if (data.user && data.session) {
-          // Ensure profile exists for email login
-          try {
-            const { data: existingProfile } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", data.user.id)
-              .single();
+          // Handle account linking during login
+          const linkedProfile = await getUserProfileWithLinking(data.user);
 
-            if (!existingProfile) {
-              // Create missing profile
-              await supabase.from("profiles").insert({
-                id: data.user.id,
-                email: data.user.email,
-                username: data.user.email?.split("@")[0] || "user",
-                name:
-                  data.user.user_metadata?.name ||
-                  data.user.email?.split("@")[0] ||
-                  "User",
-                provider: "email",
-              });
-            }
-          } catch (profileError) {
-            console.warn("Profile check/creation failed:", profileError);
+          if (linkedProfile?._originalAuthData) {
+            toast.success(
+              `Accounts linked! Welcome back, ${
+                linkedProfile.name || linkedProfile.username
+              }!`
+            );
+          } else {
+            toast.success("Welcome back!");
           }
 
-          toast.success("Welcome back!");
           onLoginSuccess?.();
         }
       }
@@ -317,7 +326,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (): Promise<void> => {
     try {
       const redirectUrl = `${window.location.origin}/auth/callback`;
 
@@ -348,7 +357,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
     if (mode === "forgot") {
@@ -356,21 +365,20 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       return;
     }
 
+    const validation = validateForm();
+    if (!validation.isValid) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
     setIsLoading(true);
 
     if (mode === "register" && step === 1) {
-      if (formData.password !== formData.confirmPassword) {
-        toast.error("Passwords do not match");
-        setIsLoading(false);
-        return;
-      }
       setStep(2);
       setIsLoading(false);
       return;
     }
 
-    // For email/password authentication, we'll use Supabase directly
-    // instead of the backend API to avoid provider conflicts
     try {
       await handleEmailPasswordSubmit(
         formData.email,
@@ -387,7 +395,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setFormData({
       username: "",
       email: "",
@@ -396,9 +404,10 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
     setStep(1);
     setForgotPasswordSuccess(false);
+    setValidationErrors({});
   };
 
-  const switchMode = (newMode: "login" | "register" | "forgot") => {
+  const switchMode = (newMode: FormMode): void => {
     setMode(newMode);
     resetForm();
   };
@@ -493,6 +502,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                         value={formData.username}
                         onChange={handleChange}
                       />
+                      {validationErrors.username && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {validationErrors.username}
+                        </p>
+                      )}
                     </div>
                   )
                 : null}
@@ -507,11 +521,18 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                       type="email"
                       placeholder="Enter your email address"
                       required
-                      className="text-white bg-gray-700 h-9 border-gray-600 focus:border-blue-500 focus:ring-blue-500"
+                      className={`text-white bg-gray-700 h-9 border-gray-600 focus:border-blue-500 focus:ring-blue-500 ${
+                        validationErrors.email ? "border-red-500" : ""
+                      }`}
                       value={formData.email}
                       onChange={handleChange}
                       disabled={isLoading}
                     />
+                    {validationErrors.email && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {validationErrors.email}
+                      </p>
+                    )}
                   </div>
                   {mode !== "forgot" && (
                     <>
@@ -528,6 +549,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                           value={formData.password}
                           onChange={handleChange}
                         />
+                        {validationErrors.password && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {validationErrors.password}
+                          </p>
+                        )}
                       </div>
                       {mode === "register" && (
                         <div>
@@ -543,6 +569,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                           />
+                          {validationErrors.confirmPassword && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {validationErrors.confirmPassword}
+                            </p>
+                          )}
                         </div>
                       )}
                     </>
@@ -555,11 +586,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 disabled={isLoading || !recaptchaLoaded}
               >
                 {isLoading ? (
-                  <>
-                    <span className="ml-2">
-                      {mode === "forgot" ? "Sending..." : "Processing..."}
-                    </span>
-                  </>
+                  <span className="ml-2">
+                    {mode === "forgot" ? "Sending..." : "Processing..."}
+                  </span>
                 ) : !recaptchaLoaded ? (
                   "Loading..."
                 ) : mode === "login" ? (

@@ -38,6 +38,16 @@ interface BotMoveResponse {
   move: [number, number, number, number];
 }
 
+// User data interface for Supabase token exchange
+interface SupabaseUserData {
+  id: string;
+  email?: string;
+  username?: string;
+  name?: string;
+  avatar_url?: string;
+  provider?: string;
+}
+
 // Connection
 export const checkConnection = async (): Promise<boolean> => {
   try {
@@ -287,14 +297,6 @@ export const verifyToken = async (): Promise<boolean> => {
     return false;
   }
 };
-
-// User data interface for Supabase token exchange
-interface SupabaseUserData {
-  id: string;
-  email?: string;
-  username?: string;
-  [key: string]: string | number | boolean | null | undefined; // Allows for additional fields with common types
-}
 
 // New function to exchange Supabase token for backend token
 export const exchangeSupabaseToken = async (

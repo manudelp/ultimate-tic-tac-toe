@@ -4,8 +4,8 @@ import Link from "next/link";
 import { LoginForm } from "../ui/login-form";
 import {
   supabase,
-  getNormalizedUserData,
   validateSession,
+  getUserProfileWithLinking,
 } from "@/lib/supabase";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
@@ -19,14 +19,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Session } from "@supabase/supabase-js";
+import { Session as SupabaseSession } from "@supabase/supabase-js";
+import { UIUserData, AuthState } from "@/types/auth";
 
-interface UserData {
-  name: string;
-  username: string;
-  image: string;
-  provider: string;
-  emailVerified: boolean;
+interface UserDisplayInfo extends UIUserData {
+  displayName: string;
+  providerBadge: string;
 }
 
 const Header: React.FC = () => {
@@ -34,9 +32,12 @@ const Header: React.FC = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [hostname, setHostname] = useState("utictactoe.online");
-  const [user, setUser] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sessionChecked, setSessionChecked] = useState(false);
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    sessionChecked: false,
+    error: null,
+  });
   const [isClient, setIsClient] = useState(false);
 
   // Ensure we're on the client side
@@ -44,60 +45,55 @@ const Header: React.FC = () => {
     setIsClient(true);
   }, []);
 
-  // Enhanced user profile loading with database fallback
-  const loadUserProfile = useCallback(async (session: Session) => {
-    if (!session?.user || typeof window === "undefined") return null;
-
-    try {
-      // First, get normalized data from session
-      const userData = getNormalizedUserData(session.user);
-      if (!userData) return null;
-
-      // For all users, try to fetch additional profile data from database
-      let profileData = userData;
-
-      try {
-        const { data: dbProfile, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userData.id)
-          .single();
-
-        if (!profileError && dbProfile) {
-          // Merge database profile with session data
-          profileData = {
-            ...userData,
-            username: dbProfile.username || userData.username,
-            name: dbProfile.name || userData.name,
-            avatar_url: dbProfile.avatar_url || userData.avatar_url,
-          };
-        } else {
-          console.log("No database profile found, using session data only");
-        }
-      } catch (dbError) {
-        console.warn(
-          "Database profile fetch failed, using session data:",
-          dbError
-        );
-        // Continue with session data only
+  // Enhanced user profile loading with proper error handling
+  const loadUserProfile = useCallback(
+    async (session: SupabaseSession): Promise<UIUserData | null> => {
+      if (!session?.user || typeof window === "undefined") {
+        return null;
       }
 
-      return {
-        name: profileData.name || profileData.username,
-        username: profileData.username,
-        image: profileData.avatar_url || "",
-        provider: profileData.provider,
-        emailVerified: profileData.emailVerified,
-      };
-    } catch (error) {
-      console.error("Error loading user profile:", error);
-      return null;
-    }
-  }, []);
+      try {
+        console.log("Loading user profile with linking logic for:", {
+          userId: session.user.id,
+          email: session.user.email,
+          provider: session.user.app_metadata?.provider,
+        });
+
+        // Use the new linking function that handles account merging
+        const userData = await getUserProfileWithLinking(session.user);
+
+        if (!userData) {
+          console.error("Failed to load user profile data");
+          return null;
+        }
+
+        console.log("Successfully loaded linked profile:", {
+          userId: userData.id,
+          username: userData.username,
+          name: userData.name,
+          provider: userData.provider,
+          hasLinkedData: !!userData._originalAuthData,
+        });
+
+        return {
+          name: userData.name || userData.username,
+          username: userData.username,
+          image: userData.avatar_url || "",
+          provider: userData.provider,
+          emailVerified: userData.emailVerified,
+        };
+      } catch (error) {
+        console.error("Error loading user profile:", error);
+        return null;
+      }
+    },
+    []
+  );
 
   const updateUserFromSession = useCallback(
-    async (session: Session | null) => {
+    async (session: SupabaseSession | null): Promise<void> => {
       if (typeof window === "undefined") return;
+
       try {
         if (session?.user) {
           console.log("Updating user from session:", {
@@ -109,10 +105,14 @@ const Header: React.FC = () => {
           const userForState = await loadUserProfile(session);
 
           if (userForState) {
-            setUser(userForState);
+            setAuthState((prev) => ({
+              ...prev,
+              user: userForState,
+              error: null,
+            }));
 
             // Store normalized user data in localStorage
-            const userData = getNormalizedUserData(session.user);
+            const userData = await getUserProfileWithLinking(session.user);
             if (userData) {
               localStorage.setItem("userData", JSON.stringify(userData));
             }
@@ -120,16 +120,28 @@ const Header: React.FC = () => {
             console.log("User state updated successfully:", userForState);
           } else {
             console.error("Failed to load user profile data");
+            setAuthState((prev) => ({
+              ...prev,
+              error: "Failed to load user profile",
+            }));
           }
         } else {
           console.log("No session user, clearing user state");
-          setUser(null);
+          setAuthState((prev) => ({
+            ...prev,
+            user: null,
+            error: null,
+          }));
           localStorage.removeItem("userData");
           localStorage.removeItem("token");
         }
       } catch (error) {
         console.error("Error updating user from session:", error);
-        setUser(null);
+        setAuthState((prev) => ({
+          ...prev,
+          user: null,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }));
         localStorage.removeItem("userData");
         localStorage.removeItem("token");
       }
@@ -137,30 +149,44 @@ const Header: React.FC = () => {
     [loadUserProfile]
   );
 
-  const checkAuthState = useCallback(async () => {
-    if (sessionChecked || typeof window === "undefined") return;
+  const checkAuthState = useCallback(async (): Promise<void> => {
+    if (authState.sessionChecked || typeof window === "undefined") return;
 
     try {
-      setIsLoading(true);
+      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
       console.log("Checking initial auth state...");
 
-      const session = await validateSession();
+      const sessionResult = await validateSession();
       console.log(
         "Initial session check result:",
-        session ? "Session found" : "No session"
+        sessionResult.isValid ? "Session found" : "No session"
       );
 
-      await updateUserFromSession(session);
+      if (sessionResult.error) {
+        setAuthState((prev) => ({
+          ...prev,
+          error: sessionResult.error || "Session validation failed",
+        }));
+      }
+
+      await updateUserFromSession(sessionResult.session);
     } catch (error) {
       console.error("Auth state check failed:", error);
-      setUser(null);
+      setAuthState((prev) => ({
+        ...prev,
+        user: null,
+        error: error instanceof Error ? error.message : "Auth check failed",
+      }));
       localStorage.removeItem("userData");
       localStorage.removeItem("token");
     } finally {
-      setIsLoading(false);
-      setSessionChecked(true);
+      setAuthState((prev) => ({
+        ...prev,
+        isLoading: false,
+        sessionChecked: true,
+      }));
     }
-  }, [sessionChecked, updateUserFromSession]);
+  }, [authState.sessionChecked, updateUserFromSession]);
 
   useEffect(() => {
     if (!isClient) return;
@@ -171,6 +197,8 @@ const Header: React.FC = () => {
     checkAuthState();
 
     // Subscribe to auth state changes with enhanced logging
+    if (!supabase.auth) return;
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -184,24 +212,28 @@ const Header: React.FC = () => {
 
       // Reset session checked flag on auth events to allow re-checking
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-        setSessionChecked(false);
+        setAuthState((prev) => ({ ...prev, sessionChecked: false }));
       }
 
       // Handle different auth events with proper state management
       switch (event) {
         case "SIGNED_IN":
           console.log("Processing SIGNED_IN event");
-          setIsLoading(true);
+          setAuthState((prev) => ({ ...prev, isLoading: true }));
           await updateUserFromSession(session);
-          setIsLoading(false);
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
           break;
 
         case "SIGNED_OUT":
           console.log("Processing SIGNED_OUT event");
-          setUser(null);
+          setAuthState({
+            user: null,
+            isLoading: false,
+            sessionChecked: true,
+            error: null,
+          });
           localStorage.removeItem("userData");
           localStorage.removeItem("token");
-          setIsLoading(false);
           break;
 
         case "TOKEN_REFRESHED":
@@ -233,11 +265,15 @@ const Header: React.FC = () => {
     };
   }, [checkAuthState, updateUserFromSession, isClient]);
 
-  // Enhanced logout with proper cleanup
-  const handleLogout = async () => {
+  // Enhanced logout with proper cleanup and error handling
+  const handleLogout = async (): Promise<void> => {
     try {
-      setIsLoading(true);
+      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
       console.log("Initiating logout...");
+
+      if (!supabase.auth) {
+        throw new Error("Supabase auth not available");
+      }
 
       // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
@@ -249,10 +285,14 @@ const Header: React.FC = () => {
       }
 
       // Clear all local state and storage
-      setUser(null);
+      setAuthState({
+        user: null,
+        isLoading: false,
+        sessionChecked: false,
+        error: null,
+      });
       setShowLoginModal(false);
       setShowMobileMenu(false);
-      setSessionChecked(false); // Reset to allow fresh auth check
       localStorage.removeItem("userData");
       localStorage.removeItem("token");
 
@@ -260,33 +300,35 @@ const Header: React.FC = () => {
       toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Logout failed");
+      const errorMessage =
+        error instanceof Error ? error.message : "Logout failed";
+      setAuthState((prev) => ({ ...prev, error: errorMessage }));
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(false);
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (): void => {
     console.log("Login success callback triggered");
     setShowLoginModal(false);
-    // Auth state change will be handled by the subscription
     // Force a session check to ensure immediate UI update
     setTimeout(() => {
       checkAuthState();
     }, 100);
   };
 
-  // Show provider-specific user info
-  const getUserDisplayInfo = () => {
-    if (!user) return null;
+  // Show provider-specific user info with proper typing
+  const getUserDisplayInfo = (): UserDisplayInfo | null => {
+    if (!authState.user) return null;
 
     return {
-      ...user,
-      displayName: user.name || user.username,
+      ...authState.user,
+      displayName: authState.user.name || authState.user.username,
       providerBadge:
-        user.provider === "google"
+        authState.user.provider === "google"
           ? "🔗 Google"
-          : user.emailVerified
+          : authState.user.emailVerified
           ? "✅ Email"
           : "⚠️ Unverified",
     };
@@ -349,14 +391,15 @@ const Header: React.FC = () => {
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       console.log("Header state:", {
-        isLoading,
-        sessionChecked,
-        hasUser: !!user,
-        userProvider: user?.provider,
-        userEmail: user?.username,
+        isLoading: authState.isLoading,
+        sessionChecked: authState.sessionChecked,
+        hasUser: !!authState.user,
+        userProvider: authState.user?.provider,
+        userEmail: authState.user?.username,
+        error: authState.error,
       });
     }
-  }, [isLoading, sessionChecked, user]);
+  }, [authState]);
 
   // Don't render until client-side hydration is complete
   if (!isClient) {
@@ -422,7 +465,7 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li>
-              {isLoading ? (
+              {authState.isLoading ? (
                 <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
               ) : userInfo ? (
                 <div className="flex items-center gap-2">
@@ -459,9 +502,9 @@ const Header: React.FC = () => {
                       <DropdownMenuItem
                         onClick={handleLogout}
                         className="text-red-500"
-                        disabled={isLoading}
+                        disabled={authState.isLoading}
                       >
-                        {isLoading ? "Logging out..." : "Logout"}
+                        {authState.isLoading ? "Logging out..." : "Logout"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -588,9 +631,9 @@ const Header: React.FC = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                {isLoading ? (
+                {authState.isLoading ? (
                   <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
-                ) : user ? (
+                ) : authState.user ? (
                   <div className="flex justify-between gap-2">
                     <Link
                       href="/profile"
@@ -599,18 +642,20 @@ const Header: React.FC = () => {
                     >
                       <Avatar>
                         <AvatarImage
-                          src={user.image}
-                          alt={user.name || user.username}
+                          src={authState.user.image}
+                          alt={authState.user.name || authState.user.username}
                         />
                         <AvatarFallback>
-                          {(user.name || user.username).charAt(0).toUpperCase()}
+                          {(authState.user.name || authState.user.username)
+                            .charAt(0)
+                            .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span
                         className="text-white w-full truncate"
-                        title={user.name || user.username}
+                        title={authState.user.name || authState.user.username}
                       >
-                        {user.name || user.username}
+                        {authState.user.name || authState.user.username}
                       </span>
                     </Link>
                     <Button
