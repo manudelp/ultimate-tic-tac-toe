@@ -32,8 +32,8 @@ const Header: React.FC = () => {
   const checkAuth = async () => {
     setIsLoading(true);
     try {
-      const userData = localStorage.getItem("userData");
       const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("userData");
 
       if (!token || !userData) {
         localStorage.removeItem("token");
@@ -50,11 +50,17 @@ const Header: React.FC = () => {
         setUser(null);
       } else {
         const parsed = JSON.parse(userData);
-        setUser({
-          name: parsed.name || parsed.username,
-          username: parsed.username,
-          image: parsed.avatar_url || "",
-        });
+        if (parsed && (parsed.name || parsed.username)) {
+          setUser({
+            name: parsed.name || parsed.username,
+            username: parsed.username,
+            image: parsed.avatar_url || "",
+          });
+        } else {
+          setUser(null);
+          localStorage.removeItem("token");
+          localStorage.removeItem("userData");
+        }
       }
     } catch (error) {
       console.error("Auth check failed", error);

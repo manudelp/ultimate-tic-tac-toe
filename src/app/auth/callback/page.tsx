@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { Loader } from "lucide-react";
+import Loader from "@/components/ui/loader";
 
 export default function Callback() {
   const router = useRouter();
