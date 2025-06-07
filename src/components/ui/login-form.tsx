@@ -186,6 +186,20 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           console.error("Registration error:", error);
           if (error instanceof Error && error.message.includes("Supabase")) {
             toast.error("Failed to register user. Please try again later.");
+          } else if (
+            error instanceof Error &&
+            error.message.includes("email")
+          ) {
+            toast.error(
+              "Email is already in use. Please use a different email."
+            );
+          } else if (
+            error instanceof Error &&
+            error.message.includes("username")
+          ) {
+            toast.error(
+              "Username is already taken. Please choose a different username."
+            );
           } else {
             toast.error(
               error instanceof Error ? error.message : "Registration failed"
