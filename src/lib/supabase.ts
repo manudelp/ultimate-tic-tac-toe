@@ -50,6 +50,11 @@ export const getNormalizedUserData = (user: User) => {
 
 // Helper to check if session is valid
 export const validateSession = async () => {
+  // Only run on client side
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   try {
     const {
       data: { session },

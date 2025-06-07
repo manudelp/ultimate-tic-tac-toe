@@ -37,10 +37,16 @@ const Header: React.FC = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure we're on the client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Enhanced user profile loading with database fallback
   const loadUserProfile = useCallback(async (session: Session) => {
-    if (!session?.user) return null;
+    if (!session?.user || typeof window === "undefined") return null;
 
     try {
       // First, get normalized data from session
@@ -91,6 +97,7 @@ const Header: React.FC = () => {
 
   const updateUserFromSession = useCallback(
     async (session: Session | null) => {
+      if (typeof window === "undefined") return;
       try {
         if (session?.user) {
           console.log("Updating user from session:", {
@@ -131,7 +138,7 @@ const Header: React.FC = () => {
   );
 
   const checkAuthState = useCallback(async () => {
-    if (sessionChecked) return;
+    if (sessionChecked || typeof window === "undefined") return;
 
     try {
       setIsLoading(true);
@@ -156,6 +163,8 @@ const Header: React.FC = () => {
   }, [sessionChecked, updateUserFromSession]);
 
   useEffect(() => {
+    if (!isClient) return;
+
     setHostname(window.location.hostname.replace(/^www\./, ""));
 
     // Initial auth check
@@ -222,7 +231,7 @@ const Header: React.FC = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkAuthState, updateUserFromSession]);
+  }, [checkAuthState, updateUserFromSession, isClient]);
 
   // Enhanced logout with proper cleanup
   const handleLogout = async () => {
@@ -348,6 +357,35 @@ const Header: React.FC = () => {
       });
     }
   }, [isLoading, sessionChecked, user]);
+
+  // Don't render until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-20 bg-gray-900">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-xl font-bold">utictactoe.online</span>
+          </div>
+          <nav className="hidden md:block">
+            <ul className="flex items-center space-x-6">
+              <li>
+                <span>Home</span>
+              </li>
+              <li>
+                <span>How to Play</span>
+              </li>
+              <li>
+                <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
+              </li>
+            </ul>
+          </nav>
+          <div className="block md:hidden p-2">
+            <div className="w-6 h-6 bg-gray-600 rounded"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header
