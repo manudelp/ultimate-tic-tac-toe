@@ -463,7 +463,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               >
                 {isLoading ? (
                   <>
-                    <Loader />
                     <span className="ml-2">
                       {mode === "forgot" ? "Sending..." : "Processing..."}
                     </span>
