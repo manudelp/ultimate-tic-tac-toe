@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { LoginForm } from "../ui/login-form";
 import { logoutUser, verifyToken } from "@/api";
@@ -28,8 +28,9 @@ const Header: React.FC = () => {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing token and verify it
-  const checkAuth = async () => {
+  const checkAuth = useRef<() => Promise<void>>();
+
+  checkAuth.current = async () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -44,12 +45,18 @@ const Header: React.FC = () => {
       }
 
       const isValid = await verifyToken();
+
       if (!isValid) {
         localStorage.removeItem("token");
         localStorage.removeItem("userData");
         setUser(null);
       } else {
-        const parsed = JSON.parse(userData);
+        let parsed;
+        try {
+          parsed = JSON.parse(userData);
+        } catch {
+          parsed = null;
+        }
         if (parsed && (parsed.name || parsed.username)) {
           setUser({
             name: parsed.name || parsed.username,
@@ -57,9 +64,9 @@ const Header: React.FC = () => {
             image: parsed.avatar_url || "",
           });
         } else {
-          setUser(null);
           localStorage.removeItem("token");
           localStorage.removeItem("userData");
+          setUser(null);
         }
       }
     } catch (error) {
@@ -74,14 +81,14 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     setHostname(window.location.hostname.replace(/^www\./, ""));
-    checkAuth();
+    checkAuth.current?.();
   }, []);
 
   const handleLogout = () => {
     logoutUser();
-    setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
+    setUser(null);
     setShowLoginModal(false);
     setShowMobileMenu(false);
     toast.success("You've been logged out successfully");
@@ -90,7 +97,10 @@ const Header: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    checkAuth();
+    // Defer to next tick to ensure tokens are set in localStorage
+    setTimeout(() => {
+      checkAuth.current?.();
+    }, 0);
   };
 
   useEffect(() => {
@@ -102,11 +112,9 @@ const Header: React.FC = () => {
       const currentScrollTop =
         window.pageYOffset || document.documentElement.scrollTop;
 
-      // Clear existing timers
       if (scrollTimer) clearTimeout(scrollTimer);
       if (hideTimer) clearTimeout(hideTimer);
 
-      // Don't hide header if mobile menu or login modal is open
       if (showMobileMenu || showLoginModal) {
         if (!showHeader) {
           setShowHeader(true);
@@ -115,7 +123,6 @@ const Header: React.FC = () => {
         return;
       }
 
-      // Always show header when near top
       if (currentScrollTop <= 50) {
         if (!showHeader) {
           setShowHeader(true);
@@ -125,30 +132,21 @@ const Header: React.FC = () => {
       }
 
       const scrollDifference = Math.abs(currentScrollTop - lastScrollTop);
+      if (scrollDifference < 5) return;
 
-      // Only react to significant 5px scroll changes
-      if (scrollDifference < 5) {
-        return;
-      }
-
-      // Add delay before hiding/showing to prevent flickering
       scrollTimer = setTimeout(() => {
         if (currentScrollTop > lastScrollTop && showHeader) {
-          // Scrolling down - hide after a small delay
           hideTimer = setTimeout(() => {
             setShowHeader(false);
           }, 150);
         } else if (currentScrollTop < lastScrollTop && !showHeader) {
-          // Scrolling up - show immediately for better UX
           setShowHeader(true);
         }
-
         lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
       }, 50);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-
     return () => {
       window.removeEventListener("scroll", handleScroll);
       if (scrollTimer) clearTimeout(scrollTimer);
@@ -163,7 +161,6 @@ const Header: React.FC = () => {
       } ${showMobileMenu ? "bg-gray-900" : ""}`}
     >
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Left side - Logo/Hostname */}
         <div className="flex items-center">
           <Link
             href="/"
@@ -173,7 +170,6 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
-        {/* Right side - Desktop Navigation */}
         <nav className="hidden md:block">
           <ul className="flex items-center space-x-6">
             <li>
@@ -235,7 +231,6 @@ const Header: React.FC = () => {
           </ul>
         </nav>
 
-        {/* Mobile hamburger button */}
         <button
           className="block md:hidden p-2 flex-shrink-0"
           onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -307,7 +302,6 @@ const Header: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation Menu with Animation */}
       <AnimatePresence>
         {showMobileMenu && (
           <motion.div
