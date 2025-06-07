@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -488,10 +489,24 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 <p className="text-xs text-gray-400">OR</p>
                 <div className="w-1/4 h-px bg-gray-600"></div>
               </div>
-
               <Button
                 className="flex items-center justify-center w-full gap-2 p-1 text-black text-sm transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
-                onClick={() => toast.info("Google Sign-In coming soon")}
+                onClick={async () => {
+                  setIsLoading(true);
+                  try {
+                    await supabase.auth.signInWithOAuth({
+                      provider: "google",
+                      options: {
+                        redirectTo: `${window.location.origin}/auth/callback`,
+                      },
+                    });
+                  } catch (error) {
+                    console.error(error);
+                    toast.error("Google sign-in failed");
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
                 disabled={isLoading}
               >
                 <Image
