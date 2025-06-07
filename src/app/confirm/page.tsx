@@ -11,10 +11,11 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default function Confirm() {
-  const [status, setStatus] = useState("Verifying your account...");
+  const [status, setStatus] = useState("Verifying your request...");
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [type, setType] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,7 +27,6 @@ export default function Confirm() {
 
     const handleConfirmation = async () => {
       try {
-        // Check if Supabase is available
         if (!supabase) {
           setStatus("Service temporarily unavailable");
           setIsLoading(false);
@@ -37,15 +37,13 @@ export default function Confirm() {
         const hash = window.location.hash;
         const params = new URLSearchParams(hash.slice(1)); // remove '#'
 
-        // Check for error parameters first
         const urlError = params.get("error");
         const errorCode = params.get("error_code");
         const errorDescription = params.get("error_description");
 
         if (urlError) {
-          // Handle specific error codes
           if (errorCode === "otp_expired") {
-            setStatus("Email link has expired");
+            setStatus("Link has expired");
           } else {
             setStatus(
               errorDescription?.replace(/\+/g, " ") || "Verification failed"
@@ -58,34 +56,43 @@ export default function Confirm() {
           return;
         }
 
-        // Continue with the existing success flow
         const accessToken = params.get("access_token");
-        const type = params.get("type");
+        const typeParam = params.get("type");
+        setType(typeParam);
 
-        if (!accessToken || type !== "signup") {
-          setStatus("Invalid or expired confirmation link");
+        if (
+          !accessToken ||
+          (typeParam !== "signup" && typeParam !== "recovery")
+        ) {
+          setStatus("Invalid or expired link");
           setIsLoading(false);
-          toast.error("Invalid or expired confirmation link");
+          toast.error("Invalid or expired link");
           return;
         }
 
-        // Verify the token with Supabase
         const { data, error } = await supabase.auth.getUser(accessToken);
 
         if (error || !data?.user) {
           setStatus("Invalid or expired token");
           setIsLoading(false);
           toast.error("Invalid or expired token");
-        } else {
+          return;
+        }
+
+        if (typeParam === "signup") {
           setStatus("Account confirmed successfully!");
           setIsSuccess(true);
           setIsLoading(false);
           toast.success("Account confirmed! You can now log in.");
-
-          // Redirect to home page after 3 seconds
-          setTimeout(() => {
-            router.push("/");
-          }, 3000);
+          setTimeout(() => router.push("/"), 3000);
+        } else if (typeParam === "recovery") {
+          setStatus(
+            "Password reset link verified. You can now reset your password."
+          );
+          setIsSuccess(true);
+          setIsLoading(false);
+          // Redirect to password reset page or show password reset UI here
+          setTimeout(() => router.push("/reset-password"), 3000);
         }
       } catch (error) {
         console.error("Confirmation error:", error);
@@ -98,24 +105,20 @@ export default function Confirm() {
     handleConfirmation();
   }, [isClient, router]);
 
-  if (!isClient) {
-    return null; // Prevent SSR issues
-  }
+  if (!isClient) return null;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8">
       <div className="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg border border-gray-700">
-        {/* Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-2">
-            Account Confirmation
+            {type === "signup"
+              ? "Account Confirmation"
+              : "Password Reset Confirmation"}
           </h1>
-          <p className="text-gray-400">
-            {isLoading ? "Please wait while we verify your account..." : ""}
-          </p>
+          <p className="text-gray-400">{isLoading ? status : ""}</p>
         </div>
 
-        {/* Status Content */}
         <div className="flex flex-col items-center space-y-4">
           {isLoading ? (
             <>
@@ -142,7 +145,8 @@ export default function Confirm() {
               <div className="text-center">
                 <p className="text-green-400 font-medium mb-2">{status}</p>
                 <p className="text-sm text-gray-400">
-                  Redirecting you to the home page...
+                  Redirecting you to the{" "}
+                  {type === "signup" ? "home page" : "password reset page"}...
                 </p>
               </div>
             </>
@@ -166,32 +170,26 @@ export default function Confirm() {
               <div className="text-center">
                 <p className="text-red-400 font-medium mb-2">{status}</p>
                 <p className="text-sm text-gray-400">
-                  Please check your email for a new confirmation link or try
-                  registering again.
+                  Check your email for a new link or try again.
                 </p>
               </div>
             </>
           )}
-        </div>
 
-        {/* Action Buttons */}
-        {!isLoading && (
-          <div className="flex flex-col items-center space-y-3">
-            <Link href="/">
-              <Button
-                text="Go to Home Page"
-                variant={isSuccess ? "success" : "danger"}
-              />
-            </Link>
+          {!isLoading && (
+            <div className="flex flex-col items-center space-y-3">
+              <Link href="/">
+                <Button
+                  text="Go to Home Page"
+                  variant={isSuccess ? "success" : "danger"}
+                />
+              </Link>
+            </div>
+          )}
+
+          <div className="text-center text-xs text-gray-500">
+            <p>Having trouble? Check your spam folder.</p>
           </div>
-        )}
-
-        {/* Help Text */}
-        <div className="text-center text-xs text-gray-500">
-          <p>
-            Having trouble? Check if you find the confirmation email in your
-            spam folder.
-          </p>
         </div>
       </div>
     </div>

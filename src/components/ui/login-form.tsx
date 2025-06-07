@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { loginUser, registerUser } from "@/api";
 import { reconnectSocket } from "@/socket";
 import Script from "next/script";
+import Loader from "@/components/ui/loader";
 
 declare global {
   interface Window {
@@ -22,13 +23,14 @@ declare global {
 }
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
 
 interface LoginFormProps {
   onLoginSuccess?: () => void;
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,6 +40,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     confirmPassword: "",
   });
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
   useEffect(() => {
     // Check if reCAPTCHA is already loaded
@@ -64,7 +67,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
   };
 
-  const executeRecaptcha = (): Promise<string> => {
+  const executeRecaptcha = (action: string = "submit"): Promise<string> => {
     return new Promise((resolve, reject) => {
       if (!SITE_KEY) {
         console.error("reCAPTCHA site key is missing");
@@ -86,7 +89,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
       window.grecaptcha.ready(() => {
         window.grecaptcha
-          .execute(SITE_KEY as string, { action: "submit" })
+          .execute(SITE_KEY as string, { action })
           .then((token) => {
             if (!token || token.length === 0) {
               console.error("Empty reCAPTCHA token received");
@@ -103,12 +106,91 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    if (!recaptchaLoaded) {
+      toast.error(
+        "Security verification is loading. Please wait a moment and try again."
+      );
+      return;
+    }
+
+    if (!SITE_KEY) {
+      console.error("reCAPTCHA site key is missing from environment");
+      toast.error(
+        "Security verification is not configured. Please check configuration."
+      );
+      return;
+    }
 
     setIsLoading(true);
 
-    if (!isLogin && step === 1) {
+    try {
+      let token = "";
+      try {
+        token = await executeRecaptcha("forgot_password");
+      } catch (error) {
+        toast.error(
+          "Security verification failed. Please refresh the page and try again."
+        );
+        console.error(error);
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          recaptcha: token,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorData;
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          errorData = await response.json();
+          throw new Error(errorData.message || "Failed to send reset email");
+        } else {
+          throw new Error(
+            `Server error: ${response.status} - ${response.statusText}`
+          );
+        }
+      }
+
+      await response.json();
+      setForgotPasswordSuccess(true);
+      toast.success("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      console.error("Password reset error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send reset email"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (mode === "forgot") {
+      await handleForgotPassword();
+      return;
+    }
+
+    setIsLoading(true);
+
+    if (mode === "register" && step === 1) {
       if (formData.password !== formData.confirmPassword) {
         toast.error("Passwords do not match");
         setIsLoading(false);
@@ -149,7 +231,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         return;
       }
 
-      if (isLogin) {
+      if (mode === "login") {
         const result = await loginUser(
           formData.email,
           formData.password,
@@ -169,7 +251,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             token
           );
           toast.success("Registration complete. Please log in.");
-          setIsLogin(true);
+          setMode("login");
           setStep(1);
           setFormData({
             username: "",
@@ -212,6 +294,22 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setStep(1);
+    setForgotPasswordSuccess(false);
+  };
+
+  const switchMode = (newMode: "login" | "register" | "forgot") => {
+    setMode(newMode);
+    resetForm();
+  };
+
   return (
     <>
       <Script
@@ -230,12 +328,22 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <div className="w-96 rounded-lg flex flex-col items-center justify-center p-4 bg-gray-800">
         <div className="w-full max-w-md p-4 space-y-4">
           <h2 className="text-xl font-bold text-center">
-            {isLogin
+            {mode === "login"
               ? "Welcome Back!"
-              : step === 1
-              ? "Create your account"
-              : "Set up your username"}
+              : mode === "register"
+              ? step === 1
+                ? "Create your account"
+                : "Set up your username"
+              : "Forgot Password"}
           </h2>
+
+          {mode === "forgot" && (
+            <p className="text-gray-400 text-sm text-center">
+              {forgotPasswordSuccess
+                ? "We've sent you a password reset link"
+                : "Enter your email to receive a password reset link"}
+            </p>
+          )}
 
           {!recaptchaLoaded && (
             <div className="text-center text-sm text-yellow-400 bg-yellow-900 bg-opacity-20 p-2 rounded">
@@ -243,127 +351,223 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             </div>
           )}
 
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            {isLogin
-              ? null
-              : step === 2 && (
+          {/* Forgot Password Success State */}
+          {mode === "forgot" && forgotPasswordSuccess ? (
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <div className="text-center">
+                <h3 className="text-green-400 font-medium mb-2">Email Sent!</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  We&apos;ve sent a password reset link to{" "}
+                  <span className="text-white font-medium">
+                    {formData.email}
+                  </span>
+                </p>
+                <p className="text-xs text-gray-500">
+                  Don&apos;t see the email? Check your spam folder or wait a few
+                  minutes for it to arrive.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <form className="space-y-3" onSubmit={handleSubmit}>
+              {mode === "register"
+                ? step === 2 && (
+                    <div>
+                      <Label htmlFor="username" className="text-sm">
+                        Username
+                      </Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        placeholder="Enter username"
+                        required
+                        className="text-white bg-gray-700 h-9"
+                        value={formData.username}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  )
+                : null}
+              {(mode === "login" || mode === "forgot" || step === 1) && (
+                <>
                   <div>
-                    <Label htmlFor="username" className="text-sm">
-                      Username
+                    <Label htmlFor="email" className="text-sm">
+                      Email Address
                     </Label>
                     <Input
-                      id="username"
-                      type="text"
-                      placeholder="Enter username"
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email address"
                       required
-                      className="text-white bg-gray-700 h-9"
-                      value={formData.username}
+                      className="text-white bg-gray-700 h-9 border-gray-600 focus:border-blue-500 focus:ring-blue-500"
+                      value={formData.email}
                       onChange={handleChange}
+                      disabled={isLoading}
                     />
                   </div>
+                  {mode !== "forgot" && (
+                    <>
+                      <div>
+                        <Label htmlFor="password" className="text-sm">
+                          Password
+                        </Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Enter your password"
+                          required
+                          className="text-white bg-gray-700 h-9"
+                          value={formData.password}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      {mode === "register" && (
+                        <div>
+                          <Label htmlFor="confirmPassword" className="text-sm">
+                            Confirm Password
+                          </Label>
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            placeholder="Confirm your password"
+                            required
+                            className="text-white bg-gray-700 h-9"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || !recaptchaLoaded}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader />
+                    <span className="ml-2">
+                      {mode === "forgot" ? "Sending..." : "Processing..."}
+                    </span>
+                  </>
+                ) : !recaptchaLoaded ? (
+                  "Loading..."
+                ) : mode === "login" ? (
+                  "Login"
+                ) : mode === "forgot" ? (
+                  "Send Reset Link"
+                ) : step === 1 ? (
+                  "Next"
+                ) : (
+                  "Sign Up"
                 )}
-            {(isLogin || step === 1) && (
-              <>
-                <div>
-                  <Label htmlFor="email" className="text-sm">
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    required
-                    className="text-white bg-gray-700 h-9"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="password" className="text-sm">
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    required
-                    className="text-white bg-gray-700 h-9"
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
-                </div>
-                {!isLogin && (
-                  <div>
-                    <Label htmlFor="confirmPassword" className="text-sm">
-                      Confirm Password
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Confirm your password"
-                      required
-                      className="text-white bg-gray-700 h-9"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading || !recaptchaLoaded}
-            >
-              {isLoading
-                ? "Processing..."
-                : !recaptchaLoaded
-                ? "Loading..."
-                : isLogin
-                ? "Login"
-                : step === 1
-                ? "Next"
-                : "Sign Up"}
-            </Button>
-          </form>
+              </Button>
+            </form>
+          )}
 
-          <div className="flex items-center justify-center my-2 space-x-2">
-            <div className="w-1/4 h-px bg-gray-600"></div>
-            <p className="text-xs text-gray-400">OR</p>
-            <div className="w-1/4 h-px bg-gray-600"></div>
-          </div>
+          {mode !== "forgot" && (
+            <>
+              <div className="flex items-center justify-center my-2 space-x-2">
+                <div className="w-1/4 h-px bg-gray-600"></div>
+                <p className="text-xs text-gray-400">OR</p>
+                <div className="w-1/4 h-px bg-gray-600"></div>
+              </div>
 
-          <Button
-            className="flex items-center justify-center w-full gap-2 p-1 text-black text-sm transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
-            onClick={() => toast.info("Google Sign-In coming soon")}
-            disabled={isLoading}
-          >
-            <Image
-              src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-              alt="Google Logo"
-              className="w-4 h-4"
-              width={16}
-              height={16}
-            />
-            {isLogin ? "Continue with Google" : "Sign up with Google"}
-          </Button>
+              <Button
+                className="flex items-center justify-center w-full gap-2 p-1 text-black text-sm transition bg-white rounded-md shadow-md hover:!bg-gray-900 hover:text-white"
+                onClick={() => toast.info("Google Sign-In coming soon")}
+                disabled={isLoading}
+              >
+                <Image
+                  src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                  alt="Google Logo"
+                  className="w-4 h-4"
+                  width={16}
+                  height={16}
+                />
+                {mode === "login"
+                  ? "Continue with Google"
+                  : "Sign up with Google"}
+              </Button>
+            </>
+          )}
 
           <div className="flex items-center justify-between text-xs">
-            <a href="#" className="text-gray-400 hover:underline">
-              Forgot password?
-            </a>
-            <button
-              type="button"
-              className="text-gray-400 hover:underline"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setStep(1);
-              }}
-              disabled={isLoading}
-            >
-              {isLogin ? "Sign up" : "Login instead"}
-            </button>
+            {mode === "login" ? (
+              <>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:underline"
+                  onClick={() => switchMode("forgot")}
+                  disabled={isLoading}
+                >
+                  Forgot password?
+                </button>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:underline"
+                  onClick={() => switchMode("register")}
+                  disabled={isLoading}
+                >
+                  Sign up
+                </button>
+              </>
+            ) : mode === "register" ? (
+              <>
+                <span className="text-gray-500">Already have an account?</span>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:underline"
+                  onClick={() => switchMode("login")}
+                  disabled={isLoading}
+                >
+                  Login instead
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-gray-500">Remember your password?</span>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:underline"
+                  onClick={() => switchMode("login")}
+                  disabled={isLoading}
+                >
+                  Sign in instead
+                </button>
+              </>
+            )}
           </div>
+
+          {mode === "forgot" && forgotPasswordSuccess && (
+            <button
+              onClick={() => {
+                setForgotPasswordSuccess(false);
+                setFormData({ ...formData, email: "" });
+              }}
+              className="text-sm text-blue-400 hover:text-blue-300 transition-colors w-full text-center"
+            >
+              Try with a different email
+            </button>
+          )}
         </div>
       </div>
     </>
