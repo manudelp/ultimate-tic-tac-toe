@@ -5,6 +5,13 @@ import { toast } from "sonner";
 import Loader from "@/components/ui/loader";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PencilIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { PhotoIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Cropper from "react-easy-crop";
 
 // Force dynamic rendering to prevent prerendering
@@ -365,6 +372,52 @@ export default function ProfilePage() {
     setCroppedAreaPixels(null);
   };
 
+  const handleDeleteAvatar = async () => {
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error("Not authenticated");
+
+      // Update Supabase user metadata to remove avatar
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: null },
+      });
+
+      if (updateError) throw updateError;
+
+      // Update profiles table if it exists
+      try {
+        await supabase
+          .from("profiles")
+          .update({ avatar_url: null })
+          .eq("id", user.id);
+      } catch {
+        // Continue anyway - the user metadata was updated
+      }
+
+      // Update local state and localStorage
+      const newProfile = { ...profile, avatar_url: "" };
+      setProfile(newProfile);
+      setOriginalProfile(newProfile);
+
+      // Update localStorage
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.avatar_url = "";
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+
+      toast.success("Avatar deleted successfully");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete avatar"
+      );
+    }
+  };
+
   if (!isClient || loading)
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
@@ -385,52 +438,76 @@ export default function ProfilePage() {
           Avatar
         </label>
         <div className="flex flex-col items-center mb-6">
-          <Avatar className="h-24 w-24 mb-2">
-            <AvatarImage
-              key={profile.avatar_url}
-              src={profile.avatar_url}
-              alt={profile.name || profile.username}
-            />
-            <AvatarFallback className="text-5xl font-medium">
-              {(profile.name || profile.username || "?")
-                .charAt(0)
-                .toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-
-          <label
-            htmlFor="avatar-upload"
-            className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mt-2"
-          >
-            Change avatar
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  const file = e.target.files[0];
-
-                  // Check file size - 5MB limit for original file
-                  if (file.size > 5 * 1024 * 1024) {
-                    toast.error("File size exceeds 5MB limit");
-                    return;
-                  }
-
-                  setOriginalFile(file);
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    setImageToCrop(reader.result as string);
-                    setShowCropModal(true);
-                  };
-                  reader.readAsDataURL(file);
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="relative cursor-pointer group">
+                <Avatar className="h-24 w-24 mb-2 transition-opacity group-hover:opacity-80">
+                  <AvatarImage
+                    key={profile.avatar_url}
+                    src={profile.avatar_url}
+                    alt={profile.name || profile.username}
+                  />
+                  <AvatarFallback className="text-5xl font-medium">
+                    {(profile.name || profile.username || "?")
+                      .charAt(0)
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute top-0 left-0 w-24 h-24 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-30 rounded-full">
+                  <PencilIcon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 bg-gray-800 border-gray-700">
+              <DropdownMenuItem
+                onClick={() =>
+                  document.getElementById("avatar-upload")?.click()
                 }
-                // Reset the input value
-                e.target.value = "";
-              }}
-            />
-          </label>
+                className="flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 cursor-pointer"
+              >
+                <PhotoIcon className="w-4 h-4" />
+                {profile.avatar_url ? "Replace image" : "Add image"}
+              </DropdownMenuItem>
+              {profile.avatar_url && (
+                <DropdownMenuItem
+                  onClick={handleDeleteAvatar}
+                  className="flex items-center gap-2 text-red-400 hover:text-red-300 hover:bg-gray-700 cursor-pointer"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  Delete image
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Hidden file input */}
+          <input
+            id="avatar-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+
+                // Check file size - 5MB limit for original file
+                if (file.size > 5 * 1024 * 1024) {
+                  toast.error("File size exceeds 5MB limit");
+                  return;
+                }
+
+                setOriginalFile(file);
+                const reader = new FileReader();
+                reader.onload = () => {
+                  setImageToCrop(reader.result as string);
+                  setShowCropModal(true);
+                };
+                reader.readAsDataURL(file);
+              }
+              // Reset the input value
+              e.target.value = "";
+            }}
+          />
         </div>
 
         {/* Name Field */}
