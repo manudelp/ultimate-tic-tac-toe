@@ -69,6 +69,7 @@ export default function ProfilePage() {
 
         if (error || !user) {
           toast.error("Not logged in");
+          window.location.href = "/"; // Redirect to home page
           setLoading(false);
           return;
         }
