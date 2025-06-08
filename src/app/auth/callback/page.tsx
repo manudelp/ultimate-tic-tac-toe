@@ -60,7 +60,7 @@ function CallbackContent() {
 
         localStorage.setItem("userData", JSON.stringify(userData));
 
-        // Handle different authentication flows without provider references
+        // Handle different authentication flows uniformly
         const type = searchParams.get("type");
         if (type === "signup") {
           toast.success("Email confirmed! You're now logged in.");
@@ -77,7 +77,7 @@ function CallbackContent() {
             toast.success("Password reset confirmed! You're now logged in.");
           }
         } else {
-          // Check if this was a newly linked account
+          // Check if this was a newly linked account - no provider exposure
           if (userData._originalAuthData) {
             toast.success(
               `Welcome back, ${userData.name || userData.username}!`

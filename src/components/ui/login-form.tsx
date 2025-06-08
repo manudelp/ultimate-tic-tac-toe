@@ -302,7 +302,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
 
         if (data.user && data.session) {
-          // Handle account linking during login
+          // Handle account linking during login - no provider-specific messaging
           const linkedProfile = await getUserProfileWithLinking(data.user);
 
           if (linkedProfile?._originalAuthData) {
@@ -346,14 +346,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         if (error.message.includes("popup_closed_by_user")) {
           toast.error("Sign-in was cancelled. Please try again.");
         } else {
-          console.error("Google sign-in error:", error);
-          toast.error("Google sign-in failed. Please try again.");
+          console.error("OAuth sign-in error:", error);
+          toast.error("Authentication failed. Please try again.");
         }
       }
       // Success will be handled by the callback page
     } catch (error) {
-      console.error("Google sign-in error:", error);
-      toast.error("Google sign-in failed. Please try again.");
+      console.error("OAuth sign-in error:", error);
+      toast.error("Authentication failed. Please try again.");
     }
   };
 

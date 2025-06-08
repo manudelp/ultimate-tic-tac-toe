@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Session as SupabaseSession } from "@supabase/supabase-js";
 import { UIUserData, AuthState } from "@/types/auth";
+import { toUIUserData } from "@/lib/supabase";
 
 const Header: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
@@ -40,7 +41,7 @@ const Header: React.FC = () => {
     setIsClient(true);
   }, []);
 
-  // Enhanced user profile loading with proper error handling
+  // Enhanced user profile loading with proper error handling - provider-agnostic
   const loadUserProfile = useCallback(
     async (session: SupabaseSession): Promise<UIUserData | null> => {
       if (!session?.user || typeof window === "undefined") {
@@ -66,12 +67,8 @@ const Header: React.FC = () => {
           name: userData.name,
         });
 
-        // Return only neutral UI data
-        return {
-          name: userData.name || userData.username,
-          username: userData.username,
-          image: userData.avatar_url || "",
-        };
+        // Convert to provider-agnostic UI data
+        return toUIUserData(userData);
       } catch (error) {
         console.error("Error loading user profile:", error);
         return null;
@@ -294,8 +291,8 @@ const Header: React.FC = () => {
     }, 100);
   };
 
-  // Show provider-specific user info with proper typing
-  const getUserDisplayInfo = (): UserDisplayInfo | null => {
+  // Show provider-agnostic user info
+  const getUserDisplayInfo = () => {
     if (!authState.user) return null;
 
     return {
@@ -357,15 +354,14 @@ const Header: React.FC = () => {
 
   const userInfo = getUserDisplayInfo();
 
-  // Enhanced debug logging for development
+  // Enhanced debug logging for development - no provider exposure
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       console.log("Header state:", {
         isLoading: authState.isLoading,
         sessionChecked: authState.sessionChecked,
         hasUser: !!authState.user,
-        userProvider: authState.user?.provider,
-        userEmail: authState.user?.username,
+        username: authState.user?.username,
         error: authState.error,
       });
     }

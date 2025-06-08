@@ -216,7 +216,7 @@ export async function loginUser(
 
     const data = await response.json();
 
-    // Store token and user data
+    // Store token and user data - no provider-specific handling
     if (data.access_token) {
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("userData", JSON.stringify(data.user));

@@ -56,7 +56,7 @@ export const getNormalizedUserData = (
   }
 
   try {
-    // Extract data based on provider
+    // Extract data based on provider for internal processing only
     const isGoogleUser = user.app_metadata?.provider === "google";
 
     // Default data from OAuth/auth with fallbacks
@@ -96,6 +96,15 @@ export const getNormalizedUserData = (
     console.error("Error in getNormalizedUserData:", error);
     return null;
   }
+};
+
+// New helper to convert normalized data to provider-agnostic UI data
+export const toUIUserData = (userData: NormalizedUserData): UIUserData => {
+  return {
+    name: userData.name,
+    username: userData.username,
+    image: userData.avatar_url,
+  };
 };
 
 // Function to find and link accounts with the same email

@@ -51,11 +51,19 @@ export interface NormalizedUserData {
   _originalAuthData?: NormalizedUserData;
 }
 
-// UI user state - removed provider and emailVerified from UI
+// UI user state - completely provider-agnostic
 export interface UIUserData {
   name: string;
   username: string;
   image: string;
+}
+
+// Display info for UI components - no provider information
+export interface UserDisplayInfo {
+  name: string;
+  username: string;
+  image: string;
+  displayName: string;
 }
 
 // Account linking types

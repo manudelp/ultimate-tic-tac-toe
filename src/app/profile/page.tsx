@@ -66,7 +66,7 @@ export default function ProfilePage() {
         setProfile(userProfile);
         setOriginalProfile(userProfile);
 
-        // Log account linking info if available
+        // Log account linking info if available - no provider exposure
         if (userData._originalAuthData) {
           console.log("Profile loaded with linked account data");
         }
