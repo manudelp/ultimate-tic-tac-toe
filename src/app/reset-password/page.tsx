@@ -38,7 +38,6 @@ function ResetPasswordForm() {
           })
           .then(({ error }) => {
             if (error) {
-              console.error("Session setting error:", error);
               toast.error("Invalid reset link");
               setTimeout(() => router.push("/"), 3000);
             }
@@ -84,7 +83,6 @@ function ResetPasswordForm() {
       // Give time for the success message before redirecting
       setTimeout(() => router.push("/"), 3000);
     } catch (error) {
-      console.error("Password reset error:", error);
       toast.error(error instanceof Error ? error.message : "Reset failed");
     } finally {
       setIsLoading(false);

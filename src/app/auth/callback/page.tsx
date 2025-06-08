@@ -21,7 +21,6 @@ function CallbackContent() {
         const errorDescription = searchParams.get("error_description");
 
         if (error) {
-          console.error("Auth callback error:", error, errorDescription);
           toast.error(errorDescription || "Authentication failed");
           router.push("/");
           return;
@@ -35,7 +34,6 @@ function CallbackContent() {
         } = await supabase.auth.getSession();
 
         if (sessionError) {
-          console.error("Session error:", sessionError);
           toast.error("Authentication failed");
           router.push("/");
           return;
@@ -93,7 +91,7 @@ function CallbackContent() {
           router.push("/");
         }, 500);
       } catch (error) {
-        console.error("Auth callback error:", error);
+        console.error("Authentication error:", error);
         toast.error("Authentication failed");
         router.push("/");
       }

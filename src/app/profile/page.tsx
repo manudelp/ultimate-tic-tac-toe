@@ -65,13 +65,8 @@ export default function ProfilePage() {
 
         setProfile(userProfile);
         setOriginalProfile(userProfile);
-
-        // Log account linking info if available - no provider exposure
-        if (userData._originalAuthData) {
-          console.log("Profile loaded with linked account data");
-        }
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Error loading profile:", error);
         toast.error("Failed to load profile");
       } finally {
         setLoading(false);
@@ -179,7 +174,7 @@ export default function ProfilePage() {
           })
           .eq("id", user.id);
       } catch (profileError) {
-        console.warn("Profile table update failed:", profileError);
+        console.error("Failed to update profiles table:", profileError);
         // Continue anyway - the user metadata was updated
       }
 
@@ -310,7 +305,6 @@ export default function ProfilePage() {
                     ? error.message
                     : "Failed to upload avatar"
                 );
-                console.error("Error uploading avatar:", error);
               }
             }}
           />

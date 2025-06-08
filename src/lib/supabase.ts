@@ -134,13 +134,6 @@ export const findAndLinkAccounts = async (
     if (existingProfiles && existingProfiles.length > 0) {
       // Found existing account(s) with same email
       const primaryProfile = existingProfiles[0] as ProfileData;
-
-      console.log("Found existing account to link:", {
-        currentUserId,
-        existingProfileId: primaryProfile.id,
-        email: userEmail,
-      });
-
       return primaryProfile;
     }
 
@@ -213,7 +206,6 @@ export const mergeProfileData = async (
       })
       .eq("id", existingProfile.id);
 
-    console.log("Successfully merged profile data:", mergedData);
     return { success: true, mergedProfile: data as ProfileData };
   } catch (error) {
     console.error("Error in mergeProfileData:", error);

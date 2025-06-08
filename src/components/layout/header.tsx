@@ -49,28 +49,16 @@ const Header: React.FC = () => {
       }
 
       try {
-        console.log("Loading user profile for:", {
-          userId: session.user.id,
-          email: session.user.email,
-        });
-
         const userData = await getUserProfileWithLinking(session.user);
 
         if (!userData) {
-          console.error("Failed to load user profile data");
           return null;
         }
-
-        console.log("Successfully loaded profile:", {
-          userId: userData.id,
-          username: userData.username,
-          name: userData.name,
-        });
 
         // Convert to provider-agnostic UI data
         return toUIUserData(userData);
       } catch (error) {
-        console.error("Error loading user profile:", error);
+        console.error("Failed to load user profile:", error);
         return null;
       }
     },
@@ -83,11 +71,6 @@ const Header: React.FC = () => {
 
       try {
         if (session?.user) {
-          console.log("Updating user from session:", {
-            userId: session.user.id,
-            email: session.user.email,
-          });
-
           const userForState = await loadUserProfile(session);
 
           if (userForState) {
@@ -101,17 +84,13 @@ const Header: React.FC = () => {
             if (userData) {
               localStorage.setItem("userData", JSON.stringify(userData));
             }
-
-            console.log("User state updated successfully:", userForState);
           } else {
-            console.error("Failed to load user profile data");
             setAuthState((prev) => ({
               ...prev,
               error: "Failed to load user profile",
             }));
           }
         } else {
-          console.log("No session user, clearing user state");
           setAuthState((prev) => ({
             ...prev,
             user: null,
@@ -121,7 +100,6 @@ const Header: React.FC = () => {
           localStorage.removeItem("token");
         }
       } catch (error) {
-        console.error("Error updating user from session:", error);
         setAuthState((prev) => ({
           ...prev,
           user: null,
@@ -139,13 +117,8 @@ const Header: React.FC = () => {
 
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
-      console.log("Checking initial auth state...");
 
       const sessionResult = await validateSession();
-      console.log(
-        "Initial session check result:",
-        sessionResult.isValid ? "Session found" : "No session"
-      );
 
       if (sessionResult.error) {
         setAuthState((prev) => ({
@@ -156,7 +129,6 @@ const Header: React.FC = () => {
 
       await updateUserFromSession(sessionResult.session);
     } catch (error) {
-      console.error("Auth state check failed:", error);
       setAuthState((prev) => ({
         ...prev,
         user: null,
@@ -181,19 +153,12 @@ const Header: React.FC = () => {
     // Initial auth check
     checkAuthState();
 
-    // Subscribe to auth state changes with enhanced logging
+    // Subscribe to auth state changes
     if (!supabase.auth) return;
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change detected:", {
-        event,
-        userId: session?.user?.id,
-        email: session?.user?.email,
-        hasSession: !!session,
-      });
-
       // Reset session checked flag on auth events to allow re-checking
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         setAuthState((prev) => ({ ...prev, sessionChecked: false }));
@@ -202,14 +167,12 @@ const Header: React.FC = () => {
       // Handle different auth events with proper state management
       switch (event) {
         case "SIGNED_IN":
-          console.log("Processing SIGNED_IN event");
           setAuthState((prev) => ({ ...prev, isLoading: true }));
           await updateUserFromSession(session);
           setAuthState((prev) => ({ ...prev, isLoading: false }));
           break;
 
         case "SIGNED_OUT":
-          console.log("Processing SIGNED_OUT event");
           setAuthState({
             user: null,
             isLoading: false,
@@ -222,14 +185,13 @@ const Header: React.FC = () => {
 
         case "TOKEN_REFRESHED":
         case "USER_UPDATED":
-          console.log(`Processing ${event} event`);
           if (session) {
             await updateUserFromSession(session);
           }
           break;
 
         default:
-          console.log("Unhandled auth event:", event);
+          break;
       }
     });
 
@@ -242,7 +204,6 @@ const Header: React.FC = () => {
   const handleLogout = async (): Promise<void> => {
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
-      console.log("Initiating logout...");
 
       if (!supabase.auth) {
         throw new Error("Supabase auth not available");
@@ -252,7 +213,6 @@ const Header: React.FC = () => {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        console.error("Logout error:", error);
         toast.error("Logout failed");
         return;
       }
@@ -269,10 +229,8 @@ const Header: React.FC = () => {
       localStorage.removeItem("userData");
       localStorage.removeItem("token");
 
-      console.log("Logout completed successfully");
       toast.success("Logged out successfully");
     } catch (error) {
-      console.error("Logout error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Logout failed";
       setAuthState((prev) => ({ ...prev, error: errorMessage }));
@@ -283,7 +241,6 @@ const Header: React.FC = () => {
   };
 
   const handleLoginSuccess = (): void => {
-    console.log("Login success callback triggered");
     setShowLoginModal(false);
     // Force a session check to ensure immediate UI update
     setTimeout(() => {
@@ -341,19 +298,6 @@ const Header: React.FC = () => {
       if (hideTimer) clearTimeout(hideTimer);
     };
   }, [showHeader, showLoginModal, showMobileMenu]);
-
-  // Enhanced debug logging for development - no provider exposure
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("Header state:", {
-        isLoading: authState.isLoading,
-        sessionChecked: authState.sessionChecked,
-        hasUser: !!authState.user,
-        username: authState.user?.username,
-        error: authState.error,
-      });
-    }
-  }, [authState]);
 
   // Don't render until client-side hydration is complete
   if (!isClient) {

@@ -124,19 +124,16 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const executeRecaptcha = (action: string = "submit"): Promise<string> => {
     return new Promise((resolve, reject) => {
       if (!SITE_KEY) {
-        console.error("reCAPTCHA site key is missing");
         reject(new Error("reCAPTCHA configuration error"));
         return;
       }
 
       if (!window.grecaptcha) {
-        console.error("reCAPTCHA script not loaded");
         reject(new Error("reCAPTCHA not loaded"));
         return;
       }
 
       if (!recaptchaLoaded) {
-        console.error("reCAPTCHA still initializing");
         reject(new Error("reCAPTCHA still loading"));
         return;
       }
@@ -146,14 +143,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           .execute(SITE_KEY as string, { action })
           .then((token) => {
             if (!token || token.length === 0) {
-              console.error("Empty reCAPTCHA token received");
               reject(new Error("Empty reCAPTCHA token received"));
               return;
             }
             resolve(token);
           })
           .catch((error) => {
-            console.error("reCAPTCHA execution failed:", error);
+            console.error("reCAPTCHA execution error:", error);
             reject(new Error("Failed to execute reCAPTCHA"));
           });
       });
@@ -204,7 +200,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       setForgotPasswordSuccess(true);
       toast.success("Password reset email sent! Check your inbox.");
     } catch (error) {
-      console.error("Password reset error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to send reset email"
       );
@@ -319,7 +314,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
       }
     } catch (error) {
-      console.error("Auth error:", error);
       toast.error(
         error instanceof Error ? error.message : "Authentication failed"
       );
@@ -346,13 +340,12 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         if (error.message.includes("popup_closed_by_user")) {
           toast.error("Sign-in was cancelled. Please try again.");
         } else {
-          console.error("OAuth sign-in error:", error);
           toast.error("Authentication failed. Please try again.");
         }
       }
       // Success will be handled by the callback page
     } catch (error) {
-      console.error("OAuth sign-in error:", error);
+      console.error("Google sign-in error:", error);
       toast.error("Authentication failed. Please try again.");
     }
   };
@@ -386,7 +379,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         mode === "register"
       );
     } catch (error) {
-      console.error("Form submission error:", error);
       toast.error(
         error instanceof Error ? error.message : "Authentication error"
       );

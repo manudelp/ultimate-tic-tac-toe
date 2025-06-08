@@ -58,7 +58,7 @@ export const checkConnection = async (): Promise<boolean> => {
     });
     return response.status === 200;
   } catch (error) {
-    console.error("Failed to connect to backend:", error);
+    console.error("API connection failed:", error);
     return false;
   }
 };
@@ -80,7 +80,6 @@ export const getBots = async (): Promise<BotListResponse[]> => {
         error.response.data.message || "Failed to retrieve bot list"
       );
     }
-    console.error("Error fetching bots:", error);
     throw new Error("Failed to retrieve bot list. Please try again later.");
   }
 };
@@ -99,7 +98,6 @@ export const loadBot = async (id: number): Promise<void> => {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to load bot");
     }
-    console.error("Error loading bot:", error);
     throw new Error("Failed to load bot. Please try again later.");
   }
 };
@@ -129,7 +127,6 @@ export const getBotMove = async (
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to get bot move");
     }
-    console.error("Error getting bot move:", error);
     throw new Error("Failed to get bot move. Please try again later.");
   }
 };
@@ -148,7 +145,6 @@ export const agentsReset = async (id: number): Promise<void> => {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || "Failed to reset agents");
     }
-    console.error("Error resetting agents:", error);
     throw new Error("Failed to reset agents. Please try again later.");
   }
 };
@@ -166,7 +162,7 @@ export const testRecaptcha = async (token: string): Promise<boolean> => {
 
     return response.ok && data.valid === true;
   } catch (error) {
-    console.error("reCAPTCHA test error:", error);
+    console.error("reCAPTCHA validation failed:", error);
     return false;
   }
 };
@@ -191,7 +187,6 @@ export async function loginUser(
       // Check if response is JSON
       if (contentType && contentType.includes("application/json")) {
         errorData = await response.json();
-        console.error("Login error data:", errorData);
 
         // Provide more specific error messages for reCAPTCHA issues
         if (
@@ -207,7 +202,7 @@ export async function loginUser(
       } else {
         // If not JSON, it's likely an HTML error page
         const textContent = await response.text();
-        console.error("Non-JSON response:", textContent);
+        console.error("Non-JSON error response:", textContent);
         throw new Error(
           `Server error: ${response.status} - ${response.statusText}`
         );
@@ -224,7 +219,6 @@ export async function loginUser(
 
     return data;
   } catch (error) {
-    console.error("Login error:", error);
     throw error;
   }
 }
@@ -249,12 +243,11 @@ export const registerUser = async (
       // Check if response is JSON
       if (contentType && contentType.includes("application/json")) {
         errorData = await response.json();
-        console.error("Registration error data:", errorData);
         throw new Error(errorData.message || "Registration failed");
       } else {
         // If not JSON, it's likely an HTML error page
         const textContent = await response.text();
-        console.error("Non-JSON response:", textContent);
+        console.error("Non-JSON error response:", textContent);
         throw new Error(
           `Server error: ${response.status} - ${response.statusText}`
         );
@@ -264,7 +257,6 @@ export const registerUser = async (
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error("Registration error:", error);
     throw error;
   }
 };
@@ -330,7 +322,6 @@ export const exchangeSupabaseToken = async (
 
     return data;
   } catch (error) {
-    console.error("Supabase token exchange error:", error);
     throw error;
   }
 };
