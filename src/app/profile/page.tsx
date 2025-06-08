@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase, getUserProfileWithLinking } from "@/lib/supabase";
 import { toast } from "sonner";
 import Loader from "@/components/ui/loader";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PencilIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import Cropper from "react-easy-crop";
 
 // Force dynamic rendering to prevent prerendering
 export const dynamic = "force-dynamic";
@@ -13,6 +14,13 @@ interface UserProfile {
   username: string;
   avatar_url: string;
   name: string;
+}
+
+interface CropArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export default function ProfilePage() {
@@ -27,6 +35,16 @@ export default function ProfilePage() {
   );
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
+
+  // New state for image cropping
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>("");
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(
+    null
+  );
+  const [originalFile, setOriginalFile] = useState<File | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -228,6 +246,125 @@ export default function ProfilePage() {
     handleSaveField(field);
   };
 
+  const onCropComplete = useCallback(
+    (
+      croppedArea: { x: number; y: number; width: number; height: number },
+      croppedAreaPixels: CropArea
+    ) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
+
+  const createCroppedImage = async (
+    imageSrc: string,
+    pixelCrop: CropArea
+  ): Promise<Blob> => {
+    const image = new Image();
+    image.src = imageSrc;
+
+    return new Promise((resolve, reject) => {
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+          reject(new Error("Could not get canvas context"));
+          return;
+        }
+
+        // Set canvas size to the crop size
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+
+        // Draw the cropped image
+        ctx.drawImage(
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height
+        );
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Canvas toBlob failed"));
+            }
+          },
+          "image/jpeg",
+          0.9
+        );
+      };
+      image.onerror = () => reject(new Error("Failed to load image"));
+    });
+  };
+
+  const handleCropSave = async () => {
+    try {
+      if (!croppedAreaPixels || !imageToCrop || !originalFile) {
+        toast.error("Missing crop data");
+        return;
+      }
+
+      const croppedBlob = await createCroppedImage(
+        imageToCrop,
+        croppedAreaPixels
+      );
+
+      // Create a new File from the cropped blob
+      const croppedFile = new File([croppedBlob], originalFile.name, {
+        type: "image/jpeg",
+        lastModified: Date.now(),
+      });
+
+      // Close modal
+      setShowCropModal(false);
+      setImageToCrop("");
+      setOriginalFile(null);
+
+      // Upload the cropped image
+      const toastId = toast.loading("Uploading avatar...");
+      const publicUrl = await uploadAvatar(croppedFile);
+
+      // Update profile and localStorage
+      const newProfile = { ...profile, avatar_url: publicUrl };
+      setProfile(newProfile);
+      setOriginalProfile(newProfile);
+
+      // Update localStorage
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.avatar_url = publicUrl;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+
+      toast.dismiss(toastId);
+      toast.success("Avatar updated successfully");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload avatar"
+      );
+      setShowCropModal(false);
+    }
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setImageToCrop("");
+    setOriginalFile(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+  };
+
   if (!isClient || loading)
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
@@ -237,194 +374,240 @@ export default function ProfilePage() {
     );
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-4 bg-gray-800 rounded-lg space-y-6">
-      <h2 className="text-xl font-semibold text-center mb-4 text-white">
-        My Profile
-      </h2>
+    <>
+      <div className="max-w-md mx-auto mt-10 p-4 bg-gray-800 rounded-lg space-y-6">
+        <h2 className="text-xl font-semibold text-center mb-4 text-white">
+          My Profile
+        </h2>
 
-      {/* Avatar section */}
-      <label className="block text-sm text-gray-300 text-center mb-2">
-        Avatar
-      </label>
-      <div className="flex flex-col items-center mb-6">
-        <Avatar className="h-24 w-24 mb-2">
-          <AvatarImage
-            key={profile.avatar_url}
-            src={profile.avatar_url}
-            alt={profile.name || profile.username}
-          />
-          <AvatarFallback className="text-5xl font-medium">
-            {(profile.name || profile.username || "?").charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        {/* Avatar section */}
+        <label className="block text-sm text-gray-300 text-center mb-2">
+          Avatar
+        </label>
+        <div className="flex flex-col items-center mb-6">
+          <Avatar className="h-24 w-24 mb-2">
+            <AvatarImage
+              key={profile.avatar_url}
+              src={profile.avatar_url}
+              alt={profile.name || profile.username}
+            />
+            <AvatarFallback className="text-5xl font-medium">
+              {(profile.name || profile.username || "?")
+                .charAt(0)
+                .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
-        <label
-          htmlFor="avatar-upload"
-          className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mt-2"
-        >
-          Change avatar
-          <input
-            id="avatar-upload"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={async (e) => {
-              try {
+          <label
+            htmlFor="avatar-upload"
+            className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mt-2"
+          >
+            Change avatar
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
                   const file = e.target.files[0];
-                  const publicUrl = await uploadAvatar(file);
 
-                  // Update profile and localStorage
-                  const newProfile = { ...profile, avatar_url: publicUrl };
-                  setProfile(newProfile);
-                  setOriginalProfile(newProfile);
-
-                  // Update localStorage
-                  const userData = localStorage.getItem("userData");
-                  if (userData) {
-                    const parsedData = JSON.parse(userData);
-                    parsedData.avatar_url = publicUrl;
-                    localStorage.setItem(
-                      "userData",
-                      JSON.stringify(parsedData)
-                    );
+                  // Check file size - 5MB limit for original file
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast.error("File size exceeds 5MB limit");
+                    return;
                   }
 
-                  const toastId = toast.loading("Uploading avatar...");
-                  await new Promise((resolve) => setTimeout(resolve, 1000));
-                  toast.dismiss(toastId);
-                  toast.success("Avatar updated successfully");
+                  setOriginalFile(file);
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setImageToCrop(reader.result as string);
+                    setShowCropModal(true);
+                  };
+                  reader.readAsDataURL(file);
                 }
-              } catch (err: unknown) {
-                toast.dismiss();
-                toast.error(
-                  err instanceof Error ? err.message : "Failed to upload avatar"
-                );
-              }
-            }}
-          />
-        </label>
+                // Reset the input value
+                e.target.value = "";
+              }}
+            />
+          </label>
+        </div>
+
+        {/* Name Field */}
+        <div className="space-y-1">
+          <div className="text-sm text-gray-300 flex justify-between items-center">
+            <span>Name</span>
+            <div className="flex gap-2">
+              {editingField === "name" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => handleSaveClick(e, "name")}
+                    className="w-5 h-5 text-green-400 hover:text-green-600 transition-colors"
+                    title="Save changes"
+                  >
+                    <CheckIcon />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="w-5 h-5 text-red-400 hover:text-red-600 transition-colors"
+                    title="Cancel changes"
+                  >
+                    <XMarkIcon />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => handleStartEdit(e, "name")}
+                  className="w-5 h-5 text-gray-400 hover:text-white transition-colors"
+                  title="Click to edit name"
+                >
+                  <PencilIcon />
+                </button>
+              )}
+            </div>
+          </div>
+          {editingField === "name" ? (
+            <input
+              type="text"
+              className="w-full px-3 py-2 bg-gray-600 text-white border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={profile.name}
+              onChange={(e) => handleFieldChange("name", e.target.value)}
+              placeholder="Enter your name"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSaveField("name");
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  handleCancelEdit(e);
+                }
+              }}
+            />
+          ) : (
+            <div className="w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md cursor-not-allowed hover:bg-gray-650 transition-colors">
+              {profile.name || "Name"}
+            </div>
+          )}
+        </div>
+
+        {/* Username Field */}
+        <div className="space-y-1">
+          <div className="text-sm text-gray-300 flex justify-between items-center">
+            <span>Username</span>
+            <div className="flex gap-2">
+              {editingField === "username" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => handleSaveClick(e, "username")}
+                    className="w-5 h-5 text-green-400 hover:text-green-600 transition-colors"
+                    title="Save changes"
+                  >
+                    <CheckIcon />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="w-5 h-5 text-red-400 hover:text-red-600 transition-colors"
+                    title="Cancel changes"
+                  >
+                    <XMarkIcon />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => handleStartEdit(e, "username")}
+                  className="w-5 h-5 text-gray-400 hover:text-white transition-colors"
+                  title="Click to edit username"
+                >
+                  <PencilIcon />
+                </button>
+              )}
+            </div>
+          </div>
+          {editingField === "username" ? (
+            <input
+              type="text"
+              className="w-full px-3 py-2 bg-gray-600 text-white border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={profile.username}
+              onChange={(e) => handleFieldChange("username", e.target.value)}
+              placeholder="Enter your username"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSaveField("username");
+                } else if (e.key === "Escape") {
+                  handleCancelEdit(e);
+                }
+              }}
+            />
+          ) : (
+            <div className="w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md cursor-not-allowed hover:bg-gray-650 transition-colors">
+              {profile.username}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Name Field */}
-      <div className="space-y-1">
-        <div className="text-sm text-gray-300 flex justify-between items-center">
-          <span>Name</span>
-          <div className="flex gap-2">
-            {editingField === "name" ? (
-              <>
-                <button
-                  type="button"
-                  onClick={(e) => handleSaveClick(e, "name")}
-                  className="w-5 h-5 text-green-400 hover:text-green-600 transition-colors"
-                  title="Save changes"
-                >
-                  <CheckIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="w-5 h-5 text-red-400 hover:text-red-600 transition-colors"
-                  title="Cancel changes"
-                >
-                  <XMarkIcon />
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => handleStartEdit(e, "name")}
-                className="w-5 h-5 text-gray-400 hover:text-white transition-colors"
-                title="Click to edit name"
-              >
-                <PencilIcon />
-              </button>
-            )}
-          </div>
-        </div>
-        {editingField === "name" ? (
-          <input
-            type="text"
-            className="w-full px-3 py-2 bg-gray-600 text-white border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            value={profile.name}
-            onChange={(e) => handleFieldChange("name", e.target.value)}
-            placeholder="Enter your name"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleSaveField("name");
-              } else if (e.key === "Escape") {
-                e.preventDefault();
-                handleCancelEdit(e);
-              }
-            }}
-          />
-        ) : (
-          <div className="w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md cursor-not-allowed hover:bg-gray-650 transition-colors">
-            {profile.name || "Name"}
-          </div>
-        )}
-      </div>
+      {/* Crop Modal */}
+      {showCropModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg w-full max-w-md mx-auto">
+            <div className="p-4 border-b border-gray-700">
+              <h3 className="text-lg font-semibold text-white">Crop Avatar</h3>
+            </div>
 
-      {/* Username Field */}
-      <div className="space-y-1">
-        <div className="text-sm text-gray-300 flex justify-between items-center">
-          <span>Username</span>
-          <div className="flex gap-2">
-            {editingField === "username" ? (
-              <>
+            <div className="relative h-64 bg-gray-900">
+              <Cropper
+                image={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+                cropShape="round"
+                showGrid={false}
+              />
+            </div>
+
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm text-gray-300 mb-2">Zoom</label>
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
+
+              <div className="flex gap-3 justify-end">
                 <button
-                  type="button"
-                  onClick={(e) => handleSaveClick(e, "username")}
-                  className="w-5 h-5 text-green-400 hover:text-green-600 transition-colors"
-                  title="Save changes"
+                  onClick={handleCropCancel}
+                  className="px-4 py-2 text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
                 >
-                  <CheckIcon />
+                  Cancel
                 </button>
                 <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="w-5 h-5 text-red-400 hover:text-red-600 transition-colors"
-                  title="Cancel changes"
+                  onClick={handleCropSave}
+                  className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
                 >
-                  <XMarkIcon />
+                  Save Avatar
                 </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => handleStartEdit(e, "username")}
-                className="w-5 h-5 text-gray-400 hover:text-white transition-colors"
-                title="Click to edit username"
-              >
-                <PencilIcon />
-              </button>
-            )}
+              </div>
+            </div>
           </div>
         </div>
-        {editingField === "username" ? (
-          <input
-            type="text"
-            className="w-full px-3 py-2 bg-gray-600 text-white border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            value={profile.username}
-            onChange={(e) => handleFieldChange("username", e.target.value)}
-            placeholder="Enter your username"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSaveField("username");
-              } else if (e.key === "Escape") {
-                handleCancelEdit(e);
-              }
-            }}
-          />
-        ) : (
-          <div className="w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md cursor-not-allowed hover:bg-gray-650 transition-colors">
-            {profile.username}
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </>
   );
 }
