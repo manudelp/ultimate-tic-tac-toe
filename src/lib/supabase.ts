@@ -4,6 +4,7 @@ import {
   TypedSupabaseUser,
   ProfileData,
   NormalizedUserData,
+  UIUserData,
   AccountLinkingResult,
   LinkedAccount,
   SessionValidationResult,

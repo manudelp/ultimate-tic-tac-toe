@@ -291,16 +291,6 @@ const Header: React.FC = () => {
     }, 100);
   };
 
-  // Show provider-agnostic user info
-  const getUserDisplayInfo = () => {
-    if (!authState.user) return null;
-
-    return {
-      ...authState.user,
-      displayName: authState.user.name || authState.user.username,
-    };
-  };
-
   useEffect(() => {
     let lastScrollTop = 0;
     let scrollTimer: NodeJS.Timeout | null = null;
@@ -351,8 +341,6 @@ const Header: React.FC = () => {
       if (hideTimer) clearTimeout(hideTimer);
     };
   }, [showHeader, showLoginModal, showMobileMenu]);
-
-  const userInfo = getUserDisplayInfo();
 
   // Enhanced debug logging for development - no provider exposure
   useEffect(() => {
