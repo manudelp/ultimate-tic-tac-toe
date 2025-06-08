@@ -214,6 +214,12 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     isRegister: boolean
   ): Promise<void> => {
     try {
+      // Set operation timeout
+      const operationTimeout = setTimeout(() => {
+        setIsLoading(false);
+        toast.error("Operation timed out. Please try again.");
+      }, 15000);
+
       if (isRegister) {
         // Register with Supabase Auth
         const { data, error } = await supabase.auth.signUp({
@@ -228,6 +234,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           },
         });
 
+        clearTimeout(operationTimeout);
+
         if (error) {
           if (error.message.includes("already registered")) {
             toast.error(
@@ -239,13 +247,27 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
 
         if (data.user && !data.session) {
-          // Handle account linking during registration
-          const linkedProfile = await getUserProfileWithLinking(data.user);
-          if (linkedProfile?._originalAuthData) {
-            toast.success(
-              "Account linked! Please check your email to confirm your account."
-            );
-          } else {
+          // Handle account linking during registration with timeout
+          try {
+            const linkingTimeout = setTimeout(() => {
+              toast.success(
+                "Registration successful! Please check your email to confirm your account."
+              );
+            }, 5000);
+
+            const linkedProfile = await getUserProfileWithLinking(data.user);
+            clearTimeout(linkingTimeout);
+
+            if (linkedProfile?._originalAuthData) {
+              toast.success(
+                "Account linked! Please check your email to confirm your account."
+              );
+            } else {
+              toast.success(
+                "Registration successful! Please check your email to confirm your account."
+              );
+            }
+          } catch {
             toast.success(
               "Registration successful! Please check your email to confirm your account."
             );
@@ -260,14 +282,24 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             confirmPassword: "",
           });
         } else if (data.session) {
-          // Auto-confirmed - handle linking
-          const linkedProfile = await getUserProfileWithLinking(data.user!);
+          // Auto-confirmed - handle linking with timeout
+          try {
+            const linkingTimeout = setTimeout(() => {
+              toast.success("Registration successful! You're now logged in.");
+              onLoginSuccess?.();
+            }, 5000);
 
-          if (linkedProfile?._originalAuthData) {
-            toast.success(
-              "Accounts linked! Registration successful and you're now logged in."
-            );
-          } else {
+            const linkedProfile = await getUserProfileWithLinking(data.user!);
+            clearTimeout(linkingTimeout);
+
+            if (linkedProfile?._originalAuthData) {
+              toast.success(
+                "Accounts linked! Registration successful and you're now logged in."
+              );
+            } else {
+              toast.success("Registration successful! You're now logged in.");
+            }
+          } catch {
             toast.success("Registration successful! You're now logged in.");
           }
 
@@ -279,6 +311,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           email,
           password,
         });
+
+        clearTimeout(operationTimeout);
 
         if (error) {
           // Provide helpful error messages
@@ -297,31 +331,45 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
 
         if (data.user && data.session) {
-          // Handle account linking during login - no provider-specific messaging
-          const linkedProfile = await getUserProfileWithLinking(data.user);
+          // Handle account linking during login with timeout
+          try {
+            const linkingTimeout = setTimeout(() => {
+              toast.success("Welcome back!");
+              onLoginSuccess?.();
+            }, 5000);
 
-          if (linkedProfile?._originalAuthData) {
-            toast.success(
-              `Accounts linked! Welcome back, ${
-                linkedProfile.name || linkedProfile.username
-              }!`
-            );
-          } else {
+            const linkedProfile = await getUserProfileWithLinking(data.user);
+            clearTimeout(linkingTimeout);
+
+            if (linkedProfile?._originalAuthData) {
+              toast.success(
+                `Accounts linked! Welcome back, ${
+                  linkedProfile.name || linkedProfile.username
+                }!`
+              );
+            } else {
+              toast.success("Welcome back!");
+            }
+          } catch {
             toast.success("Welcome back!");
           }
 
           onLoginSuccess?.();
         }
       }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Authentication failed"
-      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Authentication failed");
     }
   };
 
   const handleGoogleSignIn = async (): Promise<void> => {
     try {
+      // Set operation timeout for OAuth
+      const oauthTimeout = setTimeout(() => {
+        setIsLoading(false);
+        toast.error("Sign-in timed out. Please try again.");
+      }, 10000);
+
       const redirectUrl = `${window.location.origin}/auth/callback`;
 
       const { error } = await supabase.auth.signInWithOAuth({
@@ -335,6 +383,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         },
       });
 
+      clearTimeout(oauthTimeout);
+
       if (error) {
         // Handle specific OAuth errors
         if (error.message.includes("popup_closed_by_user")) {
@@ -344,8 +394,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         }
       }
       // Success will be handled by the callback page
-    } catch (error) {
-      console.error("Google sign-in error:", error);
+    } catch {
       toast.error("Authentication failed. Please try again.");
     }
   };
@@ -378,10 +427,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         formData.password,
         mode === "register"
       );
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Authentication error"
-      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Authentication error");
     } finally {
       setIsLoading(false);
     }

@@ -52,7 +52,6 @@ export const getNormalizedUserData = (
   profileData?: ProfileData | null
 ): NormalizedUserData | null => {
   if (!isValidSupabaseUser(user)) {
-    console.error("Invalid user data provided to getNormalizedUserData");
     return null;
   }
 
@@ -93,8 +92,7 @@ export const getNormalizedUserData = (
     }
 
     return authData;
-  } catch (error) {
-    console.error("Error in getNormalizedUserData:", error);
+  } catch {
     return null;
   }
 };
@@ -119,17 +117,12 @@ export const findAndLinkAccounts = async (
 
   try {
     // Look for existing profiles with the same email but different user ID
-    const { data: existingProfiles, error } = await supabase
+    const { data: existingProfiles } = await supabase
       .from("profiles")
       .select("*")
       .eq("email", userEmail)
       .neq("id", currentUserId)
       .is("linked_to", null); // Only get profiles that aren't already linked
-
-    if (error) {
-      console.warn("Error checking for existing profiles:", error);
-      return null;
-    }
 
     if (existingProfiles && existingProfiles.length > 0) {
       // Found existing account(s) with same email
@@ -138,8 +131,7 @@ export const findAndLinkAccounts = async (
     }
 
     return null;
-  } catch (error) {
-    console.error("Error in findAndLinkAccounts:", error);
+  } catch {
     return null;
   }
 };
@@ -160,8 +152,8 @@ export const mergeProfileData = async (
     if (existingProfile.linked_accounts) {
       try {
         existingLinkedAccounts = JSON.parse(existingProfile.linked_accounts);
-      } catch (parseError) {
-        console.warn("Failed to parse linked_accounts JSON:", parseError);
+      } catch {
+        // Silent handling of parse errors
       }
     }
 
@@ -193,7 +185,6 @@ export const mergeProfileData = async (
       .single();
 
     if (error) {
-      console.error("Error merging profile data:", error);
       return { success: false, error: error.message };
     }
 
@@ -207,92 +198,15 @@ export const mergeProfileData = async (
       .eq("id", existingProfile.id);
 
     return { success: true, mergedProfile: data as ProfileData };
-  } catch (error) {
-    console.error("Error in mergeProfileData:", error);
+  } catch (err) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: err instanceof Error ? err.message : "Unknown error",
     };
   }
 };
 
-// Enhanced function to get user profile with linking logic
-export const getUserProfileWithLinking = async (
-  user: SupabaseUser
-): Promise<NormalizedUserData | null> => {
-  if (
-    !isValidSupabaseUser(user) ||
-    typeof window === "undefined" ||
-    !supabase.from
-  ) {
-    return null;
-  }
-
-  try {
-    // First, try to get existing profile for current user
-    const { data: currentProfile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (!profileError && currentProfile && !currentProfile.linked_to) {
-      // Profile exists and is active, return with normalization
-      return getNormalizedUserData(user, currentProfile as ProfileData);
-    }
-
-    // If no profile exists or profile check failed, look for linkable accounts
-    if (user.email) {
-      const existingProfile = await findAndLinkAccounts(user.email, user.id);
-
-      if (existingProfile) {
-        // Found linkable account, merge the data
-        const newUserData = getNormalizedUserData(user);
-        if (!newUserData) {
-          console.error("Failed to normalize user data for linking");
-          return null;
-        }
-
-        const linkingResult = await mergeProfileData(
-          user.id,
-          existingProfile,
-          newUserData
-        );
-
-        if (linkingResult.success && linkingResult.mergedProfile) {
-          return getNormalizedUserData(user, linkingResult.mergedProfile);
-        }
-      }
-    }
-
-    // No existing profile found, create new one or return normalized auth data
-    const normalizedData = getNormalizedUserData(user);
-    if (!normalizedData) {
-      return null;
-    }
-
-    // Try to create profile entry
-    try {
-      await supabase.from("profiles").upsert({
-        id: user.id,
-        email: user.email || "",
-        username: normalizedData.username,
-        name: normalizedData.name,
-        avatar_url: normalizedData.avatar_url,
-        provider: normalizedData.provider,
-      });
-    } catch (createError) {
-      console.warn("Failed to create profile entry:", createError);
-    }
-
-    return normalizedData;
-  } catch (error) {
-    console.error("Error in getUserProfileWithLinking:", error);
-    return getNormalizedUserData(user);
-  }
-};
-
-// Helper to check if session is valid with proper typing
+// Helper to check if session is valid with proper typing and timeout
 export const validateSession = async (): Promise<SessionValidationResult> => {
   // Only run on client side
   if (typeof window === "undefined") {
@@ -312,13 +226,21 @@ export const validateSession = async (): Promise<SessionValidationResult> => {
   }
 
   try {
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Session validation timeout")), 6000);
+    });
+
+    // Create session validation promise
+    const sessionPromise = supabase.auth.getSession();
+
+    // Race between timeout and session validation
     const {
       data: { session },
       error,
-    } = await supabase.auth.getSession();
+    } = await Promise.race([sessionPromise, timeoutPromise]);
 
     if (error) {
-      console.error("Session validation error:", error);
       return { isValid: false, session: null, error: error.message };
     }
 
@@ -326,7 +248,7 @@ export const validateSession = async (): Promise<SessionValidationResult> => {
       return { isValid: false, session: null };
     }
 
-    // Validate session structure
+    // Validate session structure and expiry
     if (!session.user || !session.access_token) {
       return {
         isValid: false,
@@ -335,15 +257,123 @@ export const validateSession = async (): Promise<SessionValidationResult> => {
       };
     }
 
+    // Check if session is expired
+    const now = Math.floor(Date.now() / 1000);
+    if (session.expires_at && session.expires_at <= now) {
+      return {
+        isValid: false,
+        session: null,
+        error: "Session expired",
+      };
+    }
+
     return { isValid: true, session };
-  } catch (error) {
-    console.error("Session validation failed:", error);
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("timeout")) {
+      return {
+        isValid: false,
+        session: null,
+        error: "Session validation timed out",
+      };
+    }
+
     return {
       isValid: false,
       session: null,
-      error:
-        error instanceof Error ? error.message : "Unknown validation error",
+      error: err instanceof Error ? err.message : "Unknown validation error",
     };
+  }
+};
+
+// Enhanced function to get user profile with timeout protection
+export const getUserProfileWithLinking = async (
+  user: SupabaseUser
+): Promise<NormalizedUserData | null> => {
+  if (
+    !isValidSupabaseUser(user) ||
+    typeof window === "undefined" ||
+    !supabase.from
+  ) {
+    return null;
+  }
+
+  try {
+    // Add timeout to prevent hanging profile loads
+    const timeoutPromise = new Promise<null>((_, reject) => {
+      setTimeout(() => reject(new Error("Profile load timeout")), 8000);
+    });
+
+    const profilePromise = (async () => {
+      // First, try to get existing profile for current user
+      const { data: currentProfile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (!profileError && currentProfile && !currentProfile.linked_to) {
+        // Profile exists and is active, return with normalization
+        return getNormalizedUserData(user, currentProfile as ProfileData);
+      }
+
+      // If no profile exists or profile check failed, look for linkable accounts
+      if (user.email) {
+        const existingProfile = await findAndLinkAccounts(user.email, user.id);
+
+        if (existingProfile) {
+          // Found linkable account, merge the data
+          const newUserData = getNormalizedUserData(user);
+          if (!newUserData) {
+            return null;
+          }
+
+          const linkingResult = await mergeProfileData(
+            user.id,
+            existingProfile,
+            newUserData
+          );
+
+          if (linkingResult.success && linkingResult.mergedProfile) {
+            return getNormalizedUserData(user, linkingResult.mergedProfile);
+          }
+        }
+      }
+
+      // No existing profile found, create new one or return normalized auth data
+      const normalizedData = getNormalizedUserData(user);
+      if (!normalizedData) {
+        return null;
+      }
+
+      // Try to create profile entry with timeout
+      try {
+        await Promise.race([
+          supabase.from("profiles").upsert({
+            id: user.id,
+            email: user.email || "",
+            username: normalizedData.username,
+            name: normalizedData.name,
+            avatar_url: normalizedData.avatar_url,
+            provider: normalizedData.provider,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Profile creation timeout")),
+              3000
+            )
+          ),
+        ]);
+      } catch {
+        // Silent handling of profile creation errors/timeouts
+      }
+
+      return normalizedData;
+    })();
+
+    return await Promise.race([profilePromise, timeoutPromise]);
+  } catch {
+    // If profile loading fails, fall back to basic user data
+    return getNormalizedUserData(user);
   }
 };
 
@@ -369,10 +399,10 @@ export const updateUserProfile = async (
     }
 
     return { success: true, data: data as ProfileData };
-  } catch (error) {
+  } catch (err) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown update error",
+      error: err instanceof Error ? err.message : "Unknown update error",
     };
   }
 };

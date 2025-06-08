@@ -57,8 +57,7 @@ export const checkConnection = async (): Promise<boolean> => {
       },
     });
     return response.status === 200;
-  } catch (error) {
-    console.error("API connection failed:", error);
+  } catch {
     return false;
   }
 };
@@ -161,8 +160,7 @@ export const testRecaptcha = async (token: string): Promise<boolean> => {
     const data = await response.json();
 
     return response.ok && data.valid === true;
-  } catch (error) {
-    console.error("reCAPTCHA validation failed:", error);
+  } catch {
     return false;
   }
 };
@@ -201,8 +199,6 @@ export async function loginUser(
         throw new Error(errorData.message || "Login failed");
       } else {
         // If not JSON, it's likely an HTML error page
-        const textContent = await response.text();
-        console.error("Non-JSON error response:", textContent);
         throw new Error(
           `Server error: ${response.status} - ${response.statusText}`
         );
@@ -246,8 +242,6 @@ export const registerUser = async (
         throw new Error(errorData.message || "Registration failed");
       } else {
         // If not JSON, it's likely an HTML error page
-        const textContent = await response.text();
-        console.error("Non-JSON error response:", textContent);
         throw new Error(
           `Server error: ${response.status} - ${response.statusText}`
         );
@@ -284,8 +278,7 @@ export const verifyToken = async (): Promise<boolean> => {
     }
 
     return data.valid === true;
-  } catch (error) {
-    console.error("Token verification failed:", error);
+  } catch {
     return false;
   }
 };

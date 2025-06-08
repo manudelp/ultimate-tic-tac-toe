@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { LoginForm } from "../ui/login-form";
 import {
   supabase,
   validateSession,
   getUserProfileWithLinking,
+  toUIUserData,
 } from "@/lib/supabase";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
@@ -21,7 +22,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Session as SupabaseSession } from "@supabase/supabase-js";
 import { UIUserData, AuthState } from "@/types/auth";
-import { toUIUserData } from "@/lib/supabase";
+
+// Custom event interface for auth state changes
+interface AuthStateChangeDetail {
+  event: string;
+  session: SupabaseSession | null;
+}
+
+interface AuthStateChangeEvent extends Event {
+  detail: AuthStateChangeDetail;
+}
 
 const Header: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
@@ -35,13 +45,50 @@ const Header: React.FC = () => {
     error: null,
   });
   const [isClient, setIsClient] = useState(false);
+  const authTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionCheckRef = useRef<boolean>(false);
 
   // Ensure we're on the client side
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Enhanced user profile loading with proper error handling - provider-agnostic
+  // Detect client clock skew that could prevent session validation
+  const checkClockSkew = useCallback(() => {
+    try {
+      const now = Date.now();
+      const stored = localStorage.getItem("last_auth_check");
+      if (stored) {
+        const lastCheck = parseInt(stored);
+        const diff = Math.abs(now - lastCheck);
+        // If more than 24 hours difference, warn about potential clock skew
+        if (diff > 24 * 60 * 60 * 1000) {
+          setAuthState((prev) => ({
+            ...prev,
+            error:
+              "System clock may be incorrect. Please check your device time.",
+          }));
+        }
+      }
+      localStorage.setItem("last_auth_check", now.toString());
+    } catch {
+      // Silent handling of clock skew check errors
+    }
+  }, []);
+
+  // Reset auth state to handle persistent loading issues
+  const resetAuthState = useCallback(() => {
+    setAuthState({
+      user: null,
+      isLoading: false,
+      sessionChecked: true,
+      error: null,
+    });
+    localStorage.removeItem("userData");
+    localStorage.removeItem("token");
+  }, []);
+
+  // Enhanced user profile loading with timeout protection
   const loadUserProfile = useCallback(
     async (session: SupabaseSession): Promise<UIUserData | null> => {
       if (!session?.user || typeof window === "undefined") {
@@ -49,16 +96,21 @@ const Header: React.FC = () => {
       }
 
       try {
-        const userData = await getUserProfileWithLinking(session.user);
+        // Set a timeout for profile loading
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          setTimeout(() => reject(new Error("Profile load timeout")), 5000);
+        });
+
+        const profilePromise = getUserProfileWithLinking(session.user);
+
+        const userData = await Promise.race([profilePromise, timeoutPromise]);
 
         if (!userData) {
           return null;
         }
 
-        // Convert to provider-agnostic UI data
         return toUIUserData(userData);
-      } catch (error) {
-        console.error("Failed to load user profile:", error);
+      } catch {
         return null;
       }
     },
@@ -78,6 +130,8 @@ const Header: React.FC = () => {
               ...prev,
               user: userForState,
               error: null,
+              isLoading: false,
+              sessionChecked: true,
             }));
 
             const userData = await getUserProfileWithLinking(session.user);
@@ -87,7 +141,10 @@ const Header: React.FC = () => {
           } else {
             setAuthState((prev) => ({
               ...prev,
+              user: null,
               error: "Failed to load user profile",
+              isLoading: false,
+              sessionChecked: true,
             }));
           }
         } else {
@@ -95,15 +152,19 @@ const Header: React.FC = () => {
             ...prev,
             user: null,
             error: null,
+            isLoading: false,
+            sessionChecked: true,
           }));
           localStorage.removeItem("userData");
           localStorage.removeItem("token");
         }
-      } catch (error) {
+      } catch (err) {
         setAuthState((prev) => ({
           ...prev,
           user: null,
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: err instanceof Error ? err.message : "Unknown error",
+          isLoading: false,
+          sessionChecked: true,
         }));
         localStorage.removeItem("userData");
         localStorage.removeItem("token");
@@ -113,63 +174,81 @@ const Header: React.FC = () => {
   );
 
   const checkAuthState = useCallback(async (): Promise<void> => {
-    if (authState.sessionChecked || typeof window === "undefined") return;
+    if (sessionCheckRef.current || typeof window === "undefined") return;
+
+    sessionCheckRef.current = true;
 
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const sessionResult = await validateSession();
+      checkClockSkew();
+
+      // Set timeout for session validation
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        authTimeoutRef.current = setTimeout(() => {
+          reject(new Error("Session validation timeout"));
+        }, 8000);
+      });
+
+      const sessionPromise = validateSession();
+
+      const sessionResult = await Promise.race([
+        sessionPromise,
+        timeoutPromise,
+      ]);
+
+      if (authTimeoutRef.current) {
+        clearTimeout(authTimeoutRef.current);
+        authTimeoutRef.current = null;
+      }
 
       if (sessionResult.error) {
         setAuthState((prev) => ({
           ...prev,
           error: sessionResult.error || "Session validation failed",
+          isLoading: false,
+          sessionChecked: true,
         }));
+        return;
       }
 
       await updateUserFromSession(sessionResult.session);
-    } catch (error) {
+    } catch (err) {
+      if (authTimeoutRef.current) {
+        clearTimeout(authTimeoutRef.current);
+        authTimeoutRef.current = null;
+      }
+
       setAuthState((prev) => ({
         ...prev,
         user: null,
-        error: error instanceof Error ? error.message : "Auth check failed",
+        error: err instanceof Error ? err.message : "Auth check failed",
+        isLoading: false,
+        sessionChecked: true,
       }));
       localStorage.removeItem("userData");
       localStorage.removeItem("token");
     } finally {
-      setAuthState((prev) => ({
-        ...prev,
-        isLoading: false,
-        sessionChecked: true,
-      }));
+      sessionCheckRef.current = false;
     }
-  }, [authState.sessionChecked, updateUserFromSession]);
+  }, [updateUserFromSession, checkClockSkew]);
 
+  // Handle auth state changes from AuthListener
   useEffect(() => {
     if (!isClient) return;
 
-    setHostname(window.location.hostname.replace(/^www\./, ""));
+    const handleAuthStateChange = async (event: Event) => {
+      const customEvent = event as AuthStateChangeEvent;
+      const { event: authEvent, session } = customEvent.detail;
 
-    // Initial auth check
-    checkAuthState();
+      // Reset session check flag to allow new checks
+      sessionCheckRef.current = false;
 
-    // Subscribe to auth state changes
-    if (!supabase.auth) return;
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Reset session checked flag on auth events to allow re-checking
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-        setAuthState((prev) => ({ ...prev, sessionChecked: false }));
-      }
-
-      // Handle different auth events with proper state management
-      switch (event) {
+      switch (authEvent) {
+        case "INITIAL_SESSION":
         case "SIGNED_IN":
           setAuthState((prev) => ({ ...prev, isLoading: true }));
           await updateUserFromSession(session);
-          setAuthState((prev) => ({ ...prev, isLoading: false }));
           break;
 
         case "SIGNED_OUT":
@@ -191,14 +270,53 @@ const Header: React.FC = () => {
           break;
 
         default:
+          // Handle unknown events by resetting loading state
+          setAuthState((prev) => ({
+            ...prev,
+            isLoading: false,
+            sessionChecked: true,
+          }));
           break;
       }
+    };
+
+    const handleAuthTimeout = () => {
+      resetAuthState();
+    };
+
+    // Listen for auth events from AuthListener
+    window.addEventListener("auth-state-change", handleAuthStateChange);
+    window.addEventListener("auth-timeout", handleAuthTimeout);
+
+    // Initial setup
+    setHostname(window.location.hostname.replace(/^www\./, ""));
+
+    // Initial auth check with fallback timeout
+    const initialTimeout = setTimeout(() => {
+      if (!authState.sessionChecked) {
+        resetAuthState();
+      }
+    }, 12000); // 12 second fallback
+
+    checkAuthState().finally(() => {
+      clearTimeout(initialTimeout);
     });
 
     return () => {
-      subscription.unsubscribe();
+      window.removeEventListener("auth-state-change", handleAuthStateChange);
+      window.removeEventListener("auth-timeout", handleAuthTimeout);
+      clearTimeout(initialTimeout);
+      if (authTimeoutRef.current) {
+        clearTimeout(authTimeoutRef.current);
+      }
     };
-  }, [checkAuthState, updateUserFromSession, isClient]);
+  }, [
+    isClient,
+    checkAuthState,
+    updateUserFromSession,
+    resetAuthState,
+    authState.sessionChecked,
+  ]);
 
   // Enhanced logout with proper cleanup and error handling
   const handleLogout = async (): Promise<void> => {
@@ -209,43 +327,43 @@ const Header: React.FC = () => {
         throw new Error("Supabase auth not available");
       }
 
-      // Sign out from Supabase
+      // Set logout timeout
+      const logoutTimeout = setTimeout(() => {
+        resetAuthState();
+        toast.error("Logout timed out but you've been signed out locally");
+      }, 5000);
+
       const { error } = await supabase.auth.signOut();
+      clearTimeout(logoutTimeout);
 
       if (error) {
         toast.error("Logout failed");
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
         return;
       }
 
-      // Clear all local state and storage
-      setAuthState({
-        user: null,
-        isLoading: false,
-        sessionChecked: false,
-        error: null,
-      });
+      resetAuthState();
       setShowLoginModal(false);
       setShowMobileMenu(false);
-      localStorage.removeItem("userData");
-      localStorage.removeItem("token");
-
       toast.success("Logged out successfully");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Logout failed";
-      setAuthState((prev) => ({ ...prev, error: errorMessage }));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Logout failed";
+      setAuthState((prev) => ({
+        ...prev,
+        error: errorMessage,
+        isLoading: false,
+      }));
       toast.error(errorMessage);
-    } finally {
-      setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
   const handleLoginSuccess = (): void => {
     setShowLoginModal(false);
-    // Force a session check to ensure immediate UI update
+    sessionCheckRef.current = false;
+    // Force a session check with short delay
     setTimeout(() => {
       checkAuthState();
-    }, 100);
+    }, 250);
   };
 
   useEffect(() => {

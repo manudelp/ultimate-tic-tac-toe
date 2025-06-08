@@ -16,11 +16,18 @@ function CallbackContent() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
+      // Set overall timeout for callback processing
+      const callbackTimeout = setTimeout(() => {
+        toast.error("Authentication processing timed out");
+        router.push("/");
+      }, 15000);
+
       try {
         const error = searchParams.get("error");
         const errorDescription = searchParams.get("error_description");
 
         if (error) {
+          clearTimeout(callbackTimeout);
           toast.error(errorDescription || "Authentication failed");
           router.push("/");
           return;
@@ -28,18 +35,29 @@ function CallbackContent() {
 
         setStatus("Verifying session...");
 
+        // Add timeout to session verification
+        const sessionTimeout = setTimeout(() => {
+          clearTimeout(callbackTimeout);
+          toast.error("Session verification timed out");
+          router.push("/");
+        }, 8000);
+
         const {
           data: { session },
           error: sessionError,
         } = await supabase.auth.getSession();
 
+        clearTimeout(sessionTimeout);
+
         if (sessionError) {
+          clearTimeout(callbackTimeout);
           toast.error("Authentication failed");
           router.push("/");
           return;
         }
 
         if (!session) {
+          clearTimeout(callbackTimeout);
           setStatus("No active session found");
           toast.error("Authentication failed - no session");
           router.push("/");
@@ -48,9 +66,33 @@ function CallbackContent() {
 
         setStatus("Setting up user profile...");
 
+        // Add timeout to profile setup
+        const profileTimeout = setTimeout(() => {
+          clearTimeout(callbackTimeout);
+          // Continue anyway if profile loading times out
+          localStorage.setItem(
+            "userData",
+            JSON.stringify({
+              id: session.user.id,
+              email: session.user.email,
+              name:
+                session.user.user_metadata?.full_name ||
+                session.user.email?.split("@")[0],
+              username:
+                session.user.user_metadata?.user_name ||
+                session.user.email?.split("@")[0],
+              avatar_url: session.user.user_metadata?.avatar_url || "",
+            })
+          );
+          toast.success("Welcome! You're now logged in.");
+          router.push("/");
+        }, 10000);
+
         const userData = await getUserProfileWithLinking(session.user);
+        clearTimeout(profileTimeout);
 
         if (!userData) {
+          clearTimeout(callbackTimeout);
           toast.error("Failed to process user data");
           router.push("/");
           return;
@@ -67,6 +109,7 @@ function CallbackContent() {
           const refreshToken = searchParams.get("refresh_token");
 
           if (accessToken && refreshToken) {
+            clearTimeout(callbackTimeout);
             router.push(
               `/reset-password?access_token=${accessToken}&refresh_token=${refreshToken}`
             );
@@ -86,12 +129,13 @@ function CallbackContent() {
         }
 
         setStatus("Redirecting...");
+        clearTimeout(callbackTimeout);
 
         setTimeout(() => {
           router.push("/");
         }, 500);
-      } catch (error) {
-        console.error("Authentication error:", error);
+      } catch {
+        clearTimeout(callbackTimeout);
         toast.error("Authentication failed");
         router.push("/");
       }

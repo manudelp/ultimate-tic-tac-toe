@@ -65,8 +65,7 @@ export default function ProfilePage() {
 
         setProfile(userProfile);
         setOriginalProfile(userProfile);
-      } catch (error) {
-        console.error("Error loading profile:", error);
+      } catch {
         toast.error("Failed to load profile");
       } finally {
         setLoading(false);
@@ -173,8 +172,7 @@ export default function ProfilePage() {
             [field]: profile[field],
           })
           .eq("id", user.id);
-      } catch (profileError) {
-        console.error("Failed to update profiles table:", profileError);
+      } catch {
         // Continue anyway - the user metadata was updated
       }
 
@@ -188,8 +186,7 @@ export default function ProfilePage() {
 
       toast.success("Profile updated");
       setOriginalProfile({ ...profile });
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch {
       toast.error("Failed to update profile");
       setProfile((prev) => ({ ...prev, [field]: originalProfile[field] }));
     }
@@ -298,12 +295,10 @@ export default function ProfilePage() {
                   toast.dismiss(toastId);
                   toast.success("Avatar updated successfully");
                 }
-              } catch (error: Error | unknown) {
+              } catch (err: unknown) {
                 toast.dismiss();
                 toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to upload avatar"
+                  err instanceof Error ? err.message : "Failed to upload avatar"
                 );
               }
             }}
