@@ -17,7 +17,6 @@ function CallbackContent() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Check for error in URL params first
         const error = searchParams.get("error");
         const errorDescription = searchParams.get("error_description");
 
@@ -30,7 +29,6 @@ function CallbackContent() {
 
         setStatus("Verifying session...");
 
-        // Get the current session
         const {
           data: { session },
           error: sessionError,
@@ -52,7 +50,6 @@ function CallbackContent() {
 
         setStatus("Setting up user profile...");
 
-        // Get user profile with linking logic
         const userData = await getUserProfileWithLinking(session.user);
 
         if (!userData) {
@@ -61,52 +58,37 @@ function CallbackContent() {
           return;
         }
 
-        // Store user data for UI state management
         localStorage.setItem("userData", JSON.stringify(userData));
 
-        // Handle different authentication flows
-        const provider = userData.provider;
+        // Handle different authentication flows without provider references
+        const type = searchParams.get("type");
+        if (type === "signup") {
+          toast.success("Email confirmed! You're now logged in.");
+        } else if (type === "recovery") {
+          const accessToken = searchParams.get("access_token");
+          const refreshToken = searchParams.get("refresh_token");
 
-        if (provider === "google") {
+          if (accessToken && refreshToken) {
+            router.push(
+              `/reset-password?access_token=${accessToken}&refresh_token=${refreshToken}`
+            );
+            return;
+          } else {
+            toast.success("Password reset confirmed! You're now logged in.");
+          }
+        } else {
           // Check if this was a newly linked account
           if (userData._originalAuthData) {
             toast.success(
-              `Accounts linked! Welcome back, ${
-                userData.name || userData.username
-              }!`
+              `Welcome back, ${userData.name || userData.username}!`
             );
           } else {
-            toast.success(
-              `Welcome${userData.name ? `, ${userData.name}` : ""}!`
-            );
-          }
-        } else {
-          // Email confirmation or password reset
-          const type = searchParams.get("type");
-          if (type === "signup") {
-            toast.success("Email confirmed! You're now logged in.");
-          } else if (type === "recovery") {
-            // Handle password reset confirmation
-            const accessToken = searchParams.get("access_token");
-            const refreshToken = searchParams.get("refresh_token");
-
-            if (accessToken && refreshToken) {
-              // Redirect to reset password page with tokens
-              router.push(
-                `/reset-password?access_token=${accessToken}&refresh_token=${refreshToken}`
-              );
-              return;
-            } else {
-              toast.success("Password reset confirmed! You're now logged in.");
-            }
-          } else {
-            toast.success("Login successful!");
+            toast.success("Welcome! You're now logged in.");
           }
         }
 
         setStatus("Redirecting...");
 
-        // Small delay to ensure localStorage is written
         setTimeout(() => {
           router.push("/");
         }, 500);

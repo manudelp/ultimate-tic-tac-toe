@@ -628,14 +628,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                   ? "Continue with Google"
                   : "Sign up with Google"}
               </Button>
-
-              {/* Provider conflict warning */}
-              <div className="text-xs text-gray-500 text-center">
-                <p>
-                  Note: Google and email logins create separate accounts even
-                  with the same email.
-                </p>
-              </div>
             </>
           )}
 

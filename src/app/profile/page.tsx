@@ -13,8 +13,6 @@ interface UserProfile {
   username: string;
   avatar_url: string;
   name: string;
-  provider: "google" | "email";
-  emailVerified: boolean;
 }
 
 export default function ProfilePage() {
@@ -22,8 +20,6 @@ export default function ProfilePage() {
     username: "",
     avatar_url: "",
     name: "",
-    provider: "email",
-    emailVerified: false,
   });
   const [originalProfile, setOriginalProfile] = useState<UserProfile>(profile);
   const [editingField, setEditingField] = useState<null | "name" | "username">(
@@ -65,8 +61,6 @@ export default function ProfilePage() {
           username: userData.username || "",
           name: userData.name || "",
           avatar_url: userData.avatar_url || "",
-          provider: userData.provider || "email",
-          emailVerified: userData.emailVerified || false,
         };
 
         setProfile(userProfile);
@@ -74,10 +68,7 @@ export default function ProfilePage() {
 
         // Log account linking info if available
         if (userData._originalAuthData) {
-          console.log("Profile loaded with linked account data:", {
-            currentProvider: userData.provider,
-            originalProvider: userData._originalAuthData.provider,
-          });
+          console.log("Profile loaded with linked account data");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -255,22 +246,11 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-4 bg-gray-800 rounded-lg space-y-6">
-      <h2 className="text-lg font-semibold text-center mb-4 text-white">
+      <h2 className="text-xl font-semibold text-center mb-4 text-white">
         My Profile
       </h2>
 
-      {/* Provider info */}
-      <div className="text-center mb-4">
-        <span className="inline-block px-3 py-1 text-xs rounded-full bg-gray-700 text-gray-300">
-          {profile.provider === "google"
-            ? "🔗 Google Account"
-            : profile.emailVerified
-            ? "✅ Email Account"
-            : "⚠️ Unverified Email"}
-        </span>
-      </div>
-
-      {/* Avatar section - only editable for email users */}
+      {/* Avatar section */}
       <label className="block text-sm text-gray-300 text-center mb-2">
         Avatar
       </label>
@@ -286,63 +266,55 @@ export default function ProfilePage() {
           </AvatarFallback>
         </Avatar>
 
-        {profile.provider === "email" && (
-          <label
-            htmlFor="avatar-upload"
-            className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mt-2"
-          >
-            Change avatar
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={async (e) => {
-                try {
-                  if (e.target.files && e.target.files[0]) {
-                    const file = e.target.files[0];
-                    const publicUrl = await uploadAvatar(file);
+        <label
+          htmlFor="avatar-upload"
+          className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mt-2"
+        >
+          Change avatar
+          <input
+            id="avatar-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              try {
+                if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                  const publicUrl = await uploadAvatar(file);
 
-                    // Update profile and localStorage
-                    const newProfile = { ...profile, avatar_url: publicUrl };
-                    setProfile(newProfile);
-                    setOriginalProfile(newProfile);
+                  // Update profile and localStorage
+                  const newProfile = { ...profile, avatar_url: publicUrl };
+                  setProfile(newProfile);
+                  setOriginalProfile(newProfile);
 
-                    // Update localStorage
-                    const userData = localStorage.getItem("userData");
-                    if (userData) {
-                      const parsedData = JSON.parse(userData);
-                      parsedData.avatar_url = publicUrl;
-                      localStorage.setItem(
-                        "userData",
-                        JSON.stringify(parsedData)
-                      );
-                    }
-
-                    const toastId = toast.loading("Uploading avatar...");
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
-                    toast.dismiss(toastId);
-                    toast.success("Avatar updated successfully");
+                  // Update localStorage
+                  const userData = localStorage.getItem("userData");
+                  if (userData) {
+                    const parsedData = JSON.parse(userData);
+                    parsedData.avatar_url = publicUrl;
+                    localStorage.setItem(
+                      "userData",
+                      JSON.stringify(parsedData)
+                    );
                   }
-                } catch (error: Error | unknown) {
-                  toast.dismiss();
-                  toast.error(
-                    error instanceof Error
-                      ? error.message
-                      : "Failed to upload avatar"
-                  );
-                  console.error("Error uploading avatar:", error);
-                }
-              }}
-            />
-          </label>
-        )}
 
-        {profile.provider === "google" && (
-          <p className="text-xs text-gray-500 mt-2">
-            Google avatar is managed by your Google account
-          </p>
-        )}
+                  const toastId = toast.loading("Uploading avatar...");
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  toast.dismiss(toastId);
+                  toast.success("Avatar updated successfully");
+                }
+              } catch (error: Error | unknown) {
+                toast.dismiss();
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to upload avatar"
+                );
+                console.error("Error uploading avatar:", error);
+              }
+            }}
+          />
+        </label>
       </div>
 
       {/* Name Field */}
@@ -463,29 +435,6 @@ export default function ProfilePage() {
             {profile.username}
           </div>
         )}
-      </div>
-
-      {/* Account info */}
-      <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-300 mb-2">
-          Account Information
-        </h3>
-        <div className="space-y-2 text-xs text-gray-400">
-          <p>
-            Login method:{" "}
-            {profile.provider === "google"
-              ? "Google OAuth"
-              : "Email & Password"}
-          </p>
-          {profile.provider === "email" && (
-            <p>Email verified: {profile.emailVerified ? "Yes" : "No"}</p>
-          )}
-          {!profile.emailVerified && profile.provider === "email" && (
-            <p className="text-yellow-400">
-              Please check your email for verification link
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );

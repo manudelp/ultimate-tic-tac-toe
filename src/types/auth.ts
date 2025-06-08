@@ -51,13 +51,11 @@ export interface NormalizedUserData {
   _originalAuthData?: NormalizedUserData;
 }
 
-// UI user state
+// UI user state - removed provider and emailVerified from UI
 export interface UIUserData {
   name: string;
   username: string;
   image: string;
-  provider: "google" | "email";
-  emailVerified: boolean;
 }
 
 // Account linking types

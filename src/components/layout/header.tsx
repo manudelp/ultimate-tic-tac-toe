@@ -22,11 +22,6 @@ import {
 import { Session as SupabaseSession } from "@supabase/supabase-js";
 import { UIUserData, AuthState } from "@/types/auth";
 
-interface UserDisplayInfo extends UIUserData {
-  displayName: string;
-  providerBadge: string;
-}
-
 const Header: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -53,13 +48,11 @@ const Header: React.FC = () => {
       }
 
       try {
-        console.log("Loading user profile with linking logic for:", {
+        console.log("Loading user profile for:", {
           userId: session.user.id,
           email: session.user.email,
-          provider: session.user.app_metadata?.provider,
         });
 
-        // Use the new linking function that handles account merging
         const userData = await getUserProfileWithLinking(session.user);
 
         if (!userData) {
@@ -67,20 +60,17 @@ const Header: React.FC = () => {
           return null;
         }
 
-        console.log("Successfully loaded linked profile:", {
+        console.log("Successfully loaded profile:", {
           userId: userData.id,
           username: userData.username,
           name: userData.name,
-          provider: userData.provider,
-          hasLinkedData: !!userData._originalAuthData,
         });
 
+        // Return only neutral UI data
         return {
           name: userData.name || userData.username,
           username: userData.username,
           image: userData.avatar_url || "",
-          provider: userData.provider,
-          emailVerified: userData.emailVerified,
         };
       } catch (error) {
         console.error("Error loading user profile:", error);
@@ -99,7 +89,6 @@ const Header: React.FC = () => {
           console.log("Updating user from session:", {
             userId: session.user.id,
             email: session.user.email,
-            provider: session.user.app_metadata?.provider,
           });
 
           const userForState = await loadUserProfile(session);
@@ -111,7 +100,6 @@ const Header: React.FC = () => {
               error: null,
             }));
 
-            // Store normalized user data in localStorage
             const userData = await getUserProfileWithLinking(session.user);
             if (userData) {
               localStorage.setItem("userData", JSON.stringify(userData));
@@ -206,7 +194,6 @@ const Header: React.FC = () => {
         event,
         userId: session?.user?.id,
         email: session?.user?.email,
-        provider: session?.user?.app_metadata?.provider,
         hasSession: !!session,
       });
 
@@ -237,22 +224,11 @@ const Header: React.FC = () => {
           break;
 
         case "TOKEN_REFRESHED":
-          console.log("Processing TOKEN_REFRESHED event");
-          if (session) {
-            await updateUserFromSession(session);
-          }
-          break;
-
         case "USER_UPDATED":
-          console.log("Processing USER_UPDATED event");
+          console.log(`Processing ${event} event`);
           if (session) {
             await updateUserFromSession(session);
           }
-          break;
-
-        case "PASSWORD_RECOVERY":
-          console.log("Processing PASSWORD_RECOVERY event");
-          // Handle password recovery if needed
           break;
 
         default:
@@ -325,12 +301,6 @@ const Header: React.FC = () => {
     return {
       ...authState.user,
       displayName: authState.user.name || authState.user.username,
-      providerBadge:
-        authState.user.provider === "google"
-          ? "🔗 Google"
-          : authState.user.emailVerified
-          ? "✅ Email"
-          : "⚠️ Unverified",
     };
   };
 
@@ -467,17 +437,19 @@ const Header: React.FC = () => {
             <li>
               {authState.isLoading ? (
                 <div className="w-20 h-8 bg-gray-600 rounded-md animate-pulse"></div>
-              ) : userInfo ? (
+              ) : authState.user ? (
                 <div className="flex items-center gap-2">
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Avatar className="cursor-pointer hover:ring-2 hover:ring-gray-500 transition">
                         <AvatarImage
-                          src={userInfo.image}
-                          alt={userInfo.displayName}
+                          src={authState.user.image}
+                          alt={authState.user.name || authState.user.username}
                         />
                         <AvatarFallback>
-                          {userInfo.displayName.charAt(0).toUpperCase()}
+                          {(authState.user.name || authState.user.username)
+                            .charAt(0)
+                            .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </DropdownMenuTrigger>
@@ -486,12 +458,11 @@ const Header: React.FC = () => {
                         <div className="flex flex-col">
                           <span
                             className="truncate"
-                            title={userInfo.displayName}
+                            title={
+                              authState.user.name || authState.user.username
+                            }
                           >
-                            {userInfo.displayName}
-                          </span>
-                          <span className="text-xs text-gray-500 font-normal">
-                            {userInfo.providerBadge}
+                            {authState.user.name || authState.user.username}
                           </span>
                         </div>
                       </DropdownMenuLabel>
