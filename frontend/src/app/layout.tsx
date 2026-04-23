@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.ReactElement {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body className={`antialiased ${spaceGrotesk.variable}`}>
         <Header />
         <main className="min-h-svh pt-10 sm:pt-0">{children}</main>
