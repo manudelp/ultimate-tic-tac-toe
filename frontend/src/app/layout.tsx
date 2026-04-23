@@ -61,7 +61,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased ${spaceGrotesk.variable}`}>
         <Header />
-        <main className="min-h-svh pt-10 sm:pt-0">{children}</main>
+        <main className="min-h-svh">{children}</main>
         <Toaster richColors />
         <Footer />
         <ConnectionBanner />

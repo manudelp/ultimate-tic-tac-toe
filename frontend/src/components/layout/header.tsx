@@ -1,143 +1,35 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 
-const Header: React.FC = () => {
-  const [showHeader, setShowHeader] = useState(true);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+const HIDDEN_ROUTES = ["/pvp/lobby", "/pvp/matchmaking"];
 
-  useEffect(() => {
-    let lastScrollTop = 0;
-    let scrollTimer: NodeJS.Timeout | null = null;
-    let hideTimer: NodeJS.Timeout | null = null;
+export default function Header() {
+  const pathname = usePathname();
 
-    const handleScroll = () => {
-      const currentScrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-
-      if (scrollTimer) clearTimeout(scrollTimer);
-      if (hideTimer) clearTimeout(hideTimer);
-
-      if (showMobileMenu) {
-        if (!showHeader) setShowHeader(true);
-        lastScrollTop = currentScrollTop;
-        return;
-      }
-
-      if (currentScrollTop <= 50) {
-        if (!showHeader) setShowHeader(true);
-        lastScrollTop = currentScrollTop;
-        return;
-      }
-
-      const scrollDifference = Math.abs(currentScrollTop - lastScrollTop);
-      if (scrollDifference < 5) return;
-
-      scrollTimer = setTimeout(() => {
-        if (currentScrollTop > lastScrollTop && showHeader) {
-          hideTimer = setTimeout(() => setShowHeader(false), 150);
-        } else if (currentScrollTop < lastScrollTop && !showHeader) {
-          setShowHeader(true);
-        }
-        lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
-      }, 50);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (scrollTimer) clearTimeout(scrollTimer);
-      if (hideTimer) clearTimeout(hideTimer);
-    };
-  }, [showHeader, showMobileMenu]);
+  if (HIDDEN_ROUTES.some((r) => pathname.startsWith(r))) return null;
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800/50 transition ${
-        !showHeader ? "-translate-y-full" : ""
-      }`}
-    >
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold">
-          Ultimate TTT
+    <header className="w-full bg-gray-900/80 backdrop-blur-sm border-b border-gray-800/50">
+      <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+        <Link href="/" className="text-lg font-bold hover:text-gray-300 transition-colors">
+          Ultimate Tic-Tac-Toe
         </Link>
-
-        <nav className="hidden md:block">
-          <ul className="flex items-center space-x-6">
-            <li>
-              <Link
-                href="/"
-                className="relative text-gray-300 transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/how-to-play"
-                className="relative text-gray-300 transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
-              >
-                How to Play
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        <button
-          className="block md:hidden p-2 flex-shrink-0"
-          onClick={() => setShowMobileMenu(!showMobileMenu)}
-          aria-label="Toggle menu"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <div className="flex gap-2">
+          <Link
+            href="/pvp"
+            className="px-3 py-1.5 text-sm rounded bg-gray-800 hover:bg-gray-700 transition-colors"
           >
-            {showMobileMenu ? (
-              <>
-                <motion.line x1="18" y1="6" x2="6" y2="18" initial={{ opacity: 0, pathLength: 0 }} animate={{ opacity: 1, pathLength: 1 }} transition={{ duration: 0.3 }} />
-                <motion.line x1="6" y1="6" x2="18" y2="18" initial={{ opacity: 0, pathLength: 0 }} animate={{ opacity: 1, pathLength: 1 }} transition={{ duration: 0.3, delay: 0.1 }} />
-              </>
-            ) : (
-              <>
-                <motion.line x1="3" y1="12" x2="21" y2="12" initial={{ opacity: 0, pathLength: 0 }} animate={{ opacity: 1, pathLength: 1 }} transition={{ duration: 0.3 }} />
-                <motion.line x1="3" y1="6" x2="21" y2="6" initial={{ opacity: 0, pathLength: 0 }} animate={{ opacity: 1, pathLength: 1 }} transition={{ duration: 0.3, delay: 0.1 }} />
-                <motion.line x1="3" y1="18" x2="21" y2="18" initial={{ opacity: 0, pathLength: 0 }} animate={{ opacity: 1, pathLength: 1 }} transition={{ duration: 0.3, delay: 0.2 }} />
-              </>
-            )}
-          </svg>
-        </button>
+            vs Player
+          </Link>
+          <Link
+            href="/bot"
+            className="px-3 py-1.5 text-sm rounded bg-gray-800 hover:bg-gray-700 transition-colors"
+          >
+            vs Bot
+          </Link>
+        </div>
       </div>
-
-      <AnimatePresence>
-        {showMobileMenu && (
-          <motion.div
-            className="absolute top-full left-0 right-0 bg-gray-900 border-t border-gray-800 md:hidden"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ul className="flex flex-col">
-              <motion.li className="p-3 border-b border-gray-800" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                <Link href="/" className="block text-gray-300 transition-colors hover:text-white" onClick={() => setShowMobileMenu(false)}>Home</Link>
-              </motion.li>
-              <motion.li className="p-3 border-b border-gray-800" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-                <Link href="/how-to-play" className="block text-gray-300 transition-colors hover:text-white" onClick={() => setShowMobileMenu(false)}>How to Play</Link>
-              </motion.li>
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   );
-};
-
-export default Header;
+}

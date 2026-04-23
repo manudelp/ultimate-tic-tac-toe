@@ -14,9 +14,9 @@ const HowToPlay: React.FC = () => {
   ];
 
   return (
-    <div className="pt-20 pb-12">
+    <div className="pt-8 pb-12">
       {/* Mobile: horizontal scrolling nav */}
-      <div className="md:hidden sticky top-14 z-10 bg-gray-900/90 backdrop-blur-sm border-b border-gray-800 px-4 py-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700">
+      <div className="md:hidden sticky top-0 z-10 bg-gray-900/90 backdrop-blur-sm border-b border-gray-800 px-4 py-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700">
         <div className="flex gap-3 min-w-max">
           {sections.map((s) => (
             <a
@@ -32,7 +32,7 @@ const HowToPlay: React.FC = () => {
 
       <div className="flex justify-center max-w-5xl mx-auto px-4">
         {/* Desktop: sidebar */}
-        <aside className="hidden md:block sticky top-20 h-fit w-56 shrink-0 pr-8 border-r border-gray-800">
+        <aside className="hidden md:block sticky top-8 h-fit w-56 shrink-0 pr-8 border-r border-gray-800">
           <h3 className="text-lg font-bold mb-4">Contents</h3>
           <nav>
             <ul className="space-y-2 text-sm">
@@ -61,7 +61,7 @@ const HowToPlay: React.FC = () => {
             How to Play Ultimate Tic-Tac-Toe
           </h1>
 
-          <section id="objective" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="objective" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Objective of the Game</h2>
             <p className="text-gray-300 leading-relaxed">
               Ultimate Tic-Tac-Toe is a strategic twist on the classic
@@ -72,7 +72,7 @@ const HowToPlay: React.FC = () => {
             </p>
           </section>
 
-          <section id="setup" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="setup" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Game Setup</h2>
             <ul className="list-disc pl-6 text-gray-300 leading-relaxed space-y-1">
               <li>The game consists of nine mini Tic-Tac-Toe boards arranged in a 3x3 grid.</li>
@@ -81,7 +81,7 @@ const HowToPlay: React.FC = () => {
             </ul>
           </section>
 
-          <section id="rules" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="rules" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Gameplay Rules</h2>
             <ol className="list-decimal pl-6 text-gray-300 leading-relaxed space-y-2">
               <li>On your turn, play your mark in one of the empty cells in any available mini board.</li>
@@ -97,7 +97,7 @@ const HowToPlay: React.FC = () => {
             </ol>
           </section>
 
-          <section id="winning" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="winning" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Winning the Game</h2>
             <p className="text-gray-300 leading-relaxed">
               Win three mini-boards in a row on the larger board — horizontally,
@@ -105,7 +105,7 @@ const HowToPlay: React.FC = () => {
             </p>
           </section>
 
-          <section id="strategies" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="strategies" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Advanced Strategies</h2>
             <ul className="list-disc pl-6 text-gray-300 leading-relaxed space-y-2">
               <li>
@@ -123,7 +123,7 @@ const HowToPlay: React.FC = () => {
             </ul>
           </section>
 
-          <section id="special" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="special" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Special Situations</h2>
             <ul className="list-disc pl-6 text-gray-300 leading-relaxed space-y-2">
               <li>
@@ -139,7 +139,7 @@ const HowToPlay: React.FC = () => {
             </ul>
           </section>
 
-          <section id="tips" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="tips" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Tips for Beginners</h2>
             <ul className="list-disc pl-6 text-gray-300 leading-relaxed space-y-2">
               <li><strong>Start Simple:</strong> Focus on learning how the board works before overthinking.</li>
@@ -148,7 +148,7 @@ const HowToPlay: React.FC = () => {
             </ul>
           </section>
 
-          <section id="modes" className="mb-8 scroll-mt-28 md:scroll-mt-8">
+          <section id="modes" className="mb-8 scroll-mt-16 md:scroll-mt-8">
             <h2 className="text-2xl font-semibold mb-4">Game Modes</h2>
             <ul className="list-disc pl-6 text-gray-300 leading-relaxed space-y-1">
               <li>

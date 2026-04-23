@@ -28,16 +28,20 @@ const Footer: React.FC = () => {
         </a>
       </p>
       <div className="flex gap-2">
+        <Link href="/" className="hover:text-white transition-colors">
+          Home
+        </Link>
+        <span>|</span>
+        <Link href="/how-to-play" className="hover:text-white transition-colors">
+          How to Play
+        </Link>
+        <span>|</span>
         <Link href="/privacy-policy" className="hover:text-white transition-colors">
           Privacy Policy
         </Link>
         <span>|</span>
         <Link href="/terms-of-service" className="hover:text-white transition-colors">
           Terms of Service
-        </Link>
-        <span>|</span>
-        <Link href="/how-to-play" className="hover:text-white transition-colors">
-          How to Play
         </Link>
       </div>
     </footer>
