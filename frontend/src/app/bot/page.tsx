@@ -1,38 +1,29 @@
 "use client";
 import React from "react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getBots, loadBot } from "@/api";
 import Board from "@/components/core/board";
-import Button from "@/components/ui/button-2";
+import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 import Share from "@/components/ui/share";
 import { motion, AnimatePresence } from "framer-motion";
-// import { toast } from "sonner";
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-
-// Types
-type BotListResponse = {
-  id: number;
-  name: string;
-  icon: string;
-  description: string;
-  difficulty: number;
-};
+import type { BotInfo } from "@/types/game";
 
 export default function Bot() {
-  // State variables
+  const router = useRouter();
   const [starts, setStarts] = useState<string | null>(null);
-  const [bots, setBots] = useState<BotListResponse[] | null>(null);
-  const [selectedBot, setSelectedBot] = useState<BotListResponse | null>(null);
-  const [bot, setBot] = useState<BotListResponse | null>(null);
+  const [bots, setBots] = useState<BotInfo[] | null>(null);
+  const [selectedBot, setSelectedBot] = useState<BotInfo | null>(null);
+  const [bot, setBot] = useState<BotInfo | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
-  const [width, setWidth] = useState(0);
 
   const handleExitGame = () => {
     setBots(null);
@@ -52,27 +43,17 @@ export default function Bot() {
   useEffect(() => {
     if (!bots) {
       setLoading(true);
-      getBots().then((bots) => {
-        setBots(bots.map((bot: BotListResponse) => ({ ...bot })));
-        setLoading(false);
-
-        bots.forEach((bot) => {
-          loadBot(bot.id).then(() => {
-            updateBotsLoaded(bot.id);
+      getBots()
+        .then((bots) => {
+          setBots(bots.map((bot: BotInfo) => ({ ...bot })));
+          setLoading(false);
+          bots.forEach((bot) => {
+            loadBot(bot.id).then(() => updateBotsLoaded(bot.id));
           });
-        });
-      });
+        })
+        .catch(() => setLoading(false));
     }
   }, [bots]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setWidth(window.innerWidth);
-      const handleResize = () => setWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }
-  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
@@ -302,7 +283,8 @@ export default function Bot() {
                       className="flex flex-col items-center justify-center h-full p-4 space-y-3 bg-gray-800 border border-gray-700 rounded-lg"
                     >
                       <div className="mb-3 text-4xl">
-                        {width > 768 ? "👈" : "👆"}
+                        <span className="hidden md:inline">👈</span>
+                        <span className="md:hidden">👆</span>
                       </div>
                       <h3 className="text-lg font-medium text-center text-gray-300">
                         Select an opponent
@@ -320,7 +302,7 @@ export default function Bot() {
             <Button
               text="Back to Menu"
               variant="danger"
-              onClick={() => (window.location.href = "/")}
+              onClick={() => router.push("/")}
             />
           </div>
         </div>

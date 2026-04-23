@@ -6,40 +6,31 @@ import {
   MiniBoardWinner,
   GameWinner,
   convertBoardToNumeric,
-} from "@/lib/utils";
+} from "@/lib/game";
 import { toast } from "sonner";
 
-interface BotListResponse {
-  id: number;
-  name: string;
-  icon: string;
-}
+import type { BotInfo, Coords, WinningLine, ActiveMiniBoard } from "@/types/game";
+
+type Turn = "X" | "O";
+type Winner = "X" | "O" | "Draw";
+type Board = string[][][][];
+type MiniBoard = string[][];
+type MoveHistory = { turn: Turn; coords: Coords }[];
+type MoveData = {
+  bigRow: number;
+  bigCol: number;
+  smallRow: number;
+  smallCol: number;
+};
 
 export const useGame = (
   gameMode: string,
-  bot: BotListResponse,
+  bot: BotInfo,
   starts: string,
   yourLetter?: string,
   lobbyCode?: string
 ) => {
-  // Socket reference
   const socketRef = useRef<Socket | null>(null);
-
-  // Types
-  type Board = string[][][][];
-  type MiniBoard = string[][];
-  type Turn = "X" | "O";
-  type Winner = "X" | "O" | "Draw";
-  type Coords = [number, number, number, number];
-  type WinningLine = { type: string; index: number };
-  type ActiveMiniBoard = [number, number] | null;
-  type MoveHistory = { turn: Turn; coords: Coords }[];
-  type MoveData = {
-    bigRow: number;
-    bigCol: number;
-    smallRow: number;
-    smallCol: number;
-  };
 
   // Initial state
   const initialBoard = Array.from({ length: 3 }, () =>

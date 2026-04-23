@@ -2,13 +2,10 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
-import { config } from "@fortawesome/fontawesome-svg-core";
 import type { Metadata } from "next";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import "@fortawesome/fontawesome-svg-core/styles.css";
 import "./globals.css";
-config.autoAddCss = false;
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],

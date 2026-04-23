@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useMemo } from "react";
-import Button from "@/components/ui/button-2";
+import Button from "@/components/ui/button";
 import Share from "@/components/ui/share";
 import Link from "next/link";
 

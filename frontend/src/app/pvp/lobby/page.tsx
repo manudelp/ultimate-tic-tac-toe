@@ -4,11 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getSocket, disconnectSocket } from "@/socket";
 import type { Socket } from "socket.io-client";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
-import Button from "@/components/ui/button-2";
+import Button from "@/components/ui/button";
 import Board from "@/components/core/board";
 import Share from "@/components/ui/share";
 import { toast } from "sonner";
-import { ClipboardIcon } from "@heroicons/react/24/outline";
+import { Clipboard } from "lucide-react";
 
 interface StartGameData {
   yourLetter: string;
@@ -196,7 +196,7 @@ function LobbyContent() {
             <span className="font-mono text-2xl tracking-widest text-blue-400">
               {lobbyCode}
             </span>
-            <ClipboardIcon className="w-6 h-6 text-white" />
+            <Clipboard className="w-6 h-6 text-white" />
           </div>
         </div>
         {!copied ? (

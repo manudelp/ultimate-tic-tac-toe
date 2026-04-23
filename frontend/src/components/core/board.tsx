@@ -3,17 +3,12 @@ import MiniBoard from "@/components/core/miniboard";
 import GameOverModal from "@/components/ui/game-over";
 import { useGame } from "@/hooks/useGame";
 import { motion } from "framer-motion";
-
-interface BotListResponse {
-  id: number;
-  name: string;
-  icon: string;
-}
+import type { BotInfo, GameMode } from "@/types/game";
 
 interface BoardProps {
-  gameMode: "player-vs-player" | "player-vs-bot" | "online";
+  gameMode: GameMode;
   onExit: () => void;
-  bot?: BotListResponse;
+  bot?: BotInfo;
   starts?: string;
   yourLetter?: string;
   lobbyCode?: string;
@@ -27,7 +22,7 @@ const Board: React.FC<BoardProps> = ({
   yourLetter,
   lobbyCode,
 }) => {
-  bot = bot || { id: 0, name: "", icon: "" };
+  bot = bot || { id: 0, name: "", icon: "", description: "", difficulty: 0 };
 
   const [closeModal, setCloseModal] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

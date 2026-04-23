@@ -6,13 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 const Header: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [hostname, setHostname] = useState("utictactoe.online");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setHostname(window.location.hostname.replace(/^www\./, ""));
-    }
-  }, []);
 
   useEffect(() => {
     let lastScrollTop = 0;
@@ -61,26 +54,21 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-20 transition ${
+      className={`fixed top-0 left-0 right-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800/50 transition ${
         !showHeader ? "-translate-y-full" : ""
-      } ${showMobileMenu ? "bg-gray-900" : ""}`}
+      }`}
     >
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Link
-            href="/"
-            className="text-xl font-bold truncate max-w-[200px] sm:max-w-none"
-          >
-            {hostname}
-          </Link>
-        </div>
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold">
+          Ultimate TTT
+        </Link>
 
         <nav className="hidden md:block">
           <ul className="flex items-center space-x-6">
             <li>
               <Link
                 href="/"
-                className="relative transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
+                className="relative text-gray-300 transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
               >
                 Home
               </Link>
@@ -88,7 +76,7 @@ const Header: React.FC = () => {
             <li>
               <Link
                 href="/how-to-play"
-                className="relative transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
+                className="relative text-gray-300 transition-colors hover:text-white after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all hover:after:w-full"
               >
                 How to Play
               </Link>
@@ -99,6 +87,7 @@ const Header: React.FC = () => {
         <button
           className="block md:hidden p-2 flex-shrink-0"
           onClick={() => setShowMobileMenu(!showMobileMenu)}
+          aria-label="Toggle menu"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -130,18 +119,18 @@ const Header: React.FC = () => {
       <AnimatePresence>
         {showMobileMenu && (
           <motion.div
-            className="absolute top-full left-0 right-0 bg-background border-t border-gray-700 md:hidden"
+            className="absolute top-full left-0 right-0 bg-gray-900 border-t border-gray-800 md:hidden"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
             <ul className="flex flex-col">
-              <motion.li className="p-3 border-b border-gray-700 bg-gray-900" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                <Link href="/" className="block transition-colors hover:text-gray-300" onClick={() => setShowMobileMenu(false)}>Home</Link>
+              <motion.li className="p-3 border-b border-gray-800" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                <Link href="/" className="block text-gray-300 transition-colors hover:text-white" onClick={() => setShowMobileMenu(false)}>Home</Link>
               </motion.li>
-              <motion.li className="p-3 border-b border-gray-700 bg-gray-900" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-                <Link href="/how-to-play" className="block transition-colors hover:text-gray-300" onClick={() => setShowMobileMenu(false)}>How to Play</Link>
+              <motion.li className="p-3 border-b border-gray-800" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
+                <Link href="/how-to-play" className="block text-gray-300 transition-colors hover:text-white" onClick={() => setShowMobileMenu(false)}>How to Play</Link>
               </motion.li>
             </ul>
           </motion.div>

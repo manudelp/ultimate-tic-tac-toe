@@ -27,12 +27,6 @@ const PrivacyPolicy: React.FC = () => {
       </p>
       <ul className="list-disc list-inside space-y-2 mb-6">
         <li className="text-gray-200">
-          <strong>Personal Data:</strong> Personally identifiable information,
-          such as your name, email address, and demographic information, that
-          you voluntarily give to us when you register with the game or when you
-          choose to participate in various activities related to the game.
-        </li>
-        <li className="text-gray-200">
           <strong>Derivative Data:</strong> Information our servers
           automatically collect when you access the game, such as your IP
           address, your browser type, your operating system, your access times,
@@ -50,25 +44,12 @@ const PrivacyPolicy: React.FC = () => {
         information collected about you via the game to:
       </p>
       <ul className="list-disc list-inside space-y-2 mb-6">
-        <li className="text-gray-200">Create and manage your account.</li>
-        <li className="text-gray-200">
-          Compile anonymous statistical data and analysis for use internally or
-          with third parties.
-        </li>
-        <li className="text-gray-200">
-          Deliver targeted advertising, coupons, newsletters, and other
-          information regarding promotions and the game to you.
-        </li>
         <li className="text-gray-200">
           Increase the efficiency and operation of the game.
         </li>
         <li className="text-gray-200">
           Monitor and analyze usage and trends to improve your experience with
           the game.
-        </li>
-        <li className="text-gray-200">Notify you of updates to the game.</li>
-        <li className="text-gray-200">
-          Request feedback and contact you about your use of the game.
         </li>
       </ul>
 

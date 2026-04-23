@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import Button from "@/components/ui/button-2";
+import Button from "@/components/ui/button";
 
 const NotFound: React.FC = () => {
   return (

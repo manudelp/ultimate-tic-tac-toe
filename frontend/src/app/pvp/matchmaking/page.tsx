@@ -5,11 +5,8 @@ import { getSocket, disconnectSocket } from "@/socket";
 import type { Socket } from "socket.io-client";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import Board from "@/components/core/board";
-import Button from "@/components/ui/button-2";
-import {
-  ArrowPathIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import Button from "@/components/ui/button";
+import { RefreshCw, Search } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -192,7 +189,7 @@ export default function Matchmaking() {
                 animateIcon ? "scale-105" : "scale-100"
               } transition-all duration-300`}
             >
-              <ArrowPathIcon
+              <RefreshCw
                 className={`h-10 w-10 text-blue-400 ${
                   animateIcon ? "rotate-180" : "rotate-0"
                 } transition-all duration-300`}
@@ -206,7 +203,7 @@ export default function Matchmaking() {
         ) : (
           <>
             <div className="p-4 mb-4 rounded-full bg-emerald-500/20">
-              <MagnifyingGlassIcon className="h-10 w-10 text-emerald-400" />
+              <Search className="h-10 w-10 text-emerald-400" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Ready</h2>
             <p className="text-gray-400">Click below to start matchmaking</p>

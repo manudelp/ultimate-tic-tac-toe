@@ -1,13 +1,25 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Button from "@/components/ui/button-2";
+import Button from "@/components/ui/button";
 import Board from "@/components/core/board";
 import Share from "@/components/ui/share";
 import { toast } from "sonner";
 
 export default function PVP() {
+  const router = useRouter();
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
+  const [lobbyInput, setLobbyInput] = useState("");
+
+  const handleJoinLobby = () => {
+    const code = lobbyInput.trim().toUpperCase();
+    if (code.length === 5) {
+      router.push(`/pvp/lobby?code=${code}`);
+    } else {
+      toast.error("Please enter a valid 5-character lobby ID.");
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
@@ -45,31 +57,22 @@ export default function PVP() {
               <div className="flex items-center">
                 <input
                   type="text"
-                  id="lobby-id"
+                  value={lobbyInput}
+                  onChange={(e) => setLobbyInput(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === "Enter" && handleJoinLobby()}
                   placeholder="Enter Lobby ID"
+                  maxLength={5}
                   className="px-4 py-2 w-40 sm:w-48 text-black rounded-l"
                 />
                 <Button
                   text="Join"
                   className="!px-4 !py-2 !w-fit !rounded-l-none"
-                  onClick={() => {
-                    const input = document.querySelector(
-                      "#lobby-id"
-                    ) as HTMLInputElement;
-                    if (input) {
-                      const lobbyId = input.value;
-                      if (lobbyId.length === 5) {
-                        window.location.href = `/pvp/lobby?code=${lobbyId.toUpperCase()}`;
-                      } else {
-                        toast.error("Please enter a valid lobby ID.");
-                      }
-                    }
-                  }}
+                  onClick={handleJoinLobby}
                 />
               </div>
             </div>
 
-            <span className="hidden sm:block w-px h-48 bg-gray-300/20"></span>
+            <span className="hidden sm:block w-px h-48 bg-gray-300/20" />
 
             <div className="w-full flex flex-col justify-center items-center gap-4">
               <p className="text-lg font-medium">Quick Match</p>
@@ -90,7 +93,7 @@ export default function PVP() {
             if (isOnline) {
               setIsOnline(null);
             } else {
-              window.location.href = "/";
+              router.push("/");
             }
           }}
         />

@@ -1,16 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
-
-interface BotListResponse {
-  id: number;
-  name: string;
-  icon: string;
-}
+import type { BotInfo } from "@/types/game";
 
 interface GameOverModalProps {
   gameWinner: string | null;
   gameMode: string;
-  bot: BotListResponse | null;
+  bot: BotInfo | null;
   starts: string | null;
   closeModal: boolean;
   setCloseModal: () => void;
