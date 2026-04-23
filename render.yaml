@@ -8,9 +8,3 @@ services:
     envVars:
       - key: TURNSTILE_SECRET_KEY
         sync: false
-      - key: JWT_SECRET_KEY
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_KEY
-        sync: false
