@@ -18,19 +18,31 @@ import type { BotInfo } from "@/types/game";
 
 export default function Bot() {
   const router = useRouter();
-  const [starts, setStarts] = useState<string | null>(null);
+
+  // Restore page-level state from sessionStorage
+  const savedPage = typeof window !== "undefined" ? sessionStorage.getItem("uttt_bot_page") : null;
+  const parsed = savedPage ? JSON.parse(savedPage) : null;
+
+  const [starts, setStarts] = useState<string | null>(parsed?.starts ?? null);
   const [bots, setBots] = useState<BotInfo[] | null>(null);
-  const [selectedBot, setSelectedBot] = useState<BotInfo | null>(null);
-  const [bot, setBot] = useState<BotInfo | null>(null);
+  const [selectedBot, setSelectedBot] = useState<BotInfo | null>(parsed?.selectedBot ?? null);
+  const [bot, setBot] = useState<BotInfo | null>(parsed?.bot ?? null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  // Persist page-level selections
+  useEffect(() => {
+    sessionStorage.setItem("uttt_bot_page", JSON.stringify({ bot, starts, selectedBot }));
+  }, [bot, starts, selectedBot]);
 
   const handleExitGame = () => {
     setBots(null);
     setSelectedBot(null);
     setBot(null);
     setStarts(null);
+    sessionStorage.removeItem("uttt_bot_page");
+    sessionStorage.removeItem("uttt_game_state");
   };
 
   const updateBotsLoaded = (id: number) => {

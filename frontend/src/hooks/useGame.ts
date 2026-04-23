@@ -23,6 +23,49 @@ type MoveData = {
   smallCol: number;
 };
 
+interface GameSnapshot {
+  board: Board;
+  turn: Turn;
+  lastMove: Coords | null;
+  gameWinner: Winner | null;
+  gameOver: boolean;
+  winningLine: WinningLine | null;
+  moveNumber: number;
+  moveHistory: MoveHistory;
+  activeMiniBoard: ActiveMiniBoard;
+  winners: (string | null)[][];
+  disabled: boolean[][];
+  gameMode: string;
+  botId: number;
+  starts: string;
+}
+
+const STORAGE_KEY = "uttt_game_state";
+
+function saveGame(snapshot: GameSnapshot) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  } catch { /* quota exceeded or unavailable */ }
+}
+
+function loadGame(gameMode: string, botId: number, starts: string): GameSnapshot | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const snapshot: GameSnapshot = JSON.parse(raw);
+    if (snapshot.gameMode !== gameMode || snapshot.botId !== botId || snapshot.starts !== starts) {
+      return null;
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
+
+function clearGame() {
+  try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* */ }
+}
+
 export const useGame = (
   gameMode: string,
   bot: BotInfo,
@@ -31,50 +74,47 @@ export const useGame = (
   lobbyCode?: string
 ) => {
   const socketRef = useRef<Socket | null>(null);
+  const isRestoredRef = useRef(false);
 
-  // Initial state
   const initialBoard = Array.from({ length: 3 }, () =>
     Array.from({ length: 3 }, () =>
       Array.from({ length: 3 }, () => ["", "", ""])
     )
   );
 
-  const initialState = {
-    board: initialBoard,
-    turn: starts === "player" ? "X" : "O",
-    lastMove: null,
-    gameWinner: null,
-    gameOver: false,
-    winningLine: null,
-    moveNumber: 0,
-    moveHistory: [] as MoveHistory,
-  };
+  // Try to restore saved state for non-online games
+  const saved = gameMode !== "online" ? loadGame(gameMode, bot.id, starts) : null;
 
-  // Board information
-  const [board, setBoard] = useState<Board>(initialBoard);
-  const [turn, setTurn] = useState<Turn>("X");
-  const [lastMove, setLastMove] = useState<Coords | null>(null);
-  const [gameWinner, setGameWinner] = useState<Winner | null>(null);
-  const [gameOver, setGameOver] = useState(false);
-  const [winningLine, setWinningLine] = useState<WinningLine | null>(null);
-  const [moveNumber, setMoveNumber] = useState(0);
-  const [moveHistory, setMoveHistory] = useState<MoveHistory>([]);
+  const [board, setBoard] = useState<Board>(saved?.board ?? initialBoard);
+  const [turn, setTurn] = useState<Turn>(saved?.turn ?? (starts === "player" ? "X" : "O") as Turn);
+  const [lastMove, setLastMove] = useState<Coords | null>(saved?.lastMove ?? null);
+  const [gameWinner, setGameWinner] = useState<Winner | null>(saved?.gameWinner ?? null);
+  const [gameOver, setGameOver] = useState(saved?.gameOver ?? false);
+  const [winningLine, setWinningLine] = useState<WinningLine | null>(saved?.winningLine ?? null);
+  const [moveNumber, setMoveNumber] = useState(saved?.moveNumber ?? 0);
+  const [moveHistory, setMoveHistory] = useState<MoveHistory>(saved?.moveHistory ?? []);
+  const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(saved?.activeMiniBoard ?? null);
+  const [winners, setWinners] = useState(saved?.winners ?? Array.from({ length: 3 }, () => Array(3).fill(null)));
+  const [disabled, setDisabled] = useState(saved?.disabled ?? Array.from({ length: 3 }, () => Array(3).fill(false)));
 
-  // Mini-board information
-  const [activeMiniBoard, setActiveMiniBoard] = useState<ActiveMiniBoard>(null);
-  const [winners, setWinners] = useState(
-    Array.from({ length: 3 }, () => Array(3).fill(null))
-  );
-  const [disabled, setDisabled] = useState(
-    Array.from({ length: 3 }, () => Array(3).fill(false))
-  );
-
-  // Bot information
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [timeToMove, setTimeToMove] = useState<number>(0.0);
   const isBotThinkingRef = useRef(false);
 
-  // FUNCTIONS
+  if (saved && !isRestoredRef.current) {
+    isRestoredRef.current = true;
+  }
+
+  // Persist state after every change (non-online only)
+  useEffect(() => {
+    if (gameMode === "online") return;
+    saveGame({
+      board, turn, lastMove, gameWinner, gameOver, winningLine,
+      moveNumber, moveHistory, activeMiniBoard, winners, disabled,
+      gameMode, botId: bot.id, starts,
+    });
+  }, [board, turn, lastMove, gameWinner, gameOver, winningLine, moveNumber, moveHistory, activeMiniBoard, winners, disabled, gameMode, bot.id, starts]);
+
   const updateMiniBoardState = useCallback(
     (a: number, b: number, winner: "X" | "O" | "Draw") => {
       setWinners((prev) => {
@@ -117,7 +157,6 @@ export const useGame = (
 
   const checkOverallGameWinner = useCallback(() => {
     setWinners((prev) => {
-      // Get the winning line first, so we can send it immediately with the gameOver event
       let capturedWinningLine: WinningLine | null = null;
 
       const overallWinner = GameWinner([...prev], (line) => {
@@ -135,7 +174,6 @@ export const useGame = (
 
         setDisabled(Array.from({ length: 3 }, () => Array(3).fill(true)));
 
-        // Notify opponent about game over in online mode with the winning line
         if (gameMode === "online" && lobbyCode && socketRef.current) {
           socketRef.current.emit("gameOver", {
             code: lobbyCode,
@@ -152,32 +190,26 @@ export const useGame = (
     (coords: Coords, forcedLetter?: "X" | "O", emitMove = true) => {
       const [a, b, c, d] = coords;
 
-      // Early validation
       if (gameWinner || gameOver || disabled[a][b] || board[a][b][c][d]) {
         return;
       }
 
-      // Store the current turn value for use in callbacks
       const currentTurn = forcedLetter || turn;
 
-      // Update turn FIRST - this is critical to prevent multiple bot moves
       setTurn((prev) => (prev === "X" ? "O" : "X"));
       setLastMove(coords);
       setMoveNumber((prev) => prev + 1);
       setMoveHistory((prev) => [...prev, { turn: currentTurn, coords }]);
 
-      // Now update the board
       setBoard((prevBoard) => {
         const newBoard = JSON.parse(JSON.stringify(prevBoard));
         newBoard[a][b][c][d] = currentTurn;
 
-        // Check for mini-board winner
         const winner = MiniBoardWinner(newBoard[a][b] as MiniBoard);
         if (winner) {
           updateMiniBoardState(a, b, winner);
         }
 
-        // Calculate next active mini-board
         const nextMiniBoard = MiniBoardWinner(newBoard[c][d] as MiniBoard);
         if (!disabled[c][d] && !winners[c][d] && !nextMiniBoard) {
           setActiveMiniBoard([c, d]);
@@ -185,30 +217,24 @@ export const useGame = (
           setActiveMiniBoard(null);
         }
 
-        // Check if mini-board is full
         if (newBoard[a][b].flat().every((cell: string) => cell !== "")) {
           disableFullMiniBoard(a, b);
         }
 
-        // Check for overall game winner
         checkOverallGameWinner();
 
         return newBoard;
       });
 
-      // Optional operations that can happen after state updates
       setTimeout(() => {
-        // Play sound
         try {
           const tapSound = new Audio("/assets/sounds/tap.mp3");
           tapSound.volume = 0.25;
           tapSound.play().catch(() => {});
         } catch (error) {
-          // Silently handle errors with sound
           console.error("Error playing sound:", error);
         }
 
-        // Online mode - emit move
         if (
           gameMode === "online" &&
           lobbyCode &&
@@ -223,48 +249,32 @@ export const useGame = (
       }, 0);
     },
     [
-      gameWinner,
-      gameOver,
-      disabled,
-      board,
-      turn,
-      winners,
-      checkOverallGameWinner,
-      updateMiniBoardState,
-      disableFullMiniBoard,
-      gameMode,
-      lobbyCode,
+      gameWinner, gameOver, disabled, board, turn, winners,
+      checkOverallGameWinner, updateMiniBoardState, disableFullMiniBoard,
+      gameMode, lobbyCode,
     ]
   );
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
-    if (gameOver) {
-      return;
-    }
+    if (gameOver) return;
 
     const coords: Coords = [a, b, c, d];
 
-    // Check if cell is already occupied
     if (board[a][b][c][d]) {
       toast.warning("This cell is already occupied!");
       return;
     }
 
-    // Online mode check - must come FIRST
     if (gameMode === "online" && turn !== yourLetter) {
-      // Provide feedback that it's not their turn
       toast.warning("Not your turn!");
       return;
     }
 
-    // Bot mode check
     if (gameMode === "player-vs-bot" && isBotThinking) {
-      // add animation to the cell when it isn't player's turn
       toast.error("Let " + bot?.name + " " + bot?.icon + " cook.");
       return;
     }
 
-    // If we got this far, the move is valid
     makeMove(coords);
   };
 
@@ -298,72 +308,27 @@ export const useGame = (
 
   const handleOpponentMove = useCallback(
     (moveData: MoveData, opponentLetter: "X" | "O") => {
-      // If moveData is just the letter, we can't process it
-      if (typeof moveData === "string") {
-        console.error("Received letter instead of move data:", moveData);
-        return;
-      }
+      if (typeof moveData === "string") return;
+      if (!moveData) return;
 
-      // Safety check - if moveData is undefined or null, don't proceed
-      if (!moveData) {
-        console.error("Received invalid move data:", moveData);
-        return;
-      }
-
-      // Extract move from moveData if it's nested
       let move = moveData;
-      if (
-        typeof moveData === "object" &&
-        moveData !== null &&
-        "move" in moveData
-      ) {
+      if (typeof moveData === "object" && moveData !== null && "move" in moveData) {
         move = moveData.move as MoveData;
       }
 
-      // Convert move to array format if it's an object
       let moveArray: [number, number, number, number];
 
       if (Array.isArray(move)) {
-        // Ensure the array has all required elements
-        if (move.length < 4) {
-          console.error("Move array doesn't have enough elements:", move);
-          return;
-        }
-        moveArray = [
-          Number(move[0]),
-          Number(move[1]),
-          Number(move[2]),
-          Number(move[3]),
-        ];
+        if (move.length < 4) return;
+        moveArray = [Number(move[0]), Number(move[1]), Number(move[2]), Number(move[3])];
       } else if (typeof move === "object" && move !== null) {
-        // Check if object has all required properties
-        if (
-          move.bigRow === undefined ||
-          move.bigCol === undefined ||
-          move.smallRow === undefined ||
-          move.smallCol === undefined
-        ) {
-          console.error("Move object missing required properties:", move);
-          return;
-        }
-        moveArray = [
-          Number(move.bigRow),
-          Number(move.bigCol),
-          Number(move.smallRow),
-          Number(move.smallCol),
-        ];
+        if (move.bigRow === undefined || move.bigCol === undefined || move.smallRow === undefined || move.smallCol === undefined) return;
+        moveArray = [Number(move.bigRow), Number(move.bigCol), Number(move.smallRow), Number(move.smallCol)];
       } else {
-        console.error("Move is neither an array nor an object:", move);
         return;
       }
 
-      // Final validation before making move
-      if (
-        !moveArray.every((coord) => typeof coord === "number" && !isNaN(coord))
-      ) {
-        console.error("Invalid coordinates in moveArray:", moveArray);
-        return;
-      }
+      if (!moveArray.every((coord) => typeof coord === "number" && !isNaN(coord))) return;
 
       makeMove(moveArray, opponentLetter, false);
     },
@@ -371,29 +336,30 @@ export const useGame = (
   );
 
   const resetGame = () => {
-    setBoard(initialState.board);
-    setTurn(initialState.turn as Turn);
-    setLastMove(initialState.lastMove);
-    setGameWinner(initialState.gameWinner);
-    setGameOver(initialState.gameOver);
-    setWinningLine(initialState.winningLine);
-    setMoveNumber(initialState.moveNumber);
+    setBoard(initialBoard);
+    setTurn((starts === "player" ? "X" : "O") as Turn);
+    setLastMove(null);
+    setGameWinner(null);
+    setGameOver(false);
+    setWinningLine(null);
+    setMoveNumber(0);
     setActiveMiniBoard(null);
     setWinners(Array.from({ length: 3 }, () => Array(3).fill(null)));
     setDisabled(Array.from({ length: 3 }, () => Array(3).fill(false)));
     setIsBotThinking(false);
     setTimeToMove(0);
     setMoveHistory([]);
+    clearGame();
   };
 
-  // Restart bot move each game
+  // Restart bot on new game
   useEffect(() => {
     if (gameMode === "player-vs-bot" && !lastMove) {
       agentsReset(bot.id);
     }
   }, [gameMode, bot, lastMove]);
 
-  // Automatically handle bot move whenever it's the bot's turn
+  // Bot auto-move
   useEffect(() => {
     if (
       gameMode === "player-vs-bot" &&
@@ -411,10 +377,9 @@ export const useGame = (
     }
   }, [turn, starts, gameMode, handleBotMove, gameOver]);
 
-  // Online mode - handle socket events
+  // Online mode socket events
   useEffect(() => {
     if (gameMode === "online") {
-      // Initialize socket only when in online mode
       socketRef.current = getSocket();
       const socket = socketRef.current;
       const opponentLetter = yourLetter === "X" ? "O" : "X";
@@ -423,15 +388,9 @@ export const useGame = (
         handleOpponentMove(move, opponentLetter);
       });
 
-      // Add opponent left listener
       socket.on("opponentLeft", () => {
-        toast.error("Your opponent has left the game", {
-          duration: 3000,
-        });
-        // Automatically exit to home page after a delay
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 3000);
+        toast.error("Your opponent has left the game", { duration: 3000 });
+        setTimeout(() => { window.location.href = "/"; }, 3000);
       });
 
       return () => {
@@ -442,22 +401,16 @@ export const useGame = (
     }
   }, [gameMode, handleOpponentMove, yourLetter]);
 
+  // Clear saved state on exit (when component unmounts for online)
+  useEffect(() => {
+    return () => {
+      if (gameMode === "online") clearGame();
+    };
+  }, [gameMode]);
+
   return {
-    board,
-    turn,
-    lastMove,
-    activeMiniBoard,
-    winners,
-    disabled,
-    winningLine,
-    gameWinner,
-    isBotThinking,
-    moveNumber,
-    timeToMove,
-    gameOver,
-    moveHistory,
-    handleCellClick,
-    makeMove,
-    resetGame,
+    board, turn, lastMove, activeMiniBoard, winners, disabled,
+    winningLine, gameWinner, isBotThinking, moveNumber, timeToMove,
+    gameOver, moveHistory, handleCellClick, makeMove, resetGame,
   };
 };

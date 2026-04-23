@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/button";
@@ -9,9 +9,26 @@ import { toast } from "sonner";
 
 export default function PVP() {
   const router = useRouter();
-  const [isOnline, setIsOnline] = useState<boolean | null>(null);
-  const [localStarts, setLocalStarts] = useState<string | null>(null);
+
+  const savedPage = typeof window !== "undefined" ? sessionStorage.getItem("uttt_pvp_page") : null;
+  const parsed = savedPage ? JSON.parse(savedPage) : null;
+
+  const [isOnline, setIsOnline] = useState<boolean | null>(parsed?.isOnline ?? null);
+  const [localStarts, setLocalStarts] = useState<string | null>(parsed?.localStarts ?? null);
   const [lobbyInput, setLobbyInput] = useState("");
+
+  useEffect(() => {
+    if (isOnline === false && localStarts) {
+      sessionStorage.setItem("uttt_pvp_page", JSON.stringify({ isOnline, localStarts }));
+    }
+  }, [isOnline, localStarts]);
+
+  const handleExitLocal = () => {
+    setIsOnline(null);
+    setLocalStarts(null);
+    sessionStorage.removeItem("uttt_pvp_page");
+    sessionStorage.removeItem("uttt_game_state");
+  };
 
   const handleJoinLobby = () => {
     const code = lobbyInput.trim().toUpperCase();
@@ -59,7 +76,7 @@ export default function PVP() {
         <Board
           gameMode="player-vs-player"
           starts={localStarts}
-          onExit={() => { setIsOnline(null); setLocalStarts(null); }}
+          onExit={handleExitLocal}
         />
       )}
 
