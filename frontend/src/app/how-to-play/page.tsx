@@ -159,7 +159,7 @@ const HowToPlay: React.FC = () => {
               </li>
               <li>
                 <Link href="/bot" className="font-medium hover:text-blue-400 transition-colors">
-                  Fight us
+                  Play vs AI
                 </Link>{" "}
                 — Challenge an AI opponent with varying difficulty levels.
               </li>

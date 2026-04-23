@@ -1,19 +1,22 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/button";
 import Board from "@/components/core/board";
-import Share from "@/components/ui/share";
 import { toast } from "sonner";
 
-export default function PVP() {
+function PVPContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const savedPage = typeof window !== "undefined" ? sessionStorage.getItem("uttt_pvp_page") : null;
   const parsed = savedPage ? JSON.parse(savedPage) : null;
 
-  const [isOnline, setIsOnline] = useState<boolean | null>(parsed?.isOnline ?? null);
+  const modeParam = searchParams.get("mode");
+  const initialOnline = parsed?.isOnline ?? (modeParam === "online" ? true : modeParam === "local" ? false : null);
+
+  const [isOnline, setIsOnline] = useState<boolean | null>(initialOnline);
   const [localStarts, setLocalStarts] = useState<string | null>(parsed?.localStarts ?? null);
   const [lobbyInput, setLobbyInput] = useState("");
 
@@ -39,20 +42,36 @@ export default function PVP() {
     }
   };
 
+  // In-game: full screen, no chrome
+  if (isOnline === false && localStarts) {
+    return (
+      <div className="flex items-center justify-center min-h-svh px-4 py-8">
+        <Board
+          gameMode="player-vs-player"
+          starts={localStarts}
+          onExit={handleExitLocal}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
       {isOnline === null && (
         <>
           <h1 className="mb-8 text-3xl font-bold sm:text-4xl bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text">
-            Ready to play?
+            Player vs Player
           </h1>
-          <h2 className="mb-6 text-xl font-semibold sm:text-2xl">
-            Select mode
-          </h2>
           <div className="flex items-center gap-4 flex-wrap">
             <Button text="Local" onClick={() => setIsOnline(false)} />
             <Button text="Online" onClick={() => setIsOnline(true)} />
           </div>
+          <Button
+            text="Back to Menu"
+            className="mt-8 !w-48"
+            variant="danger"
+            onClick={() => router.push("/")}
+          />
         </>
       )}
 
@@ -72,26 +91,16 @@ export default function PVP() {
         </div>
       )}
 
-      {isOnline === false && localStarts && (
-        <Board
-          gameMode="player-vs-player"
-          starts={localStarts}
-          onExit={handleExitLocal}
-        />
-      )}
-
       {isOnline === true && (
         <div className="flex flex-col items-center">
-          <h1 className="mb-8 text-3xl font-bold sm:text-4xl">Online Mode</h1>
+          <h1 className="mb-8 text-3xl font-bold sm:text-4xl">Online</h1>
 
           <div className="flex flex-col sm:flex-row justify-center items-start mx-auto gap-12 w-full max-w-3xl">
             <div className="flex flex-col items-center gap-4">
               <p className="text-lg font-medium">Create or join a lobby</p>
-
               <Link href="/pvp/lobby" className="w-full">
                 <Button text="Create Lobby" />
               </Link>
-
               <div className="flex items-center">
                 <input
                   type="text"
@@ -119,25 +128,23 @@ export default function PVP() {
               </Link>
             </div>
           </div>
+
+          <Button
+            text="Go Back"
+            className="mt-8 !w-48"
+            variant="danger"
+            onClick={() => setIsOnline(null)}
+          />
         </div>
       )}
-
-      {isOnline !== false && !localStarts && (
-        <Button
-          text={isOnline ? "Go Back" : "Exit"}
-          className="mt-8 !w-48"
-          variant="danger"
-          onClick={() => {
-            if (isOnline) {
-              setIsOnline(null);
-            } else {
-              router.push("/");
-            }
-          }}
-        />
-      )}
-
-      <Share />
     </div>
+  );
+}
+
+export default function PVP() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-svh">Loading...</div>}>
+      <PVPContent />
+    </Suspense>
   );
 }

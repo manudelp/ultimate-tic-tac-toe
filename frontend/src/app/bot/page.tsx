@@ -6,8 +6,8 @@ import { getBots, loadBot } from "@/api";
 import Board from "@/components/core/board";
 import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
-import Share from "@/components/ui/share";
 import { motion, AnimatePresence } from "framer-motion";
+import { MousePointerClick } from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -71,7 +71,6 @@ export default function Bot() {
 
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 min-h-svh sm:px-8 sm:py-16">
-      {/* Game container */}
       {bot && starts ? (
         <Board
           gameMode="player-vs-bot"
@@ -96,7 +95,7 @@ export default function Bot() {
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center h-48 bg-gray-800 border border-red-900/50 rounded-lg">
-              <p className="text-red-400 font-medium mb-2">Failed to load bots</p>
+              <p className="text-red-400 font-medium mb-2">Failed to load AI opponents</p>
               <p className="text-gray-400 text-sm mb-4">The server might be offline.</p>
               <Button text="Retry" variant="danger" className="!w-32 !py-2 text-sm" onClick={() => setBots(null)} />
             </div>
@@ -302,15 +301,12 @@ export default function Bot() {
                       transition={{ duration: 0.2 }}
                       className="flex flex-col items-center justify-center h-full p-4 space-y-3 bg-gray-800 border border-gray-700 rounded-lg"
                     >
-                      <div className="mb-3 text-4xl">
-                        <span className="hidden md:inline">👈</span>
-                        <span className="md:hidden">👆</span>
-                      </div>
+                      <MousePointerClick className="w-10 h-10 text-gray-500 mb-2" />
                       <h3 className="text-lg font-medium text-center text-gray-300">
-                        Select an opponent
+                        Select an AI opponent
                       </h3>
                       <p className="mt-1 text-base text-center text-gray-400">
-                        Choose from the available bots
+                        Choose from the available AI opponents
                       </p>
                     </motion.div>
                   )}
@@ -327,8 +323,6 @@ export default function Bot() {
           </div>
         </div>
       )}
-
-      <Share />
     </div>
   );
 }

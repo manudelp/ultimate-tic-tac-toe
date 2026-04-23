@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Bot, Users } from "lucide-react";
 
 const HIDDEN_ROUTES = ["/pvp/lobby", "/pvp/matchmaking"];
 
@@ -18,15 +19,17 @@ export default function Header() {
         <div className="flex gap-2">
           <Link
             href="/pvp"
-            className="px-3 py-1.5 text-sm rounded bg-gray-800 hover:bg-gray-700 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded bg-gray-800 hover:bg-gray-700 transition-colors"
           >
+            <Users className="w-4 h-4" />
             vs Player
           </Link>
           <Link
             href="/bot"
-            className="px-3 py-1.5 text-sm rounded bg-gray-800 hover:bg-gray-700 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded bg-gray-800 hover:bg-gray-700 transition-colors"
           >
-            vs Bot
+            <Bot className="w-4 h-4" />
+            vs AI
           </Link>
         </div>
       </div>

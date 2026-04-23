@@ -6,7 +6,6 @@ import type { Socket } from "socket.io-client";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import Button from "@/components/ui/button";
 import Board from "@/components/core/board";
-import Share from "@/components/ui/share";
 import { toast } from "sonner";
 import { Clipboard } from "lucide-react";
 
@@ -223,7 +222,6 @@ function LobbyContent() {
         />
       </div>
 
-      <Share />
     </div>
   );
 }

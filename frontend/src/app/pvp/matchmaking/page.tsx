@@ -13,7 +13,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Share from "@/components/ui/share";
 
 export default function Matchmaking() {
   const router = useRouter();
@@ -224,7 +223,6 @@ export default function Matchmaking() {
         onClick={() => router.push("/")}
       />
 
-      <Share />
     </div>
   );
 }

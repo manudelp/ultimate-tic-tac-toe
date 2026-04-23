@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Play vs Bot",
+  title: "Play vs AI",
   description:
     "Challenge AI opponents with different difficulty levels and strategies.",
 };

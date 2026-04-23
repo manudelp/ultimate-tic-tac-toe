@@ -4,6 +4,7 @@ import GameOverModal from "@/components/ui/game-over";
 import { useGame } from "@/hooks/useGame";
 import { motion } from "framer-motion";
 import { formatMove } from "@/lib/notation";
+import { ArrowLeft, RotateCcw } from "lucide-react";
 import type { BotInfo, GameMode } from "@/types/game";
 
 interface BoardProps {
@@ -273,20 +274,7 @@ const Board: React.FC<BoardProps> = ({
               className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-gray-700 rounded hover:bg-gray-600"
               onClick={onExit}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
+              <ArrowLeft className="w-5 h-5" />
               Exit Game
             </button>
             {gameOver && (
@@ -294,20 +282,7 @@ const Board: React.FC<BoardProps> = ({
                 className="flex items-center justify-center flex-1 gap-2 py-3 transition-colors bg-green-600 rounded hover:bg-green-500"
                 onClick={handlePlayAgain}
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
+                <RotateCcw className="w-5 h-5" />
                 Play Again
               </button>
             )}
@@ -355,7 +330,7 @@ const Board: React.FC<BoardProps> = ({
                 <div className="mb-1 text-sm text-gray-400">Game Mode</div>
                 <div className="text-lg text-white">
                   {gameMode === "player-vs-bot"
-                    ? `Playing against ${bot?.name} ${bot?.icon}`
+                    ? `vs ${bot?.name} ${bot?.icon}`
                     : gameMode === "online"
                     ? "Online Match"
                     : "Local"}
@@ -469,20 +444,7 @@ const Board: React.FC<BoardProps> = ({
               onClick={onExit}
               className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-gray-700 rounded hover:bg-gray-600"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
+              <ArrowLeft className="w-5 h-5" />
               Exit Game
             </button>
             {gameOver && (
@@ -490,20 +452,7 @@ const Board: React.FC<BoardProps> = ({
                 onClick={handlePlayAgain}
                 className="flex items-center justify-center flex-1 gap-2 px-4 py-3 transition-colors bg-green-600 rounded hover:bg-green-500"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
+                <RotateCcw className="w-5 h-5" />
                 Play Again
               </button>
             )}
