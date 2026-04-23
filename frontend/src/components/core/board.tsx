@@ -3,6 +3,7 @@ import MiniBoard from "@/components/core/miniboard";
 import GameOverModal from "@/components/ui/game-over";
 import { useGame } from "@/hooks/useGame";
 import { motion } from "framer-motion";
+import { formatMove } from "@/lib/notation";
 import type { BotInfo, GameMode } from "@/types/game";
 
 interface BoardProps {
@@ -256,7 +257,7 @@ const Board: React.FC<BoardProps> = ({
                       {move.turn}
                     </span>
                     <span className="ml-1 text-xs">
-                      ({move.coords.join(",")})
+                      {formatMove(move.coords)}
                     </span>
                   </motion.div>
                 ))}
@@ -421,7 +422,7 @@ const Board: React.FC<BoardProps> = ({
                   <tr className="text-xs text-gray-400">
                     <th className="p-2 font-normal text-left">#</th>
                     <th className="p-2 font-normal text-left">Turn</th>
-                    <th className="p-2 font-normal text-left">Position</th>
+                    <th className="p-2 font-normal text-left">Move</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -453,7 +454,7 @@ const Board: React.FC<BoardProps> = ({
                         {move.turn}
                       </td>
                       <td className="p-2 rounded-r">
-                        ({move.coords.join(",")})
+                        {formatMove(move.coords)}
                       </td>
                     </motion.tr>
                   ))}

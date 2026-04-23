@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export default function PVP() {
   const router = useRouter();
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
+  const [localStarts, setLocalStarts] = useState<string | null>(null);
   const [lobbyInput, setLobbyInput] = useState("");
 
   const handleJoinLobby = () => {
@@ -38,8 +39,28 @@ export default function PVP() {
         </>
       )}
 
-      {isOnline === false && (
-        <Board gameMode="player-vs-player" onExit={() => setIsOnline(null)} />
+      {isOnline === false && !localStarts && (
+        <div className="flex flex-col items-center">
+          <h2 className="mb-6 text-xl font-semibold">Who goes first?</h2>
+          <div className="flex gap-4">
+            <Button text="Player X" variant="secondary" onClick={() => setLocalStarts("player")} />
+            <Button text="Player O" onClick={() => setLocalStarts("bot")} />
+          </div>
+          <Button
+            text="Go Back"
+            className="mt-6 !w-48"
+            variant="danger"
+            onClick={() => setIsOnline(null)}
+          />
+        </div>
+      )}
+
+      {isOnline === false && localStarts && (
+        <Board
+          gameMode="player-vs-player"
+          starts={localStarts}
+          onExit={() => { setIsOnline(null); setLocalStarts(null); }}
+        />
       )}
 
       {isOnline === true && (
@@ -84,7 +105,7 @@ export default function PVP() {
         </div>
       )}
 
-      {isOnline !== false && (
+      {isOnline !== false && !localStarts && (
         <Button
           text={isOnline ? "Go Back" : "Exit"}
           className="mt-8 !w-48"

@@ -129,7 +129,7 @@ export const useGame = (
         setGameWinner(overallWinner as "X" | "O" | "Draw");
         setGameOver(true);
 
-        const winnerSound = new Audio("/assets/sounds/winner_xmas.mp3");
+        const winnerSound = new Audio("/assets/sounds/win.mp3");
         winnerSound.volume = 0.2;
         winnerSound.play();
 
