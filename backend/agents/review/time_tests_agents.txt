@@ -1,0 +1,18 @@
+Laptop November 7th Tests
+
+* Itterino vs Itterino
+Mr. Itterino Deepsdale played Minimax 25 times with an average time of 7.2912 seconds
+Mr. Itterino Deepsdale played Minimax 26 times with an average time of 6.6967 seconds
+Result = 50-50
+
+* Itterino vs Itterino with moves_to_try=np.array
+Mr. Itterino Deepsdale played Minimax 26 times with an average time of 8.4812 seconds
+Mr. Itterino Deepsdale played Minimax 25 times with an average time of 9.4296 seconds
+
+
+Result = 50-50
+
+* Itterino vs Itterino with moves_to_try slicing the last 2 moves
+
+
+Result = 

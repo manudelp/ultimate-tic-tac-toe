@@ -1,71 +1,63 @@
 # Ultimate Tic Tac Toe
 
-![Ultimate Tic Tac Toe Logo](/public/og_img.jpg)
+![Ultimate Tic Tac Toe Logo](/frontend/public/og_img.jpg)
 
 Ultimate Tic Tac Toe is an advanced strategy game that adds a challenging twist to the classic Tic Tac Toe.
 
 **[Play the game live →](https://utictactoe.online)**
 
-## About the Game
+## Project Structure
 
-Ultimate Tic Tac Toe is played on a 3×3 grid of 3×3 Tic Tac Toe boards. To win, you must win three small boards in a row. The twist is that your opponent's move determines which board you must play in next.
-
-This creates a complex strategy game that combines tactical local play with strategic global thinking.
-
-## Features
-
-- 🎮 Play against friends or AI opponents
-- 🌐 Online multiplayer functionality
-- 📱 Responsive design for all devices
-- 🎯 Interactive tutorials and game hints
-
-## Technologies Used
-
-- **Framework**: Next.js (React)
-- **Styling**: Tailwind CSS
-- **Animations**: CSS Animations
-- **Fonts**: Space Grotesk
-- **Icons**: Font Awesome
-- **Performance**: Vercel Speed Insights
-- **Notifications**: Sonner Toaster
+```
+ultimate-tic-tac-toe/
+├── frontend/    # Next.js (React) web app
+├── backend/     # Flask + SocketIO Python server
+├── render.yaml  # Render deployment config (backend)
+└── package.json # Monorepo convenience scripts
+```
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v14 or newer)
+- Python 3.11+
 - npm, yarn, or pnpm
 
-### Installation
+### Frontend
 
-1. Clone the repository:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-   ```bash
-   git clone https://github.com/yourusername/ultimate-tic-tac-toe.git
-   cd ultimate-tic-tac-toe
-   ```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-2. Install dependencies:
+### Backend
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
 
-3. Start the development server:
+The API runs on [http://localhost:5000](http://localhost:5000).
 
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
+### Monorepo Scripts
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the game.
+```bash
+npm run dev:frontend    # Start Next.js dev server
+npm run dev:backend     # Start Flask dev server
+npm run build:frontend  # Build Next.js for production
+```
+
+## Deployment
+
+- **Frontend**: Deployed on Vercel
+- **Backend**: Deployed on Render (see `render.yaml`)
 
 ## How to Play
 
@@ -74,6 +66,12 @@ This creates a complex strategy game that combines tactical local play with stra
 3. If a player is sent to a board that is already won or full, they can play in any open board.
 4. Win three small boards in a row (horizontally, vertically, or diagonally) to win the game.
 
+## Technologies Used
+
+- **Frontend**: Next.js, React, Tailwind CSS, Framer Motion, Socket.IO Client
+- **Backend**: Flask, Flask-SocketIO, Gunicorn + Gevent, Supabase
+- **Deployment**: Vercel (frontend), Render (backend)
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -81,5 +79,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
----

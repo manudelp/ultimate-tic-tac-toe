@@ -1,0 +1,173 @@
+**** VER LOS TODOs y los FIXMEs (tip, use TODO Tree Extension)
+
+
+CHECK **EVERYWHERE** WHERE LOCAL BOARD FUNCTIONS LIKE ISWON OR ISPLAYABLE ARE CALLED, REPLACE'EM WITH THE HASHES!
+
+
+# MINIMAX
+
+- Break / Exception / or smth
+for the alpha-beta pruning when a move is a winner?
+tipo, dont waste time doing more comparisons, just break everything and return it
+
+
+# Iterative Deepening & Function-Calling Stuff
+
+- probar with, and without, iterative deepening
+
+- hacer que mi iterative deepening deje de llamar nuevos alpha betas con nuevas depths, si alguna de las jugadas guardadas (o en casos de single-calls, la mejor jugada) tiene evaluation >= 100_000
+ya que es una jugada ganadora
+
+- correr appropriate tests de cuanto tardas on average en cada depth
+asi ajustas bien los valores de depth para los cutoffs y la quiescence search
+
+
+# # Iterative Deepening personalized Quiscient Search
+- run the tests for appropriate depths
+
+Este concepto se puede expandir a hacerlo luego de n segundos o de d depth, cuando ya sentis que medio fuiste dandote cuenta cuales son los mejores nodos. Ponele que si ya vas 4.5 segundos, le decis que los siguientes 2.5 los gaste en quiscient search. O que si ya llego a depth7 en total, que despues haga quiscient search
+
+Tambien podrias decirle que si la eval es 100_000, entonces stop looking! Ya tenes un nodo ganador, aunque esto discutilo con el Chac porque a lo mejor tiene sus riesgos 
+
+Make sure it doesn´t waste too much time, since the first depths (like, the first *9* depths) have already been explored
+Maybe since you already know their eval, call them along with their eval
+
+Or find a way to track their pertinent critical branches entirely, to then simulate the whole branch on the board and call it from there with depth-6 or something, if you want to simulate 6 extra moves on each of the most critical scenarios.
+
+
+
+
+# (Inside) Order Moves 
+3 options to evaluate:
+- Ordering Moves after each move Generation 
+- Only Doing it if board_to_play=None 
+- Not Doing It At All inside the Alpha Beta, only in the iterative deepening calls
+
+- Generate Moves & Order Moves
+* consider using heapq to improve moveOrder efficiency
+* ver que estructura usar para poder agregar-remover en menos que O(n), y que se pueda ordenar too
+* considerar como aprovecharse de los elementos de clase
+
+* fijate que en timer_advanced.py lo estoy currently testing
+
+Dio que cuando el input es array (which happens when board_to_play!=None), son igual de rapidas. 
+Pero, cuando el input es lista (board_to_play is None), es ligeramente mas rapido el list_sort_method usando sorted() 
+que el array_sort_method por su overhead de convertir el input en un array. 
+Habria que probar en la true practice ambas opciones a ver cual es mejor para cuando es una lista, 
+porque maybe el nparray es mas rapido de slicear, maybe not.
+
+* lo que si, dividalas en order_moves_for_array & order_moves_for_list. 
+Cuando board_to_play!=None, si vas a ordenar, usa order_moves_for_array, que va a usar array_sort_method. 
+Y cuando es None, llamas a order_moves_for_list, y fijate si usa array_method o list_method
+
+- Esto puede todo testearse both con Profiler, y con timer_advanced.py agregandole el 'for' con slicing a cada uno 
+de los respectivos metodos, a ver si slicear lists agrega mas tiempo extra que slicear numpy arrays
+A ver si se compensa con la conversion de la lista al numpy array just for slicing y por esos mini mini bonus de argsort speed
+
+
+
+
+# # Heuristic!! (aprender a jugar bien, ver el videito ese de Watch Later, y consider las 3 jotas: jugar jugar jugar)
+
+* initial idea : boardBalance = sum of all localBoardEvals
++ agregar que el tablero el centro vale most, y las corners valen un poco mas que los edges (ver en FooFinder los time results de isEdge & isCorner en su docstring para saber bien cual usar. Remember, you just need to use 2 checks, en order de velociad, so:
+if (r, c) == (1, 1)
+elif isEdge(r, )
+else: (aca ya sabes que es corner)
+en Monkey self.boardBalance ya esta implementado esto!
+
+
+Another Idea to also consider as a bonus, connectivity of local board wins!
+Pensalo, tener un local_board_won en [0, 0] y [0, 1] vale mas que tener en [0, 0] y [2, 1], o no?
+quick way to do it... if you're already turning the global board results into a 3x3 representation
+just check that representation's heuristic connectivity value in the evaluated_boards hash in O(1)
+and then maybe make it a multiplier of the total score so that it weighs in a lot, or make it a separate sum but very heavy, since it's what really maters at the end... the local board heuristics are just a way to reach better global results
+
+
+when board_to_play is optional, try:
+- minimax on the global board and fuck it, iterate all <= 81 moves and see which is best
+- not sure si hay algo mejor, fijate despues. Claramente es mas rapido elegir el board_to_play por separado, pero probably sea peor
+
+//
+You've got 3 versions to test of local_board evaluation. Represented in the 3 hash files
+
+Go to generate_hashes.py to manipulate their functions
+- generate_eval_boards (uses heuristic normally all the time)
+- generate_eval_boards_v2 (returns 0 if both players can win next move)
+- generate_eval_boards_v3 (returns the score toned down (* 0.2 + 0.1) if both players can win next move)
+
+Make some loading and get_ functions in FooFinder to test them properly
+Or yeah, just make a copy agent that uses a different version
+
+Keep in mind, not all winning-in-one boards are the same, just because both players can win-in-one, 
+doesn't mean that they always should.... but this concept is already taken into account
+when considering what board_to_play each move will give the rival.
+//
+
+
+
+
+# # HASHING
+
+# # # EL MEGA HASH!
+* importante! Si queres ver la mejor move por board directo, hay que hacer 10 mega hashes entonces!
+Uno para cada board_to_play... porque si queres ver la mejor, tenes que ver que con el btp actual puedas jugarla
+Los 10 board_to_play posibles son: [0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2], None
+
+Fijate si podes somehow hashear muchos tableros globales de super tic tac toe, pensa que hay maybe factores:
+    - El tablero es un np.zeros, solo tenes que agregarle 2^81 at most (1s & -1s)
+    - El tablero si o si tiene o la misma cantidad de 1s y -1s, o 1 mas de 1s que de -1s 
+    - (no se si esto lo facilita o lo complica), pero el tablero solo es valido con las reglas de board_to_play
+    - symmetry! divide by 4 (if you do the mega hash through combining 20,000^9 local hashes, then it's actually 5,000^9 cause symmetry
+    or actually even less cause, you know, there's not that many actual different games of tiktaktoe or whatever)
+    - cant hash boards with 2 winners
+
+# (kinda) FINAL! Or at least very advanced
+When Board Balance is good, start looking into pre-hashing overall global_board heuristic values
+And maybe even pre-hashing a lot of global_board moves directly, after calculating them with minimax, maybe...
+Basically, when I say "a lot" is cause I mean at least millions actually
+
+
+
+
+
+
+
+# Zobrist Hashing
+- pinchovich, aguante tobytes() transposition table??
+
+
+
+# # EL TIME ⏳⏳
+
+# IMPORTANT!
+- Check all comments " # TIME DEVELOPING ⚙️ "
+- Check all comments " # NEEDS TIMEIT TESTING 🔔 "
+- Check all comments " # NEEDS TIME IMPROVEMENT 🚨 " or may say 'NEEDS TIMEIT IMPROVEMENT'
+- Check all comments " # TIMEIT UNSURE 🤔 " (not as urgent, kinda fancy time detail tbh)
+
+# Fancy Time Details
+- save time from checkBoardWinner by keeping track of some stuff 
+- maybe can optimize a bit more the structure 
+- replace nonFinishedBoards and all that with sets (or just remove them cause literal creaste over_boards)
+- [board.size - (np.count_nonzero(board))] is faster than [(np.count_nonzero(board == 0))] 
+- pasar los archivos hash a Binary Mode en vez de Hex, pedirle a ChatCGT, usando 'wb' y 'rb' y asi
+
+- despinchar won board list maybe, actually no se si al final pincho todas las listas, excepto global_board_results
+es que todas las demas como son para chequear tableros 3x3, las tengo en O(1)
+
+
+# Kinda Fancy, not-so-Detail Time Improvement
+- De la mano de ChatCGT... pasar todo el codigo de FooFinder a C o C++ xd 
+
+
+
+# # Fancy Pants Visual Improvements
+- casi todas las funciones de loading son iguales, literal el mismo codigo, just make 1 and call it with different files to load
+sonly exception I think, is over_boards cause it doesnt have a board:value pair, just the boards
+
+
+# # Others
+- fijate de aprovechar lo maximo posible que tu clase tiene elementos
+self.board_array, self.board_tuple
+(que de por si son copias, no afectan el board original)
