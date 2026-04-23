@@ -24,6 +24,7 @@ export default function Bot() {
   const [bot, setBot] = useState<BotInfo | null>(null);
   const [botsLoaded, setBotsLoaded] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const handleExitGame = () => {
     setBots(null);
@@ -43,6 +44,7 @@ export default function Bot() {
   useEffect(() => {
     if (!bots) {
       setLoading(true);
+      setError(false);
       getBots()
         .then((bots) => {
           setBots(bots.map((bot: BotInfo) => ({ ...bot })));
@@ -51,7 +53,7 @@ export default function Bot() {
             loadBot(bot.id).then(() => updateBotsLoaded(bot.id));
           });
         })
-        .catch(() => setLoading(false));
+        .catch(() => { setLoading(false); setError(true); });
     }
   }, [bots]);
 
@@ -79,6 +81,12 @@ export default function Bot() {
             <div className="flex flex-col items-center justify-center h-48 bg-gray-800 border border-gray-700 rounded-lg">
               <Loader />
               <p className="mt-4 text-sm text-gray-400">Loading opponents...</p>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center h-48 bg-gray-800 border border-red-900/50 rounded-lg">
+              <p className="text-red-400 font-medium mb-2">Failed to load bots</p>
+              <p className="text-gray-400 text-sm mb-4">The server might be offline.</p>
+              <Button text="Retry" variant="danger" className="!w-32 !py-2 text-sm" onClick={() => setBots(null)} />
             </div>
           ) : (
             <div className="flex flex-col h-full gap-4 md:flex-row">

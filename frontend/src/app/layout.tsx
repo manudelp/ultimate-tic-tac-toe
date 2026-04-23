@@ -5,6 +5,7 @@ import { Space_Grotesk } from "next/font/google";
 import type { Metadata } from "next";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import ConnectionBanner from "@/components/ui/connection-banner";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -13,30 +14,39 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "https://utictactoe.vercel.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://utictactoe.online"
-  ),
-  title: "Ultimate Tic Tac Toe - The Ultimate Strategy Game",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Ultimate Tic Tac Toe",
+    template: "%s | Ultimate Tic Tac Toe",
+  },
   description:
-    "Engage in the ultimate strategy challenge with Ultimate Tic Tac Toe. Test your skills and outsmart your opponents in this advanced version of the classic game.",
+    "The ultimate strategy game. Play against AI bots or challenge friends online in this advanced twist on classic Tic Tac Toe.",
   openGraph: {
     images: [
       {
         url: "/og_img.jpg",
         width: 1200,
         height: 630,
-        alt: "Ultimate Tic Tac Toe Logo",
+        alt: "Ultimate Tic Tac Toe",
       },
     ],
     siteName: "Ultimate Tic Tac Toe",
-    title: "Ultimate Tic Tac Toe - The Ultimate Strategy Game",
-    description:
-      "Engage in the ultimate strategy challenge with Ultimate Tic Tac Toe. Test your skills and outsmart your opponents in this advanced version of the classic game.",
-    url: "https://utictactoe.online",
+    type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+  },
+  icons: {
+    icon: "/icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -46,11 +56,15 @@ export default function RootLayout({
 }>): React.ReactElement {
   return (
     <html lang="en" data-scroll-behavior="smooth">
+      <head>
+        <meta name="theme-color" content="#111827" />
+      </head>
       <body className={`antialiased ${spaceGrotesk.variable}`}>
         <Header />
         <main className="min-h-svh pt-10 sm:pt-0">{children}</main>
         <Toaster richColors />
         <Footer />
+        <ConnectionBanner />
         <SpeedInsights />
         <Analytics />
       </body>

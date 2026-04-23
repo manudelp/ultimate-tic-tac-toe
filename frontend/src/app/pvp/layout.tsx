@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Epic 1v1 Showdown - Ultimate Tic Tac Toe",
+  title: "Play vs Player",
   description:
-    "Challenge a friend in the ultimate battle of wits and strategy! Play locally or connect online for an epic tactical duel.",
+    "Challenge a friend locally or connect online for a strategic duel.",
 };
 
 export default function PVPLayout({ children }: { children: React.ReactNode }) {

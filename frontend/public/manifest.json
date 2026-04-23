@@ -1,0 +1,17 @@
+{
+  "name": "Ultimate Tic Tac Toe",
+  "short_name": "Ultimate TTT",
+  "description": "The ultimate strategy game — play against AI or challenge friends online.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
