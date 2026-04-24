@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getBots, loadBot } from "@/api";
+import { getBots } from "@/api";
 import { toast } from "sonner";
 import { Bot, Globe, Users } from "lucide-react";
 import Loader from "@/components/ui/loader";
@@ -24,7 +24,6 @@ export default function Play() {
   const [bots, setBots] = useState<BotInfo[] | null>(null);
   const [selectedBot, setSelectedBot] = useState<BotInfo | null>(null);
   const [starts, setStarts] = useState<string | null>(null);
-  const [botsLoaded, setBotsLoaded] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -39,7 +38,6 @@ export default function Play() {
         .then((data) => {
           setBots(data);
           setLoading(false);
-          data.forEach((b) => loadBot(b.id).then(() => setBotsLoaded((p) => ({ ...p, [b.id]: true }))));
         })
         .catch(() => { setLoading(false); setError(true); });
     }
@@ -121,13 +119,12 @@ export default function Play() {
                   {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => (
                     <button
                       key={bot.id}
-                      disabled={!botsLoaded[bot.id]}
                       onClick={() => { setSelectedBot(selectedBot?.id === bot.id ? null : bot); setStarts(null); }}
                       className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border transition-all ${
                         selectedBot?.id === bot.id
                           ? "border-blue-500 bg-gray-800"
                           : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
-                      } ${!botsLoaded[bot.id] ? "opacity-50" : ""}`}
+                      }`}
                     >
                       <span className="text-3xl">{bot.icon}</span>
                       <span className="text-sm font-medium">{bot.name}</span>

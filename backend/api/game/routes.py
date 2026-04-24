@@ -178,10 +178,12 @@ class GameNamespace(Namespace):
 
         game.start()
 
+        bot = AGENTS.get(bot_id)
         emit("game_started", {
             "gameId": game_id,
             "yourPlayer": "X" if starts == "player" else "O",
             "state": game.to_dict(),
+            "opponent": {"type": "bot", "name": bot.name, "icon": bot.icon} if bot else None,
         })
 
         # If bot goes first, schedule its move

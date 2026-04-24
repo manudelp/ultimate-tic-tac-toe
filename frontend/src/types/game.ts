@@ -1,3 +1,21 @@
+export interface GameState {
+  id: string;
+  board: number[][][][];       // 3x3x3x3, values: 0, 1 (X), -1 (O)
+  activePlayer: "X" | "O";
+  forcedBoard: [number, number] | null;
+  status: "ongoing" | "won" | "draw";
+  winner: "X" | "O" | null;
+  moves: GameMove[];
+  clocks: { X: number; O: number };
+  boardResults: number[][];    // 3x3, values: 0, 1, -1
+}
+
+export interface GameMove {
+  player: "X" | "O";
+  move: [number, number, number, number];
+  time: number;
+}
+
 export interface BotInfo {
   id: number;
   name: string;
@@ -6,9 +24,9 @@ export interface BotInfo {
   difficulty: number;
 }
 
-export type Turn = "X" | "O";
-export type Winner = "X" | "O" | "Draw" | null;
-export type Coords = [number, number, number, number];
-export type ActiveMiniBoard = [number, number] | null;
-export type WinningLine = { type: "row" | "col" | "diag"; index: number };
-export type GameMode = "player-vs-player" | "player-vs-bot" | "online";
+export interface GameStartedEvent {
+  gameId: string;
+  yourPlayer: "X" | "O";
+  state: GameState;
+  opponent?: { type: "bot"; name: string; icon: string };
+}

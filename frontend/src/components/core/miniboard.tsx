@@ -12,171 +12,70 @@ interface MiniBoardProps {
   activeMiniBoard: [number, number] | null;
   lastMove: [number, number, number, number] | null;
   gameOver: boolean;
-  hoveredMove: [number, number, number, number] | null; // Global hover state
-  handleCellClick: (
-    localRowIndex: number,
-    localColIndex: number,
-    rowIndex: number,
-    cellIndex: number
-  ) => void;
-  makeMove: (coords: [number, number, number, number]) => void;
+  hoveredMove: [number, number, number, number] | null;
+  handleCellClick: (a: number, b: number, c: number, d: number) => void;
 }
 
 const MiniBoard: React.FC<MiniBoardProps> = ({
-  miniBoard,
-  localRowIndex,
-  localColIndex,
-  winners,
-  disabled,
-  activeMiniBoard,
-  lastMove,
-  gameOver,
-  hoveredMove,
-  handleCellClick,
+  miniBoard, localRowIndex, localColIndex, winners, disabled,
+  activeMiniBoard, lastMove, gameOver, hoveredMove, handleCellClick,
 }) => {
   const winner = winners?.[localRowIndex]?.[localColIndex];
 
-  // Function to determine the line of the winning cells (row, column, diagonal)
-  const getWinningLine = () => {
-    if (!winner) return [];
+  const isInactive =
+    !gameOver &&
+    (disabled?.[localRowIndex]?.[localColIndex] ||
+      (activeMiniBoard !== null &&
+        (activeMiniBoard[0] !== localRowIndex || activeMiniBoard[1] !== localColIndex)));
 
-    const winningLine: number[][] = [];
-
-    // Check for horizontal lines
-    for (let row = 0; row < 3; row++) {
-      if (
-        miniBoard[row][0] === winner &&
-        miniBoard[row][1] === winner &&
-        miniBoard[row][2] === winner
-      ) {
-        winningLine.push([row, 0], [row, 1], [row, 2]);
-      }
-    }
-
-    // Check for vertical lines
-    for (let col = 0; col < 3; col++) {
-      if (
-        miniBoard[0][col] === winner &&
-        miniBoard[1][col] === winner &&
-        miniBoard[2][col] === winner
-      ) {
-        winningLine.push([0, col], [1, col], [2, col]);
-      }
-    }
-
-    // Check for diagonal lines
-    if (
-      miniBoard[0][0] === winner &&
-      miniBoard[1][1] === winner &&
-      miniBoard[2][2] === winner
-    ) {
-      winningLine.push([0, 0], [1, 1], [2, 2]);
-    }
-
-    if (
-      miniBoard[0][2] === winner &&
-      miniBoard[1][1] === winner &&
-      miniBoard[2][0] === winner
-    ) {
-      winningLine.push([0, 2], [1, 1], [2, 0]);
-    }
-
-    return winningLine;
-  };
-
-  // Get the winning line for the mini-board
-  const winningLine = getWinningLine();
+  const isActive = !isInactive && !gameOver;
+  const hasForcedBoard = activeMiniBoard !== null;
+  const outerBorderColor = hasForcedBoard ? "rgba(255,255,255,0.15)" : "white";
+  const innerBorderColor = isActive ? "white" : "rgba(255,255,255,0.1)";
 
   return (
     <div
-      className={`w-1/3 h-1/3 p-2 sm:p-4 transition relative ${
-        (disabled?.[localRowIndex]?.[localColIndex] ||
-          (activeMiniBoard !== null &&
-            (activeMiniBoard?.[0] !== localRowIndex ||
-              activeMiniBoard?.[1] !== localColIndex))) &&
-        !gameOver
-          ? "opacity-25 pointer-events-none"
-          : ""
-      }`}
+      className={`p-1 sm:p-2 transition relative bg-gray-900 ${isInactive ? "pointer-events-none" : ""}`}
       style={{
-        borderTop: localRowIndex === 1 ? `2px solid white` : "none",
-        borderBottom: localRowIndex === 1 ? `2px solid white` : "none",
-        borderLeft: localColIndex === 1 ? `2px solid white` : "none",
-        borderRight: localColIndex === 1 ? `2px solid white` : "none",
-        ...(lastMove &&
-        !(
-          disabled?.[localRowIndex]?.[localColIndex] ||
-          (activeMiniBoard !== null &&
-            (activeMiniBoard?.[0] !== localRowIndex ||
-              activeMiniBoard?.[1] !== localColIndex))
-        )
-          ? {
-              borderTop: localRowIndex === 1 ? `2px solid #4d525d` : "none",
-              borderBottom: localRowIndex === 1 ? `2px solid #4d525d` : "none",
-              borderLeft: localColIndex === 1 ? `2px solid #4d525d` : "none",
-              borderRight: localColIndex === 1 ? `2px solid #4d525d` : "none",
-            }
-          : {}),
+        borderTop: localRowIndex === 1 ? `2px solid ${outerBorderColor}` : "none",
+        borderBottom: localRowIndex === 1 ? `2px solid ${outerBorderColor}` : "none",
+        borderLeft: localColIndex === 1 ? `2px solid ${outerBorderColor}` : "none",
+        borderRight: localColIndex === 1 ? `2px solid ${outerBorderColor}` : "none",
       }}
     >
-      {miniBoard.map((row: string[], rowIndex: number) => (
+      <div className={`w-full h-full ${isInactive ? "opacity-25" : ""}`}>
+      {miniBoard.map((row, rowIndex) => (
         <div key={rowIndex} className="flex flex-wrap h-1/3">
-          {row.map((cell: string, cellIndex: number) => {
-            // Apply hover effect based on global hoveredMove
-            const isHovered =
-              hoveredMove &&
-              hoveredMove[0] === localRowIndex &&
-              hoveredMove[1] === localColIndex &&
-              hoveredMove[2] === rowIndex &&
-              hoveredMove[3] === cellIndex;
+          {row.map((cell, cellIndex) => {
+            const isHovered = hoveredMove &&
+              hoveredMove[0] === localRowIndex && hoveredMove[1] === localColIndex &&
+              hoveredMove[2] === rowIndex && hoveredMove[3] === cellIndex;
 
-            const isWinningCell = winningLine.some(
-              (line) => line[0] === rowIndex && line[1] === cellIndex
-            );
+            const isLastMove = lastMove &&
+              lastMove[0] === localRowIndex && lastMove[1] === localColIndex &&
+              lastMove[2] === rowIndex && lastMove[3] === cellIndex;
+
+            const borderColor = innerBorderColor;
 
             return (
               <div
-                onClick={() =>
-                  handleCellClick(
-                    localRowIndex,
-                    localColIndex,
-                    rowIndex,
-                    cellIndex
-                  )
-                }
-                id={`cell-${localRowIndex}-${localColIndex}-${rowIndex}-${cellIndex}`}
                 key={cellIndex}
-                className={`w-1/3 h-full grid place-items-center cursor-pointer hover:bg-white/20 ${
-                  isHovered
-                    ? "bg-green-500/20"
-                    : lastMove &&
-                      lastMove[0] === localRowIndex &&
-                      lastMove[1] === localColIndex &&
-                      lastMove[2] === rowIndex &&
-                      lastMove[3] === cellIndex
-                      ? cell === "X" 
-                        ? "bg-indigo-400/20" 
-                        : "bg-red-400/20"
-                    : isWinningCell
-                      ? "bg-yellow-500/20"
-                      : disabled?.[localRowIndex]?.[localColIndex] && !gameOver
-                        ? "pointer-events-none"
-                        : ""
+                onClick={() => handleCellClick(localRowIndex, localColIndex, rowIndex, cellIndex)}
+                className={`w-1/3 h-full grid place-items-center cursor-pointer hover:bg-white/10 ${
+                  isHovered ? "bg-green-500/20"
+                    : isLastMove ? (cell === "X" ? "bg-indigo-400/20" : "bg-red-400/20")
+                    : ""
                 }`}
                 style={{
-                  borderTop: rowIndex === 1 ? `2px solid white` : "none",
-                  borderBottom: rowIndex === 1 ? `2px solid white` : "none",
-                  borderLeft: cellIndex === 1 ? `2px solid white` : "none",
-                  borderRight: cellIndex === 1 ? `2px solid white` : "none",
+                  borderTop: rowIndex === 1 ? `1px solid ${borderColor}` : "none",
+                  borderBottom: rowIndex === 1 ? `1px solid ${borderColor}` : "none",
+                  borderLeft: cellIndex === 1 ? `1px solid ${borderColor}` : "none",
+                  borderRight: cellIndex === 1 ? `1px solid ${borderColor}` : "none",
                 }}
               >
                 <div className="flex items-center justify-center w-10/12 h-10/12">
-                  {cell === "X" && (
-                    <X className="text-[#71a2f6] w-full h-full" />
-                  )}
-                  {cell === "O" && (
-                    <O className="text-[#f2756f] w-full h-full" />
-                  )}
+                  {cell === "X" && <X className="text-[#71a2f6] w-full h-full" />}
+                  {cell === "O" && <O className="text-[#f2756f] w-full h-full" />}
                 </div>
               </div>
             );
@@ -184,24 +83,19 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
         </div>
       ))}
 
+      </div>
+
       {winner && (
         <div
           className={`absolute inset-0 flex items-center justify-center bg-gray-900 transition-opacity pointer-events-none ${
-            hoveredMove &&
-            hoveredMove[0] === localRowIndex &&
-            hoveredMove[1] === localColIndex
-              ? "opacity-0"
-              : "opacity-100"
-          } hover:opacity-0`}
+            hoveredMove && hoveredMove[0] === localRowIndex && hoveredMove[1] === localColIndex
+              ? "opacity-0" : "opacity-100"
+          }`}
         >
           <div className="grid pointer-events-auto place-items-center">
-            {winner === "X" ? (
-              <X className="text-[#71a2f6]" />
-            ) : winner === "O" ? (
-              <O className="text-[#f2756f]" />
-            ) : (
-              <Draw />
-            )}
+            {winner === "X" ? <X className="text-[#71a2f6]" />
+              : winner === "O" ? <O className="text-[#f2756f]" />
+              : <Draw />}
           </div>
         </div>
       )}
