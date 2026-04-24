@@ -14,15 +14,17 @@ bot_routes = Blueprint('bots', __name__)
 # IDs Dictionary, Agent:obj ; ID:int
 AGENTS = {
     RandomAgent().id : RandomAgent(),
-    # TaylorAgent().id : TaylorAgent(), 
     GreedyAgent().id : GreedyAgent(), 
     JardineritoAgent().id : JardineritoAgent(),
     JardiShowAgent().id : JardiShowAgent(),
-    # ArthyAgent().id : ArthyAgent(),
-    # MonkeyAgent().id : MonkeyAgent(),
-    # FooFinderAgent().id : FooFinderAgent(),
-    # SantaAgent().id : SantaAgent()
 }
+
+# Pre-load all agents
+for agent in AGENTS.values():
+    try:
+        agent.load()
+    except Exception as e:
+        print(f"Failed to load {agent.name}: {e}")
 
 # Import routes at the end to avoid circular imports
 from . import routes

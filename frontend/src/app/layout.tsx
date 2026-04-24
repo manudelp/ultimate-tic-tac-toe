@@ -3,9 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
 import type { Metadata } from "next";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import ConnectionBanner from "@/components/ui/connection-banner";
+import Sidebar from "@/components/layout/sidebar";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -27,44 +25,29 @@ export const metadata: Metadata = {
     template: "%s | Ultimate Tic Tac Toe",
   },
   description:
-    "The ultimate strategy game. Play against AI bots or challenge friends online in this advanced twist on classic Tic Tac Toe.",
+    "The ultimate strategy game. Play against AI or challenge friends online in this advanced twist on classic Tic Tac Toe.",
   openGraph: {
-    images: [
-      {
-        url: "/og_img.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Ultimate Tic Tac Toe",
-      },
-    ],
+    images: [{ url: "/og_img.jpg", width: 1200, height: 630, alt: "Ultimate Tic Tac Toe" }],
     siteName: "Ultimate Tic Tac Toe",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-  },
-  icons: {
-    icon: "/icon.png",
-  },
+  twitter: { card: "summary_large_image" },
+  icons: { icon: "/icon.png" },
   manifest: "/manifest.json",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>): React.ReactElement {
+}: Readonly<{ children: React.ReactNode }>): React.ReactElement {
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
         <meta name="theme-color" content="#111827" />
       </head>
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        <Header />
-        <main className="min-h-svh">{children}</main>
+        <Sidebar />
+        <main className="md:ml-48 pb-14 md:pb-0 min-h-svh">{children}</main>
         <Toaster richColors />
-        <Footer />
-        <ConnectionBanner />
         <SpeedInsights />
         <Analytics />
       </body>

@@ -9,6 +9,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from api.bots import bot_routes
 from api.online import online_routes
+from api.game import game_routes
 from socketio_instance import socketio
 
 
@@ -55,6 +56,7 @@ def after_request(response):
 ### ROUTES ###
 app.register_blueprint(bot_routes)
 app.register_blueprint(online_routes)
+app.register_blueprint(game_routes)
 
 @app.route('/health', methods=['GET'])
 def health_check():
