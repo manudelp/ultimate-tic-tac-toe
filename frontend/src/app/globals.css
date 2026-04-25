@@ -57,6 +57,29 @@ body {
   100% { transform: translateX(0); }
 }
 
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
 }
+
+@keyframes winLineRow {
+  from { transform: translateY(-50%) scaleX(0); }
+  to { transform: translateY(-50%) scaleX(1); }
+}
+
+@keyframes winLineCol {
+  from { transform: translateX(-50%) scaleY(0); }
+  to { transform: translateX(-50%) scaleY(1); }
+}
+
+@keyframes winLineDiag0 {
+  from { transform: translate(-50%, -50%) rotate(45deg) scaleX(0); }
+  to { transform: translate(-50%, -50%) rotate(45deg) scaleX(1); }
+}
+
+@keyframes winLineDiag1 {
+  from { transform: translate(-50%, -50%) rotate(-45deg) scaleX(0); }
+  to { transform: translate(-50%, -50%) rotate(-45deg) scaleX(1); }
+}
+

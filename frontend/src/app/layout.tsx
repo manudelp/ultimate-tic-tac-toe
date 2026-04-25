@@ -3,7 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
 import type { Metadata } from "next";
-import Sidebar from "@/components/layout/sidebar";
+import Header from "@/components/layout/header";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -45,8 +45,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#111827" />
       </head>
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        <Sidebar />
-        <main className="md:ml-48 pb-14 md:pb-0 min-h-svh">{children}</main>
+        <Header />
+        <main className="min-h-svh">{children}</main>
         <Toaster richColors />
         <SpeedInsights />
         <Analytics />

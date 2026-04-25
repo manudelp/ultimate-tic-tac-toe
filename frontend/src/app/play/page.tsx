@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Bot, Globe, Users } from "lucide-react";
 import Loader from "@/components/ui/loader";
 import type { BotInfo } from "@/types/game";
-import Link from "next/link";
+
 
 type Tab = "ai" | "online" | "local";
 
@@ -79,9 +79,7 @@ export default function Play() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-svh px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Play</h1>
-
+    <div className="flex flex-col items-center justify-center min-h-[calc(100svh-3.5rem)] px-4 py-8">
       {/* Tabs */}
       <div className="flex bg-gray-800 rounded-lg p-1 mb-8">
         {TABS.map(({ id, label, icon: Icon }) => (
@@ -232,7 +230,7 @@ export default function Play() {
                 Player X
               </button>
               <button
-                onClick={() => startLocalGame("bot")}
+                onClick={() => startLocalGame("playerO")}
                 className="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors"
               >
                 Player O
@@ -242,9 +240,6 @@ export default function Play() {
         )}
       </div>
 
-      <Link href="/" className="mt-8 text-sm text-gray-500 hover:text-gray-300 transition-colors">
-        Back to home
-      </Link>
     </div>
   );
 }

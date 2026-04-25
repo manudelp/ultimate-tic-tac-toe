@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@radix-ui/react-tooltip": "^1.2.6",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.0.14",
     "axios": "^1.7.7",
