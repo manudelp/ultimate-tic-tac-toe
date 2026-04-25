@@ -10,10 +10,16 @@ Ultimate Tic Tac Toe is an advanced strategy game that adds a challenging twist 
 
 ```
 ultimate-tic-tac-toe/
-├── frontend/    # Next.js (React) web app
-├── backend/     # Flask + SocketIO Python server
-├── render.yaml  # Render deployment config (backend)
-└── package.json # Monorepo convenience scripts
+├── frontend/          # Next.js (React) web app
+├── backend/
+│   ├── app.py         # Flask entry point
+│   ├── core/          # Game engine, board utils, hash lookups, SocketIO
+│   ├── api/           # Flask routes + SocketIO game namespace
+│   ├── bots/          # AI bot agents (Randy, Greedy, Jardinerito, Jardinero)
+│   ├── data/          # Precomputed hash tables for board evaluation
+│   └── dev/           # Dev-only tests, profilers, heuristic experiments
+├── render.yaml        # Render deployment config (backend)
+└── package.json       # Monorepo convenience scripts
 ```
 
 ## Getting Started
@@ -71,6 +77,19 @@ npm run build:frontend  # Build Next.js for production
 - **Frontend**: Next.js, React, Tailwind CSS, Framer Motion, Socket.IO Client
 - **Backend**: Flask, Flask-SocketIO, Gunicorn + Gevent, Supabase
 - **Deployment**: Vercel (frontend), Render (backend)
+
+## AI Bots
+
+| File | ID | Name | Icon | Difficulty | Status |
+|------|---:|------|------|:----------:|--------|
+| randy.py | 0 | Randy | 🎲 | 1 | ✅ Active |
+| greedy.py | 1 | Greedy | 🤑 | 2 | ✅ Active |
+| jardito.py | 2 | Jardinerito | ☘️ | 3 | ✅ Active |
+| jardishow.py | 3 | Jardinero | 🍀 | 4 | ✅ Active |
+| arthy.py | 4 | Arthy | 💎 | 4 | 🗑️ Removed (WIP) |
+| monkey.py | 5 | Monkey | 🙈 | 1 | 🗑️ Removed (WIP) |
+| santa.py | 112 | Santa | 🎅🏻 | 1 | 🗑️ Removed (WIP) |
+| foofinder.py | -1 | Foo Finder | 👑 | 5 | 🗑️ Removed (WIP) |
 
 ## Contributing
 

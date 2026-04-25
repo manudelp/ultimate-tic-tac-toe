@@ -1,4 +1,4 @@
-"""
-API package for the Ultimate Tic-Tac-Toe application.
-"""
-# This file makes the 'api' directory a Python package
+from flask import Blueprint
+
+bot_routes = Blueprint("bots", __name__)
+game_routes = Blueprint("game", __name__)
