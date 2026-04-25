@@ -1,1 +1,0 @@
-# aca va a ir el que tenga red neuronal basica o algo asi
