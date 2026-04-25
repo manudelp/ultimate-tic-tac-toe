@@ -5,7 +5,7 @@ import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import type { GameState, GameStartedEvent } from "@/types/game";
 
 interface FindGameParams {
-  mode: "bot" | "matchmaking" | "lobby_create" | "lobby_join";
+  mode: "bot" | "local" | "matchmaking" | "lobby_create" | "lobby_join";
   botId?: number;
   starts?: string;
   gameId?: string;
@@ -19,6 +19,7 @@ export function useGameSocket() {
   const [searching, setSearching] = useState(false);
   const [lobbyId, setLobbyId] = useState<string | null>(null);
   const [opponent, setOpponent] = useState<{ type: "bot"; name: string; icon: string } | null>(null);
+  const [isLocal, setIsLocal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 
@@ -37,6 +38,7 @@ export function useGameSocket() {
       setSearching(false);
       setError(null);
       if (data.opponent) setOpponent(data.opponent);
+      if (data.local) setIsLocal(true);
     };
     const onGameState = (state: GameState) => setGameState(state);
     const onLobbyCreated = (data: { gameId: string }) => setLobbyId(data.gameId);
@@ -71,6 +73,7 @@ export function useGameSocket() {
 
   const findGame = useCallback((params: FindGameParams) => {
     setError(null);
+    setIsLocal(false);
     setGameState(null);
     setGameId(null);
     setMyPlayer(null);
@@ -94,7 +97,7 @@ export function useGameSocket() {
 
   return {
     gameState, myPlayer, gameId, connected, searching,
-    lobbyId, opponent, error,
+    lobbyId, opponent, isLocal, error,
     findGame, makeMove, resign, disconnect,
   };
 }

@@ -29,4 +29,5 @@ export interface GameStartedEvent {
   yourPlayer: "X" | "O";
   state: GameState;
   opponent?: { type: "bot"; name: string; icon: string };
+  local?: boolean;
 }

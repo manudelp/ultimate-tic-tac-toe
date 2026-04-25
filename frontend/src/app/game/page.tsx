@@ -12,7 +12,7 @@ export default function GamePage() {
   const initialized = useRef(false);
   const {
     gameState, myPlayer, gameId, connected, searching,
-    lobbyId, opponent, error,
+    lobbyId, opponent, isLocal, error,
     findGame, makeMove, resign, disconnect,
   } = useGameSocket();
 
@@ -27,12 +27,20 @@ export default function GamePage() {
       return;
     }
 
-    const config = JSON.parse(raw);
+    let config;
+    try {
+      config = JSON.parse(raw);
+    } catch {
+      sessionStorage.removeItem("uttt_game_config");
+      router.replace("/play");
+      return;
+    }
+    sessionStorage.removeItem("uttt_game_config");
 
     if (config.mode === "player-vs-bot") {
       findGame({ mode: "bot", botId: config.botId, starts: config.starts });
     } else if (config.mode === "player-vs-player") {
-      findGame({ mode: "bot", botId: 0, starts: config.starts });
+      findGame({ mode: "local", starts: config.starts });
     } else if (config.mode === "online") {
       if (config.matchmaking) {
         findGame({ mode: "matchmaking" });
@@ -46,7 +54,6 @@ export default function GamePage() {
 
   const handleExit = () => {
     disconnect();
-    sessionStorage.removeItem("uttt_game_config");
     router.push("/play");
   };
 
@@ -112,6 +119,7 @@ export default function GamePage() {
           state={gameState}
           myPlayer={myPlayer}
           opponent={opponent}
+          isLocal={isLocal}
           onCellClick={makeMove}
           onResign={resign}
           onExit={handleExit}

@@ -5,10 +5,13 @@ import { formatMove } from "@/lib/notation";
 import { ArrowLeft, Flag } from "lucide-react";
 import type { GameState, GameMove } from "@/types/game";
 
+type WinningLine = { type: "row" | "col" | "diag"; index: number };
+
 interface BoardProps {
   state: GameState;
   myPlayer: "X" | "O";
   opponent?: { type: "bot"; name: string; icon: string } | null;
+  isLocal?: boolean;
   onCellClick: (a: number, b: number, c: number, d: number) => void;
   onResign: () => void;
   onExit: () => void;
@@ -40,12 +43,12 @@ function getWinningLine(results: number[][]): { type: "row" | "col" | "diag"; in
   return null;
 }
 
-const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, onCellClick, onResign, onExit }) => {
+const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCellClick, onResign, onExit }) => {
   const [isMobile, setIsMobile] = useState(false);
   const moveHistoryRef = useRef<HTMLDivElement>(null);
   const [hoveredMove, setHoveredMove] = useState<[number, number, number, number] | null>(null);
 
-  const isMyTurn = state.activePlayer === myPlayer;
+  const isMyTurn = isLocal || state.activePlayer === myPlayer;
   const isOver = state.status !== "ongoing";
   const lastMove = state.moves.length > 0 ? state.moves[state.moves.length - 1].move as [number, number, number, number] : null;
   const winningLine = isOver && state.winner ? getWinningLine(state.boardResults) : null;
@@ -142,11 +145,19 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, onCellClick, o
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-400">
-                {isOver ? "Game Over" : isMyTurn ? "Your turn" : opponent ? `${opponent.icon} ${opponent.name}'s turn` : "Opponent's turn"}
+                {isOver
+                  ? "Game Over"
+                  : isLocal
+                    ? `Player ${state.activePlayer}'s turn`
+                    : isMyTurn
+                      ? "Your turn"
+                      : opponent
+                        ? `${opponent.icon} ${opponent.name}'s turn`
+                        : "Opponent's turn"}
               </span>
               {isOver && state.winner && (
                 <span className="text-sm font-semibold text-green-400">
-                  {state.winner === myPlayer ? "You win!" : "You lose"}
+                  {isLocal ? `Player ${state.winner} wins!` : state.winner === myPlayer ? "You win!" : "You lose"}
                 </span>
               )}
               {isOver && !state.winner && (
@@ -167,7 +178,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, onCellClick, o
 
         {/* Board */}
         <div className="relative w-full max-w-[min(calc(100vw-2rem),600px)] aspect-square">
-          <div className="relative grid grid-cols-3 grid-rows-3 w-full aspect-square">
+          <div className="relative grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full aspect-square">
             {stringBoard.map((miniBoardRow, a) =>
               miniBoardRow.map((miniBoard, b) => (
                 <MiniBoard
@@ -187,18 +198,30 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, onCellClick, o
             )}
 
             {winningLine && (
-              <div className="absolute inset-0 pointer-events-none flex justify-center items-center">
+              <div className="absolute inset-0 pointer-events-none">
                 {winningLine.type === "row" && (
-                  <div className="absolute w-[95%] h-[3px] bg-gradient-to-r from-red-500 to-orange-500 rounded-full" style={{ top: `${(100 / 3) * winningLine.index + 50 / 3}%` }} />
+                  <div
+                    className="absolute left-[2.5%] w-[95%] h-[5px] bg-green-500 rounded-full"
+                    style={{ top: `${(100 / 3) * winningLine.index + 50 / 3}%`, animation: "winLineRow 0.5s ease-out forwards" }}
+                  />
                 )}
                 {winningLine.type === "col" && (
-                  <div className="absolute h-[95%] w-[3px] bg-gradient-to-b from-red-500 to-orange-500 rounded-full" style={{ left: `${(100 / 3) * winningLine.index + 50 / 3}%` }} />
+                  <div
+                    className="absolute top-[2.5%] h-[95%] w-[5px] bg-green-500 rounded-full"
+                    style={{ left: `${(100 / 3) * winningLine.index + 50 / 3}%`, animation: "winLineCol 0.5s ease-out forwards" }}
+                  />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 0 && (
-                  <div className="absolute w-[130%] h-[3px] bg-gradient-to-r from-red-500 to-orange-500 rounded-full" style={{ transform: "rotate(45deg)" }} />
+                  <div
+                    className="absolute w-[130%] h-[5px] bg-green-500 rounded-full"
+                    style={{ top: "50%", left: "50%", animation: "winLineDiag0 0.5s ease-out forwards" }}
+                  />
                 )}
                 {winningLine.type === "diag" && winningLine.index === 1 && (
-                  <div className="absolute w-[130%] h-[3px] bg-gradient-to-r from-red-500 to-orange-500 rounded-full" style={{ transform: "rotate(-45deg)" }} />
+                  <div
+                    className="absolute w-[130%] h-[5px] bg-green-500 rounded-full"
+                    style={{ top: "50%", left: "50%", animation: "winLineDiag1 0.5s ease-out forwards" }}
+                  />
                 )}
               </div>
             )}
