@@ -18,7 +18,7 @@ export default function Header() {
     <>
     <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-gray-900 border-b border-gray-800">
       <Link href="/" className="text-base font-bold whitespace-nowrap">
-        Ultimate Tic-Tac-Toe
+        utictactoe
       </Link>
 
       <nav className="flex items-center gap-1">
@@ -40,7 +40,7 @@ export default function Header() {
     </header>
 
     <footer className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-center gap-3 py-2 text-[11px] text-gray-600 bg-gray-900/80 backdrop-blur-sm border-t border-gray-800/50">
-      <span>&copy; {new Date().getFullYear()} Ultimate Tic-Tac-Toe</span>
+      <span>&copy; {new Date().getFullYear()} utictactoe</span>
       <span>&middot;</span>
       <span>Built by{" "}
         <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Manuel Delpino</a>

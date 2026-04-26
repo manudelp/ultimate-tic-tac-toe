@@ -74,7 +74,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative min-h-[75vh] flex flex-col">
         <nav className="flex items-center justify-between px-4 sm:px-6 h-14 shrink-0">
-          <span className="text-base font-bold">Ultimate Tic-Tac-Toe</span>
+          <span className="text-base font-bold">utictactoe</span>
           <Link href="/learn" className="text-sm text-gray-400 hover:text-white transition-colors">
             How to Play
           </Link>
@@ -152,7 +152,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="flex items-center justify-center gap-3 py-4 text-[11px] text-gray-600">
-        <span>&copy; {new Date().getFullYear()} Ultimate Tic-Tac-Toe</span>
+        <span>&copy; {new Date().getFullYear()} utictactoe</span>
         <span>&middot;</span>
         <span>Built by{" "}
           <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Manuel Delpino</a>
