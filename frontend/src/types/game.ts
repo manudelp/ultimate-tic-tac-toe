@@ -6,7 +6,7 @@ export interface GameState {
   status: "ongoing" | "won" | "draw";
   winner: "X" | "O" | null;
   moves: GameMove[];
-  clocks: { X: number; O: number };
+  clocks: { X: number | null; O: number | null };
   boardResults: number[][];    // 3x3, values: 0, 1, -1
 }
 

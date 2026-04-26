@@ -9,6 +9,7 @@ interface FindGameParams {
   botId?: number;
   starts?: string;
   gameId?: string;
+  timeControl?: number | null;
 }
 
 export function useGameSocket() {
