@@ -13,7 +13,7 @@ from bots import AGENTS
 games = {}           # game_id -> GameEngine
 player_games = {}    # sid -> game_id
 game_players = {}    # game_id -> {"player1_sid", "player2_sid", "player1_num"}
-matchmaking_queue = []  # [{'sid': ..., 'time': ...}]
+matchmaking_queue = []  # [{'sid': ..., 'time': ..., 'timeControl': ...}]
 DEFAULT_BOT_ID = 1   # Greedy as default fallback
 
 
@@ -101,7 +101,7 @@ class GameNamespace(Namespace):
         elif mode == "lobby_join":
             self._join_lobby(sid, data)
         else:
-            self._enter_matchmaking(sid)
+            self._enter_matchmaking(sid, data)
 
     def on_make_move(self, data):
         sid = request.sid
@@ -164,8 +164,9 @@ class GameNamespace(Namespace):
 
     def _start_local_game(self, sid, data):
         starts = data.get("starts", "player")
+        time_control = data.get("timeControl", 300)
 
-        game = GameEngine()
+        game = GameEngine(time_per_player=time_control)
         game_id = game.id
         games[game_id] = game
         local_games.add(game_id)
@@ -190,8 +191,9 @@ class GameNamespace(Namespace):
     def _start_bot_game(self, sid, data):
         bot_id = data.get("botId", DEFAULT_BOT_ID)
         starts = data.get("starts", "player")
+        time_control = data.get("timeControl", 300)
 
-        game = GameEngine()
+        game = GameEngine(time_per_player=time_control)
         game_id = game.id
         games[game_id] = game
 
@@ -220,7 +222,8 @@ class GameNamespace(Namespace):
             schedule_bot_move(game_id, bot_id)
 
     def _create_lobby(self, sid, data):
-        game = GameEngine()
+        time_control = data.get("timeControl", 300)
+        game = GameEngine(time_per_player=time_control)
         game_id = game.id
         games[game_id] = game
 
@@ -264,22 +267,30 @@ class GameNamespace(Namespace):
             "state": game.to_dict(),
         }, room=sid, namespace="/game")
 
-    def _enter_matchmaking(self, sid):
+    def _enter_matchmaking(self, sid, data):
         global matchmaking_queue
 
         if any(e["sid"] == sid for e in matchmaking_queue):
             emit("error", {"message": "Already in queue"})
             return
 
-        if matchmaking_queue:
-            opponent = matchmaking_queue.pop(0)
-            self._create_matched_game(opponent["sid"], sid)
+        time_control = data.get("timeControl", 300)
+
+        # Find opponent with same time control
+        opponent = None
+        for i, entry in enumerate(matchmaking_queue):
+            if entry.get("timeControl") == time_control:
+                opponent = matchmaking_queue.pop(i)
+                break
+
+        if opponent:
+            self._create_matched_game(opponent["sid"], sid, time_control)
         else:
-            matchmaking_queue.append({"sid": sid, "time": time.time()})
+            matchmaking_queue.append({"sid": sid, "time": time.time(), "timeControl": time_control})
             emit("searching", {})
 
-    def _create_matched_game(self, sid1, sid2):
-        game = GameEngine()
+    def _create_matched_game(self, sid1, sid2, time_control=300):
+        game = GameEngine(time_per_player=time_control)
         game_id = game.id
         games[game_id] = game
 
