@@ -96,24 +96,38 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
             revealCells ? "opacity-0" : "opacity-100"
           }`}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={`w-3/5 h-3/5 ${
-              winner === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
-            }`}
-          >
-            {winner === "X" ? (
-              <><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></>
-            ) : (
-              <circle cx="12" cy="12" r="7.5" />
-            )}
-          </svg>
+          {winner === "draw" ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              fill="none"
+              strokeLinecap="round"
+              className="w-3/5 h-3/5 text-gray-500"
+            >
+              <path d="M5 12h14" />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`w-3/5 h-3/5 ${
+                winner === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+              }`}
+            >
+              {winner === "X" ? (
+                <><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></>
+              ) : (
+                <circle cx="12" cy="12" r="7.5" />
+              )}
+            </svg>
+          )}
         </div>
       )}
     </div>
