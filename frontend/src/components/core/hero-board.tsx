@@ -123,7 +123,9 @@ export default function HeroBoard() {
       {board.map((boardRow, br) =>
         boardRow.map((miniBoard, bc) => {
           const winner = winners[br][bc];
-          const isActive = gameOver || !activeBoard || (activeBoard[0] === br && activeBoard[1] === bc);
+          const isFull = miniBoard.every(row => row.every(cell => cell !== null));
+          const playable = !winner && !isFull;
+          const isActive = gameOver || (activeBoard ? activeBoard[0] === br && activeBoard[1] === bc : (!lastMove || playable));
 
           return (
             <div
