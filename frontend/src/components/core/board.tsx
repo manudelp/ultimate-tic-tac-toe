@@ -44,10 +44,39 @@ function getWinningLine(results: number[][]): { type: "row" | "col" | "diag"; in
   return null;
 }
 
+function checkSubWinner(sub: number[][]): number {
+  for (let i = 0; i < 3; i++) {
+    if (sub[i][0] !== 0 && sub[i][0] === sub[i][1] && sub[i][1] === sub[i][2]) return sub[i][0];
+    if (sub[0][i] !== 0 && sub[0][i] === sub[1][i] && sub[1][i] === sub[2][i]) return sub[0][i];
+  }
+  if (sub[0][0] !== 0 && sub[0][0] === sub[1][1] && sub[1][1] === sub[2][2]) return sub[0][0];
+  if (sub[0][2] !== 0 && sub[0][2] === sub[1][1] && sub[1][1] === sub[2][0]) return sub[0][2];
+  return 0;
+}
+
+function replayBoard(moves: GameMove[], upTo: number): number[][][][] {
+  const board = Array.from({ length: 3 }, () =>
+    Array.from({ length: 3 }, () =>
+      Array.from({ length: 3 }, () => [0, 0, 0])
+    )
+  );
+  for (let i = 0; i <= upTo; i++) {
+    const [a, b, c, d] = moves[i].move;
+    board[a][b][c][d] = moves[i].player === "X" ? 1 : -1;
+  }
+  return board;
+}
+
+function replayBoardResults(moves: GameMove[], upTo: number): number[][] {
+  const board = replayBoard(moves, upTo);
+  return board.map(row => row.map(sub => checkSubWinner(sub)));
+}
+
 const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCellClick, onResign, onExit }) => {
   const [isMobile, setIsMobile] = useState(false);
   const moveHistoryRef = useRef<HTMLDivElement>(null);
   const [hoveredMove, setHoveredMove] = useState<[number, number, number, number] | null>(null);
+  const [hoveredMoveIndex, setHoveredMoveIndex] = useState<number | null>(null);
 
   const isMyTurn = isLocal || state.activePlayer === myPlayer;
   const isOver = state.status !== "ongoing";
@@ -299,8 +328,8 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                     className={`cursor-pointer rounded-md px-2 py-1 text-xs ${
                       i === state.moves.length - 1 ? "bg-gray-700" : "hover:bg-gray-700/50"
                     }`}
-                    onMouseEnter={() => setHoveredMove(move.move as [number, number, number, number])}
-                    onMouseLeave={() => setHoveredMove(null)}
+                    onMouseEnter={() => { setHoveredMove(move.move as [number, number, number, number]); setHoveredMoveIndex(i); }}
+                    onMouseLeave={() => { setHoveredMove(null); setHoveredMoveIndex(null); }}
                   >
                     <span className="text-gray-400">{i + 1}.</span>
                     <span className={move.player === "X" ? "text-blue-400" : "text-red-400"}>
@@ -351,12 +380,32 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
 
             {/* Advantage Bar */}
             {(() => {
-              const r = state.boardResults;
+              const r = hoveredMoveIndex != null ? replayBoardResults(state.moves, hoveredMoveIndex) : state.boardResults;
+              const hoveredOver = hoveredMoveIndex != null && hoveredMoveIndex < state.moves.length - 1;
               const LINES = [
                 [[0,0],[0,1],[0,2]], [[1,0],[1,1],[1,2]], [[2,0],[2,1],[2,2]],
                 [[0,0],[1,0],[2,0]], [[0,1],[1,1],[2,1]], [[0,2],[1,2],[2,2]],
                 [[0,0],[1,1],[2,2]], [[0,2],[1,1],[2,0]],
               ];
+              // Compute disabled/draws for the replayed board
+              const rBoard = hoveredMoveIndex != null ? replayBoard(state.moves, hoveredMoveIndex) : state.board;
+              const rDisabled: boolean[][] = rBoard.map((row, a) =>
+                row.map((sub, b) => {
+                  if (r[a][b] !== 0) return true;
+                  for (let c = 0; c < 3; c++)
+                    for (let d = 0; d < 3; d++)
+                      if (sub[c][d] === 0) return false;
+                  return true;
+                })
+              );
+              const rWinners: (string | null)[][] = r.map((row, a) =>
+                row.map((v, b) => {
+                  if (v === 1) return "X";
+                  if (v === -1) return "O";
+                  if (v === 0 && rDisabled[a][b]) return "draw";
+                  return null;
+                })
+              );
               let xScore = 0, oScore = 0;
               for (const line of LINES) {
                 const vals = line.map(([a, b]) => r[a][b]);
@@ -365,18 +414,17 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                 const d = vals.filter(v => {
                   if (v !== 0) return false;
                   const [a, b] = line[vals.indexOf(v)];
-                  return disabled[a][b] && winners[a][b] === "draw";
+                  return rDisabled[a][b] && rWinners[a][b] === "draw";
                 }).length;
-                // Only count lines that aren't blocked
                 if (o === 0 && d === 0) { if (x === 1) xScore += 1; if (x === 2) xScore += 4; }
                 if (x === 0 && d === 0) { if (o === 1) oScore += 1; if (o === 2) oScore += 4; }
               }
-              // Normalize to 0-100 range (X perspective)
               const total = xScore + oScore || 1;
-              const xPct = isOver
+              const showOver = isOver && !hoveredOver;
+              const xPct = showOver
                 ? (state.winner === "X" ? 100 : state.winner === "O" ? 0 : 50)
                 : Math.round(50 + ((xScore - oScore) / total) * 50);
-              const clamped = isOver ? xPct : Math.max(5, Math.min(95, xPct));
+              const clamped = showOver ? xPct : Math.max(5, Math.min(95, xPct));
               return (
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-[11px]">
@@ -435,8 +483,8 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                     <tr
                       key={i}
                       className={`hover:bg-gray-700/50 cursor-pointer ${i === state.moves.length - 1 ? "bg-gray-700/30" : ""}`}
-                      onMouseEnter={() => setHoveredMove(move.move as [number, number, number, number])}
-                      onMouseLeave={() => setHoveredMove(null)}
+                      onMouseEnter={() => { setHoveredMove(move.move as [number, number, number, number]); setHoveredMoveIndex(i); }}
+                      onMouseLeave={() => { setHoveredMove(null); setHoveredMoveIndex(null); }}
                     >
                       <td className="p-1.5 text-gray-500">{i + 1}</td>
                       <td className={`p-1.5 text-center font-medium ${move.player === "X" ? "text-blue-400" : "text-red-400"}`}>
