@@ -6,11 +6,12 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
 from core.socketio import socketio
-from api import bot_routes, game_routes
+from api import bot_routes, game_routes, queue_routes
 
 # Import route modules to register decorators on blueprints
 import api.bots
 import api.game
+import api.queue
 
 load_dotenv()
 
@@ -28,6 +29,7 @@ CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 app.register_blueprint(bot_routes)
 app.register_blueprint(game_routes)
+app.register_blueprint(queue_routes)
 
 
 @app.route("/health", methods=["GET"])

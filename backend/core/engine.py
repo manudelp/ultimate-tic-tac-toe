@@ -9,14 +9,15 @@ class GameEngine:
     """Server-authoritative Ultimate Tic-Tac-Toe game."""
 
     def __init__(self, time_per_player=300):
-        self.id = str(uuid.uuid4())[:8]
+        self.id = uuid.uuid4().hex[:4].upper()
         self.board = np.zeros((3, 3, 3, 3), dtype=int)
         self.active_player = 1  # 1 = X, -1 = O
         self.forced_board = None  # (row, col) or None = free choice
         self.status = "ongoing"  # ongoing | won | draw
         self.winner = None
         self.moves = []
-        self.clocks = {1: time_per_player, -1: time_per_player}
+        self.time_per_player = time_per_player
+        self.clocks = {1: time_per_player, -1: time_per_player} if time_per_player else None
         self.last_move_time = None
         self.created_at = time.time()
 
@@ -31,8 +32,8 @@ class GameEngine:
             "winner": {1: "X", -1: "O"}.get(self.winner),
             "moves": self.moves,
             "clocks": {
-                "X": round(self.clocks[1], 1),
-                "O": round(self.clocks[-1], 1),
+                "X": round(self.clocks[1], 1) if self.clocks else None,
+                "O": round(self.clocks[-1], 1) if self.clocks else None,
             },
             "boardResults": self._board_results().tolist(),
         }
@@ -70,7 +71,7 @@ class GameEngine:
 
         # Update clock
         now = time.time()
-        if self.last_move_time:
+        if self.clocks and self.last_move_time:
             elapsed = now - self.last_move_time
             self.clocks[player] -= elapsed
             if self.clocks[player] <= 0:
@@ -131,7 +132,7 @@ class GameEngine:
 
     def check_timeout(self):
         """Check if current player has timed out."""
-        if self.status != "ongoing" or not self.last_move_time:
+        if self.status != "ongoing" or not self.last_move_time or not self.clocks:
             return False
         elapsed = time.time() - self.last_move_time
         remaining = self.clocks[self.active_player] - elapsed
