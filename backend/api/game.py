@@ -14,7 +14,6 @@ games = {}           # game_id -> GameEngine
 player_games = {}    # sid -> game_id
 game_players = {}    # game_id -> {"player1_sid", "player2_sid", "player1_num"}
 matchmaking_queue = []  # [{'sid': ..., 'time': ...}]
-BOT_FALLBACK_SECONDS = 5
 DEFAULT_BOT_ID = 1   # Greedy as default fallback
 
 
@@ -278,40 +277,6 @@ class GameNamespace(Namespace):
         else:
             matchmaking_queue.append({"sid": sid, "time": time.time()})
             emit("searching", {})
-            gevent.spawn(self._bot_fallback, sid)
-
-    def _bot_fallback(self, sid):
-        gevent.sleep(BOT_FALLBACK_SECONDS)
-
-        global matchmaking_queue
-        if not any(p["sid"] == sid for p in matchmaking_queue):
-            return
-
-        matchmaking_queue = [p for p in matchmaking_queue if p["sid"] != sid]
-
-        game = GameEngine()
-        game_id = game.id
-        games[game_id] = game
-
-        socketio.server.enter_room(sid, game_id, namespace="/game")
-        player_games[sid] = game_id
-        game_players[game_id] = {
-            "player1_sid": sid,
-            "player2_sid": None,
-            "player1_num": 1,
-        }
-
-        bot_id = random.choice(list(AGENTS.keys()))
-        game_id_to_bot[game_id] = {"bot_id": bot_id, "player": -1}
-
-        game.start()
-
-        socketio.emit("game_started", {
-            "gameId": game_id,
-            "yourPlayer": "X",
-            "state": game.to_dict(),
-            "opponent": {"type": "bot", "name": AGENTS[bot_id].name, "icon": AGENTS[bot_id].icon},
-        }, room=sid, namespace="/game")
 
     def _create_matched_game(self, sid1, sid2):
         game = GameEngine()
