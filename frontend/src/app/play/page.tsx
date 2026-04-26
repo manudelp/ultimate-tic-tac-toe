@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getBots, getQueueCounts } from "@/api";
 import { toast } from "sonner";
@@ -25,6 +25,14 @@ const TIME_OPTIONS: { label: string; value: number | null }[] = [
 ];
 
 export default function Play() {
+  return (
+    <Suspense>
+      <PlayContent />
+    </Suspense>
+  );
+}
+
+function PlayContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("ai");

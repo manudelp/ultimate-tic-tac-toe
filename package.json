@@ -6,6 +6,10 @@
     "dev:backend": "cd backend && python app.py",
     "build:frontend": "cd frontend && npm run build",
     "install:frontend": "cd frontend && npm install",
-    "install:backend": "cd backend && pip install -r requirements.txt"
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }
