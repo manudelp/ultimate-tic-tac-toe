@@ -3,6 +3,7 @@ import MiniBoard from "@/components/core/miniboard";
 import { motion } from "framer-motion";
 import { formatMove } from "@/lib/notation";
 import { ArrowLeft, Flag } from "lucide-react";
+import { toast } from "sonner";
 import type { GameState, GameMove } from "@/types/game";
 
 type WinningLine = { type: "row" | "col" | "diag"; index: number };
@@ -54,8 +55,18 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   const winningLine = isOver && state.winner ? getWinningLine(state.boardResults) : null;
 
   // Derive winners and disabled from server boardResults
-  const winners: (string | null)[][] = state.boardResults.map(row =>
-    row.map(v => boardResultStr(v))
+  const winners: (string | null)[][] = state.boardResults.map((row, a) =>
+    row.map((v, b) => {
+      if (v === 1) return "X";
+      if (v === -1) return "O";
+      // Check if drawn (full but no winner)
+      if (v === 0) {
+        const sub = state.board[a][b];
+        const isFull = sub.every((r: number[]) => r.every((c: number) => c !== 0));
+        if (isFull) return "draw";
+      }
+      return null;
+    })
   );
 
   // A board is disabled if it has a result OR if it's full
@@ -100,27 +111,62 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
 
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     if (isOver) return;
-    if (!isMyTurn) return;
+    if (!isMyTurn) {
+      toast.error("It's not your turn");
+      return;
+    }
+    // Check if cell is occupied
+    if (state.board[a][b][c][d] !== 0) {
+      toast.error("Cell is already occupied");
+      return;
+    }
     onCellClick(a, b, c, d);
   };
 
   // Local clock ticker — visual only, server is authoritative
   const [displayClocks, setDisplayClocks] = useState(state.clocks);
+  const hasClock = displayClocks.X != null && displayClocks.O != null;
+
+  // Elapsed time tracking for no-limit games
+  const [elapsed, setElapsed] = useState({ X: 0, O: 0 });
 
   useEffect(() => {
     setDisplayClocks(state.clocks);
   }, [state.clocks]);
 
+  // Compute total elapsed per player from move history
   useEffect(() => {
-    if (isOver) return;
+    if (hasClock) return;
+    let x = 0, o = 0;
+    for (let i = 0; i < state.moves.length; i++) {
+      const delta = i === 0 ? state.moves[i].time : state.moves[i].time - state.moves[i - 1].time;
+      if (state.moves[i].player === "X") x += delta; else o += delta;
+    }
+    setElapsed({ X: x, O: o });
+  }, [state.moves, hasClock]);
+
+  // Tick the active player's elapsed time up
+  useEffect(() => {
+    if (isOver || hasClock) return;
     const interval = setInterval(() => {
-      setDisplayClocks((prev) => ({
+      setElapsed((prev) => ({
         ...prev,
-        [state.activePlayer]: Math.max(0, prev[state.activePlayer] - 0.1),
+        [state.activePlayer]: prev[state.activePlayer] + 0.1,
       }));
     }, 100);
     return () => clearInterval(interval);
-  }, [state.activePlayer, isOver]);
+  }, [state.activePlayer, isOver, hasClock]);
+
+  useEffect(() => {
+    if (isOver || !hasClock) return;
+    const interval = setInterval(() => {
+      setDisplayClocks((prev) => ({
+        ...prev,
+        [state.activePlayer]: Math.max(0, (prev[state.activePlayer] ?? 0) - 0.1),
+      }));
+    }, 100);
+    return () => clearInterval(interval);
+  }, [state.activePlayer, isOver, hasClock]);
 
   const formatClock = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -166,13 +212,27 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm font-mono">
-            <span className={state.activePlayer === "X" ? "text-blue-400" : "text-gray-500"}>
-              {formatClock(displayClocks.X)}
-            </span>
-            <span className="text-gray-600">|</span>
-            <span className={state.activePlayer === "O" ? "text-red-400" : "text-gray-500"}>
-              {formatClock(displayClocks.O)}
-            </span>
+            {hasClock ? (
+              <>
+                <span className={state.activePlayer === "X" ? "text-blue-400" : "text-gray-500"}>
+                  {formatClock(displayClocks.X!)}
+                </span>
+                <span className="text-gray-600">|</span>
+                <span className={state.activePlayer === "O" ? "text-red-400" : "text-gray-500"}>
+                  {formatClock(displayClocks.O!)}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className={state.activePlayer === "X" ? "text-blue-400" : "text-gray-500"}>
+                  {formatClock(elapsed.X)}
+                </span>
+                <span className="text-gray-600">|</span>
+                <span className={state.activePlayer === "O" ? "text-red-400" : "text-gray-500"}>
+                  {formatClock(elapsed.O)}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -272,17 +332,82 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
       {/* Desktop side panel */}
       {!isMobile && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-4 w-72 h-[calc(100svh-4rem)] overflow-hidden">
-          {/* Clocks */}
-          <div className="p-4 bg-gray-800 rounded space-y-2">
-            {opponent && (
-              <div className="flex items-center gap-2 pb-2 border-b border-gray-700">
-                <span className="text-lg">{opponent.icon}</span>
-                <span className="text-sm font-medium">vs {opponent.name}</span>
+          {/* Game Info */}
+          <div className="p-4 bg-gray-800 rounded space-y-3">
+            <div className="flex justify-between items-start">
+              {opponent ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{opponent.icon}</span>
+                  <span className="text-sm font-medium">vs {opponent.name}</span>
+                </div>
+              ) : (
+                <div />
+              )}
+              <div className="flex flex-col items-end">
+                <span className="text-[11px] text-gray-500">{new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
+                <span className="text-[11px] text-gray-500">{new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}</span>
               </div>
-            )}
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-400">Move {state.moves.length + 1}</span>
-              <span className="text-xs text-gray-500">{state.status === "ongoing" ? "In progress" : state.status}</span>
+            </div>
+
+            {/* Advantage Bar */}
+            {(() => {
+              const r = state.boardResults;
+              const LINES = [
+                [[0,0],[0,1],[0,2]], [[1,0],[1,1],[1,2]], [[2,0],[2,1],[2,2]],
+                [[0,0],[1,0],[2,0]], [[0,1],[1,1],[2,1]], [[0,2],[1,2],[2,2]],
+                [[0,0],[1,1],[2,2]], [[0,2],[1,1],[2,0]],
+              ];
+              let xScore = 0, oScore = 0;
+              for (const line of LINES) {
+                const vals = line.map(([a, b]) => r[a][b]);
+                const x = vals.filter(v => v === 1).length;
+                const o = vals.filter(v => v === -1).length;
+                const d = vals.filter(v => {
+                  if (v !== 0) return false;
+                  const [a, b] = line[vals.indexOf(v)];
+                  return disabled[a][b] && winners[a][b] === "draw";
+                }).length;
+                // Only count lines that aren't blocked
+                if (o === 0 && d === 0) { if (x === 1) xScore += 1; if (x === 2) xScore += 4; }
+                if (x === 0 && d === 0) { if (o === 1) oScore += 1; if (o === 2) oScore += 4; }
+              }
+              // Normalize to 0-100 range (X perspective)
+              const total = xScore + oScore || 1;
+              const xPct = isOver
+                ? (state.winner === "X" ? 100 : state.winner === "O" ? 0 : 50)
+                : Math.round(50 + ((xScore - oScore) / total) * 50);
+              const clamped = isOver ? xPct : Math.max(5, Math.min(95, xPct));
+              return (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-blue-400 font-medium">X</span>
+                    <span className="text-gray-500">Advantage</span>
+                    <span className="text-red-400 font-medium">O</span>
+                  </div>
+                  <div className="flex h-2 rounded-full overflow-hidden bg-gray-700">
+                    <div
+                      className="bg-blue-500 transition-all duration-500 ease-out rounded-l-full"
+                      style={{ width: `${clamped}%` }}
+                    />
+                    <div
+                      className="bg-red-500 transition-all duration-500 ease-out rounded-r-full"
+                      style={{ width: `${100 - clamped}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Details */}
+            <div className="flex justify-between items-center pt-2 border-t border-gray-700">
+              <span className="text-xs text-gray-500">Move {state.moves.length + 1}</span>
+              <span className={`text-xs font-medium ${
+                isOver
+                  ? state.winner ? "text-green-400" : "text-yellow-400"
+                  : "text-gray-500"
+              }`}>
+                {isOver ? (state.winner ? `${state.winner} wins` : "Draw") : "In progress"}
+              </span>
             </div>
           </div>
 
@@ -299,10 +424,14 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                     <th className="p-1.5 text-left w-8">#</th>
                     <th className="p-1.5 text-center w-10">Player</th>
                     <th className="p-1.5 text-right">Move</th>
+                    <th className="p-1.5 text-right">Time</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {state.moves.map((move: GameMove, i: number) => (
+                  {state.moves.map((move: GameMove, i: number) => {
+                    const delta = i === 0 ? move.time : move.time - state.moves[i - 1].time;
+                    const timeStr = delta < 60 ? `${delta.toFixed(2)}s` : `${Math.floor(delta / 60)}m ${Math.floor(delta % 60)}s`;
+                    return (
                     <tr
                       key={i}
                       className={`hover:bg-gray-700/50 cursor-pointer ${i === state.moves.length - 1 ? "bg-gray-700/30" : ""}`}
@@ -314,8 +443,10 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                         {move.player}
                       </td>
                       <td className="p-1.5 text-right">{formatMove(move.move as [number, number, number, number])}</td>
+                      <td className="p-1.5 text-right text-gray-500">{timeStr}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
