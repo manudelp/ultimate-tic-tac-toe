@@ -7,3 +7,8 @@ export async function getBots(): Promise<BotInfo[]> {
   const response = await axios.get<BotInfo[]>(`${API_BASE_URL}/get-bot-list`);
   return response.data;
 }
+
+export async function getQueueCounts(): Promise<Record<string, number>> {
+  const response = await axios.get<Record<string, number>>(`${API_BASE_URL}/queue-counts`);
+  return response.data;
+}
