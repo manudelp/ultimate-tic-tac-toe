@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gamepad2, BookOpen } from "lucide-react";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 const NAV = [
   { href: "/play", icon: Gamepad2, label: "Play" },
@@ -16,7 +17,7 @@ export default function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-gray-900 border-b border-gray-800">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-background border-b border-border">
       <Link href="/" className="text-base font-bold whitespace-nowrap">
         utictactoe
       </Link>
@@ -28,29 +29,30 @@ export default function Header() {
             href={href}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
               active(href)
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+                ? "bg-accent text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
             }`}
           >
             <Icon className="w-4 h-4" />
             {label}
           </Link>
         ))}
+        <ThemeToggle />
       </nav>
     </header>
 
-    <footer className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-center gap-3 py-2 text-[11px] text-gray-600 bg-gray-900/80 backdrop-blur-sm border-t border-gray-800/50">
+    <footer className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-center gap-3 py-2 text-[11px] text-subtle bg-background/80 backdrop-blur-sm border-t border-border/50">
       <span>&copy; {new Date().getFullYear()} utictactoe</span>
       <span>&middot;</span>
       <span>Built by{" "}
-        <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Manuel Delpino</a>
+        <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Delpino</a>
         {" & "}
-        <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Manuel Meiriño</a>
+        <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Meiriño</a>
       </span>
       <span>&middot;</span>
-      <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
+      <Link href="/privacy-policy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
       <span>&middot;</span>
-      <Link href="/terms-of-service" className="hover:text-gray-400 transition-colors">Terms</Link>
+      <Link href="/terms-of-service" className="hover:text-muted-foreground transition-colors">Terms</Link>
     </footer>
     </>
   );

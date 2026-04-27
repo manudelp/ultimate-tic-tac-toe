@@ -50,7 +50,24 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+  			surface: {
+  				DEFAULT: 'hsl(var(--surface))',
+  				hover: 'hsl(var(--surface-hover))',
+  				active: 'hsl(var(--surface-active))'
+  			},
+  			subtle: 'hsl(var(--subtle))',
+  			board: {
+  				DEFAULT: 'hsl(var(--board-bg))',
+  				active: 'hsl(var(--board-bg-active))',
+  				border: 'hsl(var(--board-border))',
+  				'border-active': 'hsl(var(--board-border-active))',
+  				grid: 'hsl(var(--board-grid))',
+  				cell: 'hsl(var(--board-cell))',
+  				'cell-hover': 'hsl(var(--board-cell-hover))'
+  			},
+  			markx: 'hsl(var(--markx))',
+  			marko: 'hsl(var(--marko))'
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

@@ -5,6 +5,7 @@ import { formatMove } from "@/lib/notation";
 import { ArrowLeft, Flag } from "lucide-react";
 import { toast } from "sonner";
 import type { GameState, GameMove } from "@/types/game";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 type WinningLine = { type: "row" | "col" | "diag"; index: number };
 
@@ -83,12 +84,10 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   const lastMove = state.moves.length > 0 ? state.moves[state.moves.length - 1].move as [number, number, number, number] : null;
   const winningLine = isOver && state.winner ? getWinningLine(state.boardResults) : null;
 
-  // Derive winners and disabled from server boardResults
   const winners: (string | null)[][] = state.boardResults.map((row, a) =>
     row.map((v, b) => {
       if (v === 1) return "X";
       if (v === -1) return "O";
-      // Check if drawn (full but no winner)
       if (v === 0) {
         const sub = state.board[a][b];
         const isFull = sub.every((r: number[]) => r.every((c: number) => c !== 0));
@@ -98,11 +97,9 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
     })
   );
 
-  // A board is disabled if it has a result OR if it's full
   const disabled: boolean[][] = state.board.map((row, a) =>
     row.map((sub, b) => {
       if (state.boardResults[a][b] !== 0) return true;
-      // Check if full
       for (let c = 0; c < 3; c++)
         for (let d = 0; d < 3; d++)
           if (sub[c][d] === 0) return false;
@@ -110,7 +107,6 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
     })
   );
 
-  // Convert numeric board to string board for MiniBoard
   const stringBoard: string[][][][] = state.board.map(row =>
     row.map(sub =>
       sub.map(r => r.map(v => cellValue(v)))
@@ -144,7 +140,6 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
       toast.error("It's not your turn");
       return;
     }
-    // Check if cell is occupied
     if (state.board[a][b][c][d] !== 0) {
       toast.error("Cell is already occupied");
       return;
@@ -152,18 +147,15 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
     onCellClick(a, b, c, d);
   };
 
-  // Local clock ticker — visual only, server is authoritative
   const [displayClocks, setDisplayClocks] = useState(state.clocks);
   const hasClock = displayClocks.X != null && displayClocks.O != null;
 
-  // Elapsed time tracking for no-limit games
   const [elapsed, setElapsed] = useState({ X: 0, O: 0 });
 
   useEffect(() => {
     setDisplayClocks(state.clocks);
   }, [state.clocks]);
 
-  // Compute total elapsed per player from move history
   useEffect(() => {
     if (hasClock) return;
     let x = 0, o = 0;
@@ -174,7 +166,6 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
     setElapsed({ X: x, O: o });
   }, [state.moves, hasClock]);
 
-  // Tick the active player's elapsed time up
   useEffect(() => {
     if (isOver || hasClock) return;
     const interval = setInterval(() => {
@@ -206,20 +197,21 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   return (
     <div className="relative flex flex-col w-full gap-6 mx-auto sm:px-4 max-w-7xl md:flex-row">
       <div className="flex flex-col items-center flex-1">
-        {/* Info Bar */}
-        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-gray-800 rounded">
+        {/* Info Bar + Board */}
+        <div className="w-full max-w-[min(calc(100vw-2rem),600px)]">
+        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-background border border-border/50 rounded">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 flex items-center justify-center rounded-md ${
               state.activePlayer === "X" ? "bg-blue-500/20" : "bg-red-500/20"
             }`}>
               <span className={`text-2xl font-bold ${
-                state.activePlayer === "X" ? "text-blue-400" : "text-red-400"
+                state.activePlayer === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"
               }`}>
                 {state.activePlayer}
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {isOver
                   ? "Game Over"
                   : isLocal
@@ -231,42 +223,45 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                         : "Opponent's turn"}
               </span>
               {isOver && state.winner && (
-                <span className="text-sm font-semibold text-green-400">
+                <span className="text-sm font-semibold text-green-600 dark:text-green-400">
                   {isLocal ? `Player ${state.winner} wins!` : state.winner === myPlayer ? "You win!" : "You lose"}
                 </span>
               )}
               {isOver && !state.winner && (
-                <span className="text-sm font-semibold text-yellow-400">Draw</span>
+                <span className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">Draw</span>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-3 text-sm font-mono">
-            {hasClock ? (
-              <>
-                <span className={state.activePlayer === "X" ? "text-blue-400" : "text-gray-500"}>
-                  {formatClock(displayClocks.X!)}
-                </span>
-                <span className="text-gray-600">|</span>
-                <span className={state.activePlayer === "O" ? "text-red-400" : "text-gray-500"}>
-                  {formatClock(displayClocks.O!)}
-                </span>
-              </>
-            ) : (
-              <>
-                <span className={state.activePlayer === "X" ? "text-blue-400" : "text-gray-500"}>
-                  {formatClock(elapsed.X)}
-                </span>
-                <span className="text-gray-600">|</span>
-                <span className={state.activePlayer === "O" ? "text-red-400" : "text-gray-500"}>
-                  {formatClock(elapsed.O)}
-                </span>
-              </>
-            )}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 text-sm font-mono">
+              {hasClock ? (
+                <>
+                  <span className={state.activePlayer === "X" ? "text-[hsl(var(--markx))]" : "text-muted-foreground"}>
+                    {formatClock(displayClocks.X!)}
+                  </span>
+                  <span className="text-subtle">|</span>
+                  <span className={state.activePlayer === "O" ? "text-[hsl(var(--marko))]" : "text-muted-foreground"}>
+                    {formatClock(displayClocks.O!)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className={state.activePlayer === "X" ? "text-[hsl(var(--markx))]" : "text-muted-foreground"}>
+                    {formatClock(elapsed.X)}
+                  </span>
+                  <span className="text-subtle">|</span>
+                  <span className={state.activePlayer === "O" ? "text-[hsl(var(--marko))]" : "text-muted-foreground"}>
+                    {formatClock(elapsed.O)}
+                  </span>
+                </>
+              )}
+            </div>
+            <ThemeToggle />
           </div>
         </div>
 
         {/* Board */}
-        <div className="relative w-full max-w-[min(calc(100vw-2rem),600px)] aspect-square">
+        <div className="relative w-full aspect-square">
           <div className="relative grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full aspect-square">
             {stringBoard.map((miniBoardRow, a) =>
               miniBoardRow.map((miniBoard, b) => (
@@ -278,6 +273,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                   winners={winners}
                   disabled={disabled}
                   activeMiniBoard={activeMiniBoard}
+                  activePlayer={state.activePlayer}
                   lastMove={lastMove}
                   gameOver={isOver}
                   hoveredMove={hoveredMove}
@@ -316,23 +312,24 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
             )}
           </div>
         </div>
+        </div>
 
         {/* Mobile move history */}
         {isMobile && state.moves.length > 0 && (
           <div className="w-full mt-4">
-            <div ref={moveHistoryRef} className="w-full px-1 py-2 overflow-x-auto bg-gray-800 rounded scrollbar-thin scrollbar-thumb-gray-600">
+            <div ref={moveHistoryRef} className="w-full px-1 py-2 overflow-x-auto bg-card rounded scrollbar-thin scrollbar-thumb-muted">
               <div className="inline-flex gap-2 px-2">
                 {state.moves.map((move: GameMove, i: number) => (
                   <div
                     key={i}
                     className={`cursor-pointer rounded-md px-2 py-1 text-xs ${
-                      i === state.moves.length - 1 ? "bg-gray-700" : "hover:bg-gray-700/50"
+                      i === state.moves.length - 1 ? "bg-surface-active" : "hover:bg-surface-hover/50"
                     }`}
                     onMouseEnter={() => { setHoveredMove(move.move as [number, number, number, number]); setHoveredMoveIndex(i); }}
                     onMouseLeave={() => { setHoveredMove(null); setHoveredMoveIndex(null); }}
                   >
-                    <span className="text-gray-400">{i + 1}.</span>
-                    <span className={move.player === "X" ? "text-blue-400" : "text-red-400"}>
+                    <span className="text-muted-foreground">{i + 1}.</span>
+                    <span className={move.player === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"}>
                       {move.player}
                     </span>
                     <span className="ml-1">{formatMove(move.move as [number, number, number, number])}</span>
@@ -346,11 +343,11 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
         {/* Mobile controls */}
         {isMobile && (
           <div className="flex w-full gap-3 mt-4">
-            <button onClick={onExit} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-700 rounded hover:bg-gray-600 transition-colors">
+            <button onClick={onExit} className="flex-1 flex items-center justify-center gap-2 py-3 bg-surface-hover rounded hover:bg-surface-active transition-colors">
               <ArrowLeft className="w-4 h-4" /> Exit
             </button>
             {!isOver && (
-              <button onClick={onResign} className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-800 rounded hover:bg-red-700 transition-colors">
+              <button onClick={onResign} className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-600 dark:bg-red-800 text-white rounded hover:bg-red-500 dark:hover:bg-red-700 transition-colors">
                 <Flag className="w-4 h-4" /> Resign
               </button>
             )}
@@ -362,7 +359,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
       {!isMobile && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-4 w-72 h-[calc(100svh-4rem)] overflow-hidden">
           {/* Game Info */}
-          <div className="p-4 bg-gray-800 rounded space-y-3">
+          <div className="p-4 bg-background border border-border/50 rounded space-y-3">
             <div className="flex justify-between items-start">
               {opponent ? (
                 <div className="flex items-center gap-2">
@@ -373,8 +370,8 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                 <div />
               )}
               <div className="flex flex-col items-end">
-                <span className="text-[11px] text-gray-500">{new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
-                <span className="text-[11px] text-gray-500">{new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}</span>
+                <span className="text-[11px] text-muted-foreground">{new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
+                <span className="text-[11px] text-muted-foreground">{new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}</span>
               </div>
             </div>
 
@@ -387,7 +384,6 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                 [[0,0],[1,0],[2,0]], [[0,1],[1,1],[2,1]], [[0,2],[1,2],[2,2]],
                 [[0,0],[1,1],[2,2]], [[0,2],[1,1],[2,0]],
               ];
-              // Compute disabled/draws for the replayed board
               const rBoard = hoveredMoveIndex != null ? replayBoard(state.moves, hoveredMoveIndex) : state.board;
               const rDisabled: boolean[][] = rBoard.map((row, a) =>
                 row.map((sub, b) => {
@@ -428,11 +424,11 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
               return (
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-[11px]">
-                    <span className="text-blue-400 font-medium">X</span>
-                    <span className="text-gray-500">Advantage</span>
-                    <span className="text-red-400 font-medium">O</span>
+                    <span className="text-[hsl(var(--markx))] font-medium">X</span>
+                    <span className="text-muted-foreground">Advantage</span>
+                    <span className="text-[hsl(var(--marko))] font-medium">O</span>
                   </div>
-                  <div className="flex h-2 rounded-full overflow-hidden bg-gray-700">
+                  <div className="flex h-2 rounded-full overflow-hidden bg-surface">
                     <div
                       className="bg-blue-500 transition-all duration-500 ease-out rounded-l-full"
                       style={{ width: `${clamped}%` }}
@@ -447,12 +443,12 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
             })()}
 
             {/* Details */}
-            <div className="flex justify-between items-center pt-2 border-t border-gray-700">
-              <span className="text-xs text-gray-500">Move {state.moves.length + 1}</span>
+            <div className="flex justify-between items-center pt-2 border-t border-border">
+              <span className="text-xs text-muted-foreground">Move {state.moves.length + 1}</span>
               <span className={`text-xs font-medium ${
                 isOver
-                  ? state.winner ? "text-green-400" : "text-yellow-400"
-                  : "text-gray-500"
+                  ? state.winner ? "text-green-600 dark:text-green-400" : "text-yellow-600 dark:text-yellow-400"
+                  : "text-muted-foreground"
               }`}>
                 {isOver ? (state.winner ? `${state.winner} wins` : "Draw") : "In progress"}
               </span>
@@ -460,15 +456,15 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
           </div>
 
           {/* Move history */}
-          <div className="flex-1 min-h-0 flex flex-col p-4 bg-gray-800 rounded">
-            <div className="flex justify-between mb-2 text-sm text-gray-400">
+          <div className="flex-1 min-h-0 flex flex-col p-4 bg-background border border-border/50 rounded">
+            <div className="flex justify-between mb-2 text-sm text-muted-foreground">
               <span>Moves</span>
               <span className="text-xs">{state.moves.length}</span>
             </div>
-            <div ref={moveHistoryRef} className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600">
+            <div ref={moveHistoryRef} className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-gray-800">
-                  <tr className="text-xs text-gray-400">
+                <thead className="sticky top-0 z-10">
+                  <tr className="text-xs text-muted-foreground bg-background">
                     <th className="p-1.5 text-left w-8">#</th>
                     <th className="p-1.5 text-center w-10">Player</th>
                     <th className="p-1.5 text-right">Move</th>
@@ -482,16 +478,16 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                     return (
                     <tr
                       key={i}
-                      className={`hover:bg-gray-700/50 cursor-pointer ${i === state.moves.length - 1 ? "bg-gray-700/30" : ""}`}
+                      className={`hover:bg-surface-hover/50 cursor-pointer ${i === state.moves.length - 1 ? "bg-surface/30" : ""}`}
                       onMouseEnter={() => { setHoveredMove(move.move as [number, number, number, number]); setHoveredMoveIndex(i); }}
                       onMouseLeave={() => { setHoveredMove(null); setHoveredMoveIndex(null); }}
                     >
-                      <td className="p-1.5 text-gray-500">{i + 1}</td>
-                      <td className={`p-1.5 text-center font-medium ${move.player === "X" ? "text-blue-400" : "text-red-400"}`}>
+                      <td className="p-1.5 text-muted-foreground">{i + 1}</td>
+                      <td className={`p-1.5 text-center font-medium ${move.player === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"}`}>
                         {move.player}
                       </td>
                       <td className="p-1.5 text-right">{formatMove(move.move as [number, number, number, number])}</td>
-                      <td className="p-1.5 text-right text-gray-500">{timeStr}</td>
+                      <td className="p-1.5 text-right text-muted-foreground">{timeStr}</td>
                     </tr>
                     );
                   })}
@@ -502,11 +498,11 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
 
           {/* Controls */}
           <div className="flex gap-2">
-            <button onClick={onExit} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-700 rounded hover:bg-gray-600 transition-colors">
+            <button onClick={onExit} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-surface-hover rounded hover:bg-surface-active transition-colors">
               <ArrowLeft className="w-4 h-4" /> Exit
             </button>
             {!isOver && (
-              <button onClick={onResign} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-800 rounded hover:bg-red-700 transition-colors">
+              <button onClick={onResign} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 dark:bg-red-800 text-white rounded hover:bg-red-500 dark:hover:bg-red-700 transition-colors">
                 <Flag className="w-4 h-4" /> Resign
               </button>
             )}

@@ -6,42 +6,92 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
-  background-color: #111827;
-  color: white;
-  font-family: var(--font-space-grotesk);
-}
-
 @layer base {
   :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 220 16% 98%;
+    --foreground: 220 20% 10%;
+    --card: 220 16% 89%;
+    --card-foreground: 220 20% 10%;
+    --popover: 220 20% 97%;
+    --popover-foreground: 220 20% 10%;
+    --primary: 220 20% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 220 15% 91%;
+    --secondary-foreground: 220 20% 10%;
+    --muted: 220 15% 91%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 220 15% 91%;
+    --accent-foreground: 220 20% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 220 15% 87%;
+    --input: 220 15% 87%;
+    --ring: 220 20% 10%;
     --radius: 0.5rem;
+
+    --surface: 220 15% 93%;
+    --surface-hover: 220 15% 89%;
+    --surface-active: 220 15% 85%;
+    --subtle: 220 10% 55%;
+
+    /* Board tokens */
+    --board-bg: 220 15% 93%;
+    --board-bg-active: 217 60% 92%;
+    --board-border: 220 13% 82%;
+    --board-border-active: 217 91% 60%;
+    --board-grid: 220 13% 90%;
+    --board-cell: 220 20% 97%;
+    --board-cell-hover: 220 15% 94%;
+    --markx: 220 90% 56%;
+    --marko: 0 84% 60%;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 0 0% 100%;
+    --card: 220 26% 14%;
+    --card-foreground: 0 0% 100%;
+    --popover: 220 26% 14%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 217 19% 17%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 217 19% 17%;
+    --muted-foreground: 218 11% 65%;
+    --accent: 217 19% 17%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 19% 17%;
+    --input: 217 19% 17%;
+    --ring: 0 0% 83.1%;
+
+    --surface: 220 25% 24%;
+    --surface-hover: 216 16% 24%;
+    --surface-active: 216 14% 28%;
+    --subtle: 218 11% 40%;
+
+    /* Board tokens */
+    --board-bg: 222 35% 15%;
+    --board-bg-active: 220 40% 19%;
+    --board-border: 220 20% 22%;
+    --board-border-active: 213 94% 68%;
+    --board-grid: 220 20% 18%;
+    --board-cell: 222 35% 13%;
+    --board-cell-hover: 220 30% 18%;
+    --markx: 220 86% 71%;
+    --marko: 3 82% 70%;
   }
 
   * {
-    @apply border-[var(--border)];
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-[var(--background)] text-[var(--foreground)];
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-space-grotesk);
   }
 }
 
@@ -82,4 +132,3 @@ body {
   from { transform: translate(-50%, -50%) rotate(-45deg) scaleX(0); }
   to { transform: translate(-50%, -50%) rotate(-45deg) scaleX(1); }
 }
-
