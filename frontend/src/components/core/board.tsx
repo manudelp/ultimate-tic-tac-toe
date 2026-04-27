@@ -79,6 +79,22 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   const [hoveredMove, setHoveredMove] = useState<[number, number, number, number] | null>(null);
   const [hoveredMoveIndex, setHoveredMoveIndex] = useState<number | null>(null);
 
+  const tapRef = useRef<HTMLAudioElement | null>(null);
+  const winRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    tapRef.current = new Audio("/assets/sounds/tap.mp3");
+    winRef.current = new Audio("/assets/sounds/win.mp3");
+  }, []);
+
+  useEffect(() => {
+    if (state.moves.length > 0) tapRef.current?.play().catch(() => {});
+  }, [state.moves.length]);
+
+  useEffect(() => {
+    if (state.status !== "ongoing" && state.winner) winRef.current?.play().catch(() => {});
+  }, [state.status, state.winner]);
+
   const isMyTurn = isLocal || state.activePlayer === myPlayer;
   const isOver = state.status !== "ongoing";
   const lastMove = state.moves.length > 0 ? state.moves[state.moves.length - 1].move as [number, number, number, number] : null;
