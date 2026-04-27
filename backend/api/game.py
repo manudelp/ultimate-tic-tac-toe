@@ -2,6 +2,7 @@ import time
 import random
 import numpy as np
 import gevent
+from gevent.threadpool import ThreadPoolExecutor
 from flask import request
 from flask_socketio import Namespace, emit, join_room, leave_room
 from core.socketio import socketio
@@ -15,6 +16,7 @@ player_games = {}    # sid -> game_id
 game_players = {}    # game_id -> {"player1_sid", "player2_sid", "player1_num"}
 matchmaking_queue = []  # [{'sid': ..., 'time': ..., 'timeControl': ...}]
 DEFAULT_BOT_ID = 1   # Greedy as default fallback
+_bot_executor = ThreadPoolExecutor(max_workers=2)
 
 
 def get_bot_move(game, bot_id):
@@ -40,7 +42,7 @@ def schedule_bot_move(game_id, bot_id, delay=0.5):
             return
 
         try:
-            a, b, c, d = get_bot_move(game, bot_id)
+            a, b, c, d = _bot_executor.submit(get_bot_move, game, bot_id).result()
             success, err = game.make_move(game.active_player, a, b, c, d)
             if success:
                 state = game.to_dict()
