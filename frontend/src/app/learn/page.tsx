@@ -147,7 +147,7 @@ export default function Learn() {
               {[
                 "Don't overthink your first few moves — focus on understanding the flow of the game.",
                 "Keep your eye on the whole board, not just the mini-board you're playing in.",
-                "Play against Randy (the random bot) first to get comfortable before facing harder opponents.",
+                "Play against the easiest bot first to get comfortable before facing harder opponents.",
                 "Use the move history panel to review your games and spot where you lost control.",
               ].map((tip) => (
                 <li key={tip} className="flex gap-3 text-sm text-muted-foreground leading-relaxed">

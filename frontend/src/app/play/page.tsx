@@ -112,7 +112,7 @@ function PlayContent() {
   const startAIGame = () => {
     if (!selectedBot || !starts) return;
     sessionStorage.setItem("uttt_game_config", JSON.stringify({
-      mode: "player-vs-bot", botId: selectedBot.id, bot: selectedBot, starts, timeControl,
+      mode: "player-vs-bot", botId: selectedBot.id, bot: selectedBot, starts, timeControl: null,
     }));
     router.push("/game");
   };
@@ -308,17 +308,6 @@ function PlayContent() {
                                 options={[{ label: "You", value: "player" }, { label: "Opponent", value: "bot" }]}
                                 value={starts}
                                 onChange={(v) => setStarts(v as string)}
-                              />
-                            </div>
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
-                                <Clock className="w-3 h-3" /> Time
-                              </span>
-                              <SegmentedControl
-                                id="ai-time"
-                                options={TIME_OPTIONS}
-                                value={timeControl}
-                                onChange={(v) => setTimeControl(v as number | null)}
                               />
                             </div>
                           </div>

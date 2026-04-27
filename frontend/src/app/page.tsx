@@ -50,7 +50,7 @@ const MODES = [
   {
     icon: Bot,
     title: "vs AI",
-    desc: "Four difficulty levels from casual to expert. Train your skills against increasingly smart bots.",
+    desc: "From casual to expert difficulty. Train your skills against increasingly smart bots.",
     cta: "Challenge a bot",
     color: "text-blue-400",
     bg: "bg-blue-500/10",
@@ -81,13 +81,13 @@ const FEATURES = [
   },
   {
     icon: Bot,
-    title: "Four AI opponents",
-    desc: "From Randy who plays randomly, to Jardinero who uses deep heuristic search. There's always a worthy challenge.",
+    title: "AI opponents",
+    desc: "A range of opponents from beginner-friendly to genuinely challenging. There's always a worthy match."
   },
   {
     icon: Globe,
     title: "Real-time multiplayer",
-    desc: "Built on WebSockets for instant, lag-free online play. Matchmaking or private lobbies with shareable codes.",
+    desc: "Real-time online play with no lag. Jump into matchmaking or create a private lobby with a shareable code.",
   },
   {
     icon: Trophy,
@@ -153,9 +153,6 @@ export default function Home() {
             transition={{ duration: 0.35 }}
             className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg"
           >
-            <span className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20">
-              Strategy · Tactics · Depth
-            </span>
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
               Tic-Tac-Toe,<br />
               <span className="text-muted-foreground">but smarter.</span>

@@ -195,10 +195,10 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   };
 
   return (
-    <div className="relative flex flex-col w-full gap-6 mx-auto sm:px-4 max-w-7xl md:flex-row">
-      <div className="flex flex-col items-center flex-1">
+    <div className="relative flex flex-col gap-6 sm:px-4 md:flex-row md:items-start">
+      <div className="flex flex-col items-center w-[min(calc(100vw-2rem),600px)]">
         {/* Info Bar + Board */}
-        <div className="w-full max-w-[min(calc(100vw-2rem),600px)]">
+        <div className="w-full">
         <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-[hsl(var(--board-bg))] rounded">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 flex items-center justify-center rounded-md ${

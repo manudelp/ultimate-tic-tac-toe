@@ -63,6 +63,33 @@ def schedule_bot_move(game_id, bot_id, delay=0.5):
 game_id_to_bot = {}
 # Track local PvP games (no bot, both moves from same client)
 local_games = set()
+# Track pending timeout greenlets: game_id -> greenlet
+timeout_greenlets = {}
+
+
+def schedule_timeout(game_id):
+    """Schedule a greenlet to end the game when the active player's clock expires."""
+    game = games.get(game_id)
+    if not game or not game.clocks or game.status != "ongoing":
+        return
+    remaining = game.clocks[game.active_player]
+    if remaining <= 0:
+        return
+
+    old = timeout_greenlets.pop(game_id, None)
+    if old:
+        old.kill()
+
+    def _on_timeout():
+        gevent.sleep(remaining)
+        g = games.get(game_id)
+        if not g or g.status != "ongoing":
+            return
+        if g.check_timeout():
+            socketio.emit("game_state", g.to_dict(), room=game_id, namespace="/game")
+        timeout_greenlets.pop(game_id, None)
+
+    timeout_greenlets[game_id] = gevent.spawn(_on_timeout)
 
 
 class GameNamespace(Namespace):
@@ -86,6 +113,9 @@ class GameNamespace(Namespace):
                 game_players.pop(game_id, None)
                 game_id_to_bot.pop(game_id, None)
                 local_games.discard(game_id)
+                g = timeout_greenlets.pop(game_id, None)
+                if g:
+                    g.kill()
             gevent.spawn_later(60, _cleanup)
 
         print(f"Client {sid} disconnected from /game")
@@ -129,16 +159,20 @@ class GameNamespace(Namespace):
 
         success, err = game.make_move(player, int(a), int(b), int(c), int(d))
         if not success:
+            if err == "Time expired":
+                socketio.emit("game_state", game.to_dict(), room=game_id, namespace="/game")
             emit("error", {"message": err})
             return
 
         state = game.to_dict()
         socketio.emit("game_state", state, room=game_id, namespace="/game")
 
-        if game.status == "ongoing" and game_id in game_id_to_bot:
-            bot_info = game_id_to_bot[game_id]
-            if game.active_player == bot_info["player"]:
-                schedule_bot_move(game_id, bot_info["bot_id"])
+        if game.status == "ongoing":
+            schedule_timeout(game_id)
+            if game_id in game_id_to_bot:
+                bot_info = game_id_to_bot[game_id]
+                if game.active_player == bot_info["player"]:
+                    schedule_bot_move(game_id, bot_info["bot_id"])
 
     def on_resign(self, data):
         sid = request.sid
@@ -182,6 +216,9 @@ class GameNamespace(Namespace):
         }
 
         game.start()
+        if starts == "playerO":
+            game.active_player = -1
+        schedule_timeout(game_id)
 
         emit("game_started", {
             "gameId": game_id,
@@ -211,6 +248,7 @@ class GameNamespace(Namespace):
         game_id_to_bot[game_id] = {"bot_id": bot_id, "player": bot_player}
 
         game.start()
+        schedule_timeout(game_id)
 
         bot = AGENTS.get(bot_id)
         emit("game_started", {
@@ -256,6 +294,7 @@ class GameNamespace(Namespace):
 
         game = games[game_id]
         game.start()
+        schedule_timeout(game_id)
 
         socketio.emit("game_started", {
             "gameId": game_id,
@@ -313,6 +352,7 @@ class GameNamespace(Namespace):
         }
 
         game.start()
+        schedule_timeout(game_id)
 
         socketio.emit("game_started", {
             "gameId": game_id,
