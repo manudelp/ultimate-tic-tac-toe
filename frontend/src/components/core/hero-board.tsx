@@ -105,15 +105,6 @@ export default function HeroBoard() {
     return () => clearTimeout(t);
   }, [moveIndex, gameOver]);
 
-  // Derive forced board: if target is won/full, free choice (null)
-  const activeBoard: [number, number] | null = (() => {
-    if (!lastMove) return null;
-    const [,, cr, cc] = lastMove;
-    if (winners[cr][cc]) return null;
-    const target = board[cr][cc];
-    if (target.every(row => row.every(cell => cell !== null))) return null;
-    return [cr, cc];
-  })();
   const winningLine = gameOver ? getWinningLine(winners) : null;
 
   return (
@@ -121,16 +112,11 @@ export default function HeroBoard() {
       {board.map((boardRow, br) =>
         boardRow.map((miniBoard, bc) => {
           const winner = winners[br][bc];
-          const isFull = miniBoard.every(row => row.every(cell => cell !== null));
-          const playable = !winner && !isFull;
-          const isActive = gameOver || (activeBoard ? activeBoard[0] === br && activeBoard[1] === bc : (!lastMove || playable));
 
           return (
             <div
               key={`${br}-${bc}`}
-              className={`relative bg-gray-700/30 rounded-md p-0.5 sm:p-1 ${
-                isActive ? "opacity-100" : "opacity-30 transition-opacity duration-500"
-              }`}
+              className="relative bg-gray-700/30 rounded-md p-0.5 sm:p-1"
             >
               <div className={`grid grid-cols-3 gap-px ${winner ? "opacity-0" : ""} transition-opacity duration-300`}>
                 {miniBoard.map((row, cr) =>
