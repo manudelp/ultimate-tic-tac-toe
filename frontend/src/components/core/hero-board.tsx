@@ -70,6 +70,19 @@ function initialState(): GameState {
   };
 }
 
+function HeroMini({ winner, children }: { winner: string | null; children: (reveal: boolean) => React.ReactNode }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      className="relative bg-gray-700/30 rounded-md p-0.5 sm:p-1"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {children(hovered && !!winner)}
+    </div>
+  );
+}
+
 export default function HeroBoard() {
   const [state, setState] = useState<GameState>(initialState);
   const { board, moveIndex, lastMove, winners, gameOver } = state;
@@ -114,75 +127,74 @@ export default function HeroBoard() {
           const winner = winners[br][bc];
 
           return (
-            <div
-              key={`${br}-${bc}`}
-              className="relative bg-gray-700/30 rounded-md p-0.5 sm:p-1"
-            >
-              <div className={`grid grid-cols-3 gap-px ${winner ? "opacity-0" : ""} transition-opacity duration-300`}>
-                {miniBoard.map((row, cr) =>
-                  row.map((cell, cc) => {
-                    const isLast = lastMove &&
-                      lastMove[0] === br && lastMove[1] === bc &&
-                      lastMove[2] === cr && lastMove[3] === cc;
+            <HeroMini key={`${br}-${bc}`} winner={winner}>
+              {(reveal) => (<>
+                <div className={`grid grid-cols-3 gap-px transition-opacity duration-300 ${winner && !reveal ? "opacity-0" : "opacity-100"}`}>
+                  {miniBoard.map((row, cr) =>
+                    row.map((cell, cc) => {
+                      const isLast = lastMove &&
+                        lastMove[0] === br && lastMove[1] === bc &&
+                        lastMove[2] === cr && lastMove[3] === cc;
 
-                    return (
-                      <div
-                        key={`${cr}-${cc}`}
-                        className={`aspect-square rounded-sm flex items-center justify-center transition-all duration-300 ${
-                          isLast
-                            ? cell === "X" ? "bg-blue-500/25" : "bg-red-500/25"
-                            : "bg-gray-800/50"
-                        }`}
-                      >
-                        {cell && (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            strokeWidth="2"
-                            stroke="currentColor"
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className={`w-[65%] h-[65%] ${
-                              cell === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
-                            } ${isLast ? "animate-[popIn_0.3s_ease-out]" : ""}`}
-                          >
-                            {cell === "X" ? (
-                              <><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></>
-                            ) : (
-                              <circle cx="12" cy="12" r="7.5" />
-                            )}
-                          </svg>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              {winner && (
-                <div className="absolute inset-0 flex items-center justify-center animate-[popIn_0.3s_ease-out]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={`w-3/5 h-3/5 ${
-                      winner === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
-                    }`}
-                  >
-                    {winner === "X" ? (
-                      <><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></>
-                    ) : (
-                      <circle cx="12" cy="12" r="7.5" />
-                    )}
-                  </svg>
+                      return (
+                        <div
+                          key={`${cr}-${cc}`}
+                          className={`aspect-square rounded-sm flex items-center justify-center transition-all duration-300 ${
+                            isLast
+                              ? cell === "X" ? "bg-blue-500/25" : "bg-red-500/25"
+                              : "bg-gray-800/50"
+                          }`}
+                        >
+                          {cell && (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                              stroke="currentColor"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={`w-[65%] h-[65%] ${
+                                cell === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+                              } ${isLast ? "animate-[popIn_0.3s_ease-out]" : ""}`}
+                            >
+                              {cell === "X" ? (
+                                <><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></>
+                              ) : (
+                                <circle cx="12" cy="12" r="7.5" />
+                              )}
+                            </svg>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
-              )}
-            </div>
+
+                {winner && (
+                  <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 pointer-events-none ${reveal ? "opacity-0" : "opacity-100"} animate-[popIn_0.3s_ease-out]`}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`w-3/5 h-3/5 ${
+                        winner === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+                      }`}
+                    >
+                      {winner === "X" ? (
+                        <><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></>
+                      ) : (
+                        <circle cx="12" cy="12" r="7.5" />
+                      )}
+                    </svg>
+                  </div>
+                )}
+              </>)}
+            </HeroMini>
           );
         })
       )}

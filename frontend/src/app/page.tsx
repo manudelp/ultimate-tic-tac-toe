@@ -98,7 +98,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="opacity-60 pointer-events-none">
+          <div>
             <HeroBoard />
           </div>
         </div>
