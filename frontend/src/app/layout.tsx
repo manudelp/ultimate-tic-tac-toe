@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
 import type { Metadata } from "next";
 import Header from "@/components/layout/header";
+import ThemeProvider from "@/components/ui/theme-provider";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -40,14 +41,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>): React.ReactElement {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#111827" />
       </head>
       <body className={`antialiased ${spaceGrotesk.variable}`}>
-        <Header />
-        <main className="min-h-svh">{children}</main>
-        <Toaster richColors />
+        <ThemeProvider>
+          <Header />
+          <main className="min-h-svh">{children}</main>
+          <Toaster richColors />
+        </ThemeProvider>
         <SpeedInsights />
         <Analytics />
       </body>
