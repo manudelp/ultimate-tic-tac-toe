@@ -52,68 +52,66 @@ function getWinningLine(results: (string | null)[][]): { type: "row" | "col" | "
   return null;
 }
 
+interface GameState {
+  board: Board;
+  moveIndex: number;
+  lastMove: [number, number, number, number] | null;
+  winners: (string | null)[][];
+  gameOver: boolean;
+}
+
+function initialState(): GameState {
+  return {
+    board: emptyBoard(),
+    moveIndex: 0,
+    lastMove: null,
+    winners: Array.from({ length: 3 }, () => Array(3).fill(null)),
+    gameOver: false,
+  };
+}
+
 export default function HeroBoard() {
-  const [board, setBoard] = useState<Board>(emptyBoard);
-  const [moveIndex, setMoveIndex] = useState(0);
-  const [lastMove, setLastMove] = useState<[number, number, number, number] | null>(null);
-  const [winners, setWinners] = useState<(string | null)[][]>(
-    Array.from({ length: 3 }, () => Array(3).fill(null))
-  );
-  const [gameOver, setGameOver] = useState(false);
+  const [state, setState] = useState<GameState>(initialState);
+  const { board, moveIndex, lastMove, winners, gameOver } = state;
 
   useEffect(() => {
-    // Game finished — show winning line, then reset after delay
     if (gameOver) {
-      const t = setTimeout(() => {
-        setBoard(emptyBoard());
-        setMoveIndex(0);
-        setLastMove(null);
-        setWinners(Array.from({ length: 3 }, () => Array(3).fill(null)));
-        setGameOver(false);
-      }, 4000);
+      const t = setTimeout(() => setState(initialState()), 4000);
       return () => clearTimeout(t);
     }
 
     if (moveIndex >= SCRIPT.length) return;
 
     const t = setTimeout(() => {
-      const [br, bc, cr, cc, player] = SCRIPT[moveIndex];
-      setBoard(prev => {
-        const next = prev.map(r => r.map(b => b.map(row => [...row])));
-        next[br][bc][cr][cc] = player;
+      setState(prev => {
+        const [br, bc, cr, cc, player] = SCRIPT[prev.moveIndex];
+        const nextBoard = prev.board.map(r => r.map(b => b.map(row => [...row])));
+        nextBoard[br][bc][cr][cc] = player;
 
-        const w = checkWinner(next[br][bc]);
-        if (w) {
-          setWinners(prev => {
-            const nw = prev.map(r => [...r]);
-            nw[br][bc] = w;
+        const nextWinners = prev.winners.map(r => [...r]);
+        const w = checkWinner(nextBoard[br][bc]);
+        if (w) nextWinners[br][bc] = w;
 
-            // Check if the big board is won
-            if (getWinningLine(nw)) {
-              setGameOver(true);
-            }
-            return nw;
-          });
-        }
-
-        return next;
+        return {
+          board: nextBoard,
+          moveIndex: prev.moveIndex + 1,
+          lastMove: [br, bc, cr, cc],
+          winners: nextWinners,
+          gameOver: w ? !!getWinningLine(nextWinners) : false,
+        };
       });
-      setLastMove([br, bc, cr, cc]);
-      setMoveIndex(i => i + 1);
     }, 600);
 
     return () => clearTimeout(t);
   }, [moveIndex, gameOver]);
 
-  // Derive forced board like the engine: if target is won/full, it's free choice (null)
+  // Derive forced board: if target is won/full, free choice (null)
   const activeBoard: [number, number] | null = (() => {
     if (!lastMove) return null;
     const [,, cr, cc] = lastMove;
-    // Check winner directly from board state to avoid async lag with winners state
-    if (winners[cr][cc] || checkWinner(board[cr][cc])) return null;
+    if (winners[cr][cc]) return null;
     const target = board[cr][cc];
-    const isFull = target.every(row => row.every(cell => cell !== null));
-    if (isFull) return null;
+    if (target.every(row => row.every(cell => cell !== null))) return null;
     return [cr, cc];
   })();
   const winningLine = gameOver ? getWinningLine(winners) : null;
@@ -130,8 +128,8 @@ export default function HeroBoard() {
           return (
             <div
               key={`${br}-${bc}`}
-              className={`relative bg-gray-700/30 rounded-md p-0.5 sm:p-1 transition-opacity duration-500 ${
-                isActive ? "opacity-100" : "opacity-30"
+              className={`relative bg-gray-700/30 rounded-md p-0.5 sm:p-1 ${
+                isActive ? "opacity-100" : "opacity-30 transition-opacity duration-500"
               }`}
             >
               <div className={`grid grid-cols-3 gap-px ${winner ? "opacity-0" : ""} transition-opacity duration-300`}>
