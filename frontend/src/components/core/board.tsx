@@ -199,7 +199,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
       <div className="flex flex-col items-center flex-1">
         {/* Info Bar + Board */}
         <div className="w-full max-w-[min(calc(100vw-2rem),600px)]">
-        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-background border border-border/50 rounded">
+        <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-[hsl(var(--board-bg))] rounded">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 flex items-center justify-center rounded-md ${
               state.activePlayer === "X" ? "bg-blue-500/20" : "bg-red-500/20"
@@ -359,7 +359,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
       {!isMobile && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-4 w-72 h-[calc(100svh-4rem)] overflow-hidden">
           {/* Game Info */}
-          <div className="p-4 bg-background border border-border/50 rounded space-y-3">
+          <div className="p-4 bg-[hsl(var(--board-bg))] rounded space-y-3">
             <div className="flex justify-between items-start">
               {opponent ? (
                 <div className="flex items-center gap-2">
@@ -367,7 +367,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                   <span className="text-sm font-medium">vs {opponent.name}</span>
                 </div>
               ) : (
-                <div />
+                <span className="text-sm font-medium text-muted-foreground">Local Game</span>
               )}
               <div className="flex flex-col items-end">
                 <span className="text-[11px] text-muted-foreground">{new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
@@ -456,7 +456,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
           </div>
 
           {/* Move history */}
-          <div className="flex-1 min-h-0 flex flex-col p-4 bg-background border border-border/50 rounded">
+          <div className="flex-1 min-h-0 flex flex-col p-4 bg-[hsl(var(--board-bg))] rounded">
             <div className="flex justify-between mb-2 text-sm text-muted-foreground">
               <span>Moves</span>
               <span className="text-xs">{state.moves.length}</span>
@@ -464,7 +464,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
             <div ref={moveHistoryRef} className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10">
-                  <tr className="text-xs text-muted-foreground bg-background">
+                  <tr className="text-xs text-muted-foreground bg-[hsl(var(--board-bg))]">
                     <th className="p-1.5 text-left w-8">#</th>
                     <th className="p-1.5 text-center w-10">Player</th>
                     <th className="p-1.5 text-right">Move</th>

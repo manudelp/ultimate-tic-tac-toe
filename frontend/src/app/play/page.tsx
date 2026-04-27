@@ -3,26 +3,63 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getBots, getQueueCounts } from "@/api";
 import { toast } from "sonner";
-import { Bot, Globe, Users, Swords, Clock } from "lucide-react";
+import { Bot, Globe, Users, Swords, Clock, ArrowRight, Link2, Hash } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Loader from "@/components/ui/loader";
 import type { BotInfo } from "@/types/game";
 
 type Tab = "ai" | "online" | "local";
 
-const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: "ai", label: "vs AI", icon: Bot },
-  { id: "online", label: "Online", icon: Globe },
-  { id: "local", label: "Local", icon: Users },
+const TABS: { id: Tab; label: string; icon: React.ElementType; desc: string }[] = [
+  { id: "ai",     label: "vs AI",   icon: Bot,   desc: "Challenge a bot" },
+  { id: "online", label: "Online",  icon: Globe,  desc: "Play globally" },
+  { id: "local",  label: "Local",   icon: Users,  desc: "Same device" },
 ];
 
 const TIME_OPTIONS: { label: string; value: number | null }[] = [
-  { label: "1 min", value: 60 },
-  { label: "3 min", value: 180 },
-  { label: "5 min", value: 300 },
-  { label: "10 min", value: 600 },
+  { label: "1 min",    value: 60 },
+  { label: "3 min",    value: 180 },
+  { label: "5 min",    value: 300 },
+  { label: "10 min",   value: 600 },
   { label: "No limit", value: null },
 ];
+
+function SegmentedControl({
+  options,
+  value,
+  onChange,
+  id,
+}: {
+  options: { label: string; value: string | number | null }[];
+  value: string | number | null;
+  onChange: (v: string | number | null) => void;
+  id: string;
+}) {
+  return (
+    <div className="flex bg-surface rounded-lg p-0.5 gap-0.5">
+      {options.map((opt) => (
+        <button
+          key={opt.label}
+          onClick={() => onChange(opt.value)}
+          className="relative flex-1 px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors"
+        >
+          {value === opt.value && (
+            <motion.div
+              layoutId={id}
+              className="absolute inset-0 bg-background rounded-md shadow-sm"
+              transition={{ type: "spring", stiffness: 400, damping: 35 }}
+            />
+          )}
+          <span className={`relative z-10 transition-colors ${
+            value === opt.value ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+          }`}>
+            {opt.label}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function Play() {
   return (
@@ -45,15 +82,12 @@ function PlayContent() {
     }
   }, [searchParams, router]);
 
-  // AI state
   const [bots, setBots] = useState<BotInfo[] | null>(null);
   const [selectedBot, setSelectedBot] = useState<BotInfo | null>(null);
   const [starts, setStarts] = useState<string | null>("player");
   const [timeControl, setTimeControl] = useState<number | null>(300);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
-  // Online state
   const [lobbyInput, setLobbyInput] = useState("");
   const [queueCounts, setQueueCounts] = useState<Record<string, number>>({});
 
@@ -70,10 +104,7 @@ function PlayContent() {
       setLoading(true);
       setError(false);
       getBots()
-        .then((data) => {
-          setBots(data);
-          setLoading(false);
-        })
+        .then((data) => { setBots(data); setLoading(false); })
         .catch(() => { setLoading(false); setError(true); });
     }
   }, [tab, bots]);
@@ -86,9 +117,9 @@ function PlayContent() {
     router.push("/game");
   };
 
-  const startLocalGame = (who: string) => {
+  const startLocalGame = () => {
     sessionStorage.setItem("uttt_game_config", JSON.stringify({
-      mode: "player-vs-player", starts: who, timeControl,
+      mode: "player-vs-player", starts: starts || "player", timeControl,
     }));
     router.push("/game");
   };
@@ -113,104 +144,131 @@ function PlayContent() {
     router.push("/game");
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100svh-3.5rem)] px-4 py-8">
-      {/* Hero */}
-      <h1 className="text-3xl sm:text-4xl font-bold mb-2 tracking-tight">Play Ultimate Tic-Tac-Toe</h1>
-      <p className="text-muted-foreground mb-8 text-sm sm:text-base">Choose your game mode</p>
+  const queueKey = timeControl === null ? "null" : String(timeControl);
+  const queueCount = queueCounts[queueKey] || 0;
 
-      {/* Tabs */}
-      <div className="flex bg-background rounded-lg p-1 mb-8 border border-border/50">
-        {TABS.map(({ id, label, icon: Icon }) => (
+  return (
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-12 min-h-[calc(100svh-3.5rem)]">
+
+      {/* Header */}
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Play</p>
+        <h1 className="text-4xl font-bold tracking-tight mb-3">Choose your game</h1>
+        <p className="text-muted-foreground text-base leading-relaxed">
+          Pick a mode and jump straight in. No account needed.
+        </p>
+      </div>
+
+      {/* Tab selector */}
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        {TABS.map(({ id, label, icon: Icon, desc }) => (
           <button
             key={id}
             onClick={() => { setTab(id); setSelectedBot(null); setStarts("player"); }}
-            className={`flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === id ? "bg-surface-hover text-foreground" : "text-muted-foreground hover:text-foreground"
+            className={`flex flex-col items-start gap-2 p-4 rounded-xl border transition-all text-left ${
+              tab === id
+                ? "border-border bg-background shadow-sm"
+                : "border-border/50 bg-background hover:border-border text-muted-foreground"
             }`}
           >
-            <Icon className="w-4 h-4" />
-            {label}
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+              tab === id ? "bg-blue-500/10" : "bg-surface"
+            }`}>
+              <Icon className={`w-4 h-4 ${tab === id ? "text-blue-400" : "text-muted-foreground"}`} />
+            </div>
+            <div>
+              <p className={`text-sm font-semibold ${tab === id ? "text-foreground" : ""}`}>{label}</p>
+              <p className="text-[11px] text-muted-foreground">{desc}</p>
+            </div>
           </button>
         ))}
       </div>
 
-      {/* Content */}
-      <div className="w-full max-w-lg h-[400px]">
-        {/* ── vs AI ── */}
-        {tab === "ai" && (
-          <div>
-            {loading ? (
-              <div className="flex flex-col items-center py-12">
-                <Loader />
-                <p className="mt-4 text-sm text-muted-foreground">Loading AI opponents...</p>
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center py-12">
-                <p className="text-red-400 font-medium mb-2">Failed to load AI opponents</p>
-                <button onClick={() => setBots(null)} className="text-sm text-blue-400 hover:text-blue-300">Retry</button>
-              </div>
-            ) : (
-              <AnimatePresence mode="wait">
-                {!selectedBot ? (
-                  <motion.div
-                    key="grid"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                    className="space-y-5"
-                  >
-                    <p className="text-center text-sm text-muted-foreground uppercase tracking-widest">Select your opponent</p>
-                    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-                      {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => (
-                        <button
-                          key={bot.id}
-                          onClick={() => { setSelectedBot(bot); }}
-                          className="relative flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-xl border border-border/50 bg-background hover:border-border transition-colors w-[calc(25%-0.5rem)] sm:w-[calc(25%-0.75rem)] min-w-[75px]"
-                        >
-                          <span className="text-4xl sm:text-5xl leading-none">{bot.icon}</span>
-                          <span className="text-xs sm:text-sm font-semibold text-muted-foreground">{bot.name}</span>
-                          <div className="flex gap-1">
-                            {Array(5).fill(0).map((_, i) => (
-                              <div key={i} className={`w-2 h-2 rounded-full ${i < bot.difficulty ? "bg-green-500" : "bg-border"}`} />
-                            ))}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key={`selected-${selectedBot.id}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                  >
-                    <div className="flex gap-3">
-                      {/* Roster (left) */}
-                      <div className="flex flex-col gap-1.5 max-h-[380px] overflow-y-auto pr-0.5">
+      {/* Tab content */}
+      <div className="h-[400px]">
+        <AnimatePresence mode="wait">
+
+          {/* ── vs AI ── */}
+          {tab === "ai" && (
+            <motion.div
+              key="ai"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+              className="h-full"
+            >
+              {loading ? (
+                <div className="flex flex-col items-center justify-center h-full gap-4">
+                  <Loader />
+                  <p className="text-sm text-muted-foreground">Loading AI opponents...</p>
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center h-full gap-3">
+                  <p className="text-sm font-medium text-red-400">Failed to load AI opponents</p>
+                  <button onClick={() => setBots(null)} className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                    Try again
+                  </button>
+                </div>
+              ) : (
+                <AnimatePresence mode="wait">
+                  {!selectedBot ? (
+                    <motion.div
+                      key="grid"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.12 }}
+                      className="space-y-4"
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Select your opponent</p>
+                      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                        {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => (
+                          <button
+                            key={bot.id}
+                            onClick={() => setSelectedBot(bot)}
+                            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl border border-border/50 bg-background hover:border-border transition-all group"
+                          >
+                            <span className="text-4xl sm:text-5xl leading-none group-hover:scale-110 transition-transform">{bot.icon}</span>
+                            <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{bot.name}</span>
+                            <div className="flex gap-1">
+                              {Array(5).fill(0).map((_, i) => (
+                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < bot.difficulty ? "bg-green-500" : "bg-border"}`} />
+                              ))}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key={`selected-${selectedBot.id}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.12 }}
+                      className="flex gap-3"
+                    >
+                      {/* Roster */}
+                      <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 shrink-0">
                         {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => {
                           const selected = selectedBot?.id === bot.id;
                           return (
                             <button
                               key={bot.id}
-                              onClick={() => { setSelectedBot(selected ? null : bot); }}
-                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-colors w-[120px] shrink-0 ${
-                                selected
-                                  ? "border-border bg-surface-hover"
-                                  : "border-border/50 bg-background hover:border-border"
+                              onClick={() => setSelectedBot(selected ? null : bot)}
+                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-colors w-[120px] ${
+                                selected ? "border-border bg-surface" : "border-border/50 bg-background hover:border-border"
                               }`}
                             >
                               <span className="text-lg leading-none">{bot.icon}</span>
                               <div className="flex flex-col items-start min-w-0">
-                                <span className={`text-xs font-semibold truncate ${
-                                  selected ? "text-foreground" : "text-muted-foreground"
-                                }`}>{bot.name}</span>
-                                <div className="flex gap-0.5">
+                                <span className={`text-xs font-semibold truncate ${selected ? "text-foreground" : "text-muted-foreground"}`}>
+                                  {bot.name}
+                                </span>
+                                <div className="flex gap-0.5 mt-0.5">
                                   {Array(5).fill(0).map((_, i) => (
-                                    <div key={i} className={`w-1 h-1 rounded-full ${i < bot.difficulty ? "bg-muted-foreground" : "bg-muted"}`} />
+                                    <div key={i} className={`w-1 h-1 rounded-full ${i < bot.difficulty ? "bg-green-500" : "bg-border"}`} />
                                   ))}
                                 </div>
                               </div>
@@ -219,222 +277,220 @@ function PlayContent() {
                         })}
                       </div>
 
-                      {/* Detail (right) */}
-                      <div className="flex-1 min-w-0">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={selectedBot.id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.12 }}
-                            className="flex flex-col justify-between p-4 rounded-xl border border-border/50 bg-background h-full"
+                      {/* Detail */}
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={selectedBot.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.12 }}
+                          className="flex-1 flex flex-col gap-4 p-4 rounded-xl border border-border/50 bg-background min-w-0"
+                        >
+                          <div className="flex items-start gap-3 pb-3 border-b border-border/40">
+                            <span className="text-3xl leading-none">{selectedBot.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold">{selectedBot.name}</p>
+                              <p className="text-xs text-muted-foreground leading-snug mt-0.5">{selectedBot.description}</p>
+                            </div>
+                            <div className="flex gap-0.5 pt-1 shrink-0">
+                              {Array(5).fill(0).map((_, i) => (
+                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < selectedBot.difficulty ? "bg-green-500" : "bg-border"}`} />
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">First move</span>
+                              <SegmentedControl
+                                id="ai-starts"
+                                options={[{ label: "You", value: "player" }, { label: "Opponent", value: "bot" }]}
+                                value={starts}
+                                onChange={(v) => setStarts(v as string)}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
+                                <Clock className="w-3 h-3" /> Time
+                              </span>
+                              <SegmentedControl
+                                id="ai-time"
+                                options={TIME_OPTIONS}
+                                value={timeControl}
+                                onChange={(v) => setTimeControl(v as number | null)}
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            disabled={!starts}
+                            onClick={startAIGame}
+                            className="w-full py-2.5 bg-green-600 hover:bg-green-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
                           >
-                            {/* Header */}
-                            <div className="flex items-start gap-3 pb-3 border-b border-border/40">
-                              <span className="text-2xl">{selectedBot.icon}</span>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold">{selectedBot.name}</p>
-                                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{selectedBot.description}</p>
-                              </div>
-                              <div className="flex gap-0.5 pt-1.5 shrink-0">
-                                {Array(5).fill(0).map((_, i) => (
-                                  <div key={i} className={`w-1 h-1 rounded-full ${i < selectedBot.difficulty ? "bg-muted-foreground" : "bg-muted"}`} />
-                                ))}
-                              </div>
-                            </div>
+                            <Swords className="w-4 h-4" />
+                            Fight!
+                          </button>
+                        </motion.div>
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+            </motion.div>
+          )}
 
-                            {/* Settings */}
-                            <div className="flex flex-col gap-3 py-3">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">First move</span>
-                                <div className="flex bg-surface rounded-md p-0.5">
-                                  {(["player", "bot"] as const).map((v) => (
-                                    <button
-                                      key={v}
-                                      onClick={() => setStarts(v)}
-                                      className={`px-3 py-1 text-[11px] font-medium rounded transition-all ${
-                                        starts === v
-                                          ? "bg-surface-hover text-foreground"
-                                          : "text-muted-foreground hover:text-foreground"
-                                      }`}
-                                    >
-                                      {v === "player" ? "You" : "Opponent"}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Time</span>
-                                <div className="flex bg-surface rounded-md p-0.5">
-                                  {TIME_OPTIONS.map((opt) => (
-                                    <button
-                                      key={opt.label}
-                                      onClick={() => setTimeControl(opt.value)}
-                                      className={`px-2 py-1 text-[11px] font-medium rounded transition-all ${
-                                        timeControl === opt.value
-                                          ? "bg-surface-hover text-foreground"
-                                          : "text-muted-foreground hover:text-foreground"
-                                      }`}
-                                    >
-                                      {opt.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* CTA */}
-                            <button
-                              disabled={!starts}
-                              onClick={startAIGame}
-                              className="w-full py-2 bg-green-600 hover:bg-green-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
-                            >
-                              <Swords className="w-3.5 h-3.5" />
-                              Fight!
-                            </button>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            )}
-          </div>
-        )}
-
-        {/* ── Online ── */}
-        {tab === "online" && (
-          <div className="max-w-md mx-auto space-y-4">
-            {/* Time control with queue counts */}
-            <div className="space-y-2">
-              <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Time control</span>
-              <div className="flex bg-background border border-border/50 rounded-md p-0.5">
-                {TIME_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.label}
-                    onClick={() => setTimeControl(opt.value)}
-                    className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-all ${
-                      timeControl === opt.value
-                        ? "bg-surface-hover text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-              {(() => {
-                const key = timeControl === null ? "null" : String(timeControl);
-                const count = queueCounts[key] || 0;
-                return (
-                  <p className="text-[11px] text-muted-foreground text-center">
-                    {count > 0 ? `${count} player${count > 1 ? "s" : ""} searching` : "No players searching"}
-                  </p>
-                );
-              })()}
-            </div>
-
-            {/* Quick Match */}
-            <div className="p-4 rounded-xl border border-border/50 bg-background space-y-3">
-              <div>
-                <p className="text-sm font-medium">Quick Match</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Find a random opponent instantly</p>
-              </div>
-              <button onClick={quickMatch} className="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
-                <Globe className="w-3.5 h-3.5" />
-                Find Opponent
-              </button>
-            </div>
-
-            {/* Private Lobby */}
-            <div className="p-4 rounded-xl border border-border/50 bg-background space-y-3">
-              <div>
-                <p className="text-sm font-medium">Private Lobby</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Play with a friend using a lobby code</p>
-              </div>
-              <button onClick={createLobby} className="w-full py-2 bg-surface-hover hover:bg-surface-active rounded-lg text-xs font-medium transition-colors">
-                Create Lobby
-              </button>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={lobbyInput}
-                  onChange={(e) => setLobbyInput(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => e.key === "Enter" && joinLobby()}
-                  placeholder="Enter code"
-                  maxLength={4}
-                  className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-xs font-mono tracking-widest text-center focus:outline-none focus:border-ring transition-colors"
+          {/* ── Online ── */}
+          {tab === "online" && (
+            <motion.div
+              key="online"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-3"
+            >
+              {/* Time control */}
+              <div className="p-4 rounded-xl border border-border/50 bg-background space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Time control</span>
+                  </div>
+                  {queueCount > 0 && (
+                    <span className="text-[11px] text-green-400 font-medium">
+                      {queueCount} searching
+                    </span>
+                  )}
+                </div>
+                <SegmentedControl
+                  id="online-time"
+                  options={TIME_OPTIONS}
+                  value={timeControl}
+                  onChange={(v) => setTimeControl(v as number | null)}
                 />
-                <button onClick={joinLobby} className="px-4 py-2 bg-surface-hover hover:bg-surface-active rounded-lg text-xs font-medium transition-colors">
-                  Join
+              </div>
+
+              {/* Quick match */}
+              <div className="p-4 rounded-xl border border-border/50 bg-background space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                    <Globe className="w-4 h-4 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">Quick Match</p>
+                    <p className="text-xs text-muted-foreground">Find a random opponent instantly</p>
+                  </div>
+                </div>
+                <button
+                  onClick={quickMatch}
+                  className="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  Find Opponent
                 </button>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* ── Local ── */}
-        {tab === "local" && (
-          <div className="max-w-md mx-auto p-4 rounded-xl border border-border/50 bg-background space-y-4">
-            <div>
-              <p className="text-sm font-medium">Local Game</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Pass and play on the same device</p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">First move</span>
-                <div className="flex bg-surface rounded-md p-0.5">
-                  {(["player", "playerO"] as const).map((v) => (
+              {/* Private lobby */}
+              <div className="p-4 rounded-xl border border-border/50 bg-background space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                    <Link2 className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">Private Lobby</p>
+                    <p className="text-xs text-muted-foreground">Play with a friend using a code</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={createLobby}
+                    className="flex-1 py-2 bg-surface hover:bg-surface-hover rounded-lg text-xs font-medium transition-colors"
+                  >
+                    Create Lobby
+                  </button>
+                  <div className="flex gap-1.5 flex-1">
+                    <input
+                      type="text"
+                      value={lobbyInput}
+                      onChange={(e) => setLobbyInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => e.key === "Enter" && joinLobby()}
+                      placeholder="CODE"
+                      maxLength={4}
+                      className="flex-1 min-w-0 px-3 py-2 bg-surface border border-border/50 rounded-lg text-xs font-mono tracking-widest text-center focus:outline-none focus:border-ring transition-colors"
+                    />
                     <button
-                      key={v}
-                      onClick={() => setStarts(v)}
-                      className={`px-3 py-1 text-[11px] font-medium rounded transition-all ${
-                        starts === v
-                          ? "bg-surface-hover text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                      onClick={joinLobby}
+                      className="px-3 py-2 bg-surface hover:bg-surface-hover rounded-lg text-xs font-medium transition-colors"
                     >
-                      {v === "player" ? "Player X" : "Player O"}
+                      Join
                     </button>
-                  ))}
+                  </div>
                 </div>
               </div>
+            </motion.div>
+          )}
 
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Time</span>
-                <div className="flex bg-surface rounded-md p-0.5">
-                  {TIME_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.label}
-                      onClick={() => setTimeControl(opt.value)}
-                      className={`px-2 py-1 text-[11px] font-medium rounded transition-all ${
-                        timeControl === opt.value
-                          ? "bg-surface-hover text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => startLocalGame(starts || "player")}
-              className="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+          {/* ── Local ── */}
+          {tab === "local" && (
+            <motion.div
+              key="local"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
             >
-              <Users className="w-3.5 h-3.5" />
-              Start Game
-            </button>
-          </div>
-        )}
-      </div>
+              <div className="p-6 rounded-xl border border-border/50 bg-background space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                    <Users className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Local Game</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Pass and play on the same device</p>
+                  </div>
+                </div>
 
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <Hash className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">First move</span>
+                    </div>
+                    <SegmentedControl
+                      id="local-starts"
+                      options={[{ label: "Player X", value: "player" }, { label: "Player O", value: "playerO" }]}
+                      value={starts}
+                      onChange={(v) => setStarts(v as string)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Time</span>
+                    </div>
+                    <SegmentedControl
+                      id="local-time"
+                      options={TIME_OPTIONS}
+                      value={timeControl}
+                      onChange={(v) => setTimeControl(v as number | null)}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={startLocalGame}
+                  className="w-full py-3 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Start Game
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

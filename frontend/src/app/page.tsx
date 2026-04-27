@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
-import { Bot, Globe, Users } from "lucide-react";
+import { Bot, Globe, Users, MousePointerClick, ArrowRight, Shuffle, Trophy } from "lucide-react";
 import HeroBoard from "@/components/core/hero-board";
 import ThemeToggle from "@/components/ui/theme-toggle";
+import { motion } from "framer-motion";
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -15,31 +16,88 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 const WORDS = [
-  "strategy", "skill", "luck", "tactics", "planning", "execution",
-  "decision-making", "expertise", "wit", "probability", "preparation",
-  "risk", "adaptability",
+  "strategy", "skill", "tactics", "planning", "execution",
+  "decision-making", "wit", "adaptability", "foresight", "precision",
 ];
 
 const COLORS = [
-  "#FFD700", "#FF4500", "#00FF00", "#1E90FF", "#FF69B4", "#8A2BE2",
-  "#00CED1", "#FFA500", "#7FFF00", "#DC143C", "#4682B4", "#D2691E", "#808080",
+  "#60a5fa", "#f87171", "#34d399", "#a78bfa", "#fbbf24",
+  "#38bdf8", "#fb923c", "#4ade80", "#e879f9", "#f472b6",
 ];
 
 const STEPS = [
-  { num: "1", title: "Pick a cell", desc: "Play your mark in any available mini-board." },
-  { num: "2", title: "Direct your opponent", desc: "Your cell choice decides which board they play next." },
-  { num: "3", title: "Win the big board", desc: "Claim three mini-boards in a row to win the game." },
+  {
+    icon: MousePointerClick,
+    num: "01",
+    title: "Pick a cell",
+    desc: "Play your mark in any available mini-board to start your turn.",
+  },
+  {
+    icon: ArrowRight,
+    num: "02",
+    title: "Direct your opponent",
+    desc: "The cell you pick determines which mini-board your opponent must play in next.",
+  },
+  {
+    icon: Trophy,
+    num: "03",
+    title: "Win the big board",
+    desc: "Claim three mini-boards in a row — horizontally, vertically, or diagonally.",
+  },
 ];
 
 const MODES = [
-  { icon: Bot, title: "vs AI", desc: "Challenge bots from beginner to expert difficulty." },
-  { icon: Globe, title: "Online", desc: "Play friends in private lobbies or find a random opponent." },
-  { icon: Users, title: "Local", desc: "Pass and play on the same device." },
+  {
+    icon: Bot,
+    title: "vs AI",
+    desc: "Four difficulty levels from casual to expert. Train your skills against increasingly smart bots.",
+    cta: "Challenge a bot",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10",
+  },
+  {
+    icon: Globe,
+    title: "Online",
+    desc: "Jump into matchmaking or create a private lobby and share the code with a friend.",
+    cta: "Play online",
+    color: "text-green-400",
+    bg: "bg-green-500/10",
+  },
+  {
+    icon: Users,
+    title: "Local",
+    desc: "Pass and play on the same device. Perfect for a quick game with someone next to you.",
+    cta: "Play locally",
+    color: "text-purple-400",
+    bg: "bg-purple-500/10",
+  },
+];
+
+const FEATURES = [
+  {
+    icon: Shuffle,
+    title: "Forced moves",
+    desc: "Every move you make sends your opponent to a specific board — control the game by thinking two steps ahead.",
+  },
+  {
+    icon: Bot,
+    title: "Four AI opponents",
+    desc: "From Randy who plays randomly, to Jardinero who uses deep heuristic search. There's always a worthy challenge.",
+  },
+  {
+    icon: Globe,
+    title: "Real-time multiplayer",
+    desc: "Built on WebSockets for instant, lag-free online play. Matchmaking or private lobbies with shareable codes.",
+  },
+  {
+    icon: Trophy,
+    title: "Move history & analysis",
+    desc: "Every game records a full move log with timestamps and an advantage bar so you can review your decisions.",
+  },
 ];
 
 export default function Home() {
   const typeRef = useRef<HTMLSpanElement>(null);
-
   const shuffledWords = useMemo(() => shuffleArray(WORDS), []);
   const shuffledColors = useMemo(() => shuffleArray(COLORS), []);
 
@@ -56,13 +114,13 @@ export default function Home() {
         typeRef.current.style.color = shuffledColors[wordIndex];
       }
       if (!isDeleting && charIndex === word.length + 1) {
-        setTimeout(() => { isDeleting = true; frame = requestAnimationFrame(tick); }, 1000);
+        setTimeout(() => { isDeleting = true; frame = requestAnimationFrame(tick); }, 1200);
       } else if (isDeleting && charIndex === 0) {
         isDeleting = false;
         wordIndex = (wordIndex + 1) % shuffledWords.length;
         frame = requestAnimationFrame(tick);
       } else {
-        setTimeout(() => { frame = requestAnimationFrame(tick); }, isDeleting ? 50 : 100);
+        setTimeout(() => { frame = requestAnimationFrame(tick); }, isDeleting ? 45 : 90);
       }
     };
 
@@ -72,101 +130,187 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative min-h-[75vh] flex flex-col">
-        <nav className="flex items-center justify-between px-4 sm:px-6 h-14 shrink-0">
-          <span className="text-base font-bold">utictactoe</span>
-          <div className="flex items-center gap-2">
+
+      {/* ── Hero ── */}
+      <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
+        <nav className="flex items-center justify-between px-4 sm:px-8 h-14 shrink-0">
+          <span className="text-base font-bold tracking-tight">utictactoe</span>
+          <div className="flex items-center gap-4">
             <Link href="/learn" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               How to Play
+            </Link>
+            <Link href="/play" className="text-sm px-4 py-1.5 bg-foreground text-background rounded-md font-medium hover:opacity-80 transition-opacity">
+              Play
             </Link>
             <ThemeToggle />
           </div>
         </nav>
 
-        <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 px-6 pb-12">
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <h1 className="mb-8 flex flex-col gap-2">
-              <span className="text-muted-foreground text-xl sm:text-2xl font-medium">Welcome to the</span>
-              <span className="text-3xl sm:text-5xl font-bold">Ultimate Tic-Tac-Toe,</span>
-              <span className="text-xl sm:text-2xl font-medium text-muted-foreground">
-                a game of <span ref={typeRef} className="font-bold" />.
-              </span>
+        <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 px-6 sm:px-12 pb-16 pt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg"
+          >
+            <span className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20">
+              Strategy · Tactics · Depth
+            </span>
+            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
+              Tic-Tac-Toe,<br />
+              <span className="text-muted-foreground">but smarter.</span>
             </h1>
+            <p className="text-muted-foreground text-base sm:text-lg mb-3 leading-relaxed">
+              A game of{" "}
+              <span ref={typeRef} className="font-semibold inline-block min-w-[2ch]" />.
+            </p>
+            <p className="text-muted-foreground text-sm mb-10 leading-relaxed">
+              Nine boards. Every move you make sends your opponent somewhere specific.
+              Think ahead or lose control.
+            </p>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/play"
+                className="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors text-sm"
+              >
+                Play Now — it&apos;s free
+              </Link>
+              <Link
+                href="/learn"
+                className="px-6 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Learn the rules →
+              </Link>
+            </div>
+          </motion.div>
 
-            <Link
-              href="/play"
-              className="px-10 py-3.5 bg-green-600 hover:bg-green-500 text-white text-lg font-semibold rounded-lg transition-colors"
-            >
-              Play Now
-            </Link>
-          </div>
-
-          <div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
+          >
             <HeroBoard />
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="px-6 py-20 bg-card/40">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12">How It Works</h2>
+      {/* ── How it works ── */}
+      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">How it works</p>
+            <h2 className="text-3xl font-bold">Three steps to victory</h2>
+          </div>
           <div className="grid gap-8 sm:grid-cols-3">
             {STEPS.map((s) => (
-              <div key={s.num} className="flex flex-col items-center text-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 font-bold text-lg flex items-center justify-center">
-                  {s.num}
+              <div
+                key={s.num}
+                className="relative flex flex-col gap-4 p-6 rounded-xl border border-border/50 bg-background"
+              >
+                <span className="text-[11px] font-bold text-muted-foreground/50 tracking-widest">{s.num}</span>
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <s.icon className="w-5 h-5 text-blue-400" />
                 </div>
-                <h3 className="font-semibold">{s.title}</h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
+                <div>
+                  <h3 className="font-semibold mb-1">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Game modes */}
-      <section className="px-6 py-20">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12">Game Modes</h2>
+      {/* ── Game modes ── */}
+      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Game modes</p>
+            <h2 className="text-3xl font-bold">Play your way</h2>
+          </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            {MODES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-5 bg-card rounded-lg border border-border flex flex-col items-center text-center gap-3">
-                <Icon className="w-8 h-8 text-muted-foreground" />
-                <h3 className="font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground">{desc}</p>
+            {MODES.map(({ icon: Icon, title, desc, cta, color, bg }) => (
+              <div
+                key={title}
+                className="group flex flex-col gap-4 p-6 rounded-xl border border-border/50 bg-background hover:border-border transition-colors"
+              >
+                <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center`}>
+                  <Icon className={`w-5 h-5 ${color}`} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold mb-2">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+                <Link
+                  href="/play"
+                  className={`text-xs font-medium ${color} flex items-center gap-1 group-hover:gap-2 transition-all`}
+                >
+                  {cta} <ArrowRight className="w-3 h-3" />
+                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="px-6 py-20 bg-card/40 text-center">
-        <h2 className="text-2xl font-bold mb-4">Ready to play?</h2>
-        <p className="text-muted-foreground mb-8">No account needed. Jump straight in.</p>
-        <Link
-          href="/play"
-          className="px-10 py-3.5 bg-green-600 hover:bg-green-500 text-white text-lg font-semibold rounded-lg transition-colors"
-        >
-          Start Playing
-        </Link>
+      {/* ── Features ── */}
+      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Features</p>
+            <h2 className="text-3xl font-bold">Everything you need</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {FEATURES.map(({ icon: Icon, title, desc }) => (
+              <div
+                key={title}
+                className="flex gap-4 p-6 rounded-xl border border-border/50 bg-background"
+              >
+                <div className="w-9 h-9 rounded-lg bg-surface shrink-0 flex items-center justify-center mt-0.5">
+                  <Icon className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1 text-sm">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Footer */}
-      <footer className="flex items-center justify-center gap-3 py-4 text-[11px] text-subtle">
-        <span>&copy; {new Date().getFullYear()} utictactoe</span>
-        <span>&middot;</span>
-        <span>Built by{" "}
-          <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Delpino</a>
-          {" & "}
-          <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Meiriño</a>
-        </span>
-        <span>&middot;</span>
-        <Link href="/privacy-policy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
-        <span>&middot;</span>
-        <Link href="/terms-of-service" className="hover:text-muted-foreground transition-colors">Terms</Link>
+      {/* ── CTA ── */}
+      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to play?</h2>
+          <p className="text-muted-foreground mb-8 text-base leading-relaxed">
+            No account needed. No downloads. Jump straight into a game in seconds.
+          </p>
+          <Link
+            href="/play"
+            className="inline-flex items-center gap-2 px-10 py-3.5 bg-green-600 hover:bg-green-500 text-white text-base font-semibold rounded-lg transition-colors"
+          >
+            Start Playing <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3 px-6 sm:px-12 py-6 text-[11px] text-subtle">
+        <span className="font-semibold text-muted-foreground">utictactoe</span>
+        <div className="flex items-center gap-3">
+          <span>&copy; {new Date().getFullYear()}</span>
+          <span>&middot;</span>
+          <span>Built by{" "}
+            <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Delpino</a>
+            {" & "}
+            <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Meiriño</a>
+          </span>
+          <span>&middot;</span>
+          <Link href="/privacy-policy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
+          <span>&middot;</span>
+          <Link href="/terms-of-service" className="hover:text-muted-foreground transition-colors">Terms</Link>
+        </div>
       </footer>
     </div>
   );
