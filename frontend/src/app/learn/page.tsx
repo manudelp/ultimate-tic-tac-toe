@@ -15,15 +15,15 @@ export default function Learn() {
 
       <nav className="mb-8 flex flex-wrap gap-2">
         {sections.map((s) => (
-          <a key={s.id} href={`#${s.id}`} className="text-sm px-3 py-1 bg-gray-800 rounded hover:bg-gray-700 transition-colors">
+          <a key={s.id} href={`#${s.id}`} className="text-sm px-3 py-1 bg-card rounded hover:bg-surface-hover transition-colors">
             {s.title}
           </a>
         ))}
       </nav>
 
-      <div className="space-y-10 text-gray-300 leading-relaxed">
+      <div className="space-y-10 text-muted-foreground leading-relaxed">
         <section id="objective" className="scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-3">Objective</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Objective</h2>
           <p>
             Ultimate Tic-Tac-Toe is played on a 3x3 grid of smaller Tic-Tac-Toe boards.
             Win three small boards in a row (horizontally, vertically, or diagonally) to win the game.
@@ -31,11 +31,11 @@ export default function Learn() {
         </section>
 
         <section id="rules" className="scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-3">Rules</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Rules</h2>
           <ol className="list-decimal pl-6 space-y-2">
             <li>Play your mark in any empty cell of an available mini-board.</li>
             <li>
-              <strong className="text-white">Your move determines where your opponent plays next.</strong>{" "}
+              <strong className="text-foreground">Your move determines where your opponent plays next.</strong>{" "}
               If you play in the top-left cell, your opponent must play in the top-left mini-board.
             </li>
             <li>If sent to a won or full board, your opponent can play anywhere.</li>
@@ -44,7 +44,7 @@ export default function Learn() {
         </section>
 
         <section id="winning" className="scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-3">Winning</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Winning</h2>
           <p>
             Win three mini-boards in a row on the larger grid. If all boards are filled
             with no winner, the game is a draw.
@@ -52,16 +52,16 @@ export default function Learn() {
         </section>
 
         <section id="strategies" className="scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-3">Strategies</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Strategies</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong className="text-white">Plan ahead:</strong> Think about where you&apos;re sending your opponent.</li>
-            <li><strong className="text-white">Control the board:</strong> Send opponents to boards where they&apos;re weak.</li>
-            <li><strong className="text-white">Balance offense and defense:</strong> Sometimes blocking is more valuable than attacking.</li>
+            <li><strong className="text-foreground">Plan ahead:</strong> Think about where you&apos;re sending your opponent.</li>
+            <li><strong className="text-foreground">Control the board:</strong> Send opponents to boards where they&apos;re weak.</li>
+            <li><strong className="text-foreground">Balance offense and defense:</strong> Sometimes blocking is more valuable than attacking.</li>
           </ul>
         </section>
 
         <section id="tips" className="scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-3">Tips</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Tips</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>Don&apos;t overthink your first moves — focus on learning the flow.</li>
             <li>Pay attention to the whole board, not just one mini-board.</li>

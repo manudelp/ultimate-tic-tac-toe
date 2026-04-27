@@ -3,6 +3,7 @@ import { useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { Bot, Globe, Users } from "lucide-react";
 import HeroBoard from "@/components/core/hero-board";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -75,17 +76,20 @@ export default function Home() {
       <section className="relative min-h-[75vh] flex flex-col">
         <nav className="flex items-center justify-between px-4 sm:px-6 h-14 shrink-0">
           <span className="text-base font-bold">utictactoe</span>
-          <Link href="/learn" className="text-sm text-gray-400 hover:text-white transition-colors">
-            How to Play
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/learn" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              How to Play
+            </Link>
+            <ThemeToggle />
+          </div>
         </nav>
 
         <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 px-6 pb-12">
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <h1 className="mb-8 flex flex-col gap-2">
-              <span className="text-gray-400 text-xl sm:text-2xl font-medium">Welcome to the</span>
+              <span className="text-muted-foreground text-xl sm:text-2xl font-medium">Welcome to the</span>
               <span className="text-3xl sm:text-5xl font-bold">Ultimate Tic-Tac-Toe,</span>
-              <span className="text-xl sm:text-2xl font-medium text-gray-400">
+              <span className="text-xl sm:text-2xl font-medium text-muted-foreground">
                 a game of <span ref={typeRef} className="font-bold" />.
               </span>
             </h1>
@@ -105,7 +109,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section className="px-6 py-20 bg-gray-800/40">
+      <section className="px-6 py-20 bg-card/40">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12">How It Works</h2>
           <div className="grid gap-8 sm:grid-cols-3">
@@ -115,7 +119,7 @@ export default function Home() {
                   {s.num}
                 </div>
                 <h3 className="font-semibold">{s.title}</h3>
-                <p className="text-sm text-gray-400">{s.desc}</p>
+                <p className="text-sm text-muted-foreground">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -128,10 +132,10 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-center mb-12">Game Modes</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {MODES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-5 bg-gray-800 rounded-lg border border-gray-700 flex flex-col items-center text-center gap-3">
-                <Icon className="w-8 h-8 text-gray-300" />
+              <div key={title} className="p-5 bg-card rounded-lg border border-border flex flex-col items-center text-center gap-3">
+                <Icon className="w-8 h-8 text-muted-foreground" />
                 <h3 className="font-semibold">{title}</h3>
-                <p className="text-sm text-gray-400">{desc}</p>
+                <p className="text-sm text-muted-foreground">{desc}</p>
               </div>
             ))}
           </div>
@@ -139,9 +143,9 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="px-6 py-20 bg-gray-800/40 text-center">
+      <section className="px-6 py-20 bg-card/40 text-center">
         <h2 className="text-2xl font-bold mb-4">Ready to play?</h2>
-        <p className="text-gray-400 mb-8">No account needed. Jump straight in.</p>
+        <p className="text-muted-foreground mb-8">No account needed. Jump straight in.</p>
         <Link
           href="/play"
           className="px-10 py-3.5 bg-green-600 hover:bg-green-500 text-white text-lg font-semibold rounded-lg transition-colors"
@@ -151,18 +155,18 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="flex items-center justify-center gap-3 py-4 text-[11px] text-gray-600">
+      <footer className="flex items-center justify-center gap-3 py-4 text-[11px] text-subtle">
         <span>&copy; {new Date().getFullYear()} utictactoe</span>
         <span>&middot;</span>
         <span>Built by{" "}
-          <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Manuel Delpino</a>
+          <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Delpino</a>
           {" & "}
-          <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Manuel Meiriño</a>
+          <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Meiriño</a>
         </span>
         <span>&middot;</span>
-        <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
+        <Link href="/privacy-policy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
         <span>&middot;</span>
-        <Link href="/terms-of-service" className="hover:text-gray-400 transition-colors">Terms</Link>
+        <Link href="/terms-of-service" className="hover:text-muted-foreground transition-colors">Terms</Link>
       </footer>
     </div>
   );

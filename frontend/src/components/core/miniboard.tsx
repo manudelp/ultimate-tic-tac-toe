@@ -7,6 +7,7 @@ interface MiniBoardProps {
   winners: (string | null)[][];
   disabled: boolean[][];
   activeMiniBoard: [number, number] | null;
+  activePlayer: "X" | "O";
   lastMove: [number, number, number, number] | null;
   gameOver: boolean;
   hoveredMove: [number, number, number, number] | null;
@@ -15,7 +16,7 @@ interface MiniBoardProps {
 
 const MiniBoard: React.FC<MiniBoardProps> = ({
   miniBoard, localRowIndex, localColIndex, winners, disabled,
-  activeMiniBoard, lastMove, gameOver, hoveredMove, handleCellClick,
+  activeMiniBoard, activePlayer, lastMove, gameOver, hoveredMove, handleCellClick,
 }) => {
   const [hovered, setHovered] = useState(false);
   const winner = winners?.[localRowIndex]?.[localColIndex];
@@ -28,19 +29,26 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
 
   const isActive = !isInactive && !gameOver;
 
-  // Reveal cells when hovering the mini-board directly OR via move history
   const revealCells = hovered ||
     (hoveredMove !== null &&
       hoveredMove[0] === localRowIndex && hoveredMove[1] === localColIndex);
 
+  // Board state → structure + contrast, never opacity
+  const boardClasses = isActive
+    ? activePlayer === "X"
+      ? "bg-blue-500/10 ring-2 ring-blue-500/40"
+      : "bg-red-500/10 ring-2 ring-red-500/40"
+    : "bg-[hsl(var(--board-bg))]";
+
   return (
     <div
-      className={`relative bg-gray-700/30 rounded-md p-0.5 sm:p-1 transition-opacity duration-500 ${
-        isInactive ? "opacity-30 pointer-events-none" : "opacity-100"
+      className={`relative rounded-md p-0.5 sm:p-1 transition-colors duration-300 ${boardClasses} ${
+        isInactive ? "pointer-events-none" : ""
       }`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {/* Grid: gap reveals board bg as grid lines — always visible */}
       <div className={`grid grid-cols-3 gap-px transition-opacity duration-300 ${
         winner && !revealCells ? "opacity-0" : "opacity-100"
       }`}>
@@ -58,10 +66,10 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
               <div
                 key={`${rowIndex}-${cellIndex}`}
                 onClick={() => handleCellClick(localRowIndex, localColIndex, rowIndex, cellIndex)}
-                className={`aspect-square rounded-sm flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                className={`aspect-square rounded-sm flex items-center justify-center cursor-pointer transition-colors duration-200 ${
                   isMoveHovered ? "bg-green-500/20"
-                    : isLastMove ? (cell === "X" ? "bg-blue-500/25" : "bg-red-500/25")
-                    : isActive ? "bg-gray-800/50 hover:bg-white/10" : "bg-gray-800/50"
+                    : isLastMove ? (cell === "X" ? "bg-blue-500/20" : "bg-red-500/20")
+                    : isActive ? "bg-[hsl(var(--board-cell))] hover:bg-[hsl(var(--board-cell-hover))]" : "bg-[hsl(var(--board-cell))]"
                 }`}
               >
                 {cell && (
@@ -74,7 +82,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className={`w-[65%] h-[65%] ${
-                      cell === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+                      cell === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"
                     }`}
                   >
                     {cell === "X" ? (
@@ -104,7 +112,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
               stroke="currentColor"
               fill="none"
               strokeLinecap="round"
-              className="w-3/5 h-3/5 text-gray-500"
+              className="w-3/5 h-3/5 text-muted-foreground"
             >
               <path d="M5 12h14" />
             </svg>
@@ -118,7 +126,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
               className={`w-3/5 h-3/5 ${
-                winner === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+                winner === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"
               }`}
             >
               {winner === "X" ? (

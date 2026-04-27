@@ -16,7 +16,6 @@ export default function GamePage() {
     findGame, makeMove, resign, disconnect,
   } = useGameSocket();
 
-  // Read config and start game — wait for connection
   useEffect(() => {
     if (!connected || initialized.current) return;
     initialized.current = true;
@@ -57,7 +56,6 @@ export default function GamePage() {
     router.push("/play");
   };
 
-  // Show errors
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
@@ -68,10 +66,10 @@ export default function GamePage() {
       <div className="flex flex-col items-center justify-center min-h-svh gap-6 px-4">
         <Loader />
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-300">Connecting to server</p>
-          <p className="text-xs text-gray-500 mt-1">Please wait...</p>
+          <p className="text-sm font-medium">Connecting to server</p>
+          <p className="text-xs text-muted-foreground mt-1">Please wait...</p>
         </div>
-        <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+        <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to menu
         </button>
@@ -85,10 +83,10 @@ export default function GamePage() {
       <div className="flex flex-col items-center justify-center min-h-svh gap-6 px-4">
         <Loader />
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-300">Finding opponent</p>
-          <p className="text-xs text-gray-500 mt-1">Searching for a match...</p>
+          <p className="text-sm font-medium">Finding opponent</p>
+          <p className="text-xs text-muted-foreground mt-1">Searching for a match...</p>
         </div>
-        <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+        <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" />
           Cancel
         </button>
@@ -102,19 +100,19 @@ export default function GamePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-svh px-4 gap-6">
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-300">Private Lobby</p>
-          <p className="text-xs text-gray-500 mt-1">Share this code with your opponent</p>
+          <p className="text-sm font-medium">Private Lobby</p>
+          <p className="text-xs text-muted-foreground mt-1">Share this code with your opponent</p>
         </div>
         <div
-          className="px-8 py-4 bg-gray-800 rounded-xl border border-gray-700/50 cursor-pointer hover:border-gray-600 transition-colors"
+          className="px-8 py-4 bg-card rounded-xl border border-border/50 cursor-pointer hover:border-border transition-colors"
           onClick={() => {
             navigator.clipboard?.writeText(lobbyId);
             toast.success("Code copied!", { duration: 2000 });
           }}
         >
           <div className="flex items-center justify-center gap-3">
-            <span className="font-mono text-2xl tracking-[0.3em] text-white">{lobbyId}</span>
-            <Clipboard className="w-4 h-4 text-gray-500" />
+            <span className="font-mono text-2xl tracking-[0.3em]">{lobbyId}</span>
+            <Clipboard className="w-4 h-4 text-muted-foreground" />
           </div>
         </div>
         <button
@@ -122,13 +120,13 @@ export default function GamePage() {
             navigator.clipboard?.writeText(lobbyUrl);
             toast.success("Link copied!", { duration: 2000 });
           }}
-          className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <Link className="w-3 h-3" />
           Copy invite link
         </button>
-        <p className="text-xs text-gray-500 animate-pulse">Waiting for opponent to join...</p>
-        <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+        <p className="text-xs text-muted-foreground animate-pulse">Waiting for opponent to join...</p>
+        <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" />
           Cancel
         </button>
@@ -158,10 +156,10 @@ export default function GamePage() {
     <div className="flex flex-col items-center justify-center min-h-svh gap-6 px-4">
       <Loader />
       <div className="text-center">
-        <p className="text-sm font-medium text-gray-300">Setting up game</p>
-        <p className="text-xs text-gray-500 mt-1">Please wait...</p>
+        <p className="text-sm font-medium">Setting up game</p>
+        <p className="text-xs text-muted-foreground mt-1">Please wait...</p>
       </div>
-      <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+      <button onClick={handleExit} className="flex items-center gap-2 px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" />
         Back to menu
       </button>

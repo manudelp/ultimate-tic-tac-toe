@@ -74,7 +74,7 @@ function HeroMini({ winner, children }: { winner: string | null; children: (reve
   const [hovered, setHovered] = useState(false);
   return (
     <div
-      className="relative bg-gray-700/30 rounded-md p-0.5 sm:p-1"
+      className="relative bg-[hsl(var(--board-bg))] rounded-md p-0.5 sm:p-1"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -139,10 +139,10 @@ export default function HeroBoard() {
                       return (
                         <div
                           key={`${cr}-${cc}`}
-                          className={`aspect-square rounded-sm flex items-center justify-center transition-all duration-300 ${
+                          className={`aspect-square rounded-sm flex items-center justify-center transition-colors duration-300 ${
                             isLast
-                              ? cell === "X" ? "bg-blue-500/25" : "bg-red-500/25"
-                              : "bg-gray-800/50"
+                              ? cell === "X" ? "bg-blue-500/20" : "bg-red-500/20"
+                              : "bg-[hsl(var(--board-cell))]"
                           }`}
                         >
                           {cell && (
@@ -155,7 +155,7 @@ export default function HeroBoard() {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               className={`w-[65%] h-[65%] ${
-                                cell === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+                                cell === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"
                               } ${isLast ? "animate-[popIn_0.3s_ease-out]" : ""}`}
                             >
                               {cell === "X" ? (
@@ -182,7 +182,7 @@ export default function HeroBoard() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       className={`w-3/5 h-3/5 ${
-                        winner === "X" ? "text-[#71a2f6]" : "text-[#f2756f]"
+                        winner === "X" ? "text-[hsl(var(--markx))]" : "text-[hsl(var(--marko))]"
                       }`}
                     >
                       {winner === "X" ? (
