@@ -109,8 +109,8 @@ export default function HeroBoard() {
   const activeBoard: [number, number] | null = (() => {
     if (!lastMove) return null;
     const [,, cr, cc] = lastMove;
-    // Target board is not playable if it's won or full
-    if (winners[cr][cc]) return null;
+    // Check winner directly from board state to avoid async lag with winners state
+    if (winners[cr][cc] || checkWinner(board[cr][cc])) return null;
     const target = board[cr][cc];
     const isFull = target.every(row => row.every(cell => cell !== null));
     if (isFull) return null;
