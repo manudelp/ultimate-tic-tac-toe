@@ -1,96 +1,181 @@
-import React from "react";
+import Link from "next/link";
+import { FileText, Gamepad2, Code2, UserCheck, AlertTriangle, Scale, RefreshCw, Mail } from "lucide-react";
 
-const TermsOfService: React.FC = () => {
+const SECTIONS = [
+  { id: "acceptance", title: "Acceptance", icon: FileText },
+  { id: "use", title: "Use of the Game", icon: Gamepad2 },
+  { id: "ip", title: "IP", icon: Code2 },
+  { id: "conduct", title: "User Conduct", icon: UserCheck },
+  { id: "disclaimer", title: "Disclaimer", icon: AlertTriangle },
+  { id: "liability", title: "Liability", icon: Scale },
+  { id: "changes", title: "Changes", icon: RefreshCw },
+  { id: "contact", title: "Contact", icon: Mail },
+];
+
+export default function TermsOfService() {
   return (
-    <div className="container mx-auto py-4 px-6 max-w-3xl">
-      <h1 className="mt-16 text-3xl font-semibold mb-4">
-        Terms of Service
-      </h1>
-      <p className="text-muted-foreground mb-4 text-sm italic">
-        Last updated: June 2025
-      </p>
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-12">
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        1. Introduction
-      </h2>
-      <p className="mb-4">
-        Welcome to Ultimate Tic Tac Toe! These Terms of Service govern your use
-        of our game. By accessing or using the game, you agree to be bound by
-        these terms.
-      </p>
+      {/* Header */}
+      <div className="mb-12">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Legal</p>
+        <h1 className="text-4xl font-bold mb-3">Terms of Service</h1>
+        <p className="text-muted-foreground text-base leading-relaxed max-w-xl">
+          Last updated: April 2026
+        </p>
+      </div>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        2. Use of the Game
-      </h2>
-      <p className="mb-4">
-        You may use the game for personal, non-commercial purposes only. You
-        agree not to use the game for any unlawful or prohibited activities.
-      </p>
+      <div className="flex gap-12">
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        3. Intellectual Property
-      </h2>
-      <p className="mb-4">
-        All content, features, and functionality of the game are the exclusive
-        property of Ultimate Tic Tac Toe and its licensors. You may not
-        reproduce, distribute, or create derivative works from any part of the
-        game without our prior written consent.
-      </p>
+        {/* Sticky sidebar */}
+        <aside className="hidden md:flex flex-col gap-1 w-44 shrink-0">
+          <div className="sticky top-20">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">On this page</p>
+            {SECTIONS.map(({ id, title, icon: Icon }) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                {title}
+              </a>
+            ))}
+          </div>
+        </aside>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        4. User Conduct
-      </h2>
-      <p className="mb-4">
-        You agree to use the game in a manner that is lawful and respectful to
-        others. You must not engage in any behavior that could harm the game or
-        its users.
-      </p>
+        {/* Mobile nav */}
+        <div className="md:hidden flex flex-wrap gap-2 mb-8 w-full">
+          {SECTIONS.map(({ id, title }) => (
+            <a key={id} href={`#${id}`} className="text-xs px-3 py-1.5 bg-surface rounded-full text-muted-foreground hover:text-foreground transition-colors">
+              {title}
+            </a>
+          ))}
+        </div>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        5. Termination
-      </h2>
-      <p className="mb-4">
-        We reserve the right to terminate or suspend your access to the game at
-        any time, without notice, for any reason, including if you violate these
-        terms.
-      </p>
+        {/* Content */}
+        <div className="flex-1 min-w-0 space-y-16">
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        6. Disclaimer of Warranties
-      </h2>
-      <p className="mb-4">
-        The game is provided &quot;as is&quot; and &quot;as available&quot;
-        without warranties of any kind, either express or implied. We do not
-        warrant that the game will be uninterrupted or error-free.
-      </p>
+          <section id="acceptance" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                <FileText className="w-4 h-4 text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Acceptance</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              By accessing or playing Ultimate Tic Tac Toe, you agree to these Terms of Service. If you do not agree, please do not use the game. No account or registration is required to play.
+            </p>
+          </section>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        7. Limitation of Liability
-      </h2>
-      <p className="mb-4">
-        In no event shall Ultimate Tic Tac Toe be liable for any indirect,
-        incidental, special, or consequential damages arising out of or in
-        connection with your use of the game.
-      </p>
+          <section id="use" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                <Gamepad2 className="w-4 h-4 text-purple-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Use of the Game</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              Ultimate Tic Tac Toe is a free, browser-based strategy game. You may use it for personal, non-commercial purposes. You agree not to:
+            </p>
+            <ul className="space-y-2">
+              {[
+                "Attempt to disrupt, overload, or exploit the game servers.",
+                "Use automated scripts or bots to interact with the game outside of normal gameplay.",
+                "Reverse-engineer or scrape the game in ways that harm its availability for other players.",
+              ].map((item) => (
+                <li key={item} className="flex gap-3 text-sm text-muted-foreground leading-relaxed">
+                  <span className="text-purple-400 mt-0.5 shrink-0">→</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        8. Changes to Terms
-      </h2>
-      <p className="mb-4">
-        We may update these terms from time to time. We will notify you of any
-        changes by posting the new terms on this page. Your continued use of the
-        game after any changes constitutes your acceptance of the new terms.
-      </p>
+          <section id="ip" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
+                <Code2 className="w-4 h-4 text-yellow-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Intellectual Property</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              The source code for this project is available under the MIT License. You are free to fork, modify, and redistribute it under the terms of that license. The game name, logo, and visual design remain the property of the author.
+            </p>
+          </section>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        9. Contact Us
-      </h2>
-      <p>
-        If you have any questions about this Terms of Service, please contact us
-        via LinkedIn.
-      </p>
+          <section id="conduct" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                <UserCheck className="w-4 h-4 text-green-400" />
+              </div>
+              <h2 className="text-2xl font-bold">User Conduct</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              This is an anonymous game — there are no user accounts, chat, or user-generated content. The only interaction is gameplay moves sent over a WebSocket connection. Play fairly and enjoy the game.
+            </p>
+          </section>
+
+          <section id="disclaimer" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-4 h-4 text-orange-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Disclaimer</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              The game is provided &quot;as is&quot; without warranties of any kind. We do not guarantee uninterrupted availability — the backend runs on a free-tier server and may occasionally be slow to start or temporarily unavailable. We are not responsible for lost game sessions due to server restarts or network issues.
+            </p>
+          </section>
+
+          <section id="liability" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                <Scale className="w-4 h-4 text-red-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Limitation of Liability</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              To the fullest extent permitted by law, the author shall not be liable for any indirect, incidental, or consequential damages arising from your use of the game. Since the game is free and collects no personal data, your exposure is limited to the time spent playing.
+            </p>
+          </section>
+
+          <section id="changes" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                <RefreshCw className="w-4 h-4 text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Changes</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              These terms may be updated as the game evolves. The &quot;Last updated&quot; date at the top of this page will reflect any changes. Continued use of the game after an update constitutes acceptance of the revised terms.
+            </p>
+          </section>
+
+          <section id="contact" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                <Mail className="w-4 h-4 text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Contact</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Questions about these terms? Contact us at utictactoe.
+            </p>
+          </section>
+
+          <div className="pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">Read our privacy policy too.</p>
+            <Link
+              href="/privacy-policy"
+              className="inline-flex items-center gap-2 px-6 py-2.5 border border-border/50 hover:border-border text-sm font-semibold rounded-lg transition-colors"
+            >
+              Privacy Policy →
+            </Link>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
-};
-
-export default TermsOfService;
+}

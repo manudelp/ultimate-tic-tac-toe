@@ -1,127 +1,197 @@
-import React from "react";
+import Link from "next/link";
+import { Shield, Database, Share2, Lock, Baby, RefreshCw, Mail } from "lucide-react";
 
-const PrivacyPolicy: React.FC = () => {
+const SECTIONS = [
+  { id: "collection", title: "What We Collect", icon: Database },
+  { id: "use", title: "How We Use It", icon: Shield },
+  { id: "sharing", title: "Sharing", icon: Share2 },
+  { id: "security", title: "Security", icon: Lock },
+  { id: "children", title: "Children", icon: Baby },
+  { id: "changes", title: "Changes", icon: RefreshCw },
+  { id: "contact", title: "Contact", icon: Mail },
+];
+
+export default function PrivacyPolicy() {
   return (
-    <div className="container mx-auto py-4 px-6 max-w-3xl">
-      <h1 className="mt-16 text-3xl font-semibold mb-4">
-        Privacy Policy
-      </h1>
-      <p className="text-muted-foreground mb-4 text-sm italic">
-        Last updated: June 2025
-      </p>
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-12">
 
-      <p className="mb-6">
-        Welcome to Ultimate Tic Tac Toe. This Privacy Policy explains how we
-        collect, use, disclose, and safeguard your information when you visit
-        our game. Please read this privacy policy carefully. If you do not agree
-        with the terms of this privacy policy, please do not access the game.
-      </p>
+      {/* Header */}
+      <div className="mb-12">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Legal</p>
+        <h1 className="text-4xl font-bold mb-3">Privacy Policy</h1>
+        <p className="text-muted-foreground text-base leading-relaxed max-w-xl">
+          Last updated: April 2026
+        </p>
+      </div>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        1. Information We Collect
-      </h2>
-      <p className="mb-4">
-        We may collect information about you in a variety of ways. The
-        information we may collect via the game depends on the content and
-        materials you use, and includes:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6">
-        <li>
-          <strong>Derivative Data:</strong> Information our servers
-          automatically collect when you access the game, such as your IP
-          address, your browser type, your operating system, your access times,
-          and the pages you have viewed directly before and after accessing the
-          game.
-        </li>
-      </ul>
+      <div className="flex gap-12">
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        2. Use of Your Information
-      </h2>
-      <p className="mb-4">
-        Having accurate information about you permits us to provide you with a
-        smooth, efficient, and customized experience. Specifically, we may use
-        information collected about you via the game to:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6">
-        <li>
-          Increase the efficiency and operation of the game.
-        </li>
-        <li>
-          Monitor and analyze usage and trends to improve your experience with
-          the game.
-        </li>
-      </ul>
+        {/* Sticky sidebar */}
+        <aside className="hidden md:flex flex-col gap-1 w-44 shrink-0">
+          <div className="sticky top-20">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">On this page</p>
+            {SECTIONS.map(({ id, title, icon: Icon }) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                {title}
+              </a>
+            ))}
+          </div>
+        </aside>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        3. Disclosure of Your Information
-      </h2>
-      <p className="mb-4">
-        We may share information we have collected about you in certain
-        situations. Your information may be disclosed as follows:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6">
-        <li>
-          <strong>By Law or to Protect Rights:</strong> If we believe the
-          release of information about you is necessary to respond to legal
-          process, to investigate or remedy potential violations of our
-          policies, or to protect the rights, property, and safety of others, we
-          may share your information as permitted or required by any applicable
-          law, rule, or regulation.
-        </li>
-        <li>
-          <strong>Third-Party Service Providers:</strong> We may share your
-          information with third parties that perform services for us or on our
-          behalf, including payment processing, data analysis, email delivery,
-          hosting services, customer service, and marketing assistance.
-        </li>
-      </ul>
+        {/* Mobile nav */}
+        <div className="md:hidden flex flex-wrap gap-2 mb-8 w-full">
+          {SECTIONS.map(({ id, title }) => (
+            <a key={id} href={`#${id}`} className="text-xs px-3 py-1.5 bg-surface rounded-full text-muted-foreground hover:text-foreground transition-colors">
+              {title}
+            </a>
+          ))}
+        </div>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        4. Security of Your Information
-      </h2>
-      <p className="mb-6">
-        We use administrative, technical, and physical security measures to help
-        protect your personal information. While we have taken reasonable steps
-        to secure the personal information you provide to us, please be aware
-        that despite our efforts, no security measures are perfect or
-        impenetrable, and no method of data transmission can be guaranteed
-        against any interception or other type of misuse.
-      </p>
+        {/* Content */}
+        <div className="flex-1 min-w-0 space-y-16">
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        5. Policy for Children
-      </h2>
-      <p className="mb-6">
-        We do not knowingly solicit information from or market to children under
-        the age of 13. If we learn that we have collected information from a
-        child under age 13 without verification of parental consent, we will
-        delete that information as quickly as possible. If you become aware of
-        any data we have collected from children under age 13, please contact
-        us.
-      </p>
+          <section id="collection" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                <Database className="w-4 h-4 text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">What We Collect</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              Ultimate Tic Tac Toe does not require an account and does not collect any personally identifiable information. The only data processed is:
+            </p>
+            <div className="space-y-3">
+              {[
+                { title: "Anonymous usage analytics", desc: "Page views, performance metrics, and general usage patterns collected by Vercel Analytics and Vercel Speed Insights. This data is aggregated and cannot be used to identify you." },
+                { title: "Game session data", desc: "Temporary in-memory game state (board positions, moves, clocks) held on our server for the duration of your session. This is never written to a database and is discarded when the session ends." },
+                { title: "Session storage", desc: "Your browser's sessionStorage is used to resume an active game if you reload the page. This data never leaves your device and is cleared when you close the tab." },
+              ].map(({ title, desc }) => (
+                <div key={title} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-background">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 mt-2" />
+                  <div>
+                    <p className="text-sm font-semibold mb-1">{title}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        6. Changes to This Privacy Policy
-      </h2>
-      <p className="mb-6">
-        We may update this Privacy Policy from time to time in order to reflect,
-        for example, changes to our practices or for other operational, legal,
-        or regulatory reasons. We will notify you of any changes by posting the
-        new Privacy Policy on this page. You are advised to review this Privacy
-        Policy periodically for any changes. Changes to this Privacy Policy are
-        effective when they are posted on this page.
-      </p>
+          <section id="use" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                <Shield className="w-4 h-4 text-purple-400" />
+              </div>
+              <h2 className="text-2xl font-bold">How We Use It</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              The limited data we process is used solely to:
+            </p>
+            <ul className="space-y-2">
+              {[
+                "Run and maintain the game (matchmaking, real-time gameplay, bot moves).",
+                "Monitor performance and fix bugs using aggregated analytics.",
+                "Understand general usage trends to improve the experience.",
+              ].map((item) => (
+                <li key={item} className="flex gap-3 text-sm text-muted-foreground leading-relaxed">
+                  <span className="text-purple-400 mt-0.5 shrink-0">→</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-3">
-        Contact Us
-      </h2>
-      <p>
-        If you have any questions about this Privacy Policy, please contact us
-        via LinkedIn.
-      </p>
+          <section id="sharing" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
+                <Share2 className="w-4 h-4 text-yellow-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Sharing</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              We do not sell, trade, or rent any user data. The only third parties involved are our infrastructure providers:
+            </p>
+            <div className="space-y-3">
+              {[
+                { title: "Vercel", desc: "Hosts the frontend and provides anonymous analytics and speed insights.", link: "https://vercel.com/legal/privacy-policy" },
+                { title: "Render", desc: "Hosts the backend game server. No personal data is stored on Render.", link: "https://render.com/privacy" },
+              ].map(({ title, desc, link }) => (
+                <div key={title} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-background">
+                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shrink-0 mt-2" />
+                  <div>
+                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold underline underline-offset-4 hover:text-muted-foreground transition-colors">{title}</a>
+                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section id="security" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4 text-green-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Security</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              All communication between your browser and our servers is encrypted via HTTPS and WSS. Since we do not store personal data, the risk surface is minimal. Game state is held in memory only and automatically discarded after your session ends.
+            </p>
+          </section>
+
+          <section id="children" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center shrink-0">
+                <Baby className="w-4 h-4 text-pink-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Children</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              This game does not collect personal information from anyone, including children under 13. No account, email, or name is required to play.
+            </p>
+          </section>
+
+          <section id="changes" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                <RefreshCw className="w-4 h-4 text-orange-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Changes</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              If this policy changes materially, the &quot;Last updated&quot; date at the top of this page will be revised. Continued use of the game after changes constitutes acceptance of the updated policy.
+            </p>
+          </section>
+
+          <section id="contact" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                <Mail className="w-4 h-4 text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Contact</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Questions about this policy? Contact us at utictactoe.
+            </p>
+          </section>
+
+          <div className="pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">Read our terms of service too.</p>
+            <Link
+              href="/terms-of-service"
+              className="inline-flex items-center gap-2 px-6 py-2.5 border border-border/50 hover:border-border text-sm font-semibold rounded-lg transition-colors"
+            >
+              Terms of Service →
+            </Link>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
-};
-
-export default PrivacyPolicy;
+}
