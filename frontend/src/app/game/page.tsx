@@ -33,6 +33,7 @@ export default function GamePage() {
     }
 
     // Fresh game start
+    const raw = sessionStorage.getItem("uttt_game_config");
     if (!raw) {
       router.replace("/play");
       return;
@@ -61,7 +62,7 @@ export default function GamePage() {
         findGame({ mode: "lobby_create", timeControl: config.timeControl });
       }
     }
-  }, [connected, router, findGame]);
+  }, [connected, router, findGame, rejoinGame]);
 
   const handleExit = () => {
     disconnect();
