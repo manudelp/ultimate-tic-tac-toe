@@ -128,6 +128,7 @@ class GameNamespace(Namespace):
     def on_rejoin_game(self, data):
         sid = request.sid
         game_id = data.get("gameId")
+        my_player = data.get("myPlayer")  # "X" or "O"
         game = games.get(game_id)
 
         if not game:
@@ -135,19 +136,19 @@ class GameNamespace(Namespace):
             return
 
         players = game_players.get(game_id, {})
-        connected_sids = set(socketio.server.manager.get_participants("/game", game_id))
-
-        p1_sid = players.get("player1_sid")
-        p2_sid = players.get("player2_sid")
-
-        if p1_sid and p1_sid not in connected_sids:
+        p1_num = players.get("player1_num", 1)
+        # Determine target slot from the player's own reported identity
+        if my_player == ("X" if p1_num == 1 else "O"):
             players["player1_sid"] = sid
-        elif p2_sid and p2_sid not in connected_sids:
+        elif my_player == ("O" if p1_num == 1 else "X"):
             players["player2_sid"] = sid
         else:
-            # Game still has all players connected (e.g. quick reload) — just re-add
-            if not p2_sid:
+            # Fallback: replace first disconnected slot
+            connected_sids = set(socketio.server.manager.get_participants("/game", game_id))
+            if players.get("player1_sid") not in connected_sids:
                 players["player1_sid"] = sid
+            else:
+                players["player2_sid"] = sid
 
         player_games[sid] = game_id
         join_room(game_id)
@@ -155,6 +156,10 @@ class GameNamespace(Namespace):
         if game.status == "ongoing":
             game.resume_clock()
             schedule_timeout(game_id)
+
+        # Notify the other player that opponent rejoined
+        if game_id not in local_games and game_id not in game_id_to_bot:
+            socketio.emit("opponent_rejoined", {}, room=game_id, namespace="/game", skip_sid=sid)
 
         player_num = self._get_player_number(game_id, sid)
         your_player = "X" if player_num == 1 else "O"

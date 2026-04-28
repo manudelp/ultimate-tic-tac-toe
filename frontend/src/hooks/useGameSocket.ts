@@ -50,7 +50,8 @@ export function useGameSocket() {
     const onGameState = (state: GameState) => setGameState(state);
     const onLobbyCreated = (data: { gameId: string }) => setLobbyId(data.gameId);
     const onSearching = () => setSearching(true);
-    const onOpponentLeft = () => setError("Opponent disconnected");
+    const onOpponentLeft = () => setError("Opponent disconnected — waiting for them to rejoin...");
+    const onOpponentRejoined = () => setError(null);
     const onError = (data: { message: string }) => {
       setError(data.message);
       setSearching(false);
@@ -67,6 +68,7 @@ export function useGameSocket() {
     socket.on("lobby_created", onLobbyCreated);
     socket.on("searching", onSearching);
     socket.on("opponent_left", onOpponentLeft);
+    socket.on("opponent_rejoined", onOpponentRejoined);
     socket.on("error", onError);
     socket.on("rejoin_failed", onRejoinFailed);
 
@@ -78,6 +80,7 @@ export function useGameSocket() {
       socket.off("lobby_created", onLobbyCreated);
       socket.off("searching", onSearching);
       socket.off("opponent_left", onOpponentLeft);
+      socket.off("opponent_rejoined", onOpponentRejoined);
       socket.off("error", onError);
       socket.off("rejoin_failed", onRejoinFailed);
       // Do NOT disconnect here — only on explicit disconnect() call
@@ -90,7 +93,7 @@ export function useGameSocket() {
     setGameId(gameId);
     if (opponent) setOpponent(opponent);
     if (isLocal) setIsLocal(true);
-    socketRef.current?.emit("rejoin_game", { gameId });
+    socketRef.current?.emit("rejoin_game", { gameId, myPlayer });
   }, []);
 
   const findGame = useCallback((params: FindGameParams) => {
