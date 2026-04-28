@@ -106,8 +106,13 @@ class GameNamespace(Namespace):
         if game_id and game_id in games:
             game = games[game_id]
             if game.status == "ongoing":
-                game.status = "won"
-                emit("opponent_left", {}, room=game_id, include_self=False)
+                game.pause_clock()
+                old = timeout_greenlets.pop(game_id, None)
+                if old:
+                    old.kill()
+                # Only notify opponent in real PvP games
+                if game_id not in local_games and game_id not in game_id_to_bot:
+                    emit("opponent_left", {}, room=game_id, include_self=False)
             def _cleanup():
                 games.pop(game_id, None)
                 game_players.pop(game_id, None)
@@ -146,6 +151,10 @@ class GameNamespace(Namespace):
 
         player_games[sid] = game_id
         join_room(game_id)
+
+        if game.status == "ongoing":
+            game.resume_clock()
+            schedule_timeout(game_id)
 
         player_num = self._get_player_number(game_id, sid)
         your_player = "X" if player_num == 1 else "O"

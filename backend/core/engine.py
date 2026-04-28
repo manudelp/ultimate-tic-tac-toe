@@ -19,6 +19,7 @@ class GameEngine:
         self.time_per_player = time_per_player
         self.clocks = {1: time_per_player, -1: time_per_player} if time_per_player else None
         self.last_move_time = None
+        self.clock_paused = False
         self.created_at = time.time()
 
     def to_dict(self):
@@ -41,6 +42,22 @@ class GameEngine:
     def start(self):
         """Start the clock."""
         self.last_move_time = time.time()
+
+    def pause_clock(self):
+        """Pause the clock (e.g. on disconnect). Commits elapsed time so far."""
+        if not self.clocks or not self.last_move_time or self.clock_paused:
+            return
+        elapsed = time.time() - self.last_move_time
+        self.clocks[self.active_player] = max(0, self.clocks[self.active_player] - elapsed)
+        self.last_move_time = None
+        self.clock_paused = True
+
+    def resume_clock(self):
+        """Resume the clock after a pause."""
+        if not self.clocks or not self.clock_paused:
+            return
+        self.last_move_time = time.time()
+        self.clock_paused = False
 
     def make_move(self, player, a, b, c, d):
         """
@@ -71,7 +88,7 @@ class GameEngine:
 
         # Update clock
         now = time.time()
-        if self.clocks and self.last_move_time:
+        if self.clocks and self.last_move_time and not self.clock_paused:
             elapsed = now - self.last_move_time
             self.clocks[player] -= elapsed
             if self.clocks[player] <= 0:
@@ -80,6 +97,7 @@ class GameEngine:
                 self.winner = -player  # opponent wins on timeout
                 return False, "Time expired"
         self.last_move_time = now
+        self.clock_paused = False
 
         # Apply move
         self.board[a, b, c, d] = player
@@ -132,7 +150,7 @@ class GameEngine:
 
     def check_timeout(self):
         """Check if current player has timed out."""
-        if self.status != "ongoing" or not self.last_move_time or not self.clocks:
+        if self.status != "ongoing" or not self.last_move_time or not self.clocks or self.clock_paused:
             return False
         elapsed = time.time() - self.last_move_time
         remaining = self.clocks[self.active_player] - elapsed
