@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { Shield, Database, Share2, Lock, Baby, RefreshCw, Mail } from "lucide-react";
+import SectionNav from "@/components/ui/section-nav";
 
 const SECTIONS = [
-  { id: "collection", title: "What We Collect", icon: Database },
-  { id: "use", title: "How We Use It", icon: Shield },
-  { id: "sharing", title: "Sharing", icon: Share2 },
-  { id: "security", title: "Security", icon: Lock },
-  { id: "children", title: "Children", icon: Baby },
-  { id: "changes", title: "Changes", icon: RefreshCw },
-  { id: "contact", title: "Contact", icon: Mail },
+  { id: "collection", title: "What We Collect", icon: "Database" },
+  { id: "use",        title: "How We Use It",   icon: "Shield" },
+  { id: "sharing",    title: "Sharing",          icon: "Share2" },
+  { id: "security",   title: "Security",         icon: "Lock" },
+  { id: "children",   title: "Children",         icon: "Baby" },
+  { id: "changes",    title: "Changes",          icon: "RefreshCw" },
+  { id: "contact",    title: "Contact",          icon: "Mail" },
 ];
 
 export default function PrivacyPolicy() {
@@ -26,31 +27,7 @@ export default function PrivacyPolicy() {
 
       <div className="flex gap-12">
 
-        {/* Sticky sidebar */}
-        <aside className="hidden md:flex flex-col gap-1 w-44 shrink-0">
-          <div className="sticky top-20">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">On this page</p>
-            {SECTIONS.map(({ id, title, icon: Icon }) => (
-              <a
-                key={id}
-                href={`#${id}`}
-                className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-              >
-                <Icon className="w-3.5 h-3.5 shrink-0" />
-                {title}
-              </a>
-            ))}
-          </div>
-        </aside>
-
-        {/* Mobile nav */}
-        <div className="md:hidden flex flex-wrap gap-2 mb-8 w-full">
-          {SECTIONS.map(({ id, title }) => (
-            <a key={id} href={`#${id}`} className="text-xs px-3 py-1.5 bg-surface rounded-full text-muted-foreground hover:text-foreground transition-colors">
-              {title}
-            </a>
-          ))}
-        </div>
+        <SectionNav sections={SECTIONS} />
 
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-16">
