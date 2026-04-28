@@ -3,7 +3,7 @@ import MiniBoard from "@/components/core/miniboard";
 import { motion } from "framer-motion";
 import { formatMove } from "@/lib/notation";
 import { ArrowLeft, Flag } from "lucide-react";
-import { toast } from "sonner";
+import { toastNotYourTurn, toastCellOccupied } from "@/lib/toasts";
 import type { GameState, GameMove } from "@/types/game";
 import ThemeToggle from "@/components/ui/theme-toggle";
 
@@ -153,11 +153,11 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   const handleCellClick = (a: number, b: number, c: number, d: number) => {
     if (isOver) return;
     if (!isMyTurn) {
-      toast.error("It's not your turn");
+      toastNotYourTurn();
       return;
     }
     if (state.board[a][b][c][d] !== 0) {
-      toast.error("Cell is already occupied");
+      toastCellOccupied();
       return;
     }
     onCellClick(a, b, c, d);

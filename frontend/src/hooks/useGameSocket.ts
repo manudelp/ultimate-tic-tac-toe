@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getSocket, disconnectSocket } from "@/socket";
-import { toast } from "sonner";
+import { toastOpponentLeft, toastOpponentRejoined, toastRejoinFailed, toastSocketError } from "@/lib/toasts";
 import type { Socket } from "socket.io-client";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import type { GameState, GameStartedEvent } from "@/types/game";
@@ -51,15 +51,15 @@ export function useGameSocket() {
     const onGameState = (state: GameState) => setGameState(state);
     const onLobbyCreated = (data: { gameId: string }) => setLobbyId(data.gameId);
     const onSearching = () => setSearching(true);
-    const onOpponentLeft = () => setError("Opponent disconnected — waiting for them to rejoin...");
-    const onOpponentRejoined = () => { setError(null); toast.success("Opponent reconnected!"); };
+    const onOpponentLeft = () => { setError("opponent_left"); toastOpponentLeft(); };
+    const onOpponentRejoined = () => { setError(null); toastOpponentRejoined(); };
     const onError = (data: { message: string }) => {
       setError(data.message);
       setSearching(false);
     };
     const onRejoinFailed = () => {
       sessionStorage.removeItem("uttt_resume");
-      setError("Could not rejoin game — it may have expired");
+      toastRejoinFailed();
     };
 
     socket.on("connect", onConnect);

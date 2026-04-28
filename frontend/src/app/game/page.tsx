@@ -5,7 +5,7 @@ import { useGameSocket } from "@/hooks/useGameSocket";
 import Board from "@/components/core/board";
 import Loader from "@/components/ui/loader";
 import { Clipboard, ArrowLeft, Link } from "lucide-react";
-import { toast } from "sonner";
+import { toastCodeCopied, toastLinkCopied, toastSocketError } from "@/lib/toasts";
 
 export default function GamePage() {
   const router = useRouter();
@@ -70,7 +70,7 @@ export default function GamePage() {
   };
 
   useEffect(() => {
-    if (error) toast.error(error);
+    if (error && error !== "opponent_left") toastSocketError(error);
   }, [error]);
 
   // Connecting
@@ -120,7 +120,7 @@ export default function GamePage() {
           className="px-8 py-4 bg-card rounded-xl border border-border/50 cursor-pointer hover:border-border transition-colors"
           onClick={() => {
             navigator.clipboard?.writeText(lobbyId);
-            toast.success("Code copied!", { duration: 2000 });
+            toastCodeCopied();
           }}
         >
           <div className="flex items-center justify-center gap-3">
@@ -131,7 +131,7 @@ export default function GamePage() {
         <button
           onClick={() => {
             navigator.clipboard?.writeText(lobbyUrl);
-            toast.success("Link copied!", { duration: 2000 });
+            toastLinkCopied();
           }}
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >

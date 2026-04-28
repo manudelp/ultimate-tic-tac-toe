@@ -2,7 +2,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getBots, getQueueCounts } from "@/api";
-import { toast } from "sonner";
+import { toastInvalidLobbyCode } from "@/lib/toasts";
 import { Bot, Globe, Users, Swords, Clock, ArrowRight, Link2, Hash } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Loader from "@/components/ui/loader";
@@ -130,7 +130,7 @@ function PlayContent() {
       sessionStorage.setItem("uttt_game_config", JSON.stringify({ mode: "online", lobbyCode: code }));
       router.push("/game");
     } else {
-      toast.error("Enter a valid 4-character lobby code.");
+      toastInvalidLobbyCode();
     }
   };
 
