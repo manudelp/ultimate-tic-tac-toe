@@ -344,41 +344,46 @@ export function WinMiniBoardTutorial() {
 
 // ── Tutorial 4: Strategy — sending to bad boards ───────────
 export function StrategyTutorial() {
+  // Board 0 (TL) is already won by O
+  // Board 6 (BL): X has cells 0 and 3 (left column). X needs cell 6 to win.
+  //   - Cell 6 sends O to board 6... but that's the board X just won → O gets free choice (BAD)
+  //   - But X also has cells 0 and 4 (diagonal). Cell 8 also wins.
+  //   - Cell 8 sends O to board 8 (BR), which is open and contested (GOOD)
+  //
+  // So: X can win board 6 via cell 6 (bad destination) or cell 8 (good destination).
+
+  const makeBoards = (extra?: (b: Mark[][]) => void): Mark[][] => {
+    const b = Array(9).fill(null).map(() => Array(9).fill("") as Mark[]);
+    // Board 0 is won by O (top row)
+    b[0] = ["O","O","O","X","","X","","",""] as Mark[];
+    // Board 6: X has cells 0, 3, 4 — can win via cell 6 (left col) or cell 8 (diagonal)
+    b[6] = ["X","O","","X","X","O","","",""] as Mark[];
+    if (extra) extra(b);
+    return b;
+  };
+
   const STEPS = [
     {
-      title: "X is about to win board 7 (bottom-center).",
-      desc: "X can play cell 7 in board 7 to win it. But where does that send O?",
-      activeBoard: 7,
-      boards: (() => {
-        const b = Array(9).fill(null).map(() => Array(9).fill("") as Mark[]);
-        b[7] = ["X","O","","","X","O","","",""] as Mark[];
-        return b;
-      })(),
-      highlight: 7,
+      title: "X can win board 6 (bottom-left). But how?",
+      desc: "X has two ways to win: cell 6 (completing the left column) or cell 8 (completing the diagonal). Both win the board — but they send O to very different places.",
+      boards: makeBoards(),
+      activeBoard: 6,
+      highlight: 6,
     },
     {
-      title: "Playing cell 7 sends O to board 7 — but it's now won.",
-      desc: "O gets a free choice! That's bad for X. Think about where your move sends the opponent before committing.",
-      activeBoard: 7,
-      boards: (() => {
-        const b = Array(9).fill(null).map(() => Array(9).fill("") as Mark[]);
-        b[7] = ["X","O","","","X","O","","X",""] as Mark[];
-        return b;
-      })(),
-      highlight: 7,
+      title: "Option A: X plays cell 6 → sends O to board 6.",
+      desc: "Board 6 is now won by X, so O gets a free choice — O can play anywhere. Giving your opponent a free choice is almost always bad.",
+      boards: makeBoards(b => { b[6] = ["X","O","","X","X","O","X","",""] as Mark[]; }),
+      activeBoard: 6,
+      highlight: 6,
       freeChoice: true,
     },
     {
-      title: "Better: win board 7 via cell 4 instead.",
-      desc: "Cell 4 also wins board 7 (diagonal), but sends O to board 4 — the center, which X is already contesting. That's a much worse position for O.",
-      activeBoard: 7,
-      boards: (() => {
-        const b = Array(9).fill(null).map(() => Array(9).fill("") as Mark[]);
-        b[7] = ["X","O","","","X","O","","",""] as Mark[];
-        b[4] = ["X","","","","","","","",""] as Mark[];
-        return b;
-      })(),
-      highlight: 4,
+      title: "Option B: X plays cell 8 → sends O to board 8.",
+      desc: "Board 8 is open and empty — O is forced to play there with no advantage. X wins the same board but keeps control of where O goes. Always the better choice.",
+      boards: makeBoards(b => { b[6] = ["X","O","","X","X","O","","","X"] as Mark[]; }),
+      activeBoard: 6,
+      highlight: 8,
       good: true,
     },
   ];
@@ -399,11 +404,36 @@ export function StrategyTutorial() {
           ))}
         </div>
       </div>
-      <div className="p-4">
-        <div className="grid grid-cols-3 gap-1.5 w-[220px]">
-          {s.boards.map((cells, bi) => (
-            <SmallBoard key={bi} cells={cells} active={bi === s.activeBoard} highlight={bi === s.highlight} />
-          ))}
+      <div className="p-4 flex flex-col sm:flex-row gap-6 items-center">
+        <div className="grid grid-cols-3 gap-1.5 w-[220px] shrink-0">
+          {s.boards.map((cells, bi) => {
+            const w = checkWinner(cells);
+            return (
+              <SmallBoard key={bi} cells={cells} active={bi === s.activeBoard} highlight={bi === s.highlight} winner={w} />
+            );
+          })}
+        </div>
+        <div className="flex flex-col gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-blue-500/20 ring-2 ring-blue-500/50 shrink-0" />
+            <span className="text-muted-foreground text-xs">Active board</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-green-500/20 ring-2 ring-green-500/60 shrink-0" />
+            <span className="text-muted-foreground text-xs">Where O gets sent</span>
+          </div>
+          {s.freeChoice && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p className="text-xs text-red-400 font-medium">Bad move</p>
+              <p className="text-xs text-muted-foreground mt-1">O gets a free choice — they can play in any open board. You lost control.</p>
+            </div>
+          )}
+          {s.good && (
+            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              <p className="text-xs text-green-400 font-medium">Good move</p>
+              <p className="text-xs text-muted-foreground mt-1">Same win, but O is forced into a specific board. You keep control.</p>
+            </div>
+          )}
         </div>
       </div>
       <div className="px-4 pb-4 flex justify-between">
