@@ -40,6 +40,12 @@ export function useGameSocket() {
       setError(null);
       if (data.opponent) setOpponent(data.opponent);
       if (data.local) setIsLocal(true);
+      sessionStorage.setItem("uttt_resume", JSON.stringify({
+        gameId: data.gameId,
+        myPlayer: data.yourPlayer,
+        opponent: data.opponent ?? null,
+        isLocal: data.local ?? false,
+      }));
     };
     const onGameState = (state: GameState) => setGameState(state);
     const onLobbyCreated = (data: { gameId: string }) => setLobbyId(data.gameId);
@@ -48,6 +54,10 @@ export function useGameSocket() {
     const onError = (data: { message: string }) => {
       setError(data.message);
       setSearching(false);
+    };
+    const onRejoinFailed = () => {
+      sessionStorage.removeItem("uttt_resume");
+      setError("Could not rejoin game — it may have expired");
     };
 
     socket.on("connect", onConnect);
@@ -58,6 +68,7 @@ export function useGameSocket() {
     socket.on("searching", onSearching);
     socket.on("opponent_left", onOpponentLeft);
     socket.on("error", onError);
+    socket.on("rejoin_failed", onRejoinFailed);
 
     return () => {
       socket.off("connect", onConnect);
@@ -68,8 +79,18 @@ export function useGameSocket() {
       socket.off("searching", onSearching);
       socket.off("opponent_left", onOpponentLeft);
       socket.off("error", onError);
+      socket.off("rejoin_failed", onRejoinFailed);
       // Do NOT disconnect here — only on explicit disconnect() call
     };
+  }, []);
+
+  const rejoinGame = useCallback((gameId: string, myPlayer: "X" | "O", opponent: { type: "bot"; name: string; icon: string } | null, isLocal: boolean) => {
+    setError(null);
+    setMyPlayer(myPlayer);
+    setGameId(gameId);
+    if (opponent) setOpponent(opponent);
+    if (isLocal) setIsLocal(true);
+    socketRef.current?.emit("rejoin_game", { gameId });
   }, []);
 
   const findGame = useCallback((params: FindGameParams) => {
@@ -92,6 +113,7 @@ export function useGameSocket() {
   }, []);
 
   const disconnect = useCallback(() => {
+    sessionStorage.removeItem("uttt_resume");
     disconnectSocket();
     socketRef.current = null;
   }, []);
@@ -99,6 +121,6 @@ export function useGameSocket() {
   return {
     gameState, myPlayer, gameId, connected, searching,
     lobbyId, opponent, isLocal, error,
-    findGame, makeMove, resign, disconnect,
+    findGame, rejoinGame, makeMove, resign, disconnect,
   };
 }

@@ -116,9 +116,50 @@ class GameNamespace(Namespace):
                 g = timeout_greenlets.pop(game_id, None)
                 if g:
                     g.kill()
-            gevent.spawn_later(60, _cleanup)
+            gevent.spawn_later(300, _cleanup)
 
         print(f"Client {sid} disconnected from /game")
+
+    def on_rejoin_game(self, data):
+        sid = request.sid
+        game_id = data.get("gameId")
+        game = games.get(game_id)
+
+        if not game:
+            emit("rejoin_failed", {})
+            return
+
+        players = game_players.get(game_id, {})
+        connected_sids = set(socketio.server.manager.get_participants("/game", game_id))
+
+        p1_sid = players.get("player1_sid")
+        p2_sid = players.get("player2_sid")
+
+        if p1_sid and p1_sid not in connected_sids:
+            players["player1_sid"] = sid
+        elif p2_sid and p2_sid not in connected_sids:
+            players["player2_sid"] = sid
+        else:
+            # Game still has all players connected (e.g. quick reload) — just re-add
+            if not p2_sid:
+                players["player1_sid"] = sid
+
+        player_games[sid] = game_id
+        join_room(game_id)
+
+        player_num = self._get_player_number(game_id, sid)
+        your_player = "X" if player_num == 1 else "O"
+        is_local = game_id in local_games
+        bot_info = game_id_to_bot.get(game_id)
+        bot = AGENTS.get(bot_info["bot_id"]) if bot_info else None
+
+        emit("game_started", {
+            "gameId": game_id,
+            "yourPlayer": your_player,
+            "state": game.to_dict(),
+            "opponent": {"type": "bot", "name": bot.name, "icon": bot.icon} if bot else None,
+            "local": is_local or None,
+        })
 
     def on_find_game(self, data):
         sid = request.sid

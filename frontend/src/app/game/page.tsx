@@ -13,14 +13,26 @@ export default function GamePage() {
   const {
     gameState, myPlayer, gameId, connected, searching,
     lobbyId, opponent, isLocal, error,
-    findGame, makeMove, resign, disconnect,
+    findGame, rejoinGame, makeMove, resign, disconnect,
   } = useGameSocket();
 
   useEffect(() => {
     if (!connected || initialized.current) return;
     initialized.current = true;
 
-    const raw = sessionStorage.getItem("uttt_game_config");
+    // Try to rejoin an existing game first
+    const resumeRaw = sessionStorage.getItem("uttt_resume");
+    if (resumeRaw) {
+      try {
+        const resume = JSON.parse(resumeRaw);
+        rejoinGame(resume.gameId, resume.myPlayer, resume.opponent, resume.isLocal);
+        return;
+      } catch {
+        sessionStorage.removeItem("uttt_resume");
+      }
+    }
+
+    // Fresh game start
     if (!raw) {
       router.replace("/play");
       return;
