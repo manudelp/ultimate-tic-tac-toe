@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getSocket, disconnectSocket } from "@/socket";
+import { toast } from "sonner";
 import type { Socket } from "socket.io-client";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import type { GameState, GameStartedEvent } from "@/types/game";
@@ -51,7 +52,7 @@ export function useGameSocket() {
     const onLobbyCreated = (data: { gameId: string }) => setLobbyId(data.gameId);
     const onSearching = () => setSearching(true);
     const onOpponentLeft = () => setError("Opponent disconnected — waiting for them to rejoin...");
-    const onOpponentRejoined = () => setError(null);
+    const onOpponentRejoined = () => { setError(null); toast.success("Opponent reconnected!"); };
     const onError = (data: { message: string }) => {
       setError(data.message);
       setSearching(false);
