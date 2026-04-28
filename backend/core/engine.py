@@ -37,6 +37,7 @@ class GameEngine:
                 "O": round(self.clocks[-1], 1) if self.clocks else None,
             },
             "boardResults": self._board_results().tolist(),
+            "serverTime": time.time(),
         }
 
     def start(self):

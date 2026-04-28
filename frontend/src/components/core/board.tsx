@@ -163,14 +163,29 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
     onCellClick(a, b, c, d);
   };
 
-  const [displayClocks, setDisplayClocks] = useState(state.clocks);
-  const hasClock = displayClocks.X != null && displayClocks.O != null;
+  const [displayClocks, setDisplayClocks] = useState(() => {
+    if (!state.clocks.X || !state.clocks.O) return state.clocks;
+    const drift = Date.now() / 1000 - state.serverTime;
+    return {
+      X: state.activePlayer === "X" ? Math.max(0, state.clocks.X - drift) : state.clocks.X,
+      O: state.activePlayer === "O" ? Math.max(0, state.clocks.O - drift) : state.clocks.O,
+    };
+  });
+  const hasClock = state.clocks.X != null && state.clocks.O != null;
 
   const [elapsed, setElapsed] = useState({ X: 0, O: 0 });
 
   useEffect(() => {
-    setDisplayClocks(state.clocks);
-  }, [state.clocks]);
+    if (!state.clocks.X || !state.clocks.O) {
+      setDisplayClocks(state.clocks);
+      return;
+    }
+    const drift = Date.now() / 1000 - state.serverTime;
+    setDisplayClocks({
+      X: state.activePlayer === "X" ? Math.max(0, state.clocks.X - drift) : state.clocks.X,
+      O: state.activePlayer === "O" ? Math.max(0, state.clocks.O - drift) : state.clocks.O,
+    });
+  }, [state.clocks, state.serverTime, state.activePlayer]);
 
   useEffect(() => {
     if (hasClock) return;

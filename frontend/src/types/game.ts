@@ -8,6 +8,7 @@ export interface GameState {
   moves: GameMove[];
   clocks: { X: number | null; O: number | null };
   boardResults: number[][];    // 3x3, values: 0, 1, -1
+  serverTime: number;          // unix timestamp when state was serialized
 }
 
 export interface GameMove {
