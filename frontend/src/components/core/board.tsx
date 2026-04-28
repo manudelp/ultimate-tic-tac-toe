@@ -211,8 +211,8 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   };
 
   return (
-    <div className="relative flex flex-col gap-6 sm:px-4 md:flex-row md:items-start">
-      <div className="flex flex-col items-center w-[min(calc(100vw-2rem),600px)]">
+    <div className="relative flex flex-col gap-6 sm:px-4 md:flex-row md:items-start md:h-svh md:py-8">
+      <div className="flex flex-col items-center md:h-full md:justify-center w-[min(calc(100vw-2rem),600px)] md:w-[min(calc(100svh-8rem),600px)]">
         {/* Info Bar + Board */}
         <div className="w-full">
         <div className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-[hsl(var(--board-bg))] rounded">

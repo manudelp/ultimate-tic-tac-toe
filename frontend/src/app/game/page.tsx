@@ -137,7 +137,7 @@ export default function GamePage() {
   // Game active
   if (gameState && myPlayer) {
     return (
-      <div className="flex items-center justify-center min-h-svh px-4 py-8 sm:px-8">
+      <div className="flex items-center justify-center min-h-svh px-4 sm:px-8">
         <Board
           state={gameState}
           myPlayer={myPlayer}
