@@ -160,7 +160,7 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold">Contact</h2>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Questions about these terms? Contact us at utictactoe.
+              Questions about these terms? Reach out via <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="text-foreground underline underline-offset-4 hover:text-muted-foreground transition-colors">Manuel Delpino</a> or <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="text-foreground underline underline-offset-4 hover:text-muted-foreground transition-colors">Manuel Meiriño</a> on LinkedIn.
             </p>
           </section>
 
