@@ -383,7 +383,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                   <span className="text-sm font-medium">vs {opponent.name}</span>
                 </div>
               ) : (
-                <span className="text-sm font-medium text-muted-foreground">Local Game</span>
+                <span className="text-sm font-medium text-muted-foreground">{isLocal ? "Local Game" : "Online Game"}</span>
               )}
               <div className="flex flex-col items-end">
                 <span className="text-[11px] text-muted-foreground">{new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>

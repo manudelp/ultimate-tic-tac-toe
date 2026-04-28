@@ -28,6 +28,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
         (activeMiniBoard[0] !== localRowIndex || activeMiniBoard[1] !== localColIndex)));
 
   const isActive = !isInactive && !gameOver;
+  const isWonOrFull = !!(winner || disabled?.[localRowIndex]?.[localColIndex]);
 
   const revealCells = hovered ||
     (hoveredMove !== null &&
@@ -43,7 +44,7 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
   return (
     <div
       className={`relative rounded-md p-0.5 sm:p-1 transition-colors duration-300 ${boardClasses} ${
-        isInactive ? "pointer-events-none" : ""
+        !isActive && !isWonOrFull ? "pointer-events-none" : ""
       }`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
