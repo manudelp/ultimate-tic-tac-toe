@@ -3,7 +3,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getBots, getQueueCounts } from "@/api";
 import { toastInvalidLobbyCode } from "@/lib/toasts";
-import { Bot, Globe, Users, Swords, Clock, ArrowRight, Link2, Hash } from "lucide-react";
+import { Bot, Globe, Users, Swords, Clock, ArrowRight, Link2, Hash, ChevronLeft, RotateCcw, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Loader from "@/components/ui/loader";
 import type { BotInfo } from "@/types/game";
@@ -36,12 +36,12 @@ function SegmentedControl({
   id: string;
 }) {
   return (
-    <div className="flex bg-surface rounded-lg p-0.5 gap-0.5">
+    <div className="flex bg-surface rounded-lg p-0.5 gap-0.5 w-full">
       {options.map((opt) => (
         <button
           key={opt.label}
           onClick={() => onChange(opt.value)}
-          className="relative flex-1 px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors"
+          className="relative flex-1 min-w-0 px-1.5 sm:px-3 py-2 text-[11px] sm:text-xs font-medium rounded-md transition-colors"
         >
           {value === opt.value && (
             <motion.div
@@ -50,8 +50,8 @@ function SegmentedControl({
               transition={{ type: "spring", stiffness: 400, damping: 35 }}
             />
           )}
-          <span className={`relative z-10 transition-colors ${
-            value === opt.value ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+          <span className={`relative z-10 transition-colors truncate block ${
+            value === opt.value ? "text-foreground" : "text-muted-foreground"
           }`}>
             {opt.label}
           </span>
@@ -90,6 +90,20 @@ function PlayContent() {
   const [error, setError] = useState(false);
   const [lobbyInput, setLobbyInput] = useState("");
   const [queueCounts, setQueueCounts] = useState<Record<string, number>>({});
+  const [resumeData, setResumeData] = useState<{ opponent?: { icon: string; name: string }; isLocal?: boolean } | null>(null);
+
+  // Check for active game to rejoin
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("uttt_resume");
+      if (raw) {
+        const data = JSON.parse(raw);
+        setResumeData({ opponent: data.opponent, isLocal: data.isLocal });
+      }
+    } catch {
+      sessionStorage.removeItem("uttt_resume");
+    }
+  }, []);
 
   useEffect(() => {
     if (tab !== "online") return;
@@ -148,24 +162,61 @@ function PlayContent() {
   const queueCount = queueCounts[queueKey] || 0;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-12 min-h-[calc(100svh-3.5rem)]">
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
 
       {/* Header */}
-      <div className="mb-10">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Play</p>
-        <h1 className="text-4xl font-bold tracking-tight mb-3">Choose your game</h1>
-        <p className="text-muted-foreground text-base leading-relaxed">
+      <div className="mb-8 sm:mb-10">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Play</p>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">Choose your game</h1>
+        <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
           Pick a mode and jump straight in. No account needed.
         </p>
       </div>
 
+      {/* Rejoin banner */}
+      {resumeData && (
+        <div className="mb-6 sm:mb-8 p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
+              <RotateCcw className="w-4 h-4 text-yellow-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">Game in progress</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {resumeData.opponent ? `vs ${resumeData.opponent.icon} ${resumeData.opponent.name}` : resumeData.isLocal ? "Local game" : "Online game"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                sessionStorage.setItem("uttt_game_config", JSON.stringify({ mode: "rejoin" }));
+                router.push("/game");
+              }}
+              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-bold rounded-lg transition-colors"
+            >
+              Rejoin
+            </button>
+            <button
+              onClick={() => {
+                sessionStorage.removeItem("uttt_resume");
+                setResumeData(null);
+              }}
+              className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Tab selector */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
         {TABS.map(({ id, label, icon: Icon, desc }) => (
           <button
             key={id}
             onClick={() => { setTab(id); setSelectedBot(null); setStarts("player"); }}
-            className={`flex flex-col items-start gap-2 p-4 rounded-xl border transition-all text-left ${
+            className={`flex flex-col items-center sm:items-start gap-1.5 sm:gap-2 p-3 sm:p-4 rounded-xl border transition-all text-center sm:text-left ${
               tab === id
                 ? "border-border bg-background shadow-sm"
                 : "border-border/50 bg-background hover:border-border text-muted-foreground"
@@ -178,14 +229,14 @@ function PlayContent() {
             </div>
             <div>
               <p className={`text-sm font-semibold ${tab === id ? "text-foreground" : ""}`}>{label}</p>
-              <p className="text-[11px] text-muted-foreground">{desc}</p>
+              <p className="text-[11px] text-muted-foreground hidden sm:block">{desc}</p>
             </div>
           </button>
         ))}
       </div>
 
       {/* Tab content */}
-      <div className="h-[400px]">
+      <div>
         <AnimatePresence mode="wait">
 
           {/* ── vs AI ── */}
@@ -196,15 +247,14 @@ function PlayContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15 }}
-              className="h-full"
             >
               {loading ? (
-                <div className="flex flex-col items-center justify-center h-full gap-4">
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
                   <Loader />
                   <p className="text-sm text-muted-foreground">Loading AI opponents...</p>
                 </div>
               ) : error ? (
-                <div className="flex flex-col items-center justify-center h-full gap-3">
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <p className="text-sm font-medium text-red-400">Failed to load AI opponents</p>
                   <button onClick={() => setBots(null)} className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
                     Try again
@@ -219,15 +269,15 @@ function PlayContent() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.12 }}
-                      className="space-y-4"
+                      className="space-y-3"
                     >
                       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Select your opponent</p>
-                      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                         {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => (
                           <button
                             key={bot.id}
                             onClick={() => setSelectedBot(bot)}
-                            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl border border-border/50 bg-background hover:border-border transition-all group"
+                            className="flex flex-col items-center gap-2 p-4 sm:p-4 rounded-xl border border-border/50 bg-background hover:border-border transition-all group"
                           >
                             <span className="text-4xl sm:text-5xl leading-none group-hover:scale-110 transition-transform">{bot.icon}</span>
                             <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{bot.name}</span>
@@ -247,81 +297,71 @@ function PlayContent() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.12 }}
-                      className="flex gap-3"
+                      className="space-y-3"
                     >
-                      {/* Roster */}
-                      <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 shrink-0">
+                      {/* Back to grid */}
+                      <button
+                        onClick={() => setSelectedBot(null)}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-1"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" /> All opponents
+                      </button>
+
+                      {/* Bot detail card */}
+                      <div className="flex flex-col gap-4 p-4 rounded-xl border border-border/50 bg-background">
+                        <div className="flex items-start gap-3 pb-3 border-b border-border/40">
+                          <span className="text-3xl leading-none">{selectedBot.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold">{selectedBot.name}</p>
+                            <p className="text-xs text-muted-foreground leading-snug mt-0.5">{selectedBot.description}</p>
+                          </div>
+                          <div className="flex gap-0.5 pt-1 shrink-0">
+                            {Array(5).fill(0).map((_, i) => (
+                              <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < selectedBot.difficulty ? "bg-green-500" : "bg-border"}`} />
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">First move</span>
+                          <SegmentedControl
+                            id="ai-starts"
+                            options={[{ label: "You", value: "player" }, { label: "Opponent", value: "bot" }]}
+                            value={starts}
+                            onChange={(v) => setStarts(v as string)}
+                          />
+                        </div>
+
+                        <button
+                          disabled={!starts}
+                          onClick={startAIGame}
+                          className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Swords className="w-4 h-4" />
+                          Fight!
+                        </button>
+                      </div>
+
+                      {/* Quick-switch roster */}
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-muted">
                         {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => {
-                          const selected = selectedBot?.id === bot.id;
+                          const isSelected = selectedBot?.id === bot.id;
                           return (
                             <button
                               key={bot.id}
-                              onClick={() => setSelectedBot(selected ? null : bot)}
-                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-colors w-[120px] ${
-                                selected ? "border-border bg-surface" : "border-border/50 bg-background hover:border-border"
+                              onClick={() => setSelectedBot(bot)}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors shrink-0 ${
+                                isSelected ? "border-border bg-surface" : "border-border/50 bg-background hover:border-border"
                               }`}
                             >
                               <span className="text-lg leading-none">{bot.icon}</span>
-                              <div className="flex flex-col items-start min-w-0">
-                                <span className={`text-xs font-semibold truncate ${selected ? "text-foreground" : "text-muted-foreground"}`}>
-                                  {bot.name}
-                                </span>
-                                <div className="flex gap-0.5 mt-0.5">
-                                  {Array(5).fill(0).map((_, i) => (
-                                    <div key={i} className={`w-1 h-1 rounded-full ${i < bot.difficulty ? "bg-green-500" : "bg-border"}`} />
-                                  ))}
-                                </div>
-                              </div>
+                              <span className={`text-xs font-semibold ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
+                                {bot.name}
+                              </span>
                             </button>
                           );
                         })}
                       </div>
-
-                      {/* Detail */}
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={selectedBot.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.12 }}
-                          className="flex-1 flex flex-col gap-4 p-4 rounded-xl border border-border/50 bg-background min-w-0"
-                        >
-                          <div className="flex items-start gap-3 pb-3 border-b border-border/40">
-                            <span className="text-3xl leading-none">{selectedBot.icon}</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-bold">{selectedBot.name}</p>
-                              <p className="text-xs text-muted-foreground leading-snug mt-0.5">{selectedBot.description}</p>
-                            </div>
-                            <div className="flex gap-0.5 pt-1 shrink-0">
-                              {Array(5).fill(0).map((_, i) => (
-                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < selectedBot.difficulty ? "bg-green-500" : "bg-border"}`} />
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">First move</span>
-                              <SegmentedControl
-                                id="ai-starts"
-                                options={[{ label: "You", value: "player" }, { label: "Opponent", value: "bot" }]}
-                                value={starts}
-                                onChange={(v) => setStarts(v as string)}
-                              />
-                            </div>
-                          </div>
-
-                          <button
-                            disabled={!starts}
-                            onClick={startAIGame}
-                            className="w-full py-2.5 bg-green-600 hover:bg-green-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
-                          >
-                            <Swords className="w-4 h-4" />
-                            Fight!
-                          </button>
-                        </motion.div>
-                      </AnimatePresence>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -373,7 +413,7 @@ function PlayContent() {
                 </div>
                 <button
                   onClick={quickMatch}
-                  className="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <ArrowRight className="w-4 h-4" />
                   Find Opponent
@@ -391,14 +431,14 @@ function PlayContent() {
                     <p className="text-xs text-muted-foreground">Play with a friend using a code</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={createLobby}
-                    className="flex-1 py-2 bg-surface hover:bg-surface-hover rounded-lg text-xs font-medium transition-colors"
+                    className="w-full sm:flex-1 py-2.5 bg-surface hover:bg-surface-hover rounded-lg text-xs font-medium transition-colors"
                   >
                     Create Lobby
                   </button>
-                  <div className="flex gap-1.5 flex-1">
+                  <div className="flex gap-1.5 w-full sm:flex-1">
                     <input
                       type="text"
                       value={lobbyInput}
@@ -406,11 +446,11 @@ function PlayContent() {
                       onKeyDown={(e) => e.key === "Enter" && joinLobby()}
                       placeholder="CODE"
                       maxLength={4}
-                      className="flex-1 min-w-0 px-3 py-2 bg-surface border border-border/50 rounded-lg text-xs font-mono tracking-widest text-center focus:outline-none focus:border-ring transition-colors"
+                      className="flex-1 min-w-0 px-3 py-2.5 bg-surface border border-border/50 rounded-lg text-xs font-mono tracking-widest text-center focus:outline-none focus:border-ring transition-colors"
                     />
                     <button
                       onClick={joinLobby}
-                      className="px-3 py-2 bg-surface hover:bg-surface-hover rounded-lg text-xs font-medium transition-colors"
+                      className="px-4 py-2.5 bg-surface hover:bg-surface-hover rounded-lg text-xs font-medium transition-colors"
                     >
                       Join
                     </button>
@@ -429,7 +469,7 @@ function PlayContent() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15 }}
             >
-              <div className="p-6 rounded-xl border border-border/50 bg-background space-y-6">
+              <div className="p-4 sm:p-6 rounded-xl border border-border/50 bg-background space-y-5">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
                     <Users className="w-4 h-4 text-purple-400" />
@@ -441,10 +481,10 @@ function PlayContent() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Hash className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">First move</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground">First move</span>
                     </div>
                     <SegmentedControl
                       id="local-starts"
@@ -453,10 +493,10 @@ function PlayContent() {
                       onChange={(v) => setStarts(v as string)}
                     />
                   </div>
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Time</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground">Time control</span>
                     </div>
                     <SegmentedControl
                       id="local-time"

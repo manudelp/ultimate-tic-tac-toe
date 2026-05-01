@@ -20,18 +20,6 @@ export default function GamePage() {
     if (!connected || initialized.current) return;
     initialized.current = true;
 
-    // Try to rejoin an existing game first
-    const resumeRaw = sessionStorage.getItem("uttt_resume");
-    if (resumeRaw) {
-      try {
-        const resume = JSON.parse(resumeRaw);
-        rejoinGame(resume.gameId, resume.myPlayer, resume.opponent, resume.isLocal);
-        return;
-      } catch {
-        sessionStorage.removeItem("uttt_resume");
-      }
-    }
-
     // Fresh game start
     const raw = sessionStorage.getItem("uttt_game_config");
     if (!raw) {
@@ -48,6 +36,22 @@ export default function GamePage() {
       return;
     }
     sessionStorage.removeItem("uttt_game_config");
+
+    // Rejoin an existing game
+    if (config.mode === "rejoin") {
+      const resumeRaw = sessionStorage.getItem("uttt_resume");
+      if (resumeRaw) {
+        try {
+          const resume = JSON.parse(resumeRaw);
+          rejoinGame(resume.gameId, resume.myPlayer, resume.opponent, resume.isLocal);
+          return;
+        } catch {
+          sessionStorage.removeItem("uttt_resume");
+        }
+      }
+      router.replace("/play");
+      return;
+    }
 
     if (config.mode === "player-vs-bot") {
       findGame({ mode: "bot", botId: config.botId, starts: config.starts, timeControl: config.timeControl });
@@ -150,7 +154,7 @@ export default function GamePage() {
   // Game active
   if (gameState && myPlayer) {
     return (
-      <div className="flex items-center justify-center min-h-svh px-4 sm:px-8">
+      <div className="flex items-center justify-center min-h-svh lg:h-svh lg:overflow-hidden px-1 sm:px-4 lg:px-8">
         <Board
           state={gameState}
           myPlayer={myPlayer}
