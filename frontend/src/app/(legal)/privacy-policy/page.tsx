@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
         </p>
       </div>
 
-      <div className="flex gap-12">
+      <div className="flex flex-col md:flex-row md:gap-12">
 
         <SectionNav sections={SECTIONS} />
 

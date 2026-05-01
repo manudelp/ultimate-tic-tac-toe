@@ -2,14 +2,16 @@
   "name": "ultimate-tic-tac-toe-monorepo",
   "private": true,
   "scripts": {
+    "dev": "concurrently -n fe,be -c blue,green \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && python app.py",
+    "dev:backend": "cd backend && uv run app.py",
     "build:frontend": "cd frontend && npm run build",
     "install:frontend": "cd frontend && npm install",
-    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:backend": "cd backend && uv sync",
     "prepare": "husky"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "husky": "^9.1.7"
   }
 }

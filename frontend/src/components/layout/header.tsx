@@ -41,10 +41,13 @@ export default function Header() {
       </nav>
     </header>
 
-    <footer className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-center gap-3 py-2 text-[11px] text-subtle bg-background/80 backdrop-blur-sm border-t border-border/50">
+    {/* Spacer for fixed footer */}
+    <div className="h-12" />
+
+    <footer className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-center flex-wrap gap-x-3 gap-y-1 px-4 py-2 text-[11px] text-subtle bg-background/80 backdrop-blur-sm border-t border-border/50">
       <span>&copy; {new Date().getFullYear()} utictactoe</span>
-      <span>&middot;</span>
-      <span>Built by{" "}
+      <span className="hidden sm:inline">&middot;</span>
+      <span className="hidden sm:inline">Built by{" "}
         <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Delpino</a>
         {" & "}
         <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Meiriño</a>

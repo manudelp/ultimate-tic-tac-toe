@@ -48,7 +48,7 @@ export default function RootLayout({
       <body className={`antialiased ${spaceGrotesk.variable}`}>
         <ThemeProvider>
           <Header />
-          <main className="min-h-svh">{children}</main>
+          <main>{children}</main>
           <Toaster richColors />
         </ThemeProvider>
         <SpeedInsights />

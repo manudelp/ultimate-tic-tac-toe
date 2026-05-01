@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SCRIPT: [number, number, number, number, "X" | "O"][] = [
   [2, 1, 1, 2, "X"],   [1, 2, 2, 0, "O"],   [2, 0, 0, 0, "X"],   [0, 0, 1, 2, "O"],
@@ -83,9 +83,14 @@ function HeroMini({ winner, children }: { winner: string | null; children: (reve
   );
 }
 
-export default function HeroBoard() {
+export default function HeroBoard({ onReady }: { onReady?: () => void }) {
   const [state, setState] = useState<GameState>(initialState);
   const { board, moveIndex, lastMove, winners, gameOver } = state;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    requestAnimationFrame(() => onReady?.());
+  }, []);
 
   useEffect(() => {
     if (gameOver) {
@@ -121,7 +126,7 @@ export default function HeroBoard() {
   const winningLine = gameOver ? getWinningLine(winners) : null;
 
   return (
-    <div className="relative grid grid-cols-3 gap-1.5 sm:gap-2.5 w-[340px] sm:w-[400px] h-[340px] sm:h-[400px] select-none">
+    <div ref={containerRef} className="relative grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full max-w-[340px] sm:max-w-[400px] aspect-square select-none">
       {board.map((boardRow, br) =>
         boardRow.map((miniBoard, bc) => {
           const winner = winners[br][bc];

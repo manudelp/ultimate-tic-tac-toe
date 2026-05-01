@@ -37,9 +37,9 @@ const MiniBoard: React.FC<MiniBoardProps> = ({
   // Board state → structure + contrast, never opacity
   const boardClasses = isActive
     ? activePlayer === "X"
-      ? "bg-blue-500/10 ring-2 ring-blue-500/40"
-      : "bg-red-500/10 ring-2 ring-red-500/40"
-    : "bg-[hsl(var(--board-bg))]";
+      ? "bg-blue-500/10 border-2 border-blue-500/40"
+      : "bg-red-500/10 border-2 border-red-500/40"
+    : "bg-[hsl(var(--board-bg))] border-2 border-transparent";
 
   return (
     <div

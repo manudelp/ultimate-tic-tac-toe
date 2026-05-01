@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import Link from "next/link";
 import { Bot, Globe, Users, MousePointerClick, ArrowRight, Shuffle, Trophy } from "lucide-react";
 import HeroBoard from "@/components/core/hero-board";
@@ -97,6 +97,8 @@ const FEATURES = [
 ];
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  const [boardReady, setBoardReady] = useState(false);
   const typeRef = useRef<HTMLSpanElement>(null);
   const shuffledWords = useMemo(() => shuffleArray(WORDS), []);
   const shuffledColors = useMemo(() => shuffleArray(COLORS), []);
@@ -128,81 +130,80 @@ export default function Home() {
     return () => cancelAnimationFrame(frame);
   }, [shuffledWords, shuffledColors]);
 
+  useEffect(() => {
+    setMounted(true);
+    // On screens where the board is hidden (below md), skip waiting for it
+    if (!window.matchMedia("(min-width: 768px)").matches) setBoardReady(true);
+  }, []);
+
   return (
     <div className="flex flex-col">
 
       {/* ── Hero ── */}
-      <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col overflow-hidden">
         <nav className="flex items-center justify-between px-4 sm:px-8 h-14 shrink-0">
-          <span className="text-base font-bold tracking-tight">utictactoe</span>
-          <div className="flex items-center gap-4">
-            <Link href="/learn" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <span className="text-base font-extrabold tracking-tight text-foreground">utictactoe</span>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/learn" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">
               How to Play
             </Link>
-            <Link href="/play" className="text-sm px-4 py-1.5 bg-foreground text-background rounded-md font-medium hover:opacity-80 transition-opacity">
+            <Link href="/play" className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 border border-border rounded-md font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors">
               Play
             </Link>
             <ThemeToggle />
           </div>
         </nav>
 
-        <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 px-6 sm:px-12 pb-16 pt-8">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg"
+        <div className={`flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-6 sm:px-12 pb-10 sm:pb-16 pt-8 transition-opacity duration-300 ${mounted && boardReady ? "opacity-100" : "opacity-0"}`}>
+          <div
+            className="flex flex-col items-center md:items-start text-center md:text-left max-w-[680px]"
           >
-            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
-              Tic-Tac-Toe,<br />
-              <span className="text-muted-foreground">but smarter.</span>
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
+              Ultimate<br />
+              <span className="text-muted-foreground">Tic-Tac-Toe.</span>
             </h1>
-            <p className="text-muted-foreground text-base sm:text-lg mb-3 leading-relaxed">
-              A game of{" "}
-              <span ref={typeRef} className="font-semibold inline-block min-w-[2ch]" />.
+            <p className="text-muted-foreground/80 text-base sm:text-lg mb-2 leading-relaxed max-w-md">
+              A game of <span ref={typeRef} className="font-semibold" />.
             </p>
-            <p className="text-muted-foreground text-sm mb-10 leading-relaxed">
+            <p className="text-muted-foreground/70 text-sm sm:text-base mb-8 leading-[1.7] max-w-lg">
               Nine boards. Every move you make sends your opponent somewhere specific.
               Think ahead or lose control.
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
               <Link
                 href="/play"
-                className="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors text-sm"
+                className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors text-sm text-center"
               >
                 Play Now — it&apos;s free
               </Link>
               <Link
                 href="/learn"
-                className="px-6 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="w-full sm:w-auto px-6 py-3 text-sm text-muted-foreground hover:text-foreground border border-transparent hover:border-border rounded-lg transition-colors text-center"
               >
                 Learn the rules →
               </Link>
             </div>
-          </motion.div>
+            <p className="text-xs text-muted-foreground/50 mt-4">No account needed · Free · Instant play</p>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35, delay: 0.08 }}
-          >
-            <HeroBoard />
-          </motion.div>
+          <div className="hidden md:flex items-center justify-center w-[400px] h-[400px] shrink-0">
+            <HeroBoard onReady={() => setBoardReady(true)} />
+          </div>
         </div>
       </section>
 
       {/* ── How it works ── */}
-      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">How it works</p>
-            <h2 className="text-3xl font-bold">Three steps to victory</h2>
+          <div className="text-center mb-8 sm:mb-16">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 sm:mb-3">How it works</p>
+            <h2 className="text-2xl sm:text-3xl font-bold">Three steps to victory</h2>
           </div>
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid gap-3 sm:gap-8 sm:grid-cols-3">
             {STEPS.map((s) => (
               <div
                 key={s.num}
-                className="relative flex flex-col gap-4 p-6 rounded-xl border border-border/50 bg-background"
+                className="relative flex flex-col gap-3 sm:gap-4 p-4 sm:p-6 rounded-xl border border-border/50 bg-background"
               >
                 <span className="text-[11px] font-bold text-muted-foreground/50 tracking-widest">{s.num}</span>
                 <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
@@ -219,23 +220,23 @@ export default function Home() {
       </section>
 
       {/* ── Game modes ── */}
-      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Game modes</p>
-            <h2 className="text-3xl font-bold">Play your way</h2>
+          <div className="text-center mb-8 sm:mb-16">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 sm:mb-3">Game modes</p>
+            <h2 className="text-2xl sm:text-3xl font-bold">Play your way</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
             {MODES.map(({ icon: Icon, title, desc, cta, color, bg }) => (
               <div
                 key={title}
-                className="group flex flex-col gap-4 p-6 rounded-xl border border-border/50 bg-background hover:border-border transition-colors"
+                className="group flex flex-col gap-3 sm:gap-4 p-4 sm:p-6 rounded-xl border border-border/50 bg-background hover:border-border transition-colors"
               >
                 <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold mb-2">{title}</h3>
+                  <h3 className="font-semibold mb-1 sm:mb-2">{title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
                 <Link
@@ -251,17 +252,17 @@ export default function Home() {
       </section>
 
       {/* ── Features ── */}
-      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Features</p>
-            <h2 className="text-3xl font-bold">Everything you need</h2>
+          <div className="text-center mb-8 sm:mb-16">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 sm:mb-3">Features</p>
+            <h2 className="text-2xl sm:text-3xl font-bold">Everything you need</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="flex gap-4 p-6 rounded-xl border border-border/50 bg-background"
+                className="flex gap-3 sm:gap-4 p-4 sm:p-6 rounded-xl border border-border/50 bg-background"
               >
                 <div className="w-9 h-9 rounded-lg bg-surface shrink-0 flex items-center justify-center mt-0.5">
                   <Icon className="w-4 h-4 text-muted-foreground" />
@@ -277,15 +278,15 @@ export default function Home() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="px-6 sm:px-12 py-24 border-t border-border/50">
+      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to play?</h2>
-          <p className="text-muted-foreground mb-8 text-base leading-relaxed">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Ready to play?</h2>
+          <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed">
             No account needed. No downloads. Jump straight into a game in seconds.
           </p>
           <Link
             href="/play"
-            className="inline-flex items-center gap-2 px-10 py-3.5 bg-green-600 hover:bg-green-500 text-white text-base font-semibold rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-8 sm:px-10 py-3 sm:py-3.5 bg-green-600 hover:bg-green-500 text-white text-sm sm:text-base font-semibold rounded-lg transition-colors"
           >
             Start Playing <ArrowRight className="w-4 h-4" />
           </Link>
@@ -293,12 +294,12 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3 px-6 sm:px-12 py-6 text-[11px] text-subtle">
+      <footer className="border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 px-6 sm:px-12 py-4 sm:py-6 text-[11px] text-subtle">
         <span className="font-semibold text-muted-foreground">utictactoe</span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap justify-center gap-x-3 gap-y-1">
           <span>&copy; {new Date().getFullYear()}</span>
-          <span>&middot;</span>
-          <span>Built by{" "}
+          <span className="hidden sm:inline">&middot;</span>
+          <span className="hidden sm:inline">Built by{" "}
             <a href="https://www.linkedin.com/in/manuel-delpino/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Delpino</a>
             {" & "}
             <a href="https://www.linkedin.com/in/manuel-meiri%C3%B1o-7b9214331/" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Manuel Meiriño</a>
