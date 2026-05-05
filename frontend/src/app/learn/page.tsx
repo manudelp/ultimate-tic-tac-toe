@@ -17,7 +17,7 @@ const SECTIONS = [
 
 export default function Learn() {
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-12">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-4 pb-12 sm:py-12">
 
       {/* Header */}
       <div className="mb-12">

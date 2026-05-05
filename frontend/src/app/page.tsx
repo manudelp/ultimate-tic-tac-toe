@@ -4,7 +4,47 @@ import Link from "next/link";
 import { Bot, Globe, Users, MousePointerClick, ArrowRight, Shuffle, Trophy } from "lucide-react";
 import HeroBoard from "@/components/core/hero-board";
 import ThemeToggle from "@/components/ui/theme-toggle";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const fadeDown: Variants = {
+  hidden: { opacity: 0, y: -16 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const scaleIn: Variants = {
+  hidden: { opacity: 0, scale: 0.92 },
+  visible: { opacity: 1, scale: 1 },
+};
+
+const fadeLeft: Variants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0 },
+};
+
+const fadeRight: Variants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: { opacity: 1, x: 0 },
+};
+
+const stagger: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const staggerFast: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+};
+
+const staggerSlow: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.15 } },
+};
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -132,8 +172,6 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    // On screens where the board is hidden (below md), skip waiting for it
-    if (!window.matchMedia("(min-width: 768px)").matches) setBoardReady(true);
   }, []);
 
   return (
@@ -154,22 +192,28 @@ export default function Home() {
           </div>
         </nav>
 
-        <div className={`flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-6 sm:px-12 pb-10 sm:pb-16 pt-8 transition-opacity duration-300 ${mounted && boardReady ? "opacity-100" : "opacity-0"}`}>
-          <div
+        <motion.div
+          className={`flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-6 sm:px-12 pb-10 sm:pb-16 pt-8 ${mounted && boardReady ? "" : "opacity-0"}`}
+          initial="hidden"
+          animate={mounted && boardReady ? "visible" : "hidden"}
+          variants={stagger}
+        >
+          <motion.div
             className="flex flex-col items-center md:items-start text-center md:text-left max-w-[680px]"
+            variants={stagger}
           >
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
+            <motion.h1 variants={fadeDown} transition={{ duration: 0.6, ease: "easeOut" }} className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
               Ultimate<br />
               <span className="text-muted-foreground">Tic-Tac-Toe.</span>
-            </h1>
-            <p className="text-muted-foreground/80 text-base sm:text-lg mb-2 leading-relaxed max-w-md">
+            </motion.h1>
+            <motion.p variants={fadeUp} transition={{ duration: 0.5 }} className="text-muted-foreground/80 text-base sm:text-lg mb-2 leading-relaxed max-w-md">
               A game of <span ref={typeRef} className="font-semibold" />.
-            </p>
-            <p className="text-muted-foreground/70 text-sm sm:text-base mb-8 leading-[1.7] max-w-lg">
+            </motion.p>
+            <motion.p variants={fadeUp} transition={{ duration: 0.5 }} className="text-muted-foreground/70 text-sm sm:text-base mb-8 leading-[1.7] max-w-lg">
               Nine boards. Every move you make sends your opponent somewhere specific.
               Think ahead or lose control.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            </motion.p>
+            <motion.div variants={fadeUp} transition={{ duration: 0.5 }} className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
               <Link
                 href="/play"
                 className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors text-sm text-center"
@@ -182,27 +226,39 @@ export default function Home() {
               >
                 Learn the rules →
               </Link>
-            </div>
-            <p className="text-xs text-muted-foreground/50 mt-4">No account needed · Free · Instant play</p>
-          </div>
+            </motion.div>
+            <motion.p variants={fadeUp} transition={{ duration: 0.5 }} className="text-xs text-muted-foreground/50 mt-4">No account needed · Free · Instant play</motion.p>
+          </motion.div>
 
-          <div className="hidden md:flex items-center justify-center w-[400px] h-[400px] shrink-0">
+          <motion.div
+            variants={scaleIn}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center justify-center w-[280px] h-[280px] md:w-[400px] md:h-[400px] shrink-0"
+          >
             <HeroBoard onReady={() => setBoardReady(true)} />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── How it works ── */}
-      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
+      <motion.section
+        className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerSlow}
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8 sm:mb-16">
+          <motion.div variants={fadeUp} transition={{ duration: 0.5 }} className="text-center mb-8 sm:mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 sm:mb-3">How it works</p>
             <h2 className="text-2xl sm:text-3xl font-bold">Three steps to victory</h2>
-          </div>
-          <div className="grid gap-3 sm:gap-8 sm:grid-cols-3">
-            {STEPS.map((s) => (
-              <div
+          </motion.div>
+          <motion.div className="grid gap-3 sm:gap-8 sm:grid-cols-3" variants={staggerSlow}>
+            {STEPS.map((s, i) => (
+              <motion.div
                 key={s.num}
+                variants={i === 0 ? fadeLeft : i === 2 ? fadeRight : fadeUp}
+                transition={{ duration: 0.5, ease: "easeOut" }}
                 className="relative flex flex-col gap-3 sm:gap-4 p-4 sm:p-6 rounded-xl border border-border/50 bg-background"
               >
                 <span className="text-[11px] font-bold text-muted-foreground/50 tracking-widest">{s.num}</span>
@@ -213,23 +269,31 @@ export default function Home() {
                   <h3 className="font-semibold mb-1">{s.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── Game modes ── */}
-      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
+      <motion.section
+        className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerFast}
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8 sm:mb-16">
+          <motion.div variants={fadeDown} transition={{ duration: 0.4 }} className="text-center mb-8 sm:mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 sm:mb-3">Game modes</p>
             <h2 className="text-2xl sm:text-3xl font-bold">Play your way</h2>
-          </div>
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
+          </motion.div>
+          <motion.div className="grid gap-3 sm:gap-4 sm:grid-cols-3" variants={staggerFast}>
             {MODES.map(({ icon: Icon, title, desc, cta, color, bg }) => (
-              <div
+              <motion.div
                 key={title}
+                variants={scaleIn}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="group flex flex-col gap-3 sm:gap-4 p-4 sm:p-6 rounded-xl border border-border/50 bg-background hover:border-border transition-colors"
               >
                 <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center`}>
@@ -245,23 +309,31 @@ export default function Home() {
                 >
                   {cta} <ArrowRight className="w-3 h-3" />
                 </Link>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── Features ── */}
-      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
+      <motion.section
+        className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={stagger}
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8 sm:mb-16">
+          <motion.div variants={fadeUp} transition={{ duration: 0.5 }} className="text-center mb-8 sm:mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 sm:mb-3">Features</p>
             <h2 className="text-2xl sm:text-3xl font-bold">Everything you need</h2>
-          </div>
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div
+          </motion.div>
+          <motion.div className="grid gap-3 sm:gap-4 sm:grid-cols-2" variants={stagger}>
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+              <motion.div
                 key={title}
+                variants={i % 2 === 0 ? fadeLeft : fadeRight}
+                transition={{ duration: 0.45, ease: "easeOut" }}
                 className="flex gap-3 sm:gap-4 p-4 sm:p-6 rounded-xl border border-border/50 bg-background"
               >
                 <div className="w-9 h-9 rounded-lg bg-surface shrink-0 flex items-center justify-center mt-0.5">
@@ -271,15 +343,21 @@ export default function Home() {
                   <h3 className="font-semibold mb-1 text-sm">{title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── CTA ── */}
-      <section className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50">
-        <div className="max-w-2xl mx-auto text-center">
+      <motion.section
+        className="px-6 sm:px-12 py-14 sm:py-24 border-t border-border/50"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={stagger}
+      >
+        <motion.div variants={scaleIn} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Ready to play?</h2>
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed">
             No account needed. No downloads. Jump straight into a game in seconds.
@@ -290,8 +368,8 @@ export default function Home() {
           >
             Start Playing <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* ── Footer ── */}
       <footer className="border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 px-6 sm:px-12 py-4 sm:py-6 text-[11px] text-subtle">

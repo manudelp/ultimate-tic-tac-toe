@@ -162,7 +162,7 @@ function PlayContent() {
   const queueCount = queueCounts[queueKey] || 0;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-4 pb-8 sm:py-12">
 
       {/* Header */}
       <div className="mb-8 sm:mb-10">
