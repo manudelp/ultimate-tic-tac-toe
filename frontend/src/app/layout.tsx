@@ -22,12 +22,18 @@ export const metadata: Metadata = {
   description:
     "The ultimate strategy game. Play against AI or challenge friends online in this advanced twist on classic Tic Tac Toe.",
   openGraph: {
-    images: [{ url: "/og_img.jpg", width: 1200, height: 630, alt: "Ultimate Tic Tac Toe" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Ultimate Tic Tac Toe" }],
     siteName: "Ultimate Tic Tac Toe",
     type: "website",
   },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "/icon.png" },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   manifest: "/manifest.json",
 };
 

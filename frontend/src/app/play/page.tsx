@@ -162,10 +162,10 @@ function PlayContent() {
   const queueCount = queueCounts[queueKey] || 0;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-4 pb-8 sm:py-12">
+    <div className="flex flex-col min-h-[calc(100svh-3.5rem-3rem)] max-w-2xl mx-auto px-4 sm:px-8 py-6 sm:py-10">
 
       {/* Header */}
-      <div className="mb-8 sm:mb-10">
+      <div className="mb-6 sm:mb-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Play</p>
         <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">Choose your game</h1>
         <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
@@ -236,7 +236,7 @@ function PlayContent() {
       </div>
 
       {/* Tab content */}
-      <div>
+      <div className="flex-1 flex flex-col justify-center">
         <AnimatePresence mode="wait">
 
           {/* ── vs AI ── */}

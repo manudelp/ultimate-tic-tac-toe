@@ -1,6 +1,6 @@
 # Ultimate Tic Tac Toe
 
-![Ultimate Tic Tac Toe Logo](/frontend/public/og_img.jpg)
+![Ultimate Tic Tac Toe](/frontend/public/og.png)
 
 Ultimate Tic Tac Toe is an advanced strategy game that adds a challenging twist to the classic Tic Tac Toe.
 

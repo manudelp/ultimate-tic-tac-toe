@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gamepad2, BookOpen } from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
+import { Logo } from "@/components/brand/logo";
 
 const NAV = [
   { href: "/play", icon: Gamepad2, label: "Play" },
@@ -17,10 +18,8 @@ export default function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-background border-b border-border">
-      <Link href="/" className="text-base font-bold whitespace-nowrap">
-        utictactoe
-      </Link>
+    <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-8 bg-background border-b border-border">
+      <Logo />
 
       <nav className="flex items-center gap-1">
         {NAV.map(({ href, icon: Icon, label }) => (

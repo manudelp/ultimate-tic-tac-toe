@@ -1,0 +1,45 @@
+import Link from "next/link";
+
+/**
+ * The mark: a big board won on the diagonal.
+ * Blue is X, red is O, green is the line that closes the game — the same three
+ * colors the board uses. The tile is the site's navy, so it holds on either theme.
+ */
+export function Mark({ className = "w-7 h-7" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      className={className}
+    >
+      <rect width="64" height="64" rx="14" fill="#111827" />
+      <rect x="8" y="8" width="14" height="14" rx="3.5" fill="#1e3a5f" />
+      <rect x="25" y="8" width="14" height="14" rx="3.5" fill="#1e293b" />
+      <rect x="42" y="8" width="14" height="14" rx="3.5" fill="#3f2428" />
+      <rect x="8" y="25" width="14" height="14" rx="3.5" fill="#1e293b" />
+      <rect x="25" y="25" width="14" height="14" rx="3.5" fill="#1e3a5f" />
+      <rect x="42" y="25" width="14" height="14" rx="3.5" fill="#1e293b" />
+      <rect x="8" y="42" width="14" height="14" rx="3.5" fill="#1e293b" />
+      <rect x="25" y="42" width="14" height="14" rx="3.5" fill="#1e293b" />
+      <rect x="42" y="42" width="14" height="14" rx="3.5" fill="#1e3a5f" />
+      <g stroke="#93c5fd" strokeWidth="2.4" strokeLinecap="round">
+        <path d="M11.4 11.4 L18.6 18.6 M18.6 11.4 L11.4 18.6" />
+        <path d="M28.4 28.4 L35.6 35.6 M35.6 28.4 L28.4 35.6" />
+        <path d="M45.4 45.4 L52.6 52.6 M52.6 45.4 L45.4 52.6" />
+      </g>
+      <circle cx="49" cy="15" r="4.1" fill="#3f2428" stroke="#fca5a5" strokeWidth="2.4" />
+      <path d="M15 15 L49 49" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function Logo({ className = "" }: { className?: string }) {
+  return (
+    <Link href="/" className={`inline-flex items-center gap-2 text-foreground ${className}`}>
+      <Mark />
+      <span className="text-base font-extrabold tracking-tight">utictactoe</span>
+    </Link>
+  );
+}

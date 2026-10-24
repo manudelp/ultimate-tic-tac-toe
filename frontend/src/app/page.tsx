@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Bot, Globe, Users, MousePointerClick, ArrowRight, Shuffle, Trophy } from "lucide-react";
 import HeroBoard from "@/components/core/hero-board";
 import ThemeToggle from "@/components/ui/theme-toggle";
+import { Logo } from "@/components/brand/logo";
 import { motion, Variants } from "framer-motion";
 
 const fadeUp: Variants = {
@@ -180,7 +181,7 @@ export default function Home() {
       {/* ── Hero ── */}
       <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col overflow-hidden">
         <nav className="flex items-center justify-between px-4 sm:px-8 h-14 shrink-0">
-          <span className="text-base font-extrabold tracking-tight text-foreground">utictactoe</span>
+          <Logo />
           <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/learn" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">
               How to Play
@@ -218,7 +219,7 @@ export default function Home() {
                 href="/play"
                 className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors text-sm text-center"
               >
-                Play Now — it&apos;s free
+                Play Now
               </Link>
               <Link
                 href="/learn"
