@@ -64,6 +64,8 @@ npm run build:frontend  # Build Next.js for production
 
 Self-hosted with Docker Compose (see `compose.production.yml`). The `web` (Next.js) and `api` (Flask + Socket.IO) containers sit behind a reverse proxy on a single origin. The proxy sends `/socket.io/*`, `/get-bot-list`, `/queue-counts`, and `/health` to the API and everything else to the frontend.
 
+A push to `main` runs `.github/workflows/deploy.yml` on the self-hosted runner on the apps VM, which republishes `/opt/apps/utictactoe` and rebuilds the containers. To deploy the checkout you have on that machine by hand:
+
 ```bash
 docker compose -f compose.production.yml up -d --build
 ```
