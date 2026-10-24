@@ -18,8 +18,12 @@ load_dotenv()
 DEBUG = os.getenv("DEBUG", "false").lower() in ("1", "true", "yes")
 
 ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://utictactoe.vercel.app",
+    origin.strip()
+    for origin in os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:3000,https://utictactoe.com.ar,https://www.utictactoe.com.ar",
+    ).split(",")
+    if origin.strip()
 ]
 
 app = Flask(__name__)

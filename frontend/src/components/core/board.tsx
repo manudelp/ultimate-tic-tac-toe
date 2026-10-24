@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
+import WinLine from "@/components/core/win-line";
 import MiniBoard from "@/components/core/miniboard";
 import { motion } from "framer-motion";
 import { formatMove } from "@/lib/notation";
 import { ArrowLeft, Flag, ChevronUp } from "lucide-react";
 import { toastNotYourTurn, toastCellOccupied } from "@/lib/toasts";
 import type { GameState, GameMove } from "@/types/game";
+import { useGameClock } from "@/hooks/useGameClock";
+import {
+  BOARD_LABELS, cellValue, computeAdvantage, deadSubBoards, formatClock, formatMoveTime,
+  getMoveMetadata, getWinningLine, replayBoard, subWinners,
+} from "@/lib/game-view";
 import ThemeToggle from "@/components/ui/theme-toggle";
-
-type WinningLine = { type: "row" | "col" | "diag"; index: number };
 
 interface BoardProps {
   state: GameState;
@@ -17,220 +21,6 @@ interface BoardProps {
   onCellClick: (a: number, b: number, c: number, d: number) => void;
   onResign: () => void;
   onExit: () => void;
-}
-
-function cellValue(v: number): string {
-  if (v === 1) return "X";
-  if (v === -1) return "O";
-  return "";
-}
-
-function boardResultStr(v: number): string | null {
-  if (v === 1) return "X";
-  if (v === -1) return "O";
-  return null;
-}
-
-function getWinningLine(results: number[][]): { type: "row" | "col" | "diag"; index: number } | null {
-  for (let i = 0; i < 3; i++) {
-    if (results[i][0] !== 0 && results[i][0] === results[i][1] && results[i][1] === results[i][2])
-      return { type: "row", index: i };
-    if (results[0][i] !== 0 && results[0][i] === results[1][i] && results[1][i] === results[2][i])
-      return { type: "col", index: i };
-  }
-  if (results[0][0] !== 0 && results[0][0] === results[1][1] && results[1][1] === results[2][2])
-    return { type: "diag", index: 0 };
-  if (results[0][2] !== 0 && results[0][2] === results[1][1] && results[1][1] === results[2][0])
-    return { type: "diag", index: 1 };
-  return null;
-}
-
-function checkSubWinner(sub: number[][]): number {
-  for (let i = 0; i < 3; i++) {
-    if (sub[i][0] !== 0 && sub[i][0] === sub[i][1] && sub[i][1] === sub[i][2]) return sub[i][0];
-    if (sub[0][i] !== 0 && sub[0][i] === sub[1][i] && sub[1][i] === sub[2][i]) return sub[0][i];
-  }
-  if (sub[0][0] !== 0 && sub[0][0] === sub[1][1] && sub[1][1] === sub[2][2]) return sub[0][0];
-  if (sub[0][2] !== 0 && sub[0][2] === sub[1][1] && sub[1][1] === sub[2][0]) return sub[0][2];
-  return 0;
-}
-
-function replayBoard(moves: GameMove[], upTo: number): number[][][][] {
-  const board = Array.from({ length: 3 }, () =>
-    Array.from({ length: 3 }, () =>
-      Array.from({ length: 3 }, () => [0, 0, 0])
-    )
-  );
-  for (let i = 0; i <= upTo; i++) {
-    const [a, b, c, d] = moves[i].move;
-    board[a][b][c][d] = moves[i].player === "X" ? 1 : -1;
-  }
-  return board;
-}
-
-function replayBoardResults(moves: GameMove[], upTo: number): number[][] {
-  const board = replayBoard(moves, upTo);
-  return board.map(row => row.map(sub => checkSubWinner(sub)));
-}
-
-const ADV_LINES = [
-  [[0,0],[0,1],[0,2]], [[1,0],[1,1],[1,2]], [[2,0],[2,1],[2,2]],
-  [[0,0],[1,0],[2,0]], [[0,1],[1,1],[2,1]], [[0,2],[1,2],[2,2]],
-  [[0,0],[1,1],[2,2]], [[0,2],[1,1],[2,0]],
-];
-
-const MINI_LINES = [
-  [0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6],
-];
-
-// Positional weight: how many big-board winning lines pass through each board position
-const POS_WEIGHT = [
-  3, 2, 3,
-  2, 4, 2,
-  3, 2, 3,
-];
-
-function evaluateMiniBoard(sub: number[][]): number {
-  const flat = sub.flat();
-  let score = 0;
-  for (const line of MINI_LINES) {
-    const vals = line.map(i => flat[i]);
-    const x = vals.filter(v => v === 1).length;
-    const o = vals.filter(v => v === -1).length;
-    if (x > 0 && o > 0) continue; // dead line
-    if (x === 2) score += 6;
-    else if (x === 1) score += 1;
-    if (o === 2) score -= 6;
-    else if (o === 1) score -= 1;
-  }
-  // Center control bonus
-  if (flat[4] === 1) score += 2;
-  else if (flat[4] === -1) score -= 2;
-  return score;
-}
-
-function computeAdvantage(
-  moves: GameMove[], board: number[][][][], boardResults: number[][],
-  hoveredMoveIndex: number | null, isOver: boolean, winner: string | null | undefined,
-): number {
-  const r = hoveredMoveIndex != null ? replayBoardResults(moves, hoveredMoveIndex) : boardResults;
-  const hoveredOver = hoveredMoveIndex != null && hoveredMoveIndex < moves.length - 1;
-  const rBoard = hoveredMoveIndex != null ? replayBoard(moves, hoveredMoveIndex) : board;
-
-  const showOver = isOver && !hoveredOver;
-  if (showOver) {
-    if (winner === "X") return 100;
-    if (winner === "O") return 0;
-    return 50;
-  }
-
-  // Flatten board results to 1D for easier indexing
-  const flat = r.flat(); // 9 values: 1=X won, -1=O won, 0=open
-  const boardDead: boolean[] = [];
-  for (let a = 0; a < 3; a++) {
-    for (let b = 0; b < 3; b++) {
-      const idx = a * 3 + b;
-      if (flat[idx] !== 0) { boardDead.push(true); continue; }
-      const isFull = rBoard[a][b].every(row => row.every(v => v !== 0));
-      boardDead.push(isFull);
-    }
-  }
-
-  let score = 0;
-
-  // 1. Big board line analysis
-  for (const line of ADV_LINES) {
-    const indices = line.map(([a, b]) => a * 3 + b);
-    const vals = indices.map(i => flat[i]);
-    const dead = indices.map(i => boardDead[i]);
-
-    const xWon = vals.filter(v => v === 1).length;
-    const oWon = vals.filter(v => v === -1).length;
-    const drawn = indices.filter(i => flat[i] === 0 && dead[indices.indexOf(i)]).length;
-
-    // Line is dead if both players have won a board in it, or drawn boards block it
-    if (xWon > 0 && oWon > 0) continue;
-    const blocked = drawn;
-
-    if (oWon === 0 && blocked === 0) {
-      if (xWon === 3) score += 1000; // shouldn't happen (game over), but safety
-      else if (xWon === 2) score += 40;
-      else if (xWon === 1) score += 8;
-      else score += 1; // open line, slight value
-    }
-    if (xWon === 0 && blocked === 0) {
-      if (oWon === 3) score -= 1000;
-      else if (oWon === 2) score -= 40;
-      else if (oWon === 1) score -= 8;
-      else score -= 1;
-    }
-    // Partially blocked lines (drawn boards reduce value)
-    if (oWon === 0 && blocked > 0 && xWon > 0) {
-      score += xWon === 2 ? 10 : 2;
-    }
-    if (xWon === 0 && blocked > 0 && oWon > 0) {
-      score -= oWon === 2 ? 10 : 2;
-    }
-  }
-
-  // 2. Won board bonuses (weighted by position)
-  for (let i = 0; i < 9; i++) {
-    if (flat[i] === 1) score += 15 * POS_WEIGHT[i];
-    else if (flat[i] === -1) score -= 15 * POS_WEIGHT[i];
-  }
-
-  // 3. Mini-board internal evaluation (for contested boards only)
-  for (let a = 0; a < 3; a++) {
-    for (let b = 0; b < 3; b++) {
-      const idx = a * 3 + b;
-      if (flat[idx] !== 0 || boardDead[idx]) continue;
-      const miniScore = evaluateMiniBoard(rBoard[a][b]);
-      // Weight by positional importance, but less than won boards
-      score += miniScore * POS_WEIGHT[idx] * 0.3;
-    }
-  }
-
-  // Normalize to 5-95 range (50 = even)
-  // Empirical range: score roughly -300 to +300 in extreme cases
-  const normalized = 50 + (score / 6);
-  return Math.max(5, Math.min(95, Math.round(normalized)));
-}
-
-const BOARD_LABELS = ["A","B","C","D","E","F","G","H","I"];
-
-function getMoveMetadata(
-  moves: GameMove[], index: number, board: number[][][][], boardResults: number[][],
-  isOver: boolean, winner: string | null | undefined,
-): { sendsTo: string; delta: string } {
-  const [, , c, d] = moves[index].move as [number, number, number, number];
-  const targetBoard = c * 3 + d;
-
-  // Compute "sends to"
-  let sendsTo: string;
-  if (index === moves.length - 1 && isOver) {
-    sendsTo = "—";
-  } else {
-    // Check if target board is won/full after this move
-    const boardAfter = replayBoard(moves, index);
-    const resultsAfter = boardAfter.map(row => row.map(sub => checkSubWinner(sub)));
-    const targetR = Math.floor(targetBoard / 3);
-    const targetC = targetBoard % 3;
-    const targetWon = resultsAfter[targetR][targetC] !== 0;
-    const targetFull = !targetWon && boardAfter[targetR][targetC].every(r => r.every(v => v !== 0));
-    sendsTo = (targetWon || targetFull) ? "Free" : BOARD_LABELS[targetBoard];
-  }
-
-  // Compute Δ advantage
-  let delta = "";
-  if (index > 0) {
-    const prev = computeAdvantage(moves, board, boardResults, index - 1, false, null);
-    const curr = computeAdvantage(moves, board, boardResults, index, isOver, winner);
-    const diff = curr - prev;
-    if (diff > 0) delta = `+${diff}`;
-    else if (diff < 0) delta = `${diff}`;
-  }
-
-  return { sendsTo, delta };
 }
 
 const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCellClick, onResign, onExit }) => {
@@ -263,33 +53,10 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
   const lastMove = state.moves.length > 0 ? state.moves[state.moves.length - 1].move as [number, number, number, number] : null;
   const winningLine = isOver && state.winner ? getWinningLine(state.boardResults) : null;
 
-  const winners: (string | null)[][] = state.boardResults.map((row, a) =>
-    row.map((v, b) => {
-      if (v === 1) return "X";
-      if (v === -1) return "O";
-      if (v === 0) {
-        const sub = state.board[a][b];
-        const isFull = sub.every((r: number[]) => r.every((c: number) => c !== 0));
-        if (isFull) return "draw";
-      }
-      return null;
-    })
-  );
-
-  const disabled: boolean[][] = state.board.map((row, a) =>
-    row.map((sub, b) => {
-      if (state.boardResults[a][b] !== 0) return true;
-      for (let c = 0; c < 3; c++)
-        for (let d = 0; d < 3; d++)
-          if (sub[c][d] === 0) return false;
-      return true;
-    })
-  );
-
+  const winners = subWinners(state);
+  const disabled = deadSubBoards(state);
   const stringBoard: string[][][][] = state.board.map(row =>
-    row.map(sub =>
-      sub.map(r => r.map(v => cellValue(v)))
-    )
+    row.map(sub => sub.map(r => r.map(v => cellValue(v))))
   );
 
   const activeMiniBoard: [number, number] | null = state.forcedBoard
@@ -328,61 +95,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
     onCellClick(a, b, c, d);
   };
 
-  const [displayClocks, setDisplayClocks] = useState(() => {
-    if (!state.clocks.X || !state.clocks.O) return state.clocks;
-    const drift = Date.now() / 1000 - state.serverTime;
-    return {
-      X: state.activePlayer === "X" ? Math.max(0, state.clocks.X - drift) : state.clocks.X,
-      O: state.activePlayer === "O" ? Math.max(0, state.clocks.O - drift) : state.clocks.O,
-    };
-  });
-  const hasClock = state.clocks.X != null && state.clocks.O != null;
-
-  const [elapsed, setElapsed] = useState({ X: 0, O: 0 });
-
-  useEffect(() => {
-    if (!state.clocks.X || !state.clocks.O) {
-      setDisplayClocks(state.clocks);
-      return;
-    }
-    const drift = Date.now() / 1000 - state.serverTime;
-    setDisplayClocks({
-      X: state.activePlayer === "X" ? Math.max(0, state.clocks.X - drift) : state.clocks.X,
-      O: state.activePlayer === "O" ? Math.max(0, state.clocks.O - drift) : state.clocks.O,
-    });
-  }, [state.clocks, state.serverTime, state.activePlayer]);
-
-  useEffect(() => {
-    if (hasClock) return;
-    let x = 0, o = 0;
-    for (let i = 0; i < state.moves.length; i++) {
-      const delta = i === 0 ? state.moves[i].time : state.moves[i].time - state.moves[i - 1].time;
-      if (state.moves[i].player === "X") x += delta; else o += delta;
-    }
-    setElapsed({ X: x, O: o });
-  }, [state.moves, hasClock]);
-
-  useEffect(() => {
-    if (isOver || hasClock) return;
-    const interval = setInterval(() => {
-      setElapsed((prev) => ({
-        ...prev,
-        [state.activePlayer]: prev[state.activePlayer] + 0.1,
-      }));
-    }, 100);
-    return () => clearInterval(interval);
-  }, [state.activePlayer, isOver, hasClock]);
-
-  useEffect(() => {
-    if (isOver || !hasClock) return;
-    const interval = setInterval(() => {
-      setDisplayClocks((prev) => ({
-        ...prev,
-        [state.activePlayer]: Math.max(0, (prev[state.activePlayer] ?? 0) - 0.1),
-      }));
-    }, 100);
-    return () => clearInterval(interval);
-  }, [state.activePlayer, isOver, hasClock]);
+  const { remaining: displayClocks, spent: elapsed, timed: hasClock } = useGameClock(state);
 
   const formatClock = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -484,34 +197,7 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
               ))
             )}
 
-            {winningLine && (
-              <div className="absolute inset-0 pointer-events-none">
-                {winningLine.type === "row" && (
-                  <div
-                    className="absolute left-[2.5%] w-[95%] h-[5px] bg-green-500 rounded-full"
-                    style={{ top: `${(100 / 3) * winningLine.index + 50 / 3}%`, animation: "winLineRow 0.5s ease-out forwards" }}
-                  />
-                )}
-                {winningLine.type === "col" && (
-                  <div
-                    className="absolute top-[2.5%] h-[95%] w-[5px] bg-green-500 rounded-full"
-                    style={{ left: `${(100 / 3) * winningLine.index + 50 / 3}%`, animation: "winLineCol 0.5s ease-out forwards" }}
-                  />
-                )}
-                {winningLine.type === "diag" && winningLine.index === 0 && (
-                  <div
-                    className="absolute w-[130%] h-[5px] bg-green-500 rounded-full"
-                    style={{ top: "50%", left: "50%", animation: "winLineDiag0 0.5s ease-out forwards" }}
-                  />
-                )}
-                {winningLine.type === "diag" && winningLine.index === 1 && (
-                  <div
-                    className="absolute w-[130%] h-[5px] bg-green-500 rounded-full"
-                    style={{ top: "50%", left: "50%", animation: "winLineDiag1 0.5s ease-out forwards" }}
-                  />
-                )}
-              </div>
-            )}
+            <WinLine line={winningLine} />
 
             {/* Game over overlay */}
             {isOver && showOverlay && (

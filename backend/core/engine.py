@@ -1,8 +1,8 @@
 import numpy as np
 import time
 import uuid
-from core.board_utils import is_won, is_full, is_playable
-from core.hash_utils import get_board_results, get_winner
+from core.board_utils import is_won, is_playable
+from core.rules import board_indexes, legal_cells, outcome
 
 
 class GameEngine:
@@ -24,6 +24,7 @@ class GameEngine:
 
     def to_dict(self):
         """Serialize full state for client."""
+        reading = self.clock_reading()
         return {
             "id": self.id,
             "board": self.board.tolist(),
@@ -33,12 +34,32 @@ class GameEngine:
             "winner": {1: "X", -1: "O"}.get(self.winner),
             "moves": self.moves,
             "clocks": {
-                "X": round(self.clocks[1], 1) if self.clocks else None,
-                "O": round(self.clocks[-1], 1) if self.clocks else None,
+                "X": round(reading[1], 1) if reading[1] is not None else None,
+                "O": round(reading[-1], 1) if reading[-1] is not None else None,
             },
+            "clockRunning": reading["running"],
             "boardResults": self._board_results().tolist(),
             "serverTime": time.time(),
         }
+
+    def clock_reading(self):
+        """What each side's clock reads right now, and whether it is running.
+
+        The stored clocks only move on a ply, so the side to move is still
+        spending the time since last_move_time. Reading does not commit it.
+        """
+        if not self.clocks:
+            return {1: None, -1: None, "running": False}
+        running = (
+            self.status == "ongoing"
+            and self.last_move_time is not None
+            and not self.clock_paused
+        )
+        remaining = dict(self.clocks)
+        if running:
+            elapsed = time.time() - self.last_move_time
+            remaining[self.active_player] = max(0.0, remaining[self.active_player] - elapsed)
+        return {1: remaining[1], -1: remaining[-1], "running": running}
 
     def start(self):
         """Start the clock."""
@@ -116,38 +137,24 @@ class GameEngine:
             self.forced_board = None
 
         # Check game end
-        results = self._board_results()
-        game_winner = get_winner(results)
-        if game_winner != 0:
-            self.status = "won"
-            self.winner = int(game_winner)
-        elif self._is_draw():
-            self.status = "draw"
-        else:
+        status, winner = outcome(board_indexes(self.board))
+        self.status = status
+        if winner is not None:
+            self.winner = int(winner)
+        if status == "ongoing":
             self.active_player = -player
 
         return True, None
 
     def get_legal_moves(self):
         """Return list of legal (a, b, c, d) tuples."""
-        moves = []
-        if self.forced_board:
-            a, b = self.forced_board
-            sub = self.board[a, b]
-            for c in range(3):
-                for d in range(3):
-                    if sub[c, d] == 0:
-                        moves.append((a, b, c, d))
-        else:
-            for a in range(3):
-                for b in range(3):
-                    if is_playable(self.board[a, b]):
-                        sub = self.board[a, b]
-                        for c in range(3):
-                            for d in range(3):
-                                if sub[c, d] == 0:
-                                    moves.append((a, b, c, d))
-        return moves
+        if self.status != "ongoing":
+            return []
+        forced = None if self.forced_board is None else self.forced_board[0] * 3 + self.forced_board[1]
+        return [
+            (sub // 3, sub % 3, cell // 3, cell % 3)
+            for sub, cell in legal_cells(board_indexes(self.board), forced)
+        ]
 
     def check_timeout(self):
         """Check if current player has timed out."""
@@ -168,10 +175,3 @@ class GameEngine:
             for j in range(3):
                 results[i, j] = is_won(self.board[i, j])
         return results
-
-    def _is_draw(self):
-        for a in range(3):
-            for b in range(3):
-                if is_playable(self.board[a, b]):
-                    return False
-        return True

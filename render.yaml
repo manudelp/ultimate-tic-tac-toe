@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: utictactoe-backend
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install uv && uv sync --frozen --no-dev
-    startCommand: uv run gunicorn --worker-class gevent -w 1 --bind 0.0.0.0:$PORT app:app

@@ -1,0 +1,7 @@
+This product includes the NMCTS2 policy-value network from uttt.ai by
+Arkadiusz Nowaczyński (https://github.com/arnowaczynski/utttai), licensed
+under the Apache License, Version 2.0. A copy of that license is in
+licenses/utttai-Apache-2.0.txt.
+
+The file weights/policy_value_net_stage2.onnx is his trained network, as
+published for the browser at https://uttt.ai/policy_value_net_stage2.onnx.

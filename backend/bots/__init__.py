@@ -2,8 +2,9 @@ from bots.randy import RandomAgent
 from bots.greedy import GreedyAgent
 from bots.jardito import JardineritoAgent
 from bots.jardishow import JardiShowAgent
+from bots.nmcts2 import Nmcts2Agent
 
-_AGENT_CLASSES = [RandomAgent, GreedyAgent, JardineritoAgent, JardiShowAgent]
+_AGENT_CLASSES = [RandomAgent, GreedyAgent, JardineritoAgent, JardiShowAgent, Nmcts2Agent]
 AGENTS = {}
 
 for cls in _AGENT_CLASSES:

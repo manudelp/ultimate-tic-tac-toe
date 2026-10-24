@@ -7,6 +7,7 @@ export interface GameState {
   winner: "X" | "O" | null;
   moves: GameMove[];
   clocks: { X: number | null; O: number | null };
+  clockRunning: boolean;       // false while paused, e.g. opponent disconnected
   boardResults: number[][];    // 3x3, values: 0, 1, -1
   serverTime: number;          // unix timestamp when state was serialized
 }

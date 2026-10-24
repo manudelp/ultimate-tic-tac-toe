@@ -4,7 +4,7 @@
 
 Ultimate Tic Tac Toe is an advanced strategy game that adds a challenging twist to the classic Tic Tac Toe.
 
-**[Play the game live →](https://utictactoe.online)**
+**[Play the game live →](https://utictactoe.com.ar)**
 
 ## Project Structure
 
@@ -18,7 +18,7 @@ ultimate-tic-tac-toe/
 │   ├── bots/          # AI bot agents (Randy, Greedy, Jardinerito, Jardinero)
 │   ├── data/          # Precomputed hash tables for board evaluation
 │   └── dev/           # Dev-only tests, profilers, heuristic experiments
-├── render.yaml        # Render deployment config (backend)
+├── compose.production.yml  # Self-hosted Docker Compose deployment
 └── package.json       # Monorepo convenience scripts
 ```
 
@@ -62,8 +62,11 @@ npm run build:frontend  # Build Next.js for production
 
 ## Deployment
 
-- **Frontend**: Deployed on Vercel
-- **Backend**: Deployed on Render (see `render.yaml`)
+Self-hosted with Docker Compose (see `compose.production.yml`). The `web` (Next.js) and `api` (Flask + Socket.IO) containers sit behind a reverse proxy on a single origin. The proxy sends `/socket.io/*`, `/get-bot-list`, `/queue-counts`, and `/health` to the API and everything else to the frontend.
+
+```bash
+docker compose -f compose.production.yml up -d --build
+```
 
 ## How to Play
 
@@ -76,7 +79,7 @@ npm run build:frontend  # Build Next.js for production
 
 - **Frontend**: Next.js, React, Tailwind CSS, Framer Motion, Socket.IO Client
 - **Backend**: Flask, Flask-SocketIO, Gunicorn + Gevent, Supabase
-- **Deployment**: Vercel (frontend), Render (backend)
+- **Deployment**: Docker Compose on a self-hosted server, behind a Cloudflare Tunnel
 
 ## AI Bots
 

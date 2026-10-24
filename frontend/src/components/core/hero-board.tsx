@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import WinLine from "@/components/core/win-line";
 
 const SCRIPT: [number, number, number, number, "X" | "O"][] = [
   [2, 1, 1, 2, "X"],   [1, 2, 2, 0, "O"],   [2, 0, 0, 0, "X"],   [0, 0, 1, 2, "O"],
@@ -204,34 +205,7 @@ export default function HeroBoard({ onReady }: { onReady?: () => void }) {
         })
       )}
 
-      {winningLine && (
-        <div className="absolute inset-0 pointer-events-none">
-          {winningLine.type === "row" && (
-            <div
-              className="absolute left-[2.5%] w-[95%] h-[5px] bg-green-500 rounded-full"
-              style={{ top: `${(100 / 3) * winningLine.index + 50 / 3}%`, animation: "winLineRow 0.5s ease-out forwards" }}
-            />
-          )}
-          {winningLine.type === "col" && (
-            <div
-              className="absolute top-[2.5%] h-[95%] w-[5px] bg-green-500 rounded-full"
-              style={{ left: `${(100 / 3) * winningLine.index + 50 / 3}%`, animation: "winLineCol 0.5s ease-out forwards" }}
-            />
-          )}
-          {winningLine.type === "diag" && winningLine.index === 0 && (
-            <div
-              className="absolute w-[130%] h-[5px] bg-green-500 rounded-full"
-              style={{ top: "50%", left: "50%", animation: "winLineDiag0 0.5s ease-out forwards" }}
-            />
-          )}
-          {winningLine.type === "diag" && winningLine.index === 1 && (
-            <div
-              className="absolute w-[130%] h-[5px] bg-green-500 rounded-full"
-              style={{ top: "50%", left: "50%", animation: "winLineDiag1 0.5s ease-out forwards" }}
-            />
-          )}
-        </div>
-      )}
+      <WinLine line={winningLine} />
     </div>
   );
 }

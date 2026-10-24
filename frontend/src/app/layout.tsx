@@ -1,5 +1,3 @@
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 import { Space_Grotesk } from "next/font/google";
 import type { Metadata } from "next";
@@ -13,11 +11,7 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "https://utictactoe.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://utictactoe.com.ar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -51,8 +45,6 @@ export default function RootLayout({
           <main>{children}</main>
           <Toaster richColors />
         </ThemeProvider>
-        <SpeedInsights />
-        <Analytics />
       </body>
     </html>
   );

@@ -44,7 +44,6 @@ export default function PrivacyPolicy() {
             </p>
             <div className="space-y-3">
               {[
-                { title: "Anonymous usage analytics", desc: "Page views, performance metrics, and general usage patterns collected by Vercel Analytics and Vercel Speed Insights. This data is aggregated and cannot be used to identify you." },
                 { title: "Game session data", desc: "Temporary in-memory game state (board positions, moves, clocks) held on our server for the duration of your session. This is never written to a database and is discarded when the session ends." },
                 { title: "Session storage", desc: "Your browser's sessionStorage is used to resume an active game if you reload the page. This data never leaves your device and is cleared when you close the tab." },
               ].map(({ title, desc }) => (
@@ -95,8 +94,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="space-y-3">
               {[
-                { title: "Vercel", desc: "Hosts the frontend and provides anonymous analytics and speed insights.", link: "https://vercel.com/legal/privacy-policy" },
-                { title: "Render", desc: "Hosts the backend game server. No personal data is stored on Render.", link: "https://render.com/privacy" },
+                { title: "Cloudflare", desc: "Provides DNS and routes encrypted traffic to our self-hosted server. No personal data is stored by us on Cloudflare.", link: "https://www.cloudflare.com/privacypolicy/" },
               ].map(({ title, desc, link }) => (
                 <div key={title} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-background">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shrink-0 mt-2" />

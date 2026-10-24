@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      PORT: "5000"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://utictactoe.com.ar,https://www.utictactoe.com.ar}
+    ports:
+      - "${APPS_BIND_IP:-10.20.0.12}:5100:5000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://utictactoe.com.ar}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://utictactoe.com.ar}
+    restart: unless-stopped
+    ports:
+      - "${APPS_BIND_IP:-10.20.0.12}:3100:3000"
+    depends_on:
+      - api

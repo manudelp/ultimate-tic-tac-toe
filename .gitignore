@@ -71,3 +71,9 @@ ssl/
 # Logs
 *.log
 logs/
+
+# uttt.ai checkout (Apache-2.0) and local training artifacts
+/third_party/
+/backend/weights/
+/backend/datasets/
+/backend/runs/

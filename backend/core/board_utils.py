@@ -1,34 +1,27 @@
-"""Shared board utility functions for Ultimate Tic-Tac-Toe."""
+"""Board helpers over numpy sub-boards. The rules themselves live in core.rules."""
 import numpy as np
+
+from core.rules import EMPTIES, FULL, OVER, WINNER, sub_index
 
 
 def is_won(board):
     """Check if a 3x3 board is won. Returns 1, -1, or 0."""
-    for i in range(3):
-        if board[i, 0] == board[i, 1] == board[i, 2] != 0:
-            return int(board[i, 0])
-        if board[0, i] == board[1, i] == board[2, i] != 0:
-            return int(board[0, i])
-    if board[0, 0] == board[1, 1] == board[2, 2] != 0:
-        return int(board[0, 0])
-    if board[0, 2] == board[1, 1] == board[2, 0] != 0:
-        return int(board[0, 2])
-    return 0
+    return WINNER[sub_index(board)]
 
 
 def is_full(board):
     """Returns True if the board has no empty cells."""
-    return np.all(board != 0)
+    return FULL[sub_index(board)]
 
 
 def is_playable(board):
     """Returns True if the board is not full and not won."""
-    return not is_full(board) and is_won(board) == 0
+    return not OVER[sub_index(board)]
 
 
 def is_over(board):
     """Returns True if the board is full or won."""
-    return is_full(board) or is_won(board) != 0
+    return OVER[sub_index(board)]
 
 
 def can_play(board, row, col):
@@ -43,10 +36,10 @@ def get_playable_boards(board):
 
 def random_move(board):
     """Pick a random empty cell. Returns (row, col)."""
-    empty = np.flatnonzero(board == 0)
-    if empty.size == 0:
+    empty = EMPTIES[sub_index(board)]
+    if not empty:
         raise ValueError("No empty cells on board")
-    return np.unravel_index(np.random.choice(empty), board.shape)
+    return divmod(int(np.random.choice(empty)), 3)
 
 
 def safe_set_extractor(board, move_set):
