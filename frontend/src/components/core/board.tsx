@@ -3,7 +3,7 @@ import WinLine from "@/components/core/win-line";
 import MiniBoard from "@/components/core/miniboard";
 import { motion } from "framer-motion";
 import { formatMove } from "@/lib/notation";
-import { ArrowLeft, Flag, ChevronUp } from "lucide-react";
+import { ArrowLeft, Flag, ChevronUp, Volume2, VolumeX } from "lucide-react";
 import { toastNotYourTurn, toastCellOccupied } from "@/lib/toasts";
 import type { GameState, GameMove } from "@/types/game";
 import { useGameClock } from "@/hooks/useGameClock";
@@ -34,17 +34,35 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
 
   const tapRef = useRef<HTMLAudioElement | null>(null);
   const winRef = useRef<HTMLAudioElement | null>(null);
+  const mutedRef = useRef(false);
+  const [muted, setMuted] = useState(false);
 
   useEffect(() => {
+    const stored = localStorage.getItem("uttt_muted") === "1";
+    mutedRef.current = stored;
+    setMuted(stored);
     tapRef.current = new Audio("/assets/sounds/tap.mp3");
     winRef.current = new Audio("/assets/sounds/win.mp3");
   }, []);
 
+  const toggleMute = () => {
+    const next = !mutedRef.current;
+    mutedRef.current = next;
+    localStorage.setItem("uttt_muted", next ? "1" : "0");
+    setMuted(next);
+    if (next) {
+      tapRef.current?.pause();
+      winRef.current?.pause();
+    }
+  };
+
   useEffect(() => {
-    if (state.moves.length > 0) tapRef.current?.play().catch(() => {});
+    if (mutedRef.current || state.moves.length === 0) return;
+    tapRef.current?.play().catch(() => {});
   }, [state.moves.length]);
 
   useEffect(() => {
+    if (mutedRef.current) return;
     if (state.status !== "ongoing" && state.winner) winRef.current?.play().catch(() => {});
   }, [state.status, state.winner]);
 
@@ -171,6 +189,14 @@ const Board: React.FC<BoardProps> = ({ state, myPlayer, opponent, isLocal, onCel
                 </>
               )}
             </div>
+            <button
+              onClick={toggleMute}
+              className="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+              title={muted ? "Unmute" : "Mute"}
+            >
+              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
             <div className="hidden lg:block"><ThemeToggle /></div>
           </div>
         </div>
