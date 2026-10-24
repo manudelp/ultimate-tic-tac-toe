@@ -29,9 +29,20 @@ def main():
     play_cmd.add_argument("--device", default="cpu")
     play_cmd.add_argument("--seed", type=int, default=0)
 
+    rate_cmd = sub.add_parser("rate", help="round robin of the live bots, writes data/bot_ratings.json")
+    rate_cmd.add_argument("--openings", type=int, default=12, help="each is played twice, colors swapped")
+    rate_cmd.add_argument("--plies", type=int, default=2, help="random plies in each opening")
+    rate_cmd.add_argument("--seed", type=int, default=0)
+    rate_cmd.add_argument("--workers", type=int, default=4)
+
     args = parser.parse_args()
     if args.cmd == "verify":
         verify(games=args.games, seed=args.seed)
+        return
+    if args.cmd == "rate":
+        from arena.rating import rate
+
+        rate(openings=args.openings, plies=args.plies, seed=args.seed, workers=args.workers)
         return
 
     player_a = make_player(args.x, simulations=args.simulations, device=args.device)

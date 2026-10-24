@@ -18,12 +18,19 @@ export interface GameMove {
   time: number;
 }
 
+export interface BotDifficulty {
+  rating: number | null;       // Elo scale from bot-vs-bot games; random play is 500
+  level: number | null;        // 1..maxLevel, null when unrated
+  label: string;
+  maxLevel: number;
+}
+
 export interface BotInfo {
   id: number;
   name: string;
   icon: string;
   description: string;
-  difficulty: number;
+  difficulty: BotDifficulty;
 }
 
 export interface GameStartedEvent {

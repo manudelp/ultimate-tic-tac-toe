@@ -65,7 +65,6 @@ class Nmcts2Agent(BaseAgent):
     name = "Arky"
     icon = "🦊"
     description = "Arky plays Arkadiusz Nowaczyński's NMCTS2, the network behind uttt.ai."
-    difficulty = 5
 
     def __init__(self):
         super().__init__()

@@ -18,7 +18,7 @@ class GameEngine:
         self.moves = []
         self.time_per_player = time_per_player
         self.clocks = {1: time_per_player, -1: time_per_player} if time_per_player else None
-        self.last_move_time = None
+        self.last_move_time = None  # set on the first move; the clock is idle until then
         self.clock_paused = False
         self.created_at = time.time()
 
@@ -60,10 +60,6 @@ class GameEngine:
             elapsed = time.time() - self.last_move_time
             remaining[self.active_player] = max(0.0, remaining[self.active_player] - elapsed)
         return {1: remaining[1], -1: remaining[-1], "running": running}
-
-    def start(self):
-        """Start the clock."""
-        self.last_move_time = time.time()
 
     def pause_clock(self):
         """Pause the clock (e.g. on disconnect). Commits elapsed time so far."""
@@ -108,7 +104,9 @@ class GameEngine:
         if self.board[a, b, c, d] != 0:
             return False, "Cell is occupied"
 
-        # Update clock
+        # Update clock. `last_move_time` is None until this is the first move,
+        # so nothing is charged for the time spent deciding it; the clock only
+        # starts running once it is set below.
         now = time.time()
         if self.clocks and self.last_move_time and not self.clock_paused:
             elapsed = now - self.last_move_time

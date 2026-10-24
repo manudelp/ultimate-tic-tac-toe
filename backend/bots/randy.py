@@ -8,7 +8,6 @@ class RandomAgent(BaseAgent):
     name = "Randy"
     icon = "🎲"
     description = "Randy is a wild card! He plays like he's throwing darts blindfolded. Don't expect strategy, just chaos and fun!"
-    difficulty = 1
 
     def choose(self, position):
         moves = position.legal_moves()

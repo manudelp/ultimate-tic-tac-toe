@@ -6,6 +6,7 @@ import { toastInvalidLobbyCode } from "@/lib/toasts";
 import { Bot, Globe, Users, Swords, Clock, ArrowRight, Link2, Hash, ChevronLeft, RotateCcw, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Loader from "@/components/ui/loader";
+import { DifficultyBar, DifficultyLabel } from "@/components/ui/difficulty";
 import type { BotInfo } from "@/types/game";
 
 type Tab = "ai" | "online" | "local";
@@ -273,7 +274,7 @@ function PlayContent() {
                     >
                       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Select your opponent</p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                        {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => (
+                        {bots?.map((bot) => (
                           <button
                             key={bot.id}
                             onClick={() => setSelectedBot(bot)}
@@ -281,11 +282,8 @@ function PlayContent() {
                           >
                             <span className="text-4xl sm:text-5xl leading-none group-hover:scale-110 transition-transform">{bot.icon}</span>
                             <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{bot.name}</span>
-                            <div className="flex gap-1">
-                              {Array(5).fill(0).map((_, i) => (
-                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < bot.difficulty ? "bg-green-500" : "bg-border"}`} />
-                              ))}
-                            </div>
+                            <DifficultyBar difficulty={bot.difficulty} />
+                            <DifficultyLabel difficulty={bot.difficulty} />
                           </button>
                         ))}
                       </div>
@@ -315,10 +313,9 @@ function PlayContent() {
                             <p className="font-bold">{selectedBot.name}</p>
                             <p className="text-xs text-muted-foreground leading-snug mt-0.5">{selectedBot.description}</p>
                           </div>
-                          <div className="flex gap-0.5 pt-1 shrink-0">
-                            {Array(5).fill(0).map((_, i) => (
-                              <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < selectedBot.difficulty ? "bg-green-500" : "bg-border"}`} />
-                            ))}
+                          <div className="flex flex-col items-end gap-1.5 pt-1 shrink-0">
+                            <DifficultyBar difficulty={selectedBot.difficulty} />
+                            <DifficultyLabel difficulty={selectedBot.difficulty} />
                           </div>
                         </div>
 
@@ -344,7 +341,7 @@ function PlayContent() {
 
                       {/* Quick-switch roster */}
                       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-muted">
-                        {bots?.sort((a, b) => a.difficulty - b.difficulty).map((bot) => {
+                        {bots?.map((bot) => {
                           const isSelected = selectedBot?.id === bot.id;
                           return (
                             <button

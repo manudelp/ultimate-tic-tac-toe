@@ -100,10 +100,12 @@ class GameStore:
     # ---- opening games ----
 
     def open_local(self, token, starts_player, time_control):
-        """Both sides played from one client. `starts_player` is +1 or -1."""
+        """Both sides played from one client. `starts_player` is +1 or -1.
+
+        The clock stays idle until the first move; see `GameEngine.make_move`.
+        """
         game = self._open(token, time_control, first_seat_player=starts_player, is_local=True)
         game.engine.active_player = starts_player
-        game.engine.start()
         return game
 
     def open_vs_bot(self, token, bot_id, human_player, time_control):
@@ -111,11 +113,10 @@ class GameStore:
         game = self._open(token, time_control, first_seat_player=human_player)
         game.bot_id = bot_id
         game.bot_player = -human_player
-        game.engine.start()
         return game
 
     def open_lobby(self, token, time_control):
-        """A game waiting for someone to join by id. The clock starts on join."""
+        """A game waiting for someone to join by id."""
         return self._open(token, time_control)
 
     def join_lobby(self, token, game_id):
@@ -127,7 +128,6 @@ class GameStore:
             raise ValueError("Game is full")
         game.seats[1] = token
         self._by_token[token] = game_id
-        game.engine.start()
         return game
 
     def open_matched(self, first_token, second_token, time_control):
@@ -135,7 +135,6 @@ class GameStore:
         game = self._open(first_token, time_control)
         game.seats[1] = second_token
         self._by_token[second_token] = game.id
-        game.engine.start()
         return game
 
     def _open(self, token, time_control, first_seat_player=X, is_local=False):

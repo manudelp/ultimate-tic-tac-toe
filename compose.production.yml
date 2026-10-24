@@ -6,6 +6,10 @@ services:
     environment:
       PORT: "5000"
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://utictactoe.com.ar,https://www.utictactoe.com.ar}
+    volumes:
+      # Gitignored and excluded from the deploy rsync; lives on the host so a
+      # redeploy never needs to refetch it and a rebuild never needs it baked in.
+      - ./backend/weights:/app/weights:ro
     ports:
       - "${APPS_BIND_IP:-10.20.0.12}:5100:5000"
     healthcheck:

@@ -11,7 +11,6 @@ class BaseAgent:
     name: str = "Unnamed"
     icon: str = "?"
     description: str = ""
-    difficulty: int = 0
 
     def __init__(self):
         self.loaded_up = False

@@ -9,7 +9,6 @@ class GreedyAgent(BaseAgent):
     name = "Greedy"
     icon = "🤑"
     description = "Greedy is an agent that doesn't think much about the future, he just plays whatever looks best at first glance."
-    difficulty = 2
 
     def choose(self, position):
         super_board = position.mover_board()

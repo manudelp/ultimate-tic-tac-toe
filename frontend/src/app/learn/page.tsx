@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Target, BookOpen, Trophy, Lightbulb, Zap, ArrowRight, Info, MousePointer, AlertTriangle, HelpCircle, Cpu } from "lucide-react";
 import { ForcedMoveTutorial, FreeChoiceTutorial, WinMiniBoardTutorial, StrategyTutorial } from "@/components/core/learn-tutorials";
 import SectionNav from "@/components/ui/section-nav";
+import BotRoster from "@/components/core/bot-roster";
 
 const SECTIONS = [
   { id: "objective",  title: "Objective",       icon: "Target" },
@@ -252,31 +253,9 @@ export default function Learn() {
               <h2 className="text-2xl font-bold">AI Opponents</h2>
             </div>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              There are four AI bots available, each with a different playstyle and difficulty. Start with Randy and work your way up.
+              They are listed from easiest to hardest. Start at the top and work your way down.
             </p>
-            <div className="space-y-3">
-              {[
-                { icon: "🎲", name: "Randy", diff: 1, desc: "Plays completely randomly. Good for learning the basic flow of the game without any pressure." },
-                { icon: "🤑", name: "Greedy", diff: 2, desc: "Prioritizes winning mini-boards immediately whenever possible. Predictable but can catch beginners off guard." },
-                { icon: "☘️", name: "Jardinerito", diff: 3, desc: "Uses a heuristic evaluation to make smarter decisions. Thinks about board control and forced moves." },
-                { icon: "🍀", name: "Jardinero", diff: 4, desc: "The strongest bot. Uses deep search with pruning and positional evaluation. A genuine challenge even for experienced players." },
-              ].map(({ icon, name, diff, desc }) => (
-                <div key={name} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-background">
-                  <span className="text-2xl leading-none shrink-0 mt-0.5">{icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1">
-                      <p className="text-sm font-semibold">{name}</p>
-                      <div className="flex gap-0.5">
-                        {Array(5).fill(0).map((_, i) => (
-                          <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < diff ? "bg-green-500" : "bg-border"}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <BotRoster />
           </section>
 
           {/* ── FAQ ── */}

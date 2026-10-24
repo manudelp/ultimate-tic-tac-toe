@@ -3,12 +3,13 @@ from arena.codec import engine_from_state
 from core.engine import GameEngine
 
 
-def play_game(first, second, state=None):
-    """`first` is X, `second` is O. Returns 1, -1, or 0."""
-    if state is None:
-        engine = GameEngine(time_per_player=None)
-    else:
-        engine = engine_from_state(state)
+def play_game(first, second, state=None, engine=None):
+    """`first` is X, `second` is O. Returns 1, -1, or 0.
+
+    Starts from `engine` if given, else from a 93-byte `state`, else empty.
+    """
+    if engine is None:
+        engine = GameEngine(time_per_player=None) if state is None else engine_from_state(state)
     first.reset()
     second.reset()
     seats = {1: first, -1: second}

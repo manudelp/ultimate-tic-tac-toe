@@ -1,0 +1,64 @@
+{
+  "generated": "2026-10-24",
+  "method": "round robin, Bradley-Terry fit on the Elo scale, Randy pinned",
+  "randyRating": 500,
+  "openings": 12,
+  "openingPlies": 2,
+  "seed": 0,
+  "bots": {
+    "0": {
+      "name": "Randy",
+      "rating": 500
+    },
+    "1": {
+      "name": "Greedy",
+      "rating": 840
+    },
+    "3": {
+      "name": "Jardinero",
+      "rating": 1229
+    },
+    "4": {
+      "name": "Arky",
+      "rating": 1676
+    }
+  },
+  "pairs": [
+    {
+      "a": 0,
+      "b": 1,
+      "scoreA": 2.0,
+      "games": 24
+    },
+    {
+      "a": 0,
+      "b": 3,
+      "scoreA": 0.0,
+      "games": 24
+    },
+    {
+      "a": 0,
+      "b": 4,
+      "scoreA": 0.0,
+      "games": 24
+    },
+    {
+      "a": 1,
+      "b": 3,
+      "scoreA": 1.0,
+      "games": 24
+    },
+    {
+      "a": 1,
+      "b": 4,
+      "scoreA": 0.0,
+      "games": 24
+    },
+    {
+      "a": 3,
+      "b": 4,
+      "scoreA": 0.5,
+      "games": 24
+    }
+  ]
+}
